@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Clock, Plus, Utensils, Bell, Trash2, Edit2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const scheduledMeals = [
   { id: 1, time: "08:30 AM", type: "Breakfast", name: "Oatmeal with Blueberries", calories: 320 },
@@ -46,8 +47,8 @@ export default function MealPlannerPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Calendar Selector */}
           <div className="lg:col-span-4 space-y-6">
-            <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
-               <CardContent className="p-4">
+            <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-white">
+               <CardContent className="p-4 flex justify-center">
                   {mounted ? (
                     <Calendar
                       mode="single"
@@ -56,8 +57,8 @@ export default function MealPlannerPage() {
                       className="rounded-md border-none"
                     />
                   ) : (
-                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                      Loading calendar...
+                    <div className="w-full space-y-4 p-4">
+                      <Skeleton className="h-[300px] w-full rounded-xl" />
                     </div>
                   )}
                </CardContent>
@@ -70,7 +71,7 @@ export default function MealPlannerPage() {
                  </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-relaxed">
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   We&apos;ll notify you 30 minutes before each meal to help you prep and avoid last-minute junk food choices.
                 </p>
               </CardContent>
@@ -81,7 +82,11 @@ export default function MealPlannerPage() {
           <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between px-4">
               <h2 className="text-xl font-headline font-bold">
-                Today&apos;s Schedule — {mounted && date ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "..."}
+                {mounted && date ? (
+                  `Schedule — ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+                ) : (
+                  <Skeleton className="h-8 w-48" />
+                )}
               </h2>
               <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-4 py-1">
                 Total: 1,390 kcal
@@ -90,7 +95,7 @@ export default function MealPlannerPage() {
 
             <div className="space-y-4">
               {scheduledMeals.map((meal) => (
-                <Card key={meal.id} className="group border-none shadow-sm hover:shadow-md transition-all rounded-3xl overflow-hidden border-l-4 border-l-primary">
+                <Card key={meal.id} className="group border-none shadow-sm hover:shadow-md transition-all rounded-3xl overflow-hidden border-l-4 border-l-primary bg-white">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-6">
