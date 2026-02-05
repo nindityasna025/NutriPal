@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,12 @@ const scheduledMeals = [
 ]
 
 export default function MealPlannerPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [date, setDate] = useState<Date | undefined>(undefined)
+
+  useEffect(() => {
+    // Initialize the date only on the client side to avoid hydration mismatches
+    setDate(new Date())
+  }, [])
 
   return (
     <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
@@ -68,7 +73,7 @@ export default function MealPlannerPage() {
           <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between px-4">
               <h2 className="text-xl font-headline font-bold">
-                Today&apos;s Schedule — {date?.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                Today&apos;s Schedule — {date ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "..."}
               </h2>
               <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-4 py-1">
                 Total: 1,390 kcal
