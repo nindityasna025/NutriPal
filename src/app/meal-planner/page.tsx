@@ -162,7 +162,7 @@ export default function MealPlannerPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <p className="text-sm opacity-90 leading-relaxed font-medium">
-                      Anda akan menerima notifikasi 30 menit sebelum setiap waktu makan untuk membantu persiapan menu sehat Anda.
+                      You will receive notifications 30 minutes before each meal time to help you stay on track.
                    </p>
                    <Button variant="secondary" className="w-full bg-white text-primary hover:bg-white/90 font-bold rounded-xl h-11">
                       Manage Notifications
@@ -180,10 +180,10 @@ export default function MealPlannerPage() {
                 <CardContent>
                    <ul className="space-y-3 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2 italic">
-                         "Siapkan potongan sayur di malam hari untuk menghemat waktu sarapan."
+                         "Prepare vegetable cuts at night to save time for breakfast."
                       </li>
                       <li className="flex items-start gap-2 italic">
-                         "Jangan lupa minum 2 gelas air putih sebelum makan siang."
+                         "Don't forget to drink 2 glasses of water before lunch."
                       </li>
                    </ul>
                 </CardContent>
