@@ -23,24 +23,23 @@ function Calendar({
       classNames={{
         months: "flex flex-col space-y-4",
         month: "space-y-4 w-full",
-        caption: "hidden", // We use custom header in the page
+        month_caption: "hidden", // We use custom header in the page
         nav: "hidden",
-        table: "w-full border-collapse border border-border rounded-xl overflow-hidden",
-        head_row: "flex w-full bg-muted/30",
-        head_cell: "text-muted-foreground flex-1 font-semibold text-xs py-3 text-center border-b border-border",
+        month_grid: "w-full border-collapse border border-border rounded-xl overflow-hidden",
+        weekdays: "flex w-full bg-muted/30",
+        weekday: "text-muted-foreground flex-1 font-semibold text-xs py-3 text-center border-b border-border",
         weeks: "flex flex-col w-full",
-        row: "flex w-full border-b border-border last:border-0",
-        cell: "relative h-24 flex-1 p-0 text-right border-r border-border last:border-r-0 group",
+        week: "flex w-full border-b border-border last:border-0",
         day: cn(
-          "h-full w-full p-2 font-medium flex justify-end items-start hover:bg-primary/5 transition-colors rounded-none outline-none focus:bg-primary/5"
+          "h-24 flex-1 p-0 font-medium flex justify-end items-start hover:bg-primary/5 transition-colors rounded-none outline-none focus:bg-primary/5 border-r border-border last:border-r-0 group"
         ),
-        day_range_end: "day-range-end",
-        day_selected: "bg-primary/10 text-primary font-bold",
-        day_today: "relative after:content-[''] after:absolute after:top-2 after:right-2 after:w-7 after:h-7 after:bg-destructive after:rounded-full after:-z-10 text-white font-bold",
-        day_outside: "day-outside text-muted-foreground/30 opacity-50",
-        day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-        day_hidden: "invisible",
+        day_button: "h-full w-full p-2 text-right flex justify-end items-start",
+        selected: "bg-primary/10 text-primary font-bold",
+        today: "relative after:content-[''] after:absolute after:top-2 after:right-2 after:w-7 after:h-7 after:bg-destructive after:rounded-full after:-z-10 text-white font-bold",
+        outside: "day-outside text-muted-foreground/30 opacity-50",
+        disabled: "text-muted-foreground opacity-50",
+        range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+        hidden: "invisible",
         ...classNames,
       }}
       components={{
