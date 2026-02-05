@@ -1,0 +1,28 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-healthy-food",
+      "description": "A vibrant bowl of healthy salad with avocado and quinoa",
+      "imageUrl": "https://picsum.photos/seed/nutri1/1200/600",
+      "imageHint": "healthy food"
+    },
+    {
+      "id": "meal-vegetarian",
+      "description": "Fresh vegetarian Buddha bowl",
+      "imageUrl": "https://picsum.photos/seed/nutri2/400/300",
+      "imageHint": "vegetarian meal"
+    },
+    {
+      "id": "meal-organic",
+      "description": "Organic ingredients on a wooden table",
+      "imageUrl": "https://picsum.photos/seed/nutri3/400/300",
+      "imageHint": "organic food"
+    },
+    {
+      "id": "fitness-tracking",
+      "description": "Person tracking fitness on a smartwatch",
+      "imageUrl": "https://picsum.photos/seed/nutri4/600/400",
+      "imageHint": "fitness smartwatch"
+    }
+  ]
+}
