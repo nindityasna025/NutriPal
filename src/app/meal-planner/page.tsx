@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -17,9 +18,10 @@ const scheduledMeals = [
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Initialize the date only on the client side to avoid hydration mismatches
+    setMounted(true)
     setDate(new Date())
   }, [])
 
@@ -46,12 +48,18 @@ export default function MealPlannerPage() {
           <div className="lg:col-span-4 space-y-6">
             <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
                <CardContent className="p-4">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="rounded-md border-none"
-                  />
+                  {mounted ? (
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      className="rounded-md border-none"
+                    />
+                  ) : (
+                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      Loading calendar...
+                    </div>
+                  )}
                </CardContent>
             </Card>
 
@@ -73,7 +81,7 @@ export default function MealPlannerPage() {
           <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between px-4">
               <h2 className="text-xl font-headline font-bold">
-                Today&apos;s Schedule — {date ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "..."}
+                Today&apos;s Schedule — {mounted && date ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "..."}
               </h2>
               <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-4 py-1">
                 Total: 1,390 kcal
