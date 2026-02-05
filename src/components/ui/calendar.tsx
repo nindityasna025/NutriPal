@@ -23,15 +23,8 @@ function Calendar({
       classNames={{
         months: "flex flex-col space-y-4",
         month: "space-y-4 w-full",
-        caption: "flex justify-between pt-1 relative items-center px-4 mb-4",
-        caption_label: "text-2xl font-bold font-headline",
-        nav: "space-x-1 flex items-center",
-        nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 border-border"
-        ),
-        nav_button_previous: "",
-        nav_button_next: "",
+        caption: "hidden", // We use custom header in the page
+        nav: "hidden",
         table: "w-full border-collapse border border-border rounded-xl overflow-hidden",
         head_row: "flex w-full bg-muted/30",
         head_cell: "text-muted-foreground flex-1 font-semibold text-xs py-3 text-center border-b border-border",

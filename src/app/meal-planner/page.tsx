@@ -6,9 +6,10 @@ import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Clock, Plus, Utensils, Bell, Trash2, Edit2, CalendarDays } from "lucide-react"
+import { Clock, Plus, Utensils, Bell, Trash2, Edit2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { addMonths, subMonths, format, startOfToday } from "date-fns"
 
 const scheduledMeals = [
   { id: 1, time: "08:30 AM", type: "Breakfast", name: "Oatmeal with Blueberries", calories: 320 },
@@ -19,33 +20,66 @@ const scheduledMeals = [
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    setDate(new Date())
+    const today = startOfToday()
+    setDate(today)
+    setCurrentMonth(today)
   }, [])
+
+  const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
+  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
+  const handleToday = () => {
+    const today = startOfToday()
+    setCurrentMonth(today)
+    setDate(today)
+  }
 
   return (
     <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-10">
+        {/* FullCalendar Style Header */}
         <section className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <h1 className="text-3xl font-headline font-bold text-foreground flex items-center gap-2">
-              <CalendarDays className="text-primary w-8 h-8" />
-              Meal Planning Calendar
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-headline font-bold text-foreground">
+              {mounted ? format(currentMonth, "MMMM yyyy") : "Loading..."}
             </h1>
-            <p className="text-muted-foreground">Schedule your nutrition and track your daily caloric intake visually.</p>
           </div>
-          <div className="flex gap-3">
-             <Button variant="outline" className="rounded-xl h-12 px-6 font-bold border-border bg-white">
-                Today
-             </Button>
-             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-12 px-8 font-bold shadow-lg shadow-primary/20">
-                <Plus className="w-5 h-5 mr-2" /> Add New Meal
-             </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleToday}
+              className="rounded-xl h-10 px-4 font-bold border-border bg-white"
+            >
+              today
+            </Button>
+            <div className="flex items-center border border-border rounded-xl bg-white overflow-hidden">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handlePrevMonth}
+                className="h-10 w-10 rounded-none border-r border-border hover:bg-muted"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleNextMonth}
+                className="h-10 w-10 rounded-none hover:bg-muted"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-10 px-6 font-bold shadow-lg shadow-primary/20 ml-2">
+              <Plus className="w-4 h-4 mr-2" /> Add Meal
+            </Button>
           </div>
         </section>
 
@@ -58,6 +92,8 @@ export default function MealPlannerPage() {
                   mode="single"
                   selected={date}
                   onSelect={setDate}
+                  month={currentMonth}
+                  onMonthChange={setCurrentMonth}
                   className="rounded-none border-none"
                 />
               ) : (
@@ -75,7 +111,7 @@ export default function MealPlannerPage() {
             <div className="flex items-center justify-between px-4">
               <h2 className="text-2xl font-headline font-bold">
                 {mounted && date ? (
-                  `Schedule for ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+                  `Schedule for ${format(date, "MMMM d, yyyy")}`
                 ) : (
                   <Skeleton className="h-8 w-64" />
                 )}
