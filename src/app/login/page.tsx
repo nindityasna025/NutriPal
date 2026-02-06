@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth, useUser, useFirestore } from "@/firebase"
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { signInAnonymously, updateProfile } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
 import { Loader2, Chrome, Smartphone, ShoppingBag, CheckCircle2, ShieldCheck } from "lucide-react"
 
@@ -38,11 +38,16 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setLoading(true)
-    setSyncStatus("Connecting to Google...")
+    setSyncStatus("Connecting to Google (Simulated)...")
     try {
-      const provider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth, provider)
+      // Dummy Login using Anonymous Auth to keep Firebase session active
+      const result = await signInAnonymously(auth)
       const loggedInUser = result.user
+
+      // Set a dummy display name for the demo
+      await updateProfile(loggedInUser, {
+        displayName: "Demo User"
+      })
 
       setSyncStatus("Syncing Shopee, Grab & GoFood...")
       await new Promise(resolve => setTimeout(resolve, 800))
@@ -56,7 +61,7 @@ export default function LoginPage() {
       if (!userDoc.exists()) {
         await setDoc(userDocRef, {
           id: loggedInUser.uid,
-          email: loggedInUser.email,
+          email: "demo@nutripal.ai",
           onboarded: false,
           createdAt: serverTimestamp(),
           connectedApps: {
@@ -75,8 +80,8 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      console.error("Login failed", error)
-      setSyncStatus(null)
+      console.error("Dummy login failed", error)
+      setSyncStatus("Error in simulation. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -112,11 +117,11 @@ export default function LoginPage() {
               className="w-full h-14 text-lg rounded-2xl flex gap-3 font-bold transition-all hover:scale-[1.02] shadow-lg shadow-primary/10"
             >
               {loading ? <Loader2 className="animate-spin" /> : <Chrome className="w-6 h-6" />}
-              {loading ? syncStatus : "Sign in with Google"}
+              {loading ? syncStatus : "Sign in with Google (Demo Mode)"}
             </Button>
             
             <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
-              By signing in, you authorize NutriPal to securely access your delivery history and fitness metrics for personalized planning.
+              Ini adalah mode demo. NutriPal akan mensimulasikan akses ke riwayat pengiriman dan metrik kebugaran Anda secara otomatis.
             </p>
           </div>
           
@@ -152,7 +157,7 @@ export default function LoginPage() {
               <ShieldCheck className="w-4 h-4 text-primary" />
             </div>
             <p className="text-[10px] text-muted-foreground italic leading-normal">
-              <strong>Simulated Integration:</strong> No real passwords or data from these apps will be requested during this demo. Integration is mocked for user flow analysis.
+              <strong>Simulasi Selesai:</strong> Tidak ada data nyata yang diambil. Integrasi ini sepenuhnya dummy untuk keperluan analisis alur pengguna.
             </p>
           </div>
         </CardContent>
