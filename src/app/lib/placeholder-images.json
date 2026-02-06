@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -23,6 +24,12 @@
       "description": "Person tracking fitness on a smartwatch",
       "imageUrl": "https://picsum.photos/seed/nutri4/600/400",
       "imageHint": "fitness smartwatch"
+    },
+    {
+      "id": "login-bg",
+      "description": "Delicious healthy food spread",
+      "imageUrl": "https://picsum.photos/seed/nutri-bg/1920/1080",
+      "imageHint": "healthy delicious food"
     }
   ]
 }

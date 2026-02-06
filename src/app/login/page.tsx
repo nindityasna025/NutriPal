@@ -9,6 +9,8 @@ import { useAuth, useUser, useFirestore } from "@/firebase"
 import { signInAnonymously, updateProfile } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
 import { Loader2, Chrome, Smartphone, ShoppingBag, CheckCircle2, ShieldCheck } from "lucide-react"
+import Image from "next/image"
+import { PlaceHolderImages } from "@/lib/placeholder-images"
 
 export default function LoginPage() {
   const auth = useAuth()
@@ -17,6 +19,8 @@ export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState<string | null>(null)
+
+  const bgImage = PlaceHolderImages.find(img => img.id === 'login-bg')?.imageUrl || "https://picsum.photos/seed/nutri-bg/1920/1080"
 
   useEffect(() => {
     if (user && !isUserLoading && !loading) {
@@ -40,11 +44,9 @@ export default function LoginPage() {
     setLoading(true)
     setSyncStatus("Connecting to Google (Simulated)...")
     try {
-      // Dummy Login using Anonymous Auth to keep Firebase session active
       const result = await signInAnonymously(auth)
       const loggedInUser = result.user
 
-      // Set a dummy display name for the demo
       await updateProfile(loggedInUser, {
         displayName: "Demo User"
       })
@@ -97,8 +99,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-background/50">
-      <Card className="w-full max-w-md shadow-2xl border-none overflow-hidden rounded-[2.5rem] bg-white">
+    <div className="relative flex min-h-screen items-center justify-center p-4 bg-background overflow-hidden">
+      {/* Faded Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image 
+          src={bgImage} 
+          alt="Healthy Food Background" 
+          fill 
+          className="object-cover opacity-10 grayscale-[20%]"
+          priority
+          data-ai-hint="healthy delicious food"
+        />
+      </div>
+
+      <Card className="relative z-10 w-full max-w-md shadow-2xl border-none overflow-hidden rounded-[2.5rem] bg-white/95 backdrop-blur-sm">
         {/* Header Section */}
         <div className="bg-primary pt-12 pb-10 text-center space-y-6">
           <div className="mx-auto bg-white w-20 h-20 rounded-[2rem] flex items-center justify-center shadow-xl shadow-primary/20">
@@ -128,7 +142,7 @@ export default function LoginPage() {
           
           <div className="relative">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-muted"></span></div>
-            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60"><span className="bg-white px-4">Automated Ecosystem Sync</span></div>
+            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60"><span className="bg-white/0 px-4">Automated Ecosystem Sync</span></div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
