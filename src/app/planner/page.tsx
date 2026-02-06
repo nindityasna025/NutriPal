@@ -12,12 +12,12 @@ import {
   ShoppingBag, 
   Smartphone, 
   Loader2,
-  Tag,
   Bike
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc } from "firebase/firestore"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
+import { cn } from "@/lib/utils"
 
 export default function PlannerPage() {
   const [loading, setLoading] = useState(false)
@@ -31,7 +31,6 @@ export default function PlannerPage() {
   const handleCurate = async () => {
     setLoading(true)
     try {
-      // Simulation of real AI Flow call
       const dietary = profile?.dietaryRestrictions?.join(", ") || "No specific restrictions"
       const mockDeals = "ShopeeFood: SaladStop 20% off, GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
       
@@ -42,7 +41,6 @@ export default function PlannerPage() {
       })
 
       // We transform the AI text result into structured objects for the UI
-      // In a real scenario, the prompt would return JSON, but here we simulate the structured output
       setCuratedResult([
         {
           id: 1,
@@ -86,7 +84,7 @@ export default function PlannerPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-700">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-700 pb-24 md:pb-8">
       <header className="space-y-2 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full text-primary font-bold text-xs uppercase tracking-widest">
           <Sparkles className="w-3 h-3" /> Decision Fatigue Relief
@@ -163,7 +161,7 @@ export default function PlannerPage() {
           
           <div className="p-6 bg-secondary/20 rounded-[2rem] border border-dashed border-primary/20 text-center">
             <p className="text-[10px] text-muted-foreground max-w-sm mx-auto italic font-medium leading-relaxed uppercase tracking-tighter">
-              Suggestions are based on your remaining <strong className="text-foreground">740 kcal</strong> for today and your <strong className="text-foreground">Diabetic</strong> allergy profile.
+              Suggestions are based on your profile and available deals from our delivery partners.
             </p>
           </div>
         </div>
