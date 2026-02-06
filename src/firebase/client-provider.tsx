@@ -2,7 +2,7 @@
 
 import React, { useMemo, type ReactNode } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
-import { initializeFirebase } from '@/firebase';
+import { initializeFirebase } from './init';
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -11,6 +11,7 @@ interface FirebaseClientProviderProps {
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
   const firebaseServices = useMemo(() => {
     // Initialize Firebase on the client side, once per component mount.
+    // We import directly from ./init to avoid circular dependency with the barrel file.
     return initializeFirebase();
   }, []); // Empty dependency array ensures this runs only once on mount
 

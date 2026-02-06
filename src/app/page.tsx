@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState } from "react"
 import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -14,13 +13,10 @@ import {
   ChevronRight, 
   CalendarDays,
   Utensils,
-  Plus,
-  TrendingDown,
-  TrendingUp,
   CheckCircle2
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
-import { collection, doc, query, where } from "firebase/firestore"
+import { collection, doc } from "firebase/firestore"
 
 export default function Dashboard() {
   const { firestore } = useFirestore()
@@ -30,8 +26,8 @@ export default function Dashboard() {
 
   // Refs
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
-  const dailyLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, dateId])
-  const mealsColRef = useMemoFirebase(() => user ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, dateId])
+  const dailyLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, firestore, dateId])
+  const mealsColRef = useMemoFirebase(() => user ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, firestore, dateId])
 
   const { data: profile } = useDoc(profileRef)
   const { data: dailyLog } = useDoc(dailyLogRef)
