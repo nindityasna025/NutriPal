@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Utensils, Camera, User, UserCircle } from "lucide-react"
+import { LayoutDashboard, Utensils, Camera, Sparkles, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@/firebase"
 import { useEffect, useState } from "react"
@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/meal-planner", label: "Meal Planner", icon: Utensils },
+  { href: "/planner", label: "AI Curation", icon: Sparkles },
   { href: "/record", label: "Record & Recap", icon: Camera },
   { href: "/profile", label: "My Profile", icon: User },
 ]
