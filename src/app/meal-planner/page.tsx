@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, ChevronRightSquare, CookingPot, X } from "lucide-react"
+import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, ChevronRightSquare, CookingPot } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -322,7 +322,7 @@ export default function MealPlannerPage() {
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-2xl font-black tracking-tight">Feeling Indecisive?</h2>
-                  <p className="text-primary-foreground/80 font-medium">Let AI curate your meals from Shopee, Grab & Gojek based on your profile.</p>
+                  <p className="text-primary-foreground/80 font-medium">Let AI curate your meals from Shopee, Grab & Gojek berdasarkan profil Anda.</p>
                 </div>
               </div>
               <ChevronRightSquare className="w-10 h-10 opacity-30" />
