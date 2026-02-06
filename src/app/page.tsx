@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -14,7 +14,8 @@ import {
   ChevronRight, 
   CalendarDays,
   Utensils,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -22,16 +23,41 @@ import { collection, doc } from "firebase/firestore"
 export default function Dashboard() {
   const { firestore } = useFirestore()
   const { user } = useUser()
-  const [selectedDate, setSelectedDate] = useState(startOfToday())
-  const dateId = format(selectedDate, "yyyy-MM-dd")
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [mounted, setMounted] = useState(false)
 
-  const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
-  const dailyLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, firestore, dateId])
-  const mealsColRef = useMemoFirebase(() => user ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, firestore, dateId])
+  useEffect(() => {
+    setSelectedDate(startOfToday())
+    setMounted(true)
+  }, [])
+
+  const dateId = selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""
+
+  const profileRef = useMemoFirebase(() => 
+    user ? doc(firestore, "users", user.uid, "profile", "main") : null, 
+    [user, firestore]
+  )
+  const dailyLogRef = useMemoFirebase(() => 
+    (user && dateId) ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, 
+    [user, firestore, dateId]
+  )
+  const mealsColRef = useMemoFirebase(() => 
+    (user && dateId) ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, 
+    [user, firestore, dateId]
+  )
 
   const { data: profile } = useDoc(profileRef)
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
+
+  if (!mounted || !selectedDate) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Loading your wellness data...</p>
+      </div>
+    )
+  }
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = dailyLog?.caloriesConsumed || 0
@@ -41,7 +67,7 @@ export default function Dashboard() {
   const status = net < calorieTarget - 200 ? "Deficit" : net > calorieTarget + 200 ? "Excess" : "Ideal"
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-8 animate-in fade-in duration-500">
       <section className="flex items-center justify-between bg-white p-2 rounded-2xl shadow-sm border border-border">
         <Button variant="ghost" size="icon" onClick={() => setSelectedDate(subDays(selectedDate, 1))}>
           <ChevronLeft className="w-5 h-5" />

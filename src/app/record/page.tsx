@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,8 +24,14 @@ export default function RecordPage() {
   const [preview, setFilePreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<any | null>(null)
+  const [mounted, setMounted] = useState(false)
+  
   const { user } = useUser()
   const { firestore } = useFirestore()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0]
@@ -51,9 +57,10 @@ export default function RecordPage() {
   }
 
   const handleSave = async () => {
-    if (!user || !result) return
-    const dateId = format(new Date(), "yyyy-MM-dd")
-    const timeStr = format(new Date(), "hh:mm a")
+    if (!user || !result || !mounted) return
+    const now = new Date()
+    const dateId = format(now, "yyyy-MM-dd")
+    const timeStr = format(now, "hh:mm a")
     
     try {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -82,8 +89,10 @@ export default function RecordPage() {
     }
   }
 
+  if (!mounted) return null
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
       <header className="text-center space-y-2">
         <h1 className="text-3xl font-headline font-bold">Record & Recap</h1>
         <p className="text-muted-foreground">Take a photo of your meal and let AI do the counting.</p>

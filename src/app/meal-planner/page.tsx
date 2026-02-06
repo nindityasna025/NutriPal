@@ -3,10 +3,10 @@
 
 import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Clock, Plus, Utensils, Bell, Trash2, Edit2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react"
+import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { addMonths, subMonths, format, startOfToday } from "date-fns"
@@ -20,34 +20,42 @@ const scheduledMeals = [
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  const [currentMonth, setCurrentMonth] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     const today = startOfToday()
     setDate(today)
     setCurrentMonth(today)
+    setMounted(true)
   }, [])
 
-  const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
-  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
+  const handlePrevMonth = () => currentMonth && setCurrentMonth(subMonths(currentMonth, 1))
+  const handleNextMonth = () => currentMonth && setCurrentMonth(addMonths(currentMonth, 1))
   const handleToday = () => {
     const today = startOfToday()
     setCurrentMonth(today)
     setDate(today)
   }
 
+  if (!mounted || !currentMonth) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Opening your meal planner...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-10">
-        {/* FullCalendar Style Header */}
+      <main className="max-w-7xl mx-auto px-4 py-8 space-y-10 animate-in fade-in duration-500">
         <section className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-headline font-bold text-foreground">
-              {mounted ? format(currentMonth, "MMMM yyyy") : "Loading..."}
+              {format(currentMonth, "MMMM yyyy")}
             </h1>
           </div>
           
@@ -83,38 +91,26 @@ export default function MealPlannerPage() {
           </div>
         </section>
 
-        {/* Full Width Calendar Grid */}
-        <section className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <section className="w-full">
           <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-white">
             <CardContent className="p-0">
-              {mounted ? (
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  month={currentMonth}
-                  onMonthChange={setCurrentMonth}
-                  className="rounded-none border-none"
-                />
-              ) : (
-                <div className="w-full p-8">
-                  <Skeleton className="h-[600px] w-full rounded-2xl" />
-                </div>
-              )}
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                month={currentMonth}
+                onMonthChange={setCurrentMonth}
+                className="rounded-none border-none"
+              />
             </CardContent>
           </Card>
         </section>
 
-        {/* Schedule Section Below */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4">
           <div className="lg:col-span-8 space-y-6">
             <div className="flex items-center justify-between px-4">
               <h2 className="text-2xl font-headline font-bold">
-                {mounted && date ? (
-                  `Schedule for ${format(date, "MMMM d, yyyy")}`
-                ) : (
-                  <Skeleton className="h-8 w-64" />
-                )}
+                {date ? format(date, "MMMM d, yyyy") : "Select a date"}
               </h2>
               <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-4 py-1 font-bold">
                 Total: 1,390 kcal
