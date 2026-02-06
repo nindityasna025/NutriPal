@@ -1,19 +1,21 @@
+
 "use client"
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, Utensils, Camera, User, LogOut, Sparkles } from "lucide-react"
+import { LayoutDashboard, Utensils, Camera, User, LogOut, Sparkles, Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser, useAuth } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/planner", label: "Planner", icon: Sparkles },
-  { href: "/record", label: "Record", icon: Camera },
-  { href: "/profile", label: "Profile", icon: User },
+  { href: "/planner", label: "Meal Planner", icon: Sparkles },
+  { href: "/record", label: "Record & Recap", icon: Camera },
+  { href: "/profile", label: "My Profile", icon: User },
 ]
 
 export function Navbar() {
@@ -27,9 +29,10 @@ export function Navbar() {
     setMounted(true)
   }, [])
 
-  // Hide navbar on login and onboarding pages
-  if (!mounted || isUserLoading) return null
-  if (!user || pathname === "/login" || pathname === "/onboarding") return null
+  if (!mounted) return null
+  // Only show navbar if user is logged in and NOT on login/onboarding pages
+  const isAuthPage = pathname === "/login" || pathname === "/onboarding"
+  if (!user || isAuthPage) return null
 
   const handleLogout = async () => {
     try {
@@ -41,16 +44,17 @@ export function Navbar() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border px-4 py-3 md:top-0 md:bottom-auto md:border-t-0 md:border-b shadow-lg md:shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="hidden md:flex items-center gap-2 font-headline font-bold text-xl text-primary">
-          <div className="bg-primary p-1.5 rounded-lg">
-            <Utensils className="w-5 h-5 text-primary-foreground" />
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen fixed left-0 top-0 z-[100] shadow-sm">
+        <div className="p-6 flex items-center gap-3 border-b">
+          <div className="bg-primary p-2 rounded-xl">
+            <Utensils className="w-6 h-6 text-primary-foreground" />
           </div>
-          <span className="tracking-tight text-foreground">NutriPal</span>
+          <span className="font-headline font-black text-xl tracking-tighter">NutriPal</span>
         </div>
         
-        <div className="flex w-full md:w-auto justify-around md:justify-end items-center gap-1 md:gap-2">
+        <nav className="flex-1 p-4 space-y-2 mt-4">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -59,31 +63,51 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col md:flex-row items-center gap-1 md:gap-2 px-4 py-2 rounded-xl transition-all duration-200",
+                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
                   isActive 
-                    ? "text-primary md:bg-primary/10 font-bold" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20" 
+                    : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                 )}
               >
                 <Icon className={cn("w-5 h-5", isActive && "animate-pulse")} />
-                <span className="text-[10px] md:text-sm font-medium">{item.label}</span>
+                <span className="text-sm">{item.label}</span>
               </Link>
             )
           })}
-          
-          <div className="hidden md:block ml-4 pl-4 border-l border-border">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-xl"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="text-sm font-bold">Logout</span>
-            </Button>
-          </div>
+        </nav>
+
+        <div className="p-4 border-t">
+          <Button 
+            variant="ghost" 
+            onClick={handleLogout}
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-xl px-4 py-6"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-bold">Logout</span>
+          </Button>
         </div>
-      </div>
-    </nav>
+      </aside>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-border px-2 py-3 flex justify-around items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        {navItems.map((item) => {
+          const Icon = item.icon
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all",
+                isActive ? "text-primary font-bold" : "text-muted-foreground"
+              )}
+            >
+              <Icon className={cn("w-6 h-6", isActive && "scale-110")} />
+              <span className="text-[10px] uppercase font-black tracking-tighter">{item.label.split(' ')[0]}</span>
+            </Link>
+          )
+        })}
+      </nav>
+    </>
   )
 }
