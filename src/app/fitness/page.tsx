@@ -1,12 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Activity, Flame, Heart, Info, RefreshCw, Smartphone, Watch } from "lucide-react"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Activity, Flame, RefreshCw, Smartphone, Watch } from "lucide-react"
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip } from "recharts"
 
 const chartData = [
@@ -36,9 +33,7 @@ export default function FitnessPage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
-      <Navbar />
-      
+    <div className="min-h-screen bg-background font-body">
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <section className="space-y-2">
@@ -49,18 +44,17 @@ export default function FitnessPage() {
             <p className="text-muted-foreground">Automagically adjust your caloric needs based on activity.</p>
           </section>
           
-          <Button 
+          <button 
             onClick={handleSync} 
             disabled={syncing}
-            className="rounded-full bg-white border border-border text-foreground hover:bg-muted font-semibold shadow-sm px-6 h-12"
+            className="rounded-full bg-white border border-border text-foreground hover:bg-muted font-semibold shadow-sm px-6 h-12 flex items-center gap-2 transition-all disabled:opacity-50"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? "Syncing..." : "Sync Devices"}
-          </Button>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Active Devices */}
           <Card className="lg:col-span-1 border-none shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg">Connected Devices</CardTitle>
@@ -90,7 +84,6 @@ export default function FitnessPage() {
             </CardContent>
           </Card>
 
-          {/* Activity Breakdown */}
           <Card className="lg:col-span-2 border-none shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -141,7 +134,6 @@ export default function FitnessPage() {
           </Card>
         </div>
 
-        {/* Dynamic Advice */}
         <Card className="bg-primary border-none text-primary-foreground overflow-hidden">
           <CardContent className="p-8 flex flex-col md:flex-row items-center gap-8 relative">
             <div className="z-10 space-y-4 max-w-2xl text-center md:text-left">

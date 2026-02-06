@@ -1,13 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { personalizedDietPlans, type PersonalizedDietPlansOutput } from "@/ai/flows/personalized-diet-plans"
 import { Loader2, Apple, CheckCircle2, Leaf } from "lucide-react"
 
@@ -34,9 +33,7 @@ export default function DietPlanPage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
-      <Navbar />
-      
+    <div className="min-h-screen bg-background font-body">
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section className="space-y-2 text-center">
           <h1 className="text-3xl font-headline font-bold text-foreground flex items-center justify-center gap-2">

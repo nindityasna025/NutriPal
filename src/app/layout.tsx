@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
@@ -24,9 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <FirebaseClientProvider>
-          <div className="min-h-screen">
+          <div className="min-h-screen flex flex-col">
             <Navbar />
-            <main className="pb-20 md:pb-0 md:pt-16">
+            <main className="flex-1 pb-24 md:pb-8 md:pt-20">
               {children}
             </main>
           </div>
