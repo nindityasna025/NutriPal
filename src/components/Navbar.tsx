@@ -9,10 +9,11 @@ import { useUser, useAuth } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/planner", label: "Meal Planner", icon: Sparkles },
+  { href: "/meal-planner", label: "Meal Planner", icon: Utensils },
   { href: "/record", label: "Record & Recap", icon: Camera },
   { href: "/profile", label: "My Profile", icon: User },
 ]
@@ -30,11 +31,8 @@ export function Navbar() {
 
   if (!mounted) return null
   
-  // Don't show navbar on login or onboarding pages
   const isAuthPage = pathname === "/login" || pathname === "/onboarding"
   if (isAuthPage) return null
-
-  // If we're not loading and there's no user, we might want to hide it too
   if (!user && !isUserLoading && pathname !== "/login") return null
 
   const handleLogout = async () => {
@@ -50,14 +48,14 @@ export function Navbar() {
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen fixed left-0 top-0 z-[100] shadow-sm">
-        <div className="p-8 flex items-center gap-3 border-b">
+        <div className="p-10 flex items-center gap-4">
           <div className="bg-primary p-2.5 rounded-2xl shadow-lg shadow-primary/20">
             <Utensils className="w-6 h-6 text-primary-foreground" />
           </div>
-          <span className="font-headline font-black text-2xl tracking-tighter">NutriPal</span>
+          <span className="font-headline font-black text-2xl tracking-tighter text-foreground">NutriPal</span>
         </div>
         
-        <nav className="flex-1 p-6 space-y-3 mt-4">
+        <nav className="flex-1 px-6 space-y-4 mt-8">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -66,27 +64,41 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-4 px-5 py-4 rounded-[1.5rem] transition-all duration-300 group",
+                  "flex items-center gap-5 px-6 py-5 rounded-[1.5rem] transition-all duration-300 group",
                   isActive 
-                    ? "bg-primary text-primary-foreground font-black shadow-xl shadow-primary/20 scale-[1.02]" 
+                    ? "bg-primary/20 text-foreground font-black shadow-none border border-primary/20" 
                     : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-bold"
                 )}
               >
-                <Icon className={cn("w-5 h-5", isActive && "animate-pulse")} />
+                <Icon className={cn("w-5 h-5", isActive && "text-primary")} />
                 <span className="text-sm">{item.label}</span>
               </Link>
             )
           })}
         </nav>
 
-        <div className="p-6 border-t">
+        <div className="p-6 border-t space-y-4">
+          {user && (
+            <div className="flex items-center gap-3 px-4 py-2">
+              <Avatar className="h-10 w-10 border border-primary/20">
+                <AvatarImage src={user.photoURL || ""} />
+                <AvatarFallback className="bg-primary/10 text-primary font-black text-xs uppercase">
+                  {user.displayName?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-xs font-black truncate">{user.displayName || "Demo User"}</span>
+                <span className="text-[10px] text-muted-foreground truncate">{user.email}</span>
+              </div>
+            </div>
+          )}
           <Button 
             variant="ghost" 
             onClick={handleLogout}
-            className="w-full justify-start gap-4 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-2xl px-5 py-7 font-black"
+            className="w-full justify-start gap-5 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-2xl px-6 py-8 font-black transition-all"
           >
             <LogOut className="w-5 h-5" />
-            <span>Logout</span>
+            <span className="text-sm">Logout</span>
           </Button>
         </div>
       </aside>
