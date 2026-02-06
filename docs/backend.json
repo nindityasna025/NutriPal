@@ -1,0 +1,465 @@
+{
+  "entities": {
+    "UserAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserAccount",
+      "type": "object",
+      "description": "Represents a user's account within the NutriEase application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user account."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "dateJoined": {
+          "type": "string",
+          "description": "Date and time when the user joined the application.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "dateJoined"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores user-specific profile information, including dietary restrictions and fitness tracker links.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "userAccountId": {
+          "type": "string",
+          "description": "Reference to UserAccount. (Relationship: UserAccount 1:1 UserProfile)"
+        },
+        "weight": {
+          "type": "number",
+          "description": "User's weight in kilograms."
+        },
+        "height": {
+          "type": "number",
+          "description": "User's height in centimeters."
+        },
+        "bmi": {
+          "type": "number",
+          "description": "User's Body Mass Index (BMI)."
+        },
+        "bmiCategory": {
+          "type": "string",
+          "description": "BMI category (e.g., Underweight, Normal, Overweight, Obese)."
+        },
+        "dietaryRestrictions": {
+          "type": "string",
+          "description": "Any dietary restrictions specified by the user (e.g., vegetarian, gluten-free, allergies)."
+        },
+        "fitnessTrackerDeviceId": {
+          "type": "string",
+          "description": "Identifier for the linked fitness tracker device (if any)."
+        }
+      },
+      "required": [
+        "id",
+        "userAccountId",
+        "weight",
+        "height",
+        "bmi",
+        "bmiCategory"
+      ]
+    },
+    "DailyRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DailyRecord",
+      "type": "object",
+      "description": "Represents a user's daily caloric intake, physical activity, and water intake.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the daily record."
+        },
+        "userAccountId": {
+          "type": "string",
+          "description": "Reference to UserAccount. (Relationship: UserAccount 1:N DailyRecord)"
+        },
+        "recordDate": {
+          "type": "string",
+          "description": "Date of the recorded data.",
+          "format": "date-time"
+        },
+        "caloriesConsumed": {
+          "type": "number",
+          "description": "Total calories consumed on this day."
+        },
+        "physicalActivityCaloriesBurned": {
+          "type": "number",
+          "description": "Calories burned through physical activity on this day."
+        },
+        "waterIntakeOz": {
+          "type": "number",
+          "description": "Water intake in ounces on this day."
+        },
+        "mealRecordIds": {
+          "type": "array",
+          "description": "References to MealRecord. (Relationship: MealRecord 1:N DailyRecord)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userAccountId",
+        "recordDate",
+        "caloriesConsumed",
+        "physicalActivityCaloriesBurned",
+        "waterIntakeOz"
+      ]
+    },
+    "MealRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MealRecord",
+      "type": "object",
+      "description": "Represents a record of a meal consumed by the user, including the estimated caloric intake.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the meal record."
+        },
+        "mealName": {
+          "type": "string",
+          "description": "Name or description of the meal (e.g., Breakfast, Lunch, Dinner)."
+        },
+        "estimatedCalories": {
+          "type": "number",
+          "description": "Estimated caloric content of the meal."
+        },
+        "foodItemIds": {
+          "type": "array",
+          "description": "References to FoodItem. (Relationship: FoodItem 1:N MealRecord)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "mealName",
+        "estimatedCalories"
+      ]
+    },
+    "FoodItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FoodItem",
+      "type": "object",
+      "description": "Represents a single food item consumed in a meal.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the food item."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the food item (e.g., Apple, Chicken Breast)."
+        },
+        "calories": {
+          "type": "number",
+          "description": "Caloric content of the food item."
+        },
+        "servingSize": {
+          "type": "string",
+          "description": "Serving size of the food item (e.g., 100g, 1 cup)."
+        },
+        "mealRecordId": {
+          "type": "string",
+          "description": "Reference to MealRecord. (Relationship: MealRecord 1:N FoodItem)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "calories",
+        "servingSize"
+      ]
+    },
+    "MealPlan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MealPlan",
+      "type": "object",
+      "description": "Represents a meal plan tailored to the user's caloric needs and dietary preferences.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the meal plan."
+        },
+        "userAccountId": {
+          "type": "string",
+          "description": "Reference to UserAccount. (Relationship: UserAccount 1:N MealPlan)"
+        },
+        "planDate": {
+          "type": "string",
+          "description": "Date for which the meal plan is generated.",
+          "format": "date-time"
+        },
+        "totalCalories": {
+          "type": "number",
+          "description": "Total caloric target for the meal plan."
+        },
+        "mealSuggestions": {
+          "type": "array",
+          "description": "Array of suggested meal options for the plan.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userAccountId",
+        "planDate",
+        "totalCalories",
+        "mealSuggestions"
+      ]
+    },
+    "DeliveryService": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DeliveryService",
+      "type": "object",
+      "description": "Represents a delivery service like Shopee, Grabfood, or Gojek.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the delivery service."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the delivery service (e.g., Shopee, Grabfood, Gojek)."
+        },
+        "apiEndpoint": {
+          "type": "string",
+          "description": "API endpoint for accessing the delivery service's data.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "apiEndpoint"
+      ]
+    },
+    "FoodPrice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FoodPrice",
+      "type": "object",
+      "description": "Represents the price of a food item from a specific delivery service.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the food price record."
+        },
+        "foodItemId": {
+          "type": "string",
+          "description": "Reference to FoodItem. (Relationship: FoodItem 1:N FoodPrice)"
+        },
+        "deliveryServiceId": {
+          "type": "string",
+          "description": "Reference to DeliveryService. (Relationship: DeliveryService 1:N FoodPrice)"
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the food item from the delivery service."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Date and time when the price was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "foodItemId",
+        "deliveryServiceId",
+        "price",
+        "lastUpdated"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserAccount",
+          "schema": {
+            "$ref": "#/backend/entities/UserAccount"
+          },
+          "description": "Stores user account information. Accessible only by the user themselves. Serves as the root for all user-owned data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user account."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/profiles/{profileId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information such as weight, height, BMI, dietary restrictions, and fitness tracker links. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user account."
+            },
+            {
+              "name": "profileId",
+              "description": "The unique identifier of the user profile.  Typically, there will only be one profile per user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/daily_records/{recordId}",
+        "definition": {
+          "entityName": "DailyRecord",
+          "schema": {
+            "$ref": "#/backend/entities/DailyRecord"
+          },
+          "description": "Stores daily caloric intake, physical activity, and water intake for a user. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user account."
+            },
+            {
+              "name": "recordId",
+              "description": "The unique identifier of the daily record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/daily_records/{recordId}/meal_records/{mealRecordId}",
+        "definition": {
+          "entityName": "MealRecord",
+          "schema": {
+            "$ref": "#/backend/entities/MealRecord"
+          },
+          "description": "Stores records of meals consumed by the user, including estimated caloric intake. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user account."
+            },
+            {
+              "name": "recordId",
+              "description": "The unique identifier of the daily record."
+            },
+            {
+              "name": "mealRecordId",
+              "description": "The unique identifier of the meal record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/daily_records/{recordId}/meal_records/{mealRecordId}/food_items/{foodItemId}",
+        "definition": {
+          "entityName": "FoodItem",
+          "schema": {
+            "$ref": "#/backend/entities/FoodItem"
+          },
+          "description": "Stores individual food items consumed in a meal. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user account."
+            },
+            {
+              "name": "recordId",
+              "description": "The unique identifier of the daily record."
+            },
+            {
+              "name": "mealRecordId",
+              "description": "The unique identifier of the meal record."
+            },
+            {
+              "name": "foodItemId",
+              "description": "The unique identifier of the food item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/meal_plans/{mealPlanId}",
+        "definition": {
+          "entityName": "MealPlan",
+          "schema": {
+            "$ref": "#/backend/entities/MealPlan"
+          },
+          "description": "Stores meal plans tailored to the user's caloric needs and dietary preferences. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user account."
+            },
+            {
+              "name": "mealPlanId",
+              "description": "The unique identifier of the meal plan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/delivery_services/{deliveryServiceId}",
+        "definition": {
+          "entityName": "DeliveryService",
+          "schema": {
+            "$ref": "#/backend/entities/DeliveryService"
+          },
+          "description": "Stores information about delivery services like Shopee, Grabfood, or Gojek.  Access may be public for listing, but restricted for modification.",
+          "params": [
+            {
+              "name": "deliveryServiceId",
+              "description": "The unique identifier of the delivery service."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/food_prices/{foodPriceId}",
+        "definition": {
+          "entityName": "FoodPrice",
+          "schema": {
+            "$ref": "#/backend/entities/FoodPrice"
+          },
+          "description": "Stores price information for food items from specific delivery services.",
+          "params": [
+            {
+              "name": "foodPriceId",
+              "description": "The unique identifier of the food price record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to provide a secure, scalable, and easily debuggable system for the NutriEase application. The design prioritizes authorization independence, clarity of intent, and adheres to the principle of 'Rules are not Filters' (QAPs). It avoids hierarchical authorization dependencies (`get()` calls in security rules) by denormalizing authorization context and ensures all documents in a collection share the same security requirements by employing structural segregation.\n\n**Authorization Independence and Denormalization:**\nUser-specific data, such as `UserProfile`, `DailyRecord`, and `MealPlan`, is stored under `/users/{userId}`. This allows direct path-based security rules that rely solely on `request.auth.uid` matching the `{userId}`. Collaborative data (none in this example, but if present, it would use membership maps denormalized into the documents).\n\n**Structural Segregation:**\nEach collection is designed to hold documents with the same security posture. For example, user profiles are separated from daily records to ensure that different authorization rules can be applied as needed without affecting the entire dataset.\n\n**QAPs (Rules are not Filters):**\nThe structure supports secure `list` operations. By storing user data under the `/users/{userId}` path, we can easily create rules that only allow a user to access their own data, preventing unauthorized access to other users' records. The `delivery_services` collection may need additional validation rules to prevent unauthorized modification, but listing can be made public or restricted to admin roles.\n\n**DBAC (Database-Based Access Control):**\nWhile not explicitly implemented with global roles in this structure, the design can accommodate global roles by creating dedicated collections like `/roles_admin/{uid}` and modifying rules to check for the existence of a document in these collections to grant elevated privileges.\n\nThis structure ensures that security rules are simple, robust, and easily auditable while allowing atomic operations and preventing unauthorized data access."
+  }
+}
