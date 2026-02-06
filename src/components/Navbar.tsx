@@ -2,12 +2,10 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, Utensils, Camera, User, LogOut, Sparkles } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { LayoutDashboard, Utensils, Camera, User, UserCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useUser, useAuth } from "@/firebase"
-import { signOut } from "firebase/auth"
-import { Button } from "@/components/ui/button"
+import { useUser } from "@/firebase"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -20,9 +18,7 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname()
-  const router = useRouter()
   const { user, isUserLoading } = useUser()
-  const auth = useAuth()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -35,27 +31,18 @@ export function Navbar() {
   if (isAuthPage) return null
   if (!user && !isUserLoading && pathname !== "/login") return null
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth)
-      router.push("/login")
-    } catch (error) {
-      console.error("Logout failed", error)
-    }
-  }
-
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen fixed left-0 top-0 z-[100] shadow-sm">
         <div className="p-10 flex items-center gap-4">
-          <div className="bg-primary p-2.5 rounded-2xl shadow-lg shadow-primary/20">
-            <Utensils className="w-6 h-6 text-primary-foreground" />
+          <div className="bg-primary/20 p-2.5 rounded-2xl">
+            <Utensils className="w-6 h-6 text-primary" />
           </div>
           <span className="font-headline font-black text-2xl tracking-tighter text-foreground">NutriPal</span>
         </div>
         
-        <nav className="flex-1 px-6 space-y-4 mt-8">
+        <nav className="flex-1 px-6 space-y-2 mt-4">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -64,9 +51,9 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-5 px-6 py-5 rounded-[1.5rem] transition-all duration-300 group",
+                  "flex items-center gap-5 px-6 py-4 rounded-[1.5rem] transition-all duration-300 group",
                   isActive 
-                    ? "bg-primary/20 text-foreground font-black shadow-none border border-primary/20" 
+                    ? "bg-primary/10 text-foreground font-black border border-primary/20" 
                     : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-bold"
                 )}
               >
@@ -77,10 +64,10 @@ export function Navbar() {
           })}
         </nav>
 
-        <div className="p-6 border-t space-y-4">
+        <div className="p-6 border-t mt-auto">
           {user && (
-            <div className="flex items-center gap-3 px-4 py-2">
-              <Avatar className="h-10 w-10 border border-primary/20">
+            <div className="flex items-center gap-3 px-4 py-3 bg-secondary/30 rounded-2xl border border-transparent">
+              <Avatar className="h-9 w-9 border border-primary/20">
                 <AvatarImage src={user.photoURL || ""} />
                 <AvatarFallback className="bg-primary/10 text-primary font-black text-xs uppercase">
                   {user.displayName?.charAt(0) || "U"}
@@ -88,18 +75,10 @@ export function Navbar() {
               </Avatar>
               <div className="flex flex-col overflow-hidden">
                 <span className="text-xs font-black truncate">{user.displayName || "Demo User"}</span>
-                <span className="text-[10px] text-muted-foreground truncate">{user.email}</span>
+                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">Active Account</span>
               </div>
             </div>
           )}
-          <Button 
-            variant="ghost" 
-            onClick={handleLogout}
-            className="w-full justify-start gap-5 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-2xl px-6 py-8 font-black transition-all"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="text-sm">Logout</span>
-          </Button>
         </div>
       </aside>
 

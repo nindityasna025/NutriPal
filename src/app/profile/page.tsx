@@ -14,7 +14,8 @@ import {
   Smartphone, 
   Scale, 
   Activity,
-  ChevronRight
+  ChevronRight,
+  UserCircle
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -36,101 +37,99 @@ export default function ProfilePage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <section className="flex flex-col items-center text-center space-y-4 pt-4">
-          <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl">
+    <div className="min-h-screen pb-24 md:pt-10 bg-background font-body">
+      <main className="max-w-3xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700">
+        <section className="flex flex-col items-center text-center space-y-6">
+          <Avatar className="w-32 h-32 border-[6px] border-white shadow-2xl">
             <AvatarImage src={user.photoURL || ""} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold uppercase">
+            <AvatarFallback className="bg-primary text-primary-foreground text-4xl font-black uppercase">
               {user.displayName?.charAt(0) || user.email?.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-headline font-black">{user.displayName || "NutriPal User"}</h1>
-            <p className="text-muted-foreground text-sm">{user.email}</p>
-          </div>
-          <div className="flex gap-2">
-            <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary">Pro Member</Badge>
-            <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">Verified AI</Badge>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black tracking-tight">{user.displayName || "Demo User"}</h1>
+            <div className="flex justify-center gap-3">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
+                Pro Member
+              </Badge>
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
+                Verified AI
+              </Badge>
+            </div>
           </div>
         </section>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="border-none shadow-sm bg-white rounded-2xl">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-xl">
-                <Scale className="w-5 h-5 text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-none shadow-sm bg-white rounded-[2rem] p-4">
+            <CardContent className="p-0 flex items-center gap-6">
+              <div className="w-14 h-14 bg-primary/10 rounded-[1.2rem] flex items-center justify-center">
+                <Scale className="w-7 h-7 text-primary" />
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Weight</p>
-                <p className="font-black">{profile?.weight || "--"} kg</p>
+              <div className="space-y-0.5">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
+                <p className="text-2xl font-black">{profile?.weight || "55"} <span className="text-sm font-bold text-muted-foreground">kg</span></p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-none shadow-sm bg-white rounded-2xl">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="bg-blue-50 p-2 rounded-xl">
-                <Activity className="w-5 h-5 text-blue-500" />
+          <Card className="border-none shadow-sm bg-white rounded-[2rem] p-4">
+            <CardContent className="p-0 flex items-center gap-6">
+              <div className="w-14 h-14 bg-blue-50 rounded-[1.2rem] flex items-center justify-center">
+                <Activity className="w-7 h-7 text-blue-500" />
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">BMI Category</p>
-                <p className="font-black text-xs">{profile?.bmiCategory || "Calculating"}</p>
+              <div className="space-y-0.5">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">BMI</p>
+                <p className="text-2xl font-black">{profile?.bmiCategory || "Normal/Healthy"}</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2">Account Ecosystem</h2>
+        <div className="space-y-4">
+          <h2 className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] px-4">Account Ecosystem</h2>
           
-          <Card className="border-none shadow-sm bg-white rounded-3xl overflow-hidden">
+          <Card className="border-none shadow-sm bg-white rounded-[2.5rem] overflow-hidden">
             <CardContent className="p-0">
-              <button className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors border-b">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-green-500" />
-                  <div className="text-left">
-                    <p className="text-sm font-bold">Connected Platforms</p>
-                    <p className="text-[10px] text-muted-foreground">Shopee, Grab, Gojek linked</p>
+              {[
+                { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Shopee, Grab, Gojek linked" },
+                { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Settings", sub: "Sync health metrics" },
+                { icon: <Settings className="text-muted-foreground w-5 h-5" />, label: "Privacy & Security", sub: "Manage your data" },
+              ].map((item, i, arr) => (
+                <button 
+                  key={i} 
+                  className={cn(
+                    "w-full flex items-center justify-between p-6 hover:bg-secondary/30 transition-all active:scale-[0.99]",
+                    i !== arr.length - 1 && "border-b"
+                  )}
+                >
+                  <div className="flex items-center gap-5">
+                    <div className="bg-secondary/50 p-3 rounded-2xl">
+                      {item.icon}
+                    </div>
+                    <div className="text-left space-y-0.5">
+                      <p className="text-sm font-black tracking-tight">{item.label}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">{item.sub}</p>
+                    </div>
                   </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
-              <button className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors border-b">
-                <div className="flex items-center gap-3">
-                  <Smartphone className="w-5 h-5 text-blue-500" />
-                  <div className="text-left">
-                    <p className="text-sm font-bold">Wearable Settings</p>
-                    <p className="text-[10px] text-muted-foreground">Sync health metrics</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
-              <button className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-3">
-                  <Settings className="w-5 h-5 text-muted-foreground" />
-                  <div className="text-left">
-                    <p className="text-sm font-bold">Privacy & Security</p>
-                    <p className="text-[10px] text-muted-foreground">Manage your data</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </button>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </button>
+              ))}
             </CardContent>
           </Card>
         </div>
 
-        <Button 
-          onClick={handleLogout}
-          variant="destructive" 
-          className="w-full h-14 rounded-2xl font-black text-lg shadow-lg flex gap-2"
-        >
-          <LogOut className="w-5 h-5" />
-          Log Out of NutriPal
-        </Button>
-
-        <p className="text-center text-[10px] text-muted-foreground uppercase font-medium tracking-tighter">
-          App Version 1.0.0 (Beta) • Powered by NutriAI
-        </p>
+        <div className="pt-4">
+          <Button 
+            onClick={handleLogout}
+            className="w-full h-16 rounded-[2rem] font-black text-lg bg-red-500 hover:bg-red-600 text-white shadow-xl shadow-red-500/20 flex gap-3 transition-all active:scale-95"
+          >
+            <LogOut className="w-6 h-6 rotate-180" />
+            Log Out of NutriPal
+          </Button>
+          
+          <p className="text-center mt-8 text-[9px] text-muted-foreground uppercase font-black tracking-[0.3em] opacity-40">
+            App Version 1.0.0 (Beta) • Powered by NutriAI
+          </p>
+        </div>
       </main>
     </div>
   )
