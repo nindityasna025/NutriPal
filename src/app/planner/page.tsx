@@ -2,6 +2,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,11 +16,16 @@ import {
   Bike
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
-import { doc } from "firebase/firestore"
+import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { useToast } from "@/hooks/use-toast"
 
 export default function PlannerPage() {
+  const router = useRouter()
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [curatedResult, setCuratedResult] = useState<any[] | null>(null)
   const { user } = useUser()
@@ -80,6 +86,44 @@ export default function PlannerPage() {
       console.error("AI Curation failed", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleOrderNow = async (item: any) => {
+    if (!user || !firestore) return
+
+    const today = new Date()
+    const dateId = format(today, "yyyy-MM-dd")
+    const timeStr = format(today, "hh:mm a")
+
+    try {
+      const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
+      const mealsColRef = collection(dailyLogRef, "meals")
+
+      // Update daily log consumed calories
+      setDocumentNonBlocking(dailyLogRef, {
+        date: dateId,
+        caloriesConsumed: increment(item.calories)
+      }, { merge: true })
+
+      // Add meal to records
+      addDocumentNonBlocking(mealsColRef, {
+        name: item.name,
+        calories: item.calories,
+        time: timeStr,
+        source: item.platform,
+        createdAt: serverTimestamp()
+      })
+
+      toast({
+        title: "Order Processed!",
+        description: `${item.name} has been added to your daily records.`,
+      })
+
+      // Redirect to dashboard to see updated stats
+      router.push("/")
+    } catch (error) {
+      console.error("Failed to record order", error)
     }
   }
 
@@ -151,7 +195,12 @@ export default function PlannerPage() {
                           {item.platformIcon} {item.platform} • <MapPin className="w-3 h-3" /> {item.distance}
                         </div>
                       </div>
-                      <Button className="w-full md:w-auto mt-6 md:mt-0 rounded-2xl h-12 px-10 font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20">Order Now</Button>
+                      <Button 
+                        onClick={() => handleOrderNow(item)}
+                        className="w-full md:w-auto mt-6 md:mt-0 rounded-2xl h-12 px-10 font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20"
+                      >
+                        Order Now
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
