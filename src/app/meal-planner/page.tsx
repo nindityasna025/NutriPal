@@ -5,10 +5,9 @@ import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, ChevronRightSquare } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { addMonths, subMonths, format, startOfToday } from "date-fns"
+import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
 
 const scheduledMeals = [
@@ -20,25 +19,22 @@ const scheduledMeals = [
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
-  const [currentMonth, setCurrentMonth] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const today = startOfToday()
     setDate(today)
-    setCurrentMonth(today)
     setMounted(true)
   }, [])
 
-  const handlePrevMonth = () => currentMonth && setCurrentMonth(subMonths(currentMonth, 1))
-  const handleNextMonth = () => currentMonth && setCurrentMonth(addMonths(currentMonth, 1))
+  const handlePrevDay = () => date && setDate(subDays(date, 1))
+  const handleNextDay = () => date && setDate(addDays(date, 1))
   const handleToday = () => {
     const today = startOfToday()
-    setCurrentMonth(today)
     setDate(today)
   }
 
-  if (!mounted || !currentMonth) {
+  if (!mounted || !date) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -55,7 +51,7 @@ export default function MealPlannerPage() {
         <section className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <h1 className="text-4xl font-black tracking-tighter text-foreground">
-              {format(currentMonth, "MMMM yyyy")}
+              {format(date, "MMMM d, yyyy")}
             </h1>
           </div>
           
@@ -71,7 +67,7 @@ export default function MealPlannerPage() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={handlePrevMonth}
+                onClick={handlePrevDay}
                 className="h-10 w-10 rounded-none border-r border-border hover:bg-muted"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -79,7 +75,7 @@ export default function MealPlannerPage() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={handleNextMonth}
+                onClick={handleNextDay}
                 className="h-10 w-10 rounded-none hover:bg-muted"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -109,26 +105,11 @@ export default function MealPlannerPage() {
           </Card>
         </Link>
 
-        <section className="w-full">
-          <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
-            <CardContent className="p-0">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                month={currentMonth}
-                onMonthChange={setCurrentMonth}
-                className="rounded-none border-none"
-              />
-            </CardContent>
-          </Card>
-        </section>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
           <div className="lg:col-span-8 space-y-8">
             <div className="flex items-center justify-between px-4">
               <h2 className="text-3xl font-black tracking-tight">
-                {date ? format(date, "MMMM d, yyyy") : "Select a date"}
+                Scheduled Meals
               </h2>
               <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest">
                 Total: 1,390 kcal
