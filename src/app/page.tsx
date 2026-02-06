@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -160,9 +159,9 @@ export default function Dashboard() {
               </Card>
             ))
           ) : (
-            <div className="text-center py-12 bg-white rounded-3xl border-2 border-dashed border-border text-muted-foreground">
-              <Utensils className="w-12 h-12 mx-auto mb-4 opacity-20" />
-              <p className="font-medium">No meals logged for this date.</p>
+            <div className="text-center py-16 bg-white rounded-[2.5rem] border-2 border-dashed border-muted flex flex-col items-center justify-center">
+              <Utensils className="w-16 h-16 mb-4 text-muted-foreground/30" />
+              <p className="text-muted-foreground font-semibold">No meals logged for this date.</p>
               <Button variant="link" className="mt-2 text-primary font-bold">Start Logging</Button>
             </div>
           )}
