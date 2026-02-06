@@ -30,19 +30,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { useToast } from "@/hooks/use-toast"
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [mounted, setMounted] = useState(false)
   const [recipes, setRecipes] = useState<Record<string, string>>({})
   const [loadingRecipe, setLoadingRecipe] = useState<Record<string, boolean>>({})
+  const { toast } = useToast()
   
-  // Form State
+  // Form State for Adding
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [mealName, setMealName] = useState("")
   const [mealType, setMealType] = useState("Breakfast")
   const [isSaving, setIsSaving] = useState(false)
+
+  // Form State for Editing
+  const [editingMealId, setEditingMealId] = useState<string | null>(null)
+  const [editMealName, setEditMealName] = useState("")
+  const [editMealType, setEditMealType] = useState("Breakfast")
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -75,7 +82,6 @@ export default function MealPlannerPage() {
     if (!user || !mealsColRef || !mealName) return
     setIsSaving(true)
     
-    // Map meal type to approximate times for sorting
     const timeMap: Record<string, string> = {
       "Breakfast": "08:00 AM",
       "Lunch": "01:00 PM",
@@ -87,7 +93,7 @@ export default function MealPlannerPage() {
       name: mealName,
       type: mealType,
       time: timeMap[mealType] || "12:00 PM",
-      calories: 400, // Default average calories
+      calories: 400,
       source: "planner",
       createdAt: serverTimestamp()
     })
@@ -95,12 +101,51 @@ export default function MealPlannerPage() {
     setMealName("")
     setIsDialogOpen(false)
     setIsSaving(false)
+    toast({
+      title: "Jadwal Berhasil Ditambahkan",
+      description: `${mealName} telah masuk ke daftar menu Anda.`
+    })
   }
 
-  const handleDeleteMeal = (mealId: string) => {
+  const handleOpenEdit = (meal: any) => {
+    setEditingMealId(meal.id)
+    setEditMealName(meal.name)
+    setEditMealType(meal.type)
+  }
+
+  const handleUpdateMeal = () => {
+    if (!user || !mealsColRef || !editingMealId) return
+    
+    const mealRef = doc(mealsColRef, editingMealId)
+    const timeMap: Record<string, string> = {
+      "Breakfast": "08:00 AM",
+      "Lunch": "01:00 PM",
+      "Snack": "04:00 PM",
+      "Dinner": "07:00 PM"
+    }
+
+    updateDocumentNonBlocking(mealRef, {
+      name: editMealName,
+      type: editMealType,
+      time: timeMap[editMealType] || "12:00 PM"
+    })
+
+    setEditingMealId(null)
+    toast({
+      title: "Jadwal Diperbarui",
+      description: "Menu Anda telah berhasil diperbarui."
+    })
+  }
+
+  const handleDeleteMeal = (mealId: string, mealName: string) => {
     if (!user || !mealsColRef) return
     const mealRef = doc(mealsColRef, mealId)
     deleteDocumentNonBlocking(mealRef)
+    toast({
+      variant: "destructive",
+      title: "Menu Dihapus",
+      description: `${mealName} telah dihapus dari jadwal.`
+    })
   }
 
   const handleGetRecipe = async (mealId: string, mealName: string) => {
@@ -175,7 +220,6 @@ export default function MealPlannerPage() {
               </Button>
             </div>
 
-            {/* Floating Form / Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 ml-2">
@@ -225,6 +269,49 @@ export default function MealPlannerPage() {
             </Dialog>
           </div>
         </section>
+
+        {/* Edit Dialog */}
+        <Dialog open={!!editingMealId} onOpenChange={(open) => !open && setEditingMealId(null)}>
+          <DialogContent className="rounded-[2.5rem] sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black tracking-tight text-center pt-4">Edit Scheduled Meal</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-6 py-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Waktu Makan</Label>
+                <Select value={editMealType} onValueChange={setEditMealType}>
+                  <SelectTrigger className="h-12 rounded-2xl border-primary/20 font-bold">
+                    <SelectValue placeholder="Pilih Waktu" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="Breakfast">Breakfast</SelectItem>
+                    <SelectItem value="Lunch">Lunch</SelectItem>
+                    <SelectItem value="Snack">Snack</SelectItem>
+                    <SelectItem value="Dinner">Dinner</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Nama Makanan</Label>
+                <Input
+                  placeholder="Contoh: Bubur Ayam Spesial"
+                  className="h-12 rounded-2xl border-primary/20 font-bold"
+                  value={editMealName}
+                  onChange={(e) => setEditMealName(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter className="pb-4">
+              <Button 
+                onClick={handleUpdateMeal} 
+                disabled={!editMealName}
+                className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
+              >
+                Update Jadwal
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Link href="/planner">
           <Card className="rounded-[2.5rem] bg-primary border-none text-primary-foreground shadow-2xl shadow-primary/20 overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] mb-8">
@@ -294,13 +381,18 @@ export default function MealPlannerPage() {
                                 )}
                                 {recipes[meal.id] ? "Hide Recipe" : "AI Recipe"}
                              </Button>
-                             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-9 w-9">
+                             <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleOpenEdit(meal)}
+                              className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-9 w-9"
+                             >
                                 <Edit2 className="w-4 h-4" />
                              </Button>
                              <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => handleDeleteMeal(meal.id)}
+                              onClick={() => handleDeleteMeal(meal.id, meal.name)}
                               className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-9 w-9"
                              >
                                 <Trash2 className="w-4 h-4" />
