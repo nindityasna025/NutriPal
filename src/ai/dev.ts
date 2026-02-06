@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/personalized-diet-plans.ts';
 import '@/ai/flows/curate-meal-suggestions.ts';
+import '@/ai/flows/generate-recipe.ts';
