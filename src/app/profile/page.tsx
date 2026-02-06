@@ -6,16 +6,14 @@ import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { doc } from "firebase/firestore"
 import { Navbar } from "@/components/Navbar"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  User, 
   LogOut, 
   Settings, 
   ShieldCheck, 
   Smartphone, 
   Scale, 
-  Ruler, 
   Activity,
   ChevronRight
 } from "lucide-react"
@@ -43,7 +41,6 @@ export default function ProfilePage() {
       <Navbar />
       
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        {/* User Header */}
         <section className="flex flex-col items-center text-center space-y-4 pt-4">
           <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl">
             <AvatarImage src={user.photoURL || ""} />
@@ -61,7 +58,6 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
           <Card className="border-none shadow-sm bg-white rounded-2xl">
             <CardContent className="p-4 flex items-center gap-3">
@@ -87,7 +83,6 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        {/* Account Settings */}
         <div className="space-y-3">
           <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2">Account Ecosystem</h2>
           
@@ -127,7 +122,6 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        {/* Logout Button */}
         <Button 
           onClick={handleLogout}
           variant="destructive" 

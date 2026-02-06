@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { useAuth, useUser, useFirestore } from "@/firebase"
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
@@ -44,7 +44,6 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider)
       const loggedInUser = result.user
 
-      // Simulate the "Automated Integration" flow
       setSyncStatus("Syncing Shopee, Grab & GoFood...")
       await new Promise(resolve => setTimeout(resolve, 800))
       
@@ -55,7 +54,6 @@ export default function LoginPage() {
       const userDoc = await getDoc(userDocRef)
 
       if (!userDoc.exists()) {
-        // Initialize user with simulated connected apps
         await setDoc(userDocRef, {
           id: loggedInUser.uid,
           email: loggedInUser.email,

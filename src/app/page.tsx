@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -24,7 +25,6 @@ export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(startOfToday())
   const dateId = format(selectedDate, "yyyy-MM-dd")
 
-  // Refs
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const dailyLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, firestore, dateId])
   const mealsColRef = useMemoFirebase(() => user ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, firestore, dateId])
@@ -35,14 +35,13 @@ export default function Dashboard() {
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = dailyLog?.caloriesConsumed || 0
-  const burned = dailyLog?.caloriesBurned || 450 // Mocked from "connected device"
+  const burned = dailyLog?.caloriesBurned || 450 
   const net = consumed - burned
   
   const status = net < calorieTarget - 200 ? "Deficit" : net > calorieTarget + 200 ? "Excess" : "Ideal"
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
-      {/* Date Filter */}
       <section className="flex items-center justify-between bg-white p-2 rounded-2xl shadow-sm border border-border">
         <Button variant="ghost" size="icon" onClick={() => setSelectedDate(subDays(selectedDate, 1))}>
           <ChevronLeft className="w-5 h-5" />
@@ -56,7 +55,6 @@ export default function Dashboard() {
         </Button>
       </section>
 
-      {/* Summary Rings */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-primary/5 border-primary/20 rounded-3xl">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -105,7 +103,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Food Report */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-headline font-bold">Daily Food Report</h2>

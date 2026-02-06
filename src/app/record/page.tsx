@@ -5,19 +5,17 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import { 
   Camera, 
-  Upload, 
   Sparkles, 
   Loader2, 
   CheckCircle2, 
-  PieChart,
   Zap,
   ChevronRight
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
-import { doc, setDoc, updateDoc, increment, collection, serverTimestamp } from "firebase/firestore"
+import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
 import { format } from "date-fns"
 import Image from "next/image"
 
@@ -40,7 +38,6 @@ export default function RecordPage() {
 
   const handleAnalyze = () => {
     setAnalyzing(true)
-    // Simulate AI Vision Analysis
     setTimeout(() => {
       setResult({
         name: "Avocado & Egg Toast",
@@ -93,7 +90,6 @@ export default function RecordPage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Upload Section */}
         <section className="space-y-6">
           <Card className="border-2 border-dashed border-primary/20 rounded-3xl bg-white overflow-hidden aspect-square relative flex items-center justify-center group cursor-pointer hover:bg-primary/5 transition-all">
             <Input 
@@ -127,7 +123,6 @@ export default function RecordPage() {
           </Button>
         </section>
 
-        {/* Results Section */}
         <section className="space-y-6">
           {!result && !analyzing && (
             <div className="h-full flex items-center justify-center p-8 text-center bg-secondary/20 rounded-3xl border-2 border-dashed border-border opacity-50">

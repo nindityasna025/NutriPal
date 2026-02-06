@@ -3,17 +3,15 @@
 
 import { useState } from "react"
 import { Navbar } from "@/components/Navbar"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { 
   Sparkles, 
-  Clock, 
   MapPin, 
   TrendingUp, 
   ShoppingBag, 
   Smartphone, 
-  CheckCircle2,
   Loader2,
   Tag
 } from "lucide-react"
@@ -31,7 +29,6 @@ export default function PlannerPage() {
 
   const handleCurate = () => {
     setLoading(true)
-    // Simulate AI Decision Fatigue reduction logic
     setTimeout(() => {
       setCurated([
         {
@@ -144,7 +141,7 @@ export default function PlannerPage() {
           </div>
           
           <p className="text-center text-[10px] text-muted-foreground max-w-xs mx-auto italic">
-            Suggestions are based on your remaining 1,250 kcal for today and your allergy profile.
+            Suggestions are based on your remaining calories for today and your allergy profile.
           </p>
         </div>
       )}
