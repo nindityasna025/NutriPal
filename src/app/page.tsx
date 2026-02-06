@@ -1,123 +1,154 @@
-import { Navbar } from "@/components/Navbar"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
+import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { Activity, Clock, Flame, Footprints, Info, Plus, Zap } from "lucide-react"
-import Image from "next/image"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { 
+  Flame, 
+  Footprints, 
+  Droplets, 
+  ChevronLeft, 
+  ChevronRight, 
+  CalendarDays,
+  Utensils,
+  Plus,
+  TrendingDown,
+  TrendingUp,
+  CheckCircle2
+} from "lucide-react"
+import { format, addDays, subDays, startOfToday } from "date-fns"
+import { collection, doc, query, where } from "firebase/firestore"
 
 export default function Dashboard() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-healthy-food')
+  const { firestore } = useFirestore()
+  const { user } = useUser()
+  const [selectedDate, setSelectedDate] = useState(startOfToday())
+  const dateId = format(selectedDate, "yyyy-MM-dd")
+
+  // Refs
+  const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
+  const dailyLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, dateId])
+  const mealsColRef = useMemoFirebase(() => user ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, dateId])
+
+  const { data: profile } = useDoc(profileRef)
+  const { data: dailyLog } = useDoc(dailyLogRef)
+  const { data: meals } = useCollection(mealsColRef)
+
+  const calorieTarget = profile?.calorieTarget || 2000
+  const consumed = dailyLog?.caloriesConsumed || 0
+  const burned = dailyLog?.caloriesBurned || 450 // Mocked from "connected device"
+  const net = consumed - burned
+  
+  const status = net < calorieTarget - 200 ? "Deficit" : net > calorieTarget + 200 ? "Excess" : "Ideal"
 
   return (
-    <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
-      <Navbar />
-      
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* Welcome Header */}
-        <section className="space-y-2">
-          <h1 className="text-3xl font-headline font-bold text-foreground">G&apos;day, Alex! 👋</h1>
-          <p className="text-muted-foreground">You&apos;re doing great today. Stay on track with your nutrition goals.</p>
-        </section>
-
-        {/* Hero Activity Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Calories Consumed</CardTitle>
-              <Flame className="w-4 h-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,420 / 2,100 kcal</div>
-              <Progress value={67} className="mt-3" />
-              <p className="text-xs text-muted-foreground mt-2">680 kcal remaining for today</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Physical Activity</CardTitle>
-              <Footprints className="w-4 h-4 text-chart-3" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">8,432 steps</div>
-              <Progress value={84} className="mt-3" />
-              <p className="text-xs text-muted-foreground mt-2">Goal: 10,000 steps</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Water Intake</CardTitle>
-              <Activity className="w-4 h-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1.5 / 2.5 L</div>
-              <Progress value={60} className="mt-3" />
-              <p className="text-xs text-muted-foreground mt-2">4 glasses to go!</p>
-            </CardContent>
-          </Card>
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
+      {/* Date Filter */}
+      <section className="flex items-center justify-between bg-white p-2 rounded-2xl shadow-sm border border-border">
+        <Button variant="ghost" size="icon" onClick={() => setSelectedDate(subDays(selectedDate, 1))}>
+          <ChevronLeft className="w-5 h-5" />
+        </Button>
+        <div className="flex items-center gap-2 font-bold text-sm">
+          <CalendarDays className="w-4 h-4 text-primary" />
+          {format(selectedDate, "EEEE, MMM d")}
         </div>
+        <Button variant="ghost" size="icon" onClick={() => setSelectedDate(addDays(selectedDate, 1))}>
+          <ChevronRight className="w-5 h-5" />
+        </Button>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Upcoming Meal Reminder */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-headline font-bold">Next Scheduled Meal</h2>
-              <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                <Clock className="w-4 h-4 mr-2" />
-                12:30 PM (Lunch)
-              </Button>
+      {/* Summary Rings */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-primary/5 border-primary/20 rounded-3xl">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold uppercase text-muted-foreground">Calories Consumed</CardTitle>
+            <Flame className="w-4 h-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-black">{consumed}</span>
+              <span className="text-xs text-muted-foreground">/ {calorieTarget} kcal</span>
             </div>
-            <Card className="overflow-hidden group cursor-pointer border-none shadow-md transition-all hover:shadow-lg">
-              <div className="relative h-48 w-full">
-                <Image 
-                  src={heroImage?.imageUrl || "https://picsum.photos/seed/nutri1/1200/600"} 
-                  alt="Recommended Lunch"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  data-ai-hint="healthy lunch"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h3 className="text-xl font-bold">Grilled Salmon & Quinoa</h3>
-                  <p className="text-sm text-white/80">High protein • 450 kcal</p>
-                </div>
-              </div>
-              <CardContent className="pt-4 flex justify-between items-center bg-white">
-                <div className="flex gap-2">
-                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium">Low Carb</span>
-                  <span className="px-2 py-1 bg-accent/20 text-accent-foreground text-xs rounded-full font-medium">Heart Healthy</span>
-                </div>
-                <Button variant="default" size="sm">Log Meal</Button>
-              </CardContent>
-            </Card>
-          </section>
+            <Progress value={(consumed / calorieTarget) * 100} className="h-2 mt-3" />
+            <div className="mt-4 p-2 bg-white/50 rounded-xl flex items-center justify-between">
+              <span className="text-[10px] font-bold">STATUS</span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                status === "Ideal" ? "bg-green-100 text-green-700" : status === "Deficit" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
+              }`}>
+                {status}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Quick Actions */}
-          <section className="space-y-4">
-            <h2 className="text-xl font-headline font-bold">Quick Actions</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="h-24 flex flex-col gap-2 rounded-2xl hover:bg-primary/5 hover:border-primary/40">
-                <Plus className="w-6 h-6" />
-                <span>Log Snack</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2 rounded-2xl hover:bg-accent/5 hover:border-accent/40">
-                <Zap className="w-6 h-6" />
-                <span>Find Deals</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2 rounded-2xl hover:bg-chart-3/5 hover:border-chart-3/40">
-                <Info className="w-6 h-6" />
-                <span>Diet Plan</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2 rounded-2xl hover:bg-blue-500/5 hover:border-blue-500/40">
-                <Activity className="w-6 h-6" />
-                <span>Sync Fit</span>
-              </Button>
-            </div>
-          </section>
+        <Card className="rounded-3xl border-none shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold uppercase text-muted-foreground">Active Burned</CardTitle>
+            <Footprints className="w-4 h-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black">{burned} <span className="text-xs font-normal">kcal</span></div>
+            <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-green-500" /> Synced with Wearable
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl border-none shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold uppercase text-muted-foreground">Hydration</CardTitle>
+            <Droplets className="w-4 h-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black">{dailyLog?.waterIntake || 0} <span className="text-xs font-normal">/ 2.5 L</span></div>
+            <Progress value={((dailyLog?.waterIntake || 0) / 2.5) * 100} className="h-2 mt-3 bg-blue-50" />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Food Report */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-headline font-bold">Daily Food Report</h2>
+          <Button variant="ghost" size="sm" className="text-primary font-bold">View History</Button>
         </div>
-      </main>
+        <div className="space-y-3">
+          {meals && meals.length > 0 ? (
+            meals.map((meal) => (
+              <Card key={meal.id} className="rounded-2xl border-none shadow-sm overflow-hidden border-l-4 border-l-primary">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-secondary/50 rounded-xl flex items-center justify-center">
+                      <Utensils className="text-primary w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm">{meal.name}</h3>
+                      <p className="text-[10px] text-muted-foreground">{meal.time} • {meal.source}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-sm">{meal.calories} kcal</p>
+                    <div className="flex gap-1 mt-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-12 bg-white rounded-3xl border-2 border-dashed border-border text-muted-foreground">
+              <Utensils className="w-12 h-12 mx-auto mb-4 opacity-20" />
+              <p className="font-medium">No meals logged for this date.</p>
+              <Button variant="link" className="mt-2 text-primary font-bold">Start Logging</Button>
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }

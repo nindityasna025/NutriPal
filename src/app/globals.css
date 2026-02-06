@@ -1,55 +1,30 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 90 100% 95%;
+    --background: 90 100% 95%; /* Light Green #E5FFCC-ish */
     --foreground: 90 20% 10%;
     --card: 0 0% 100%;
     --card-foreground: 90 20% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 90 20% 10%;
-    --primary: 78 100% 45%;
+    --primary: 78 100% 60%; /* Fresh Lime #C0FF33 */
     --primary-foreground: 90 20% 10%;
     --secondary: 90 30% 90%;
     --secondary-foreground: 90 20% 10%;
     --muted: 90 20% 92%;
     --muted-foreground: 90 10% 40%;
-    --accent: 54 71% 68%;
+    --accent: 54 71% 68%; /* Muted Yellow #E6DB74 */
     --accent-foreground: 90 20% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 90 20% 85%;
     --input: 90 20% 85%;
-    --ring: 78 100% 45%;
+    --ring: 78 100% 60%;
     --radius: 1rem;
-    --chart-1: 78 100% 45%;
-    --chart-2: 54 71% 68%;
-    --chart-3: 142 71% 45%;
-    --chart-4: 197 37% 24%;
-    --chart-5: 27 87% 67%;
-  }
-  .dark {
-    --background: 90 20% 5%;
-    --foreground: 90 10% 95%;
-    --card: 90 20% 8%;
-    --card-foreground: 90 10% 95%;
-    --popover: 90 20% 8%;
-    --popover-foreground: 90 10% 95%;
-    --primary: 78 100% 45%;
-    --primary-foreground: 90 20% 10%;
-    --secondary: 90 20% 15%;
-    --secondary-foreground: 90 10% 95%;
-    --muted: 90 20% 15%;
-    --muted-foreground: 90 10% 60%;
-    --accent: 54 71% 50%;
-    --accent-foreground: 90 10% 95%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 90 20% 20%;
-    --input: 90 20% 20%;
-    --ring: 78 100% 45%;
   }
 }
 
@@ -58,6 +33,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
   }
 }

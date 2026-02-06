@@ -1,9 +1,13 @@
-import type {Metadata} from 'next';
+
+import type { Metadata } from 'next';
 import './globals.css';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { Navbar } from '@/components/Navbar';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'NutriEase - Personalized Nutrition Assistant',
-  description: 'AI-powered meal planning and nutrition assistant for healthy living.',
+  title: 'NutriPal - AI Nutrition Assistant',
+  description: 'Personalized meal planning and tracking with AI.',
 };
 
 export default function RootLayout({
@@ -18,7 +22,17 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground">{children}</body>
+      <body className="font-body antialiased bg-background text-foreground">
+        <FirebaseClientProvider>
+          <div className="min-h-screen">
+            <Navbar />
+            <main className="pb-20 md:pb-0 md:pt-16">
+              {children}
+            </main>
+          </div>
+          <Toaster />
+        </FirebaseClientProvider>
+      </body>
     </html>
   );
 }

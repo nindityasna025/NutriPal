@@ -1,143 +1,28 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * NUTRI-EASE SECURITY RULES DOCUMENTATION
-     * 
-     * Core Philosophy:
-     * This ruleset enforces a strict user-ownership model where all personal health, 
-     * dietary, and activity data is isolated within the user's specific document tree.
-     * 
-     * Data Structure:
-     * The hierarchy is rooted at /users/{userId}. All sensitive entities (Profiles, 
-     * DailyRecords, MealPlans) are nested subcollections under the user account 
-     * to ensure that access is naturally restricted by path-based authorization.
-     * 
-     * Key Security Decisions:
-     * 1. Path-to-Data Consistency: We strictly enforce that internal fields like 
-     *    'userAccountId' match the {userId} in the path during creation.
-     * 2. Prototyping Flexibility: While authorization is strict, we do not 
-     *    enforce specific data types or full schema shapes for general content fields.
-     * 3. Public Reference Data: Delivery services and food prices are publicly 
-     *    readable to allow all users to browse options, but modifications are restricted.
-     * 4. Safe Deletions: All destructive operations require verification that 
-     *     the document exists and belongs to the requester.
-     */
-
-    // --- GLOBAL HELPER FUNCTIONS ---
-
     function isSignedIn() {
       return request.auth != null;
     }
-
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    // --- COLLECTION RULES ---
-
-    /**
-     * @description Rules for the root UserAccount document. Users can only manage their own account.
-     * @path /users/{userId}
-     * @allow (create) if auth.uid matches {userId}.
-     * @deny (get) if trying to read a different user's account.
-     * @principle Ownership and Self-Creation.
-     */
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update, delete: if isExistingOwner(userId);
-
-      /**
-       * @description Rules for UserProfile. Stores sensitive physical metrics (BMI, Weight).
-       * @path /users/{userId}/profiles/{profileId}
-       * @allow (update) if the existing owner is modifying their own profile.
-       * @deny (list) if the user is not the owner of the parent path.
-       * @principle Relational integrity and owner-only access.
-       */
-      match /profiles/{profileId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userAccountId == userId;
-        allow update, delete: if isExistingOwner(userId) && request.resource.data.userAccountId == userId;
+      allow read, write: if isOwner(userId);
+      
+      match /profile/{profileId} {
+        allow read, write: if isOwner(userId);
       }
-
-      /**
-       * @description Daily activity and intake records. Used for the dashboard analytics.
-       * @path /users/{userId}/daily_records/{recordId}
-       * @allow (list) filtered by date on the client side, permitted here by owner UID.
-       * @deny (create) if 'userAccountId' in data does not match the URL path.
-       * @principle Restricted access to a user's own data tree.
-       */
-      match /daily_records/{recordId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userAccountId == userId;
-        allow update, delete: if isExistingOwner(userId) && request.resource.data.userAccountId == userId;
-
-        /**
-         * @description Meal records associated with a specific day.
-         * @path /users/{userId}/daily_records/{recordId}/meal_records/{mealRecordId}
-         * @allow (get) by the record owner.
-         * @principle Hierarchical ownership.
-         */
-        match /meal_records/{mealRecordId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId);
-          allow update, delete: if isExistingOwner(userId);
-
-          /**
-           * @description Individual food items within a meal.
-           * @path /users/{userId}/daily_records/{recordId}/meal_records/{mealRecordId}/food_items/{foodItemId}
-           * @allow (create) if the user owns the parent record tree.
-           * @principle Deeply nested owner-only writes.
-           */
-          match /food_items/{foodItemId} {
-            allow get, list: if isOwner(userId);
-            allow create: if isOwner(userId);
-            allow update, delete: if isExistingOwner(userId);
-          }
+      
+      match /dailyLogs/{dateId} {
+        allow read, write: if isOwner(userId);
+        
+        match /meals/{mealId} {
+          allow read, write: if isOwner(userId);
         }
       }
-
-      /**
-       * @description AI-curated meal plans tailored to user profile.
-       * @path /users/{userId}/meal_plans/{mealPlanId}
-       * @allow (create) if the generated plan is linked to the active user.
-       * @principle Validates relational integrity between documents.
-       */
-      match /meal_plans/{mealPlanId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userAccountId == userId;
-        allow update, delete: if isExistingOwner(userId) && request.resource.data.userAccountId == userId;
-      }
-    }
-
-    /**
-     * @description Information about delivery services (Shopee, Grab, Gojek).
-     * @path /delivery_services/{deliveryServiceId}
-     * @allow (get, list) for any user to allow for service discovery.
-     * @deny (create, update, delete) as these are managed by system/admin.
-     * @principle Public Read with Owner-Only (Admin) Writes.
-     */
-    match /delivery_services/{deliveryServiceId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Add admin role validation for system configuration.
-    }
-
-    /**
-     * @description Pricing data for specific food items across different services.
-     * @path /food_prices/{foodPriceId}
-     * @allow (get, list) for any user to compare prices in the Planner.
-     * @deny (write) as this is likely updated via automated backend processes.
-     * @principle Public Read with Owner-Only (Admin) Writes.
-     */
-    match /food_prices/{foodPriceId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Restrict to system-user or service-integration role.
     }
   }
 }

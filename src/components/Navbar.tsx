@@ -1,27 +1,31 @@
+
 "use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Apple, LayoutDashboard, Utensils, Zap, Activity, Tag } from "lucide-react"
+import { LayoutDashboard, Utensils, Camera, Settings, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useUser } from "@/firebase"
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/meal-planner", label: "Planner", icon: Utensils },
-  { href: "/recommendations", label: "Deals & Food", icon: Tag },
-  { href: "/diet-plan", label: "Custom Diet", icon: Apple },
-  { href: "/fitness", label: "Fitness", icon: Activity },
+  { href: "/", label: "Home", icon: LayoutDashboard },
+  { href: "/planner", label: "Planner", icon: Utensils },
+  { href: "/record", label: "Record", icon: Camera },
+  { href: "/profile", label: "Profile", icon: User },
 ]
 
 export function Navbar() {
   const pathname = usePathname()
+  const { user } = useUser()
+
+  if (!user || pathname === "/login" || pathname === "/onboarding") return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border px-4 py-2 md:top-0 md:bottom-auto md:border-t-0 md:border-b">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="hidden md:flex items-center gap-2 font-headline font-bold text-xl text-primary">
-          <Zap className="fill-primary" />
-          <span>NutriEase</span>
+          <Utensils className="fill-primary" />
+          <span>NutriPal</span>
         </div>
         <div className="flex w-full md:w-auto justify-around md:justify-end gap-1 md:gap-4">
           {navItems.map((item) => {
