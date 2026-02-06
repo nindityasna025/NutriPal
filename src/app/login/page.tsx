@@ -96,80 +96,80 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center p-6 bg-background overflow-hidden">
+    <div className="relative flex min-h-screen w-full items-center justify-center p-4 bg-background overflow-hidden">
       {/* Faded Background Image */}
       <div className="absolute inset-0 z-0">
         <Image 
           src={bgImage} 
           alt="Healthy Food Background" 
           fill 
-          className="object-cover opacity-5 grayscale-[20%]"
+          className="object-cover opacity-10 grayscale-[10%]"
           priority
           data-ai-hint="healthy delicious food"
         />
       </div>
 
-      <Card className="relative z-10 w-full max-w-md shadow-[0_32px_64px_-12px_rgba(0,0,0,0.1)] border-none overflow-hidden rounded-[3rem] bg-white/95 backdrop-blur-md animate-in fade-in zoom-in duration-700">
-        {/* Header Section with centered elements */}
-        <div className="bg-primary/40 pt-16 pb-12 text-center space-y-6">
-          <div className="mx-auto bg-white w-20 h-20 rounded-[2rem] flex items-center justify-center shadow-sm">
-            <ShieldCheck className="text-primary w-10 h-10" strokeWidth={2.5} />
+      <Card className="relative z-10 w-full max-w-md shadow-2xl border-none overflow-hidden rounded-[3rem] bg-white/95 backdrop-blur-sm animate-in fade-in zoom-in duration-700">
+        {/* Header Section - Soft Green Header */}
+        <div className="bg-primary pt-12 pb-10 text-center space-y-6">
+          <div className="mx-auto bg-white/90 w-16 h-16 rounded-full flex items-center justify-center shadow-inner">
+            <ShieldCheck className="text-primary w-8 h-8" strokeWidth={2.5} />
           </div>
-          <div className="space-y-1">
-            <h1 className="text-4xl font-headline font-black text-primary-foreground tracking-tighter">NutriPal</h1>
-            <p className="text-primary-foreground/80 font-bold text-sm">AI Powered Nutrition Ecosystem</p>
+          <div className="space-y-1 px-4">
+            <h1 className="text-3xl font-headline font-black text-primary-foreground tracking-tight">NutriPal</h1>
+            <p className="text-primary-foreground/90 font-bold text-xs">AI Powered Nutrition Ecosystem</p>
           </div>
         </div>
 
-        <CardContent className="px-10 py-12 space-y-10">
-          <div className="space-y-6">
+        <CardContent className="px-8 py-10 space-y-8">
+          <div className="space-y-4">
             <Button 
               onClick={handleLogin} 
               disabled={loading} 
-              className="w-full h-16 text-md rounded-2xl flex gap-3 font-black transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/10 bg-primary text-primary-foreground hover:bg-primary/90"
+              className="w-full h-14 text-sm rounded-2xl flex gap-3 font-black transition-all hover:scale-[1.01] active:scale-95 shadow-md bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Chrome className="w-5 h-5" />}
               {loading ? syncStatus : "Sign in with Google (Demo Mode)"}
             </Button>
             
-            <p className="text-center text-[11px] text-muted-foreground/80 leading-relaxed font-medium px-4">
-              Ini adalah mode demo. NutriPal akan mensimulasikan akses ke riwayat pengiriman dan metrik kebugaran Anda secara otomatis.
+            <p className="text-center text-[10px] text-muted-foreground/70 leading-relaxed font-medium px-6">
+              Mode demo mensimulasikan akses ke riwayat pengiriman dan metrik kebugaran Anda secara otomatis.
             </p>
           </div>
           
           <div className="relative">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-muted"></span></div>
-            <div className="relative flex justify-center text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40"><span className="bg-white px-4">Automated Ecosystem Sync</span></div>
+            <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground/40"><span className="bg-white px-3">Automated Ecosystem Sync</span></div>
           </div>
 
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-4">
             {[
-              { icon: <ShoppingBag className="text-orange-500 w-5 h-5" />, label: "ShopeeFood", color: "bg-orange-50/40" },
-              { icon: <Smartphone className="text-green-500 w-5 h-5" />, label: "GrabFood", color: "bg-green-50/40" },
-              { icon: <ShieldCheck className="text-red-500 w-5 h-5" />, label: "Fitness Apps", color: "bg-red-50/40" },
-              { icon: <Smartphone className="text-emerald-500 w-5 h-5" />, label: "GoFood", color: "bg-emerald-50/40" },
+              { icon: <ShoppingBag className="text-orange-500 w-4 h-4" />, label: "ShopeeFood", color: "bg-orange-50/50" },
+              { icon: <Smartphone className="text-green-500 w-4 h-4" />, label: "GrabFood", color: "bg-green-50/50" },
+              { icon: <ShieldCheck className="text-red-500 w-4 h-4" />, label: "Fitness Apps", color: "bg-red-50/50" },
+              { icon: <Smartphone className="text-emerald-500 w-4 h-4" />, label: "GoFood", color: "bg-emerald-50/50" },
             ].map((app, i) => (
-              <div key={i} className={`flex items-center gap-4 p-4 ${app.color} rounded-[2rem] border border-transparent transition-all group hover:bg-white hover:border-border hover:shadow-sm`}>
-                <div className="bg-white p-2.5 rounded-2xl shadow-sm group-hover:scale-105 transition-transform">
+              <div key={i} className={`flex items-center gap-3 p-3 ${app.color} rounded-2xl border border-transparent`}>
+                <div className="bg-white p-2 rounded-xl shadow-sm">
                   {app.icon}
                 </div>
-                <div className="space-y-0.5">
-                  <p className="text-[11px] font-black">{app.label}</p>
+                <div className="space-y-0">
+                  <p className="text-[10px] font-black">{app.label}</p>
                   <div className="flex items-center gap-1">
-                    <CheckCircle2 className="w-2.5 h-2.5 text-primary" />
-                    <span className="text-[8px] text-muted-foreground font-black uppercase tracking-tighter">Auto-Sync</span>
+                    <CheckCircle2 className="w-2 h-2 text-primary" />
+                    <span className="text-[7px] text-muted-foreground font-bold uppercase tracking-tighter">Auto-Sync</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
           
-          <div className="p-5 bg-primary/5 rounded-[2rem] flex items-start gap-4 border border-primary/10">
-            <div className="bg-white p-2.5 rounded-xl mt-0.5 shadow-sm">
-              <Zap className="w-4 h-4 text-primary" />
+          <div className="p-4 bg-primary/5 rounded-2xl flex items-start gap-3 border border-primary/10">
+            <div className="bg-white p-2 rounded-lg mt-0.5 shadow-sm">
+              <Zap className="w-3 h-3 text-primary" />
             </div>
-            <p className="text-[10px] text-muted-foreground/80 leading-normal font-medium italic">
-              <strong className="text-foreground not-italic">Info Ekosistem:</strong> Platform akan secara otomatis mensinkronkan data riwayat pesanan untuk perhitungan kalori yang akurat.
+            <p className="text-[9px] text-muted-foreground/80 leading-tight font-medium">
+              <strong className="text-foreground">Info Ekosistem:</strong> Platform akan mensinkronkan data riwayat pesanan secara otomatis.
             </p>
           </div>
         </CardContent>
