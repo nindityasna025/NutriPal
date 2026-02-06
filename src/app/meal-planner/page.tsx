@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -9,33 +10,59 @@ import { Badge } from "@/components/ui/badge"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
 import { generateRecipe } from "@/ai/flows/generate-recipe"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
-import { doc } from "firebase/firestore"
+import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
+import { doc, collection, serverTimestamp } from "firebase/firestore"
 import { cn } from "@/lib/utils"
-
-const initialScheduledMeals = [
-  { id: 1, time: "08:30 AM", type: "Breakfast", name: "Oatmeal with Blueberries", calories: 320 },
-  { id: 2, time: "12:30 PM", type: "Lunch", name: "Chicken Avocado Wrap", calories: 510 },
-  { id: 3, time: "04:00 PM", type: "Snack", name: "Greek Yogurt & Nuts", calories: 180 },
-  { id: 4, time: "07:30 PM", type: "Dinner", name: "Zucchini Noodles with Pesto", calories: 380 },
-]
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [mounted, setMounted] = useState(false)
-  const [recipes, setRecipes] = useState<Record<number, string>>({})
-  const [loadingRecipe, setLoadingRecipe] = useState<Record<number, boolean>>({})
+  const [recipes, setRecipes] = useState<Record<string, string>>({})
+  const [loadingRecipe, setLoadingRecipe] = useState<Record<string, boolean>>({})
   
+  // Form State
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [mealName, setMealName] = useState("")
+  const [mealType, setMealType] = useState("Breakfast")
+  const [isSaving, setIsSaving] = useState(false)
+
   const { user } = useUser()
   const firestore = useFirestore()
-  const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
-  const { data: profile } = useDoc(profileRef)
 
   useEffect(() => {
     const today = startOfToday()
     setDate(today)
     setMounted(true)
   }, [])
+
+  const dateId = date ? format(date, "yyyy-MM-dd") : ""
+  
+  const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
+  const mealsColRef = useMemoFirebase(() => 
+    (user && dateId) ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, 
+    [user, firestore, dateId]
+  )
+
+  const { data: profile } = useDoc(profileRef)
+  const { data: scheduledMeals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
 
   const handlePrevDay = () => date && setDate(subDays(date, 1))
   const handleNextDay = () => date && setDate(addDays(date, 1))
@@ -44,9 +71,40 @@ export default function MealPlannerPage() {
     setDate(today)
   }
 
-  const handleGetRecipe = async (mealId: number, mealName: string) => {
+  const handleAddMeal = () => {
+    if (!user || !mealsColRef || !mealName) return
+    setIsSaving(true)
+    
+    // Map meal type to approximate times for sorting
+    const timeMap: Record<string, string> = {
+      "Breakfast": "08:00 AM",
+      "Lunch": "01:00 PM",
+      "Snack": "04:00 PM",
+      "Dinner": "07:00 PM"
+    }
+
+    addDocumentNonBlocking(mealsColRef, {
+      name: mealName,
+      type: mealType,
+      time: timeMap[mealType] || "12:00 PM",
+      calories: 400, // Default average calories
+      source: "planner",
+      createdAt: serverTimestamp()
+    })
+
+    setMealName("")
+    setIsDialogOpen(false)
+    setIsSaving(false)
+  }
+
+  const handleDeleteMeal = (mealId: string) => {
+    if (!user || !mealsColRef) return
+    const mealRef = doc(mealsColRef, mealId)
+    deleteDocumentNonBlocking(mealRef)
+  }
+
+  const handleGetRecipe = async (mealId: string, mealName: string) => {
     if (recipes[mealId]) {
-      // Toggle off if already showing
       const newRecipes = { ...recipes }
       delete newRecipes[mealId]
       setRecipes(newRecipes)
@@ -75,6 +133,8 @@ export default function MealPlannerPage() {
       </div>
     )
   }
+
+  const totalCalories = scheduledMeals?.reduce((sum, m) => sum + (m.calories || 0), 0) || 0
 
   return (
     <div className="min-h-screen pb-20 md:pt-10 bg-background font-body">
@@ -114,9 +174,55 @@ export default function MealPlannerPage() {
                 <ChevronRight className="w-5 h-5" />
               </Button>
             </div>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 ml-2">
-              <Plus className="w-4 h-4 mr-2" /> Add Meal
-            </Button>
+
+            {/* Floating Form / Dialog */}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 ml-2">
+                  <Plus className="w-4 h-4 mr-2" /> Add Meal
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-[2.5rem] sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black tracking-tight text-center pt-4">Add Scheduled Meal</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-6 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="type" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Waktu Makan</Label>
+                    <Select value={mealType} onValueChange={setMealType}>
+                      <SelectTrigger className="h-12 rounded-2xl border-primary/20 font-bold">
+                        <SelectValue placeholder="Pilih Waktu" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="Breakfast">Breakfast</SelectItem>
+                        <SelectItem value="Lunch">Lunch</SelectItem>
+                        <SelectItem value="Snack">Snack</SelectItem>
+                        <SelectItem value="Dinner">Dinner</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Nama Makanan</Label>
+                    <Input
+                      id="name"
+                      placeholder="Contoh: Bubur Ayam Spesial"
+                      className="h-12 rounded-2xl border-primary/20 font-bold"
+                      value={mealName}
+                      onChange={(e) => setMealName(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="pb-4">
+                  <Button 
+                    onClick={handleAddMeal} 
+                    disabled={!mealName || isSaving}
+                    className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
+                  >
+                    {isSaving ? <Loader2 className="animate-spin" /> : "Simpan ke Jadwal"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </section>
 
@@ -144,71 +250,88 @@ export default function MealPlannerPage() {
                 Scheduled Meals
               </h2>
               <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest">
-                Total: 1,390 kcal
+                Total: {totalCalories} kcal
               </Badge>
             </div>
 
             <div className="space-y-5">
-              {initialScheduledMeals.map((meal) => (
-                <div key={meal.id} className="space-y-2">
-                  <Card className={cn(
-                    "group border-none shadow-sm hover:shadow-md transition-all rounded-[2rem] overflow-hidden border-l-8 border-l-primary bg-white",
-                    recipes[meal.id] && "rounded-b-none"
-                  )}>
-                    <CardContent className="p-8">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-6 md:gap-10">
-                           <div className="text-center min-w-[80px] md:min-w-[100px]">
-                              <p className="text-lg md:text-xl font-black text-primary">{meal.time}</p>
-                              <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em]">{meal.type}</p>
-                           </div>
-                           <div className="h-12 w-px bg-border hidden sm:block" />
-                           <div>
-                              <h3 className="text-xl md:text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
-                              <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{meal.calories} kcal • Low Sodium • High Protein</p>
-                           </div>
-                        </div>
-                        <div className="flex items-center gap-2 self-end sm:self-auto">
-                           <Button 
-                              variant="secondary" 
-                              size="sm" 
-                              onClick={() => handleGetRecipe(meal.id, meal.name)}
-                              disabled={loadingRecipe[meal.id]}
-                              className="rounded-xl font-black text-[10px] uppercase tracking-widest h-9 px-4 bg-primary/10 text-primary hover:bg-primary/20"
-                            >
-                              {loadingRecipe[meal.id] ? (
-                                <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                              ) : (
-                                <CookingPot className="w-3 h-3 mr-2" />
-                              )}
-                              {recipes[meal.id] ? "Hide Recipe" : "AI Recipe"}
-                           </Button>
-                           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-9 w-9">
-                              <Edit2 className="w-4 h-4" />
-                           </Button>
-                           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-9 w-9">
-                              <Trash2 className="w-4 h-4" />
-                           </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  {recipes[meal.id] && (
-                    <Card className="border-none shadow-md rounded-[2rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-2 duration-300">
-                      <CardContent className="p-8 pt-4">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Sparkles className="w-4 h-4 text-primary" />
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">AI Kitchen Instructions</span>
-                        </div>
-                        <div className="prose prose-sm max-w-none text-foreground/80 font-medium whitespace-pre-wrap leading-relaxed">
-                          {recipes[meal.id]}
+              {isLoadingMeals ? (
+                <div className="flex justify-center py-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : scheduledMeals && scheduledMeals.length > 0 ? (
+                scheduledMeals.map((meal) => (
+                  <div key={meal.id} className="space-y-2">
+                    <Card className={cn(
+                      "group border-none shadow-sm hover:shadow-md transition-all rounded-[2rem] overflow-hidden border-l-8 border-l-primary bg-white",
+                      recipes[meal.id] && "rounded-b-none"
+                    )}>
+                      <CardContent className="p-8">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center gap-6 md:gap-10">
+                             <div className="text-center min-w-[80px] md:min-w-[100px]">
+                                <p className="text-lg md:text-xl font-black text-primary">{meal.time}</p>
+                                <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em]">{meal.type}</p>
+                             </div>
+                             <div className="h-12 w-px bg-border hidden sm:block" />
+                             <div>
+                                <h3 className="text-xl md:text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
+                                <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{meal.calories} kcal • Personalized for you</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center gap-2 self-end sm:self-auto">
+                             <Button 
+                                variant="secondary" 
+                                size="sm" 
+                                onClick={() => handleGetRecipe(meal.id, meal.name)}
+                                disabled={loadingRecipe[meal.id]}
+                                className="rounded-xl font-black text-[10px] uppercase tracking-widest h-9 px-4 bg-primary/10 text-primary hover:bg-primary/20"
+                              >
+                                {loadingRecipe[meal.id] ? (
+                                  <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                                ) : (
+                                  <CookingPot className="w-3 h-3 mr-2" />
+                                )}
+                                {recipes[meal.id] ? "Hide Recipe" : "AI Recipe"}
+                             </Button>
+                             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-9 w-9">
+                                <Edit2 className="w-4 h-4" />
+                             </Button>
+                             <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleDeleteMeal(meal.id)}
+                              className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-9 w-9"
+                             >
+                                <Trash2 className="w-4 h-4" />
+                             </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
-                  )}
+                    
+                    {recipes[meal.id] && (
+                      <Card className="border-none shadow-md rounded-[2rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-2 duration-300">
+                        <CardContent className="p-8 pt-4">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">AI Kitchen Instructions</span>
+                          </div>
+                          <div className="prose prose-sm max-w-none text-foreground/80 font-medium whitespace-pre-wrap leading-relaxed">
+                            {recipes[meal.id]}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-muted">
+                  <Utensils className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
+                  <p className="text-muted-foreground font-bold">Belum ada makanan yang dijadwalkan.</p>
+                  <p className="text-xs text-muted-foreground">Klik "+ Add Meal" untuk memulai.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
