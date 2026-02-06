@@ -22,14 +22,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground">
+      <body className="font-body antialiased bg-background text-foreground overflow-x-hidden">
         <FirebaseClientProvider>
-          <div className="min-h-screen flex">
+          <div className="relative min-h-screen flex flex-col md:flex-row">
             <Navbar />
-            <main className="flex-1 flex flex-col min-h-screen md:ml-64 pb-24 md:pb-0">
-              <div className="flex-1 w-full overflow-y-auto">
-                {children}
-              </div>
+            <main className="flex-1 w-full min-h-screen md:ml-64 pb-24 md:pb-0 transition-all duration-300 bg-background">
+              {children}
             </main>
           </div>
           <Toaster />

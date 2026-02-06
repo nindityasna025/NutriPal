@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -28,8 +29,9 @@ const MOCK_MEALS = [
 ]
 
 export default function Dashboard() {
+  const router = useRouter()
   const { firestore } = useFirestore()
-  const { user } = useUser()
+  const { user, isUserLoading } = useUser()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -37,6 +39,13 @@ export default function Dashboard() {
     setSelectedDate(startOfToday())
     setMounted(true)
   }, [])
+
+  // Redirect to login if not authenticated after loading
+  useEffect(() => {
+    if (!isUserLoading && !user && mounted) {
+      router.push("/login")
+    }
+  }, [user, isUserLoading, mounted, router])
 
   const dateId = selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""
 
@@ -57,9 +66,9 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
-  if (!mounted || !selectedDate) {
+  if (!mounted || isUserLoading || !user || !selectedDate) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-white">
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-white z-50">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <p className="font-bold text-lg animate-pulse">NutriPal is syncing...</p>
       </div>
@@ -84,14 +93,14 @@ export default function Dashboard() {
         </div>
         
         <section className="flex items-center gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-border">
-          <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8" onClick={() => setSelectedDate(subDays(selectedDate, 1))}>
+          <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8" onClick={() => setSelectedDate(subDays(selectedDate!, 1))}>
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <div className="flex items-center gap-2 font-bold text-xs px-2 min-w-[140px] justify-center">
             <CalendarDays className="w-4 h-4 text-primary" />
             {format(selectedDate, "EEEE, MMM d")}
           </div>
-          <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8" onClick={() => setSelectedDate(addDays(selectedDate, 1))}>
+          <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8" onClick={() => setSelectedDate(addDays(selectedDate!, 1))}>
             <ChevronRight className="w-4 h-4" />
           </Button>
         </section>
