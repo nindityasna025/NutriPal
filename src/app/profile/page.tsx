@@ -5,7 +5,6 @@ import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/fireb
 import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { doc } from "firebase/firestore"
-import { Navbar } from "@/components/Navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
@@ -22,8 +21,8 @@ import { Badge } from "@/components/ui/badge"
 
 export default function ProfilePage() {
   const { user } = useUser()
-  const { auth } = useAuth()
-  const { firestore } = useFirestore()
+  const auth = useAuth()
+  const firestore = useFirestore()
   const router = useRouter()
 
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
@@ -38,8 +37,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-20 md:pt-20 bg-background font-body">
-      <Navbar />
-      
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <section className="flex flex-col items-center text-center space-y-4 pt-4">
           <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl">

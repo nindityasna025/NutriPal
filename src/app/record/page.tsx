@@ -27,7 +27,7 @@ export default function RecordPage() {
   const [mounted, setMounted] = useState(false)
   
   const { user } = useUser()
-  const { firestore } = useFirestore()
+  const firestore = useFirestore()
 
   useEffect(() => {
     setMounted(true)

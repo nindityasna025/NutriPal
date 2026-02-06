@@ -13,7 +13,7 @@ import { doc, setDoc } from "firebase/firestore"
 import { Loader2, Calculator, Scale, Ruler, Heart } from "lucide-react"
 
 export default function OnboardingPage() {
-  const { firestore } = useFirestore()
+  const firestore = useFirestore()
   const { user } = useUser()
   const router = useRouter()
   const [loading, setLoading] = useState(false)

@@ -21,7 +21,7 @@ export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, isUserLoading } = useUser()
-  const { auth } = useAuth()
+  const auth = useAuth()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -35,7 +35,6 @@ export function Navbar() {
   if (isAuthPage) return null
 
   // If we're not loading and there's no user, we might want to hide it too
-  // but let's keep it visible for now if not on auth page to avoid flicker
   if (!user && !isUserLoading && pathname !== "/login") return null
 
   const handleLogout = async () => {

@@ -22,7 +22,7 @@ export default function PlannerPage() {
   const [loading, setLoading] = useState(false)
   const [curated, setCurated] = useState<any[] | null>(null)
   const { user } = useUser()
-  const { firestore } = useFirestore()
+  const firestore = useFirestore()
 
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)

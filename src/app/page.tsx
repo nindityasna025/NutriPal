@@ -30,7 +30,7 @@ const MOCK_MEALS = [
 
 export default function Dashboard() {
   const router = useRouter()
-  const { firestore } = useFirestore()
+  const firestore = useFirestore()
   const { user, isUserLoading } = useUser()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)

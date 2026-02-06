@@ -11,9 +11,9 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
 import { Loader2, Chrome, Smartphone, ShoppingBag, CheckCircle2, ShieldCheck } from "lucide-react"
 
 export default function LoginPage() {
-  const { auth } = useAuth()
+  const auth = useAuth()
   const { user, isUserLoading } = useUser()
-  const { firestore } = useFirestore()
+  const firestore = useFirestore()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState<string | null>(null)
