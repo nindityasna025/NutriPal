@@ -24,6 +24,7 @@
       "type": "object",
       "properties": {
         "gender": { "type": "string", "enum": ["male", "female"] },
+        "age": { "type": "number" },
         "weight": { "type": "number" },
         "height": { "type": "number" },
         "bmi": { "type": "number" },

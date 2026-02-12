@@ -10,9 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc } from "firebase/firestore"
-import { Loader2, Calculator, Scale, Ruler, Heart, User } from "lucide-react"
+import { Loader2, Calculator, Scale, Ruler, Heart, User, Calendar } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 
 export default function OnboardingPage() {
   const firestore = useFirestore()
@@ -21,6 +22,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false)
   const [weight, setWeight] = useState("")
   const [height, setHeight] = useState("")
+  const [age, setAge] = useState("")
   const [gender, setGender] = useState<"male" | "female" | "">("")
   const [bmi, setBmi] = useState<number | null>(null)
   const [category, setCategory] = useState("")
@@ -43,11 +45,12 @@ export default function OnboardingPage() {
   }, [weight, height])
 
   const handleFinish = async () => {
-    if (!user || !weight || !height || !gender) return
+    if (!user || !weight || !height || !gender || !age) return
     setLoading(true)
     try {
       const profileData = {
         gender,
+        age: parseInt(age),
         weight: parseFloat(weight),
         height: parseFloat(height),
         bmi,
@@ -120,7 +123,14 @@ export default function OnboardingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-8 space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age</Label>
+              <div className="relative">
+                <Input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="25" className="pl-10 h-12 rounded-2xl border-primary/10 font-bold" />
+                <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-primary" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
               <div className="relative">
@@ -191,7 +201,7 @@ export default function OnboardingPage() {
 
       <Button 
         onClick={handleFinish} 
-        disabled={loading || !weight || !height || !gender} 
+        disabled={loading || !weight || !height || !gender || !age} 
         className="w-full h-16 text-lg font-black uppercase tracking-widest rounded-[2rem] shadow-xl shadow-primary/20 transition-all active:scale-95 bg-primary text-primary-foreground hover:bg-primary/90"
       >
         {loading ? <Loader2 className="animate-spin mr-3" /> : null}
@@ -200,5 +210,3 @@ export default function OnboardingPage() {
     </div>
   )
 }
-
-import { Badge } from "@/components/ui/badge"
