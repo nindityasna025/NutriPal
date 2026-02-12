@@ -3,10 +3,9 @@
 
 import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, ChevronRightSquare, CookingPot, Clock, Trophy, Info, ChevronRightIcon } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Info, ChevronRightIcon } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -85,7 +84,7 @@ export default function MealPlannerPage() {
       name: mealName,
       type: mealType,
       time: timeMap[mealType] || "12:00 PM",
-      calories: 450,
+      calories: 438,
       macros: { protein: 20, carbs: 50, fat: 15 },
       healthScore: 78,
       description: "Scheduled for energy balance throughout your day.",
@@ -157,7 +156,7 @@ export default function MealPlannerPage() {
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-2xl h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg ml-1">
+                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg ml-1">
                   <Plus className="w-4 h-4 mr-2" /> Add Meal
                 </Button>
               </DialogTrigger>
@@ -197,7 +196,7 @@ export default function MealPlannerPage() {
 
         {/* AI Curation Promo */}
         <Link href="/planner">
-          <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] hover:bg-primary/15">
+          <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] hover:bg-primary/15">
             <CardContent className="p-8 flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div className="w-14 h-14 bg-white/60 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
@@ -226,22 +225,30 @@ export default function MealPlannerPage() {
             ) : scheduledMeals && scheduledMeals.length > 0 ? (
                 scheduledMeals.map((meal) => (
                   <div key={meal.id} className="space-y-0 relative">
-                    <Card className={cn("group border-none shadow-sm hover:shadow-md transition-all rounded-[2.5rem] overflow-hidden bg-white relative", recipes[meal.id] && "rounded-b-none")}>
+                    <Card className={cn("group border-none shadow-sm hover:shadow-md transition-all rounded-[3rem] overflow-hidden bg-white relative", recipes[meal.id] && "rounded-b-none")}>
                       <CardContent className="p-8">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-10">
                              <div className="text-center min-w-[100px] border-r pr-6 border-border">
                                <p className="text-xl font-black text-primary">{meal.time}</p>
-                               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{meal.type}</p>
                              </div>
                              <div className="space-y-1">
                                 <h3 className="text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
                                 <div className="flex items-center gap-3">
-                                   <p className="text-[11px] font-bold text-muted-foreground uppercase">+{meal.calories || 450} kcal</p>
-                                   <div className="flex items-center gap-2">
-                                      <span className="text-[9px] font-black text-red-400">{meal.macros?.protein || 20}g P</span>
-                                      <span className="text-[9px] font-black text-yellow-500">{meal.macros?.carbs || 50}g C</span>
-                                      <span className="text-[9px] font-black text-blue-400">{meal.macros?.fat || 15}g F</span>
+                                   <p className="text-[11px] font-bold text-muted-foreground uppercase">+{meal.calories || 438} kcal</p>
+                                   <div className="flex items-center gap-3">
+                                      <div className="flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                                        <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter">{meal.macros?.protein || 20}g P</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                                        <span className="text-[9px] font-black text-yellow-600 uppercase tracking-tighter">{meal.macros?.carbs || 50}g C</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">{meal.macros?.fat || 15}g F</span>
+                                      </div>
                                    </div>
                                 </div>
                              </div>
@@ -262,7 +269,7 @@ export default function MealPlannerPage() {
                       </CardContent>
                     </Card>
                     {recipes[meal.id] && (
-                      <Card className="border-none shadow-md rounded-[2.5rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-4 duration-500 overflow-hidden">
+                      <Card className="border-none shadow-md rounded-[3rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-4 duration-500 overflow-hidden">
                         <CardContent className="p-8 pt-10 space-y-8">
                           <div className="flex items-center justify-between border-b border-primary/10 pb-4">
                              <div className="flex items-center gap-2"><Trophy className="text-primary w-4 h-4" /><span className="text-sm font-black uppercase tracking-widest text-primary">Health Score: {meal.healthScore || 78}/100</span></div>
@@ -283,20 +290,6 @@ export default function MealPlannerPage() {
               )}
           </div>
         </div>
-
-        {/* Meal Reminders Footer */}
-        <Card className="bg-secondary/30 border-none rounded-[2.5rem] p-10 space-y-6">
-          <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-primary" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary">Meal Reminders</span>
-          </div>
-          <p className="text-sm text-muted-foreground font-medium max-w-md">
-            Get notifications 30 minutes before each meal time to stay consistent and maintain your metabolic rhythm.
-          </p>
-          <Button variant="secondary" className="w-full bg-white text-primary hover:bg-white/90 font-black rounded-2xl h-14 uppercase text-[10px] tracking-widest border border-border shadow-sm">
-            Manage Alerts
-          </Button>
-        </Card>
       </main>
 
       {/* Edit Dialog */}
