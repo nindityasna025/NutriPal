@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, ChevronRightSquare, CookingPot } from "lucide-react"
+import { Plus, Utensils, Bell, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, ChevronRightSquare, CookingPot, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -347,9 +347,9 @@ export default function MealPlannerPage() {
                 </div>
               ) : scheduledMeals && scheduledMeals.length > 0 ? (
                 scheduledMeals.map((meal) => (
-                  <div key={meal.id} className="space-y-2">
+                  <div key={meal.id} className="space-y-0 relative">
                     <Card className={cn(
-                      "group border-none shadow-sm hover:shadow-md transition-all rounded-[2.5rem] overflow-hidden bg-white",
+                      "group border-none shadow-sm hover:shadow-md transition-all rounded-[2.5rem] overflow-hidden bg-white z-10 relative",
                       recipes[meal.id] && "rounded-b-none"
                     )}>
                       <CardContent className="p-8">
@@ -401,14 +401,22 @@ export default function MealPlannerPage() {
                     </Card>
                     
                     {recipes[meal.id] && (
-                      <Card className="border-none shadow-md rounded-[2.5rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-2 duration-300">
-                        <CardContent className="p-8 pt-4">
-                          <div className="flex items-center gap-2 mb-4">
+                      <Card className="border-none shadow-md rounded-[2.5rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-4 duration-500 overflow-hidden">
+                        <CardContent className="p-8 pt-10">
+                          <div className="flex items-center gap-2 mb-6 bg-white/50 w-fit px-4 py-2 rounded-full border border-primary/10">
                             <Sparkles className="w-4 h-4 text-primary" />
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">AI Kitchen Instructions</span>
                           </div>
-                          <div className="prose prose-sm max-w-none text-foreground/80 font-medium whitespace-pre-wrap leading-relaxed">
+                          <div className="space-y-6 text-foreground/90 font-medium whitespace-pre-wrap leading-relaxed text-sm">
                             {recipes[meal.id]}
+                          </div>
+                          <div className="mt-8 pt-6 border-t border-primary/10 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            <span className="flex items-center gap-2">
+                              <Clock className="w-3 h-3" /> Updated just now
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <Utensils className="w-3 h-3" /> Tailored to your profile
+                            </span>
                           </div>
                         </CardContent>
                       </Card>

@@ -31,13 +31,13 @@ Please generate a healthy, delicious, and easy-to-follow recipe for: "{{{mealNam
 
 Consider these dietary restrictions: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{else}}None{{/if}}.
 
-The recipe should include:
-1. A brief health benefit of the meal.
-2. Ingredients list with measurements.
-3. Clear step-by-step instructions.
-4. Estimated prep and cook time.
+Please structure the response clearly with these EXACT section headers in bold:
+1. **🌟 HEALTH BENEFIT**
+2. **🛒 INGREDIENTS** (Use bullet points)
+3. **👨‍🍳 INSTRUCTIONS** (Use numbered steps)
+4. **⏱️ PREP & COOK TIME**
 
-Format the output nicely.`,
+Keep the tone professional yet encouraging. Avoid long paragraphs; use clear spacing between sections.`,
 });
 
 const generateRecipeFlow = ai.defineFlow(
