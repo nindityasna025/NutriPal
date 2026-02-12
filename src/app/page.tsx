@@ -23,7 +23,10 @@ import {
   ChevronUp,
   Watch,
   ChevronLeft,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Trophy,
+  Info
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday, isSameDay } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -41,7 +44,8 @@ const MOCK_MEALS = [
     macros: { protein: 17, carbs: 74, fat: 19 },
     healthScore: 62,
     description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats. Adding a source of lean protein next time could enhance the balance.",
-    ingredients: ["Stir fried noodles", "Carrot", "Egg", "Bean sprouts", "Soy sauce"]
+    ingredients: ["Stir fried noodles", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
+    tips: "Balance for Weight Maintenance: This provides roughly 22% of your daily energy needs. High in sodium, consider drinking extra water."
   },
   { 
     id: "m2", 
@@ -52,7 +56,8 @@ const MOCK_MEALS = [
     macros: { protein: 12, carbs: 28, fat: 18 },
     healthScore: 85,
     description: "Perfect balance of healthy fats and protein.",
-    ingredients: ["Sourdough", "Avocado", "Egg", "Lemon juice"]
+    ingredients: ["Sourdough", "Avocado", "Egg", "Lemon juice"],
+    tips: "Great start to your day! The healthy fats from avocado will keep you full until lunch."
   }
 ]
 
@@ -253,73 +258,94 @@ export default function Dashboard() {
           <Button variant="link" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] hover:no-underline">View All</Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-5">
+        <div className="grid grid-cols-1 gap-6">
           {displayMeals.length > 0 ? (
             displayMeals.map((meal) => (
-              <Card key={meal.id} className="rounded-[2.5rem] border-none shadow-sm hover:shadow-xl transition-all overflow-hidden bg-white group cursor-pointer" onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}>
-                <CardContent className="p-0">
-                  <div className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div key={meal.id} className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+                {/* Header Card */}
+                <Card 
+                  className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white cursor-pointer"
+                  onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
+                >
+                  <CardContent className="p-8 flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Utensils className="text-primary w-7 h-7" />
+                      <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center">
+                        <CheckCircle2 className="w-7 h-7 text-green-500" strokeWidth={2.5} />
                       </div>
-                      <div className="space-y-1 text-left">
-                        <h3 className="font-black text-xl tracking-tight leading-tight">{meal.name}</h3>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
-                          <Badge variant="secondary" className="bg-secondary/50 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-lg border-none">{meal.source}</Badge>
-                        </div>
+                      <h3 className="font-black text-3xl tracking-tight leading-tight">{meal.name}</h3>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Calories</p>
+                      <p className="font-black text-4xl tracking-tighter text-primary">+{meal.calories}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {expandedMeal === meal.id && (
+                  <>
+                    {/* Macros Grid */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-8 bg-red-50/50 rounded-[2rem] text-center border border-red-100/50">
+                        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Protein</p>
+                        <p className="text-3xl font-black text-red-600 tracking-tight">{meal.macros?.protein}g</p>
+                      </div>
+                      <div className="p-8 bg-yellow-50/50 rounded-[2rem] text-center border border-yellow-100/50">
+                        <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-1">Carbs</p>
+                        <p className="text-3xl font-black text-yellow-600 tracking-tight">{meal.macros?.carbs}g</p>
+                      </div>
+                      <div className="p-8 bg-blue-50/50 rounded-[2rem] text-center border border-blue-100/50">
+                        <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Fat</p>
+                        <p className="text-3xl font-black text-blue-600 tracking-tight">{meal.macros?.fat}g</p>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-8">
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-baseline gap-1.5">
-                          <p className="font-black text-3xl tracking-tighter leading-none">+{meal.calories}</p>
-                          <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">kcal</span>
-                        </div>
-                        <div className="flex items-center gap-2.5 mt-2 pr-1">
-                          <div className="flex flex-col items-center gap-0.5"><div className="w-1.5 h-1.5 rounded-full bg-red-400" /><span className="text-[7px] font-black text-muted-foreground/40 uppercase">{meal.macros?.protein}g</span></div>
-                          <div className="flex flex-col items-center gap-0.5"><div className="w-1.5 h-1.5 rounded-full bg-yellow-400" /><span className="text-[7px] font-black text-muted-foreground/40 uppercase">{meal.macros?.carbs}g</span></div>
-                          <div className="flex flex-col items-center gap-0.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-400" /><span className="text-[7px] font-black text-muted-foreground/40 uppercase">{meal.macros?.fat}g</span></div>
-                        </div>
-                      </div>
-                      {expandedMeal === meal.id ? <ChevronUp className="text-muted-foreground/30" /> : <ChevronDown className="text-muted-foreground/30" />}
-                    </div>
-                  </div>
 
-                  {expandedMeal === meal.id && (
-                    <div className="px-8 pb-8 pt-4 border-t border-muted/50 space-y-6 animate-in slide-in-from-top-2 duration-300 text-left">
-                      <div className="flex items-center justify-between">
-                         <div className="space-y-1">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Health Score</p>
-                            <div className="flex items-center gap-3">
-                               <span className="text-2xl font-black text-primary">{meal.healthScore || 75}/100</span>
-                               <Progress value={meal.healthScore || 75} className="w-32 h-1.5" />
-                            </div>
-                         </div>
-                         <Button variant="link" size="sm" className="text-primary font-black text-[9px] uppercase tracking-widest">Brand View</Button>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">AI Insight</p>
-                        <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">
-                          "{meal.description}"
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Ingredients</p>
-                        <div className="flex flex-wrap gap-2">
-                          {(meal.ingredients || []).map((ing, i) => (
-                            <Badge key={i} variant="secondary" className="bg-muted/50 text-muted-foreground/70 font-bold text-[9px] border-none px-3 py-1 rounded-xl uppercase">{ing}</Badge>
-                          ))}
+                    {/* Rich Details Card */}
+                    <Card className="rounded-[3rem] border-none shadow-lg bg-white overflow-hidden">
+                      <CardContent className="p-10 space-y-10">
+                        {/* Health Benefit Header */}
+                        <div className="flex items-center justify-between border-b border-border/50 pb-8">
+                           <div className="flex items-center gap-4">
+                              <Trophy className="text-primary w-8 h-8" />
+                              <span className="text-2xl font-black tracking-tight">Health Benefit</span>
+                           </div>
+                           <div className="flex items-center gap-6">
+                              <span className="text-4xl font-black text-primary/80">{meal.healthScore || 75}/100</span>
+                              <Progress value={meal.healthScore || 75} className="w-32 h-2.5 rounded-full" />
+                           </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+
+                        {/* Description */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">
+                            <Info className="w-3.5 h-3.5" /> Description
+                          </div>
+                          <p className="text-lg font-medium text-foreground/80 leading-relaxed italic pr-4">
+                            "{meal.description}"
+                          </p>
+                        </div>
+
+                        {/* Ingredients */}
+                        <div className="space-y-4">
+                          <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Ingredients Detected</p>
+                          <div className="flex flex-wrap gap-2.5">
+                            {(meal.ingredients || []).map((ing, i) => (
+                              <Badge key={i} variant="secondary" className="bg-secondary/40 text-muted-foreground font-bold text-xs border-none px-5 py-2.5 rounded-2xl">{ing}</Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* AI Recommendation Box */}
+                        <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10">
+                           <p className="text-xs font-black text-primary uppercase tracking-[0.1em] mb-2">AI Recommendation</p>
+                           <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                             {meal.tips || "Based on your activity levels and profile, this meal is a solid choice for maintaining your current metabolic rate."}
+                           </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
+              </div>
             ))
           ) : (
             <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-muted flex flex-col items-center justify-center">
