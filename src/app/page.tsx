@@ -159,6 +159,12 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-700 pb-20">
+      {/* Welcome Header */}
+      <section className="space-y-1">
+        <h1 className="text-4xl font-black tracking-tight text-foreground">My Dashboard</h1>
+        <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
+      </section>
+
       {/* Dynamic Timeline - TOP View */}
       <section className="w-full">
         <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-border flex items-center justify-between">
