@@ -152,9 +152,10 @@ export default function Dashboard() {
 
   const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) ? MOCK_MEALS : [])
 
+  // Show 6 days before and the selected date at the far right
   const timelineDays = eachDayOfInterval({
-    start: subDays(selectedDate, 3),
-    end: addDays(selectedDate, 3),
+    start: subDays(selectedDate, 6),
+    end: selectedDate,
   })
 
   return (
@@ -165,7 +166,7 @@ export default function Dashboard() {
         <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
       </section>
 
-      {/* Dynamic Timeline - TOP View */}
+      {/* Dynamic Timeline - TOP View - Today/Selected at far right */}
       <section className="w-full">
         <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-border flex items-center justify-between">
            {timelineDays.map((day, i) => {
