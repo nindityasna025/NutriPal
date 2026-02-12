@@ -133,35 +133,45 @@ export default function MealPlannerPage() {
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
         {/* Header Section */}
-        <section className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-1 w-full md:w-auto text-left">
-            <h1 className="text-4xl font-black tracking-tight text-foreground uppercase">Meal Planner</h1>
-            <p className="text-muted-foreground font-medium text-sm">Organize your nutrition for the week.</p>
+        <section className="flex flex-col md:flex-row items-center justify-between gap-8 pb-4 border-b border-muted/30">
+          <div className="space-y-1.5 w-full md:w-auto text-center md:text-left">
+            <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
+            <p className="text-muted-foreground font-semibold text-xs uppercase tracking-widest opacity-70">Weekly Nutrition Organizer</p>
           </div>
           
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <Button variant="outline" size="sm" onClick={handleToday} className="rounded-full h-11 px-6 font-black uppercase text-[10px] tracking-widest border-border shadow-sm">Today</Button>
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 w-full md:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={handleToday} 
+              className="rounded-full h-12 px-6 font-black uppercase text-[10px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all"
+            >
+              Today
+            </Button>
             
-            <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[280px]">
-              <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0"><ChevronLeft className="h-4 w-4" /></Button>
-              <div className="flex items-center gap-2 px-2 font-black text-[10px] text-foreground uppercase tracking-[0.15em]">
+            <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
+              <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-2 px-6 font-black text-[11px] text-foreground uppercase tracking-widest min-w-[180px] justify-center">
                 <CalendarIcon className="h-4 w-4 text-primary/60" />
                 <span className="whitespace-nowrap">{format(date, "EEEE, MMM d")}</span>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0"><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-primary/20 text-primary hover:bg-primary/30 h-11 px-8 font-black uppercase text-[10px] tracking-widest border border-primary/20 shadow-sm">
+                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
                   <Plus className="w-4 h-4 mr-2" /> Add Meal
                 </Button>
               </DialogTrigger>
               <DialogContent className="rounded-[2.5rem]">
-                <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4">Schedule Meal</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">Schedule Meal</DialogTitle></DialogHeader>
                 <div className="grid gap-6 py-4">
                   <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
                     <Select value={mealType} onValueChange={setMealType}>
                       <SelectTrigger className="h-12 rounded-2xl font-bold"><SelectValue /></SelectTrigger>
                       <SelectContent className="rounded-xl">
@@ -173,7 +183,7 @@ export default function MealPlannerPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
                     <Input placeholder="e.g. Avocado Toast" className="h-12 rounded-2xl font-bold" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
                 </div>
@@ -270,10 +280,10 @@ export default function MealPlannerPage() {
       {/* Edit Dialog */}
       <Dialog open={!!editingMealId} onOpenChange={(open) => !open && setEditingMealId(null)}>
         <DialogContent className="rounded-[2.5rem]">
-          <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4">Edit Meal</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">Edit Meal</DialogTitle></DialogHeader>
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
               <Select value={editMealType} onValueChange={setEditMealType}>
                 <SelectTrigger className="h-12 rounded-2xl font-bold"><SelectValue /></SelectTrigger>
                 <SelectContent className="rounded-xl">
@@ -285,7 +295,7 @@ export default function MealPlannerPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
               <Input className="h-12 rounded-2xl font-bold" value={editMealName} onChange={(e) => setEditMealName(e.target.value)} />
             </div>
           </div>
