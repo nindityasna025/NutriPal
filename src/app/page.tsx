@@ -158,7 +158,30 @@ export default function Dashboard() {
   })
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-700 pb-40">
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-700 pb-20">
+      {/* Dynamic Timeline - TOP View */}
+      <section className="w-full">
+        <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-border flex items-center justify-between">
+           {timelineDays.map((day, i) => {
+             const isSelected = isSameDay(day, selectedDate)
+             return (
+               <button 
+                 key={i}
+                 onClick={() => setSelectedDate(day)}
+                 className={cn(
+                   "flex flex-col items-center justify-center flex-1 py-4 rounded-[1.5rem] transition-all duration-300",
+                   isSelected ? "bg-primary text-primary-foreground shadow-lg scale-105" : "text-muted-foreground hover:bg-secondary/50"
+                 )}
+               >
+                 <span className="text-[10px] font-black uppercase tracking-widest mb-2 opacity-60">{format(day, "eee")}</span>
+                 <span className="text-xl font-black leading-none">{format(day, "d")}</span>
+                 {isSameDay(day, startOfToday()) && !isSelected && <div className="w-1.5 h-1.5 rounded-full bg-primary mt-3" />}
+               </button>
+             )
+           })}
+        </div>
+      </section>
+
       {/* Header Summary */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden">
@@ -348,29 +371,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </section>
-
-      {/* Dynamic Timeline - Week View Date Selector */}
-      <div className="fixed bottom-12 left-0 right-0 px-4 md:px-0 z-[110]">
-        <div className="max-w-md mx-auto bg-white/80 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex items-center justify-between">
-           {timelineDays.map((day, i) => {
-             const isSelected = isSameDay(day, selectedDate)
-             return (
-               <button 
-                 key={i}
-                 onClick={() => setSelectedDate(day)}
-                 className={cn(
-                   "flex flex-col items-center justify-center w-12 h-16 rounded-[1.5rem] transition-all duration-300",
-                   isSelected ? "bg-primary text-primary-foreground shadow-lg scale-110" : "text-muted-foreground/60 hover:bg-secondary/50"
-                 )}
-               >
-                 <span className="text-[9px] font-black uppercase tracking-tighter mb-1.5 opacity-60">{format(day, "eee")}</span>
-                 <span className="text-lg font-black leading-none">{format(day, "d")}</span>
-                 {isSameDay(day, startOfToday()) && !isSelected && <div className="w-1 h-1 rounded-full bg-primary mt-2" />}
-               </button>
-             )
-           })}
-        </div>
-      </div>
     </div>
   )
 }
