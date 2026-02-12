@@ -146,7 +146,6 @@ export default function LoginPage() {
               { icon: <Smartphone className="text-green-500 w-4 h-4" />, label: "GrabFood", color: "bg-green-50/50" },
               { icon: <Smartphone className="text-emerald-500 w-4 h-4" />, label: "GoFood", color: "bg-emerald-50/50" },
               { icon: <ShieldCheck className="text-red-500 w-4 h-4" />, label: "Fitness Apps", color: "bg-red-50/50" },
-              { icon: <Zap className="text-yellow-500 w-4 h-4" />, label: "Auto-Sync", color: "bg-yellow-50/50" },
             ].map((app, i) => (
               <div key={i} className={`flex items-center gap-3 p-3 ${app.color} rounded-2xl border border-transparent`}>
                 <div className="bg-white p-2 rounded-xl shadow-sm">
@@ -161,15 +160,6 @@ export default function LoginPage() {
                 </div>
               </div>
             ))}
-          </div>
-          
-          <div className="p-4 bg-primary/5 rounded-2xl flex items-start gap-3 border border-primary/10">
-            <div className="bg-white p-2 rounded-lg mt-0.5 shadow-sm">
-              <Zap className="w-3 h-3 text-primary" />
-            </div>
-            <p className="text-[9px] text-muted-foreground/80 leading-tight font-medium">
-              <strong className="text-foreground">Ecosystem Info:</strong> The platform will automatically sync your order history data.
-            </p>
           </div>
         </CardContent>
       </Card>
