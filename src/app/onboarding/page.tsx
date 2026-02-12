@@ -10,7 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc } from "firebase/firestore"
-import { Loader2, Calculator, Scale, Ruler, Heart } from "lucide-react"
+import { Loader2, Calculator, Scale, Ruler, Heart, User } from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { cn } from "@/lib/utils"
 
 export default function OnboardingPage() {
   const firestore = useFirestore()
@@ -19,6 +21,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false)
   const [weight, setWeight] = useState("")
   const [height, setHeight] = useState("")
+  const [gender, setGender] = useState<"male" | "female" | "">("")
   const [bmi, setBmi] = useState<number | null>(null)
   const [category, setCategory] = useState("")
   const [restrictions, setRestrictions] = useState<string[]>([])
@@ -40,10 +43,11 @@ export default function OnboardingPage() {
   }, [weight, height])
 
   const handleFinish = async () => {
-    if (!user) return
+    if (!user || !weight || !height || !gender) return
     setLoading(true)
     try {
       const profileData = {
+        gender,
         weight: parseFloat(weight),
         height: parseFloat(height),
         bmi,
@@ -65,85 +69,136 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4 md:py-12 space-y-8">
+    <div className="max-w-xl mx-auto p-4 md:py-12 space-y-8 animate-in fade-in duration-700">
       <header className="text-center space-y-2">
         <h1 className="text-3xl font-headline font-bold">Personalize Your Journey</h1>
         <p className="text-muted-foreground">Let NutriPal tailor your nutrition plan to your unique needs.</p>
       </header>
 
-      <Card className="border-none shadow-xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Calculator className="text-primary" /> Body Metrics</CardTitle>
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10">
+          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-primary">
+            <User className="w-5 h-5" /> Biological Sex
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="p-8">
+          <RadioGroup 
+            value={gender} 
+            onValueChange={(val) => setGender(val as "male" | "female")} 
+            className="grid grid-cols-2 gap-4"
+          >
+            <Label
+              htmlFor="male"
+              className={cn(
+                "flex flex-col items-center justify-between rounded-2xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all",
+                gender === "male" ? "border-primary bg-primary/5" : ""
+              )}
+            >
+              <RadioGroupItem value="male" id="male" className="sr-only" />
+              <span className="text-2xl mb-1">👨</span>
+              <span className="font-black uppercase text-[10px] tracking-widest">Male</span>
+            </Label>
+            <Label
+              htmlFor="female"
+              className={cn(
+                "flex flex-col items-center justify-between rounded-2xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all",
+                gender === "female" ? "border-primary bg-primary/5" : ""
+              )}
+            >
+              <RadioGroupItem value="female" id="female" className="sr-only" />
+              <span className="text-2xl mb-1">👩</span>
+              <span className="font-black uppercase text-[10px] tracking-widest">Female</span>
+            </Label>
+          </RadioGroup>
+        </CardContent>
+      </Card>
+
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10">
+          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-primary">
+            <Calculator className="w-5 h-5" /> Body Metrics
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-8 space-y-6">
+          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Weight (kg)</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
               <div className="relative">
-                <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="70" className="pl-9 rounded-xl" />
-                <Scale className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="70" className="pl-10 h-12 rounded-2xl border-primary/10 font-bold" />
+                <Scale className="absolute left-3 top-3.5 w-4 h-4 text-primary" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Height (cm)</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Height (cm)</Label>
               <div className="relative">
-                <Input type="number" value={height} onChange={e => setHeight(e.target.value)} placeholder="175" className="pl-9 rounded-xl" />
-                <Ruler className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input type="number" value={height} onChange={e => setHeight(e.target.value)} placeholder="175" className="pl-10 h-12 rounded-2xl border-primary/10 font-bold" />
+                <Ruler className="absolute left-3 top-3.5 w-4 h-4 text-primary" />
               </div>
             </div>
           </div>
 
           {bmi && (
-            <div className="p-4 bg-primary/5 rounded-2xl border border-primary/20 flex justify-between items-center animate-in fade-in zoom-in duration-300">
-              <div>
-                <p className="text-xs font-bold uppercase text-muted-foreground">Your BMI</p>
-                <p className="text-2xl font-black text-primary">{bmi.toFixed(1)}</p>
+            <div className="p-6 bg-primary/5 rounded-[1.5rem] border border-primary/20 flex justify-between items-center animate-in fade-in zoom-in duration-500">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Your Calculated BMI</p>
+                <p className="text-4xl font-black text-primary tracking-tighter">{bmi.toFixed(1)}</p>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-bold uppercase text-muted-foreground">Category</p>
-                <p className="text-lg font-bold">{category}</p>
+              <div className="text-right space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Health Category</p>
+                <Badge className="bg-primary text-primary-foreground hover:bg-primary font-black px-4 py-1.5 rounded-xl uppercase text-[10px] tracking-widest border-none">
+                  {category}
+                </Badge>
               </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <Card className="border-none shadow-xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Heart className="text-red-500" /> Health & Restrictions</CardTitle>
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10">
+          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-primary">
+            <Heart className="w-5 h-5" /> Health & Restrictions
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="p-8 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             {["Diabetes", "Hypertension", "Vegetarian", "Gluten-free"].map(res => (
-              <div key={res} className="flex items-center space-x-2 p-3 bg-secondary/30 rounded-xl">
+              <div key={res} className="flex items-center space-x-3 p-4 bg-secondary/30 rounded-2xl border border-transparent hover:border-primary/10 transition-all cursor-pointer group">
                 <Checkbox 
                   id={res} 
                   checked={restrictions.includes(res)} 
+                  className="rounded-lg h-5 w-5 border-2 border-primary/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   onCheckedChange={(checked) => {
                     if (checked) setRestrictions([...restrictions, res])
                     else setRestrictions(restrictions.filter(r => r !== res))
                   }}
                 />
-                <Label htmlFor={res} className="cursor-pointer">{res}</Label>
+                <Label htmlFor={res} className="cursor-pointer font-bold text-sm tracking-tight">{res}</Label>
               </div>
             ))}
           </div>
           <div className="space-y-2">
-            <Label>Food Allergies (if any)</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Food Allergies (if any)</Label>
             <Input 
               value={allergies} 
               onChange={e => setAllergies(e.target.value)} 
               placeholder="e.g. Peanuts, Shellfish..." 
-              className="rounded-xl"
+              className="h-12 rounded-2xl border-primary/10 font-bold"
             />
           </div>
         </CardContent>
       </Card>
 
-      <Button onClick={handleFinish} disabled={loading || !weight || !height} className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg transition-all active:scale-95">
-        {loading ? <Loader2 className="animate-spin mr-2" /> : null}
+      <Button 
+        onClick={handleFinish} 
+        disabled={loading || !weight || !height || !gender} 
+        className="w-full h-16 text-lg font-black uppercase tracking-widest rounded-[2rem] shadow-xl shadow-primary/20 transition-all active:scale-95 bg-primary text-primary-foreground hover:bg-primary/90"
+      >
+        {loading ? <Loader2 className="animate-spin mr-3" /> : null}
         Complete My Profile
       </Button>
     </div>
   )
 }
+
+import { Badge } from "@/components/ui/badge"

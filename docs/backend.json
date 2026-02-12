@@ -23,6 +23,7 @@
       "title": "UserProfile",
       "type": "object",
       "properties": {
+        "gender": { "type": "string", "enum": ["male", "female"] },
         "weight": { "type": "number" },
         "height": { "type": "number" },
         "bmi": { "type": "number" },
