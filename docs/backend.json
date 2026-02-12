@@ -34,7 +34,8 @@
         "calorieTarget": { "type": "number" },
         "proteinTarget": { "type": "number", "description": "Target percentage of protein" },
         "carbsTarget": { "type": "number", "description": "Target percentage of carbs" },
-        "fatTarget": { "type": "number", "description": "Target percentage of fat" }
+        "fatTarget": { "type": "number", "description": "Target percentage of fat" },
+        "notificationsEnabled": { "type": "boolean" }
       }
     },
     "DailyLog": {
@@ -66,7 +67,8 @@
         "healthScore": { "type": "number" },
         "description": { "type": "string" },
         "ingredients": { "type": "array", "items": { "type": "string" } },
-        "imageUrl": { "type": "string" }
+        "imageUrl": { "type": "string" },
+        "reminderEnabled": { "type": "boolean" }
       }
     }
   },

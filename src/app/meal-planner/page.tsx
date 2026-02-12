@@ -1,10 +1,11 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Info, ChevronRightIcon, Calendar as CalendarIcon } from "lucide-react"
+import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Info, ChevronRightIcon, Calendar as CalendarIcon, Bell, BellOff } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -29,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 
@@ -42,11 +44,13 @@ export default function MealPlannerPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [mealName, setMealName] = useState("")
   const [mealType, setMealType] = useState("Breakfast")
+  const [reminderEnabled, setReminderEnabled] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
 
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   const [editMealName, setEditMealName] = useState("")
   const [editMealType, setEditMealType] = useState("Breakfast")
+  const [editReminderEnabled, setEditReminderEnabled] = useState(false)
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -72,9 +76,20 @@ export default function MealPlannerPage() {
   const handleNextDay = () => date && setDate(addDays(date, 1))
   const handleToday = () => setDate(startOfToday())
 
-  const handleAddMeal = () => {
+  const requestNotificationPermission = async () => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      await Notification.requestPermission();
+    }
+  }
+
+  const handleAddMeal = async () => {
     if (!user || !mealsColRef || !mealName) return
     setIsSaving(true)
+    
+    if (reminderEnabled) {
+      await requestNotificationPermission();
+    }
+
     const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
     addDocumentNonBlocking(mealsColRef, {
       name: mealName,
@@ -85,21 +100,38 @@ export default function MealPlannerPage() {
       healthScore: 78,
       description: "Scheduled for energy balance throughout your day.",
       source: "planner",
+      reminderEnabled,
       createdAt: serverTimestamp()
     })
     setMealName(""); setIsDialogOpen(false); setIsSaving(false)
-    toast({ title: "Schedule Added", description: `${mealName} is on the menu.` })
+    toast({ 
+      title: "Schedule Added", 
+      description: reminderEnabled ? `${mealName} scheduled with reminder.` : `${mealName} is on the menu.` 
+    })
   }
 
   const handleOpenEdit = (meal: any) => {
-    setEditingMealId(meal.id); setEditMealName(meal.name); setEditMealType(meal.type)
+    setEditingMealId(meal.id); 
+    setEditMealName(meal.name); 
+    setEditMealType(meal.type);
+    setEditReminderEnabled(!!meal.reminderEnabled);
   }
 
-  const handleUpdateMeal = () => {
+  const handleUpdateMeal = async () => {
     if (!user || !mealsColRef || !editingMealId) return
+    
+    if (editReminderEnabled) {
+      await requestNotificationPermission();
+    }
+
     const mealRef = doc(mealsColRef, editingMealId)
     const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
-    updateDocumentNonBlocking(mealRef, { name: editMealName, type: editMealType, time: timeMap[editMealType] || "12:00 PM" })
+    updateDocumentNonBlocking(mealRef, { 
+      name: editMealName, 
+      type: editMealType, 
+      time: timeMap[editMealType] || "12:00 PM",
+      reminderEnabled: editReminderEnabled
+    })
     setEditingMealId(null)
     toast({ title: "Schedule Updated", description: "Menu updated." })
   }
@@ -185,6 +217,13 @@ export default function MealPlannerPage() {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
                     <Input placeholder="e.g. Avocado Toast" className="h-12 rounded-2xl font-bold" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
+                  <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl">
+                    <div className="space-y-0.5">
+                      <Label className="text-xs font-black uppercase tracking-widest">Set Reminder</Label>
+                      <p className="text-[10px] text-muted-foreground font-medium">Notify me 15 mins before meal time.</p>
+                    </div>
+                    <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
+                  </div>
                 </div>
                 <DialogFooter className="pb-4">
                   <Button onClick={handleAddMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg">
@@ -231,7 +270,10 @@ export default function MealPlannerPage() {
                                <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
                              </div>
                              <div className="space-y-1">
-                                <h3 className="text-2xl font-black tracking-tight">{meal.name}</h3>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-2xl font-black tracking-tight">{meal.name}</h3>
+                                  {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30" />}
+                                </div>
                                 <div className="flex items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories || 438} KCAL</p>
                                    <div className="flex items-center gap-2">
@@ -296,6 +338,13 @@ export default function MealPlannerPage() {
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
               <Input className="h-12 rounded-2xl font-bold" value={editMealName} onChange={(e) => setEditMealName(e.target.value)} />
+            </div>
+            <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl">
+              <div className="space-y-0.5">
+                <Label className="text-xs font-black uppercase tracking-widest">Set Reminder</Label>
+                <p className="text-[10px] text-muted-foreground font-medium">Notify me 15 mins before meal time.</p>
+              </div>
+              <Switch checked={editReminderEnabled} onCheckedChange={setEditReminderEnabled} />
             </div>
           </div>
           <DialogFooter className="pb-4">

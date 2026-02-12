@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
 import { 
   LogOut, 
   Settings, 
@@ -24,7 +25,8 @@ import {
   Loader2,
   User,
   Calculator,
-  Heart
+  Heart,
+  Bell
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -62,6 +64,7 @@ export default function ProfilePage() {
   const [allergies, setAllergies] = useState("")
   const [bmi, setBmi] = useState<number | null>(null)
   const [category, setCategory] = useState("")
+  const [notifs, setNotifs] = useState(false)
 
   useEffect(() => {
     if (profile) {
@@ -71,6 +74,7 @@ export default function ProfilePage() {
       setGender(profile.gender || "")
       setRestrictions(profile.dietaryRestrictions || [])
       setAllergies(profile.allergies || "")
+      setNotifs(!!profile.notificationsEnabled)
     }
   }, [profile])
 
@@ -107,6 +111,7 @@ export default function ProfilePage() {
         bmiCategory: category,
         dietaryRestrictions: restrictions,
         allergies,
+        notificationsEnabled: notifs,
         calorieTarget: category === "Ideal" ? 2000 : category === "Obese" ? 1800 : 2500,
         updatedAt: serverTimestamp()
       }
@@ -118,6 +123,19 @@ export default function ProfilePage() {
       console.error(e)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleNotifs = async (enabled: boolean) => {
+    setNotifs(enabled)
+    if (enabled && "Notification" in window) {
+      const permission = await Notification.requestPermission()
+      if (permission === "granted") {
+        toast({ title: "Notifications Active", description: "Smart meal reminders are now enabled." })
+      }
+    }
+    if (profileRef) {
+      updateDocumentNonBlocking(profileRef, { notificationsEnabled: enabled })
     }
   }
 
@@ -158,7 +176,6 @@ export default function ProfilePage() {
               </DialogHeader>
               
               <div className="p-8 pt-0 space-y-8">
-                {/* Biological Sex */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Biological Sex</Label>
                   <RadioGroup value={gender} onValueChange={(val) => setGender(val as "male" | "female")} className="grid grid-cols-2 gap-4">
@@ -175,7 +192,6 @@ export default function ProfilePage() {
                   </RadioGroup>
                 </div>
 
-                {/* Body Metrics */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Physical Stats</Label>
                   <div className="grid grid-cols-3 gap-4">
@@ -205,7 +221,6 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Health & Restrictions */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Restrictions</Label>
                   <div className="grid grid-cols-2 gap-3">
@@ -223,10 +238,6 @@ export default function ProfilePage() {
                         <Label htmlFor={`edit-${res}`} className="cursor-pointer font-bold text-xs uppercase tracking-tight">{res}</Label>
                       </div>
                     ))}
-                  </div>
-                  <div className="space-y-2 pt-2">
-                    <Label className="text-[9px] font-bold uppercase text-muted-foreground/60 ml-1">Other Allergies</Label>
-                    <Input value={allergies} onChange={e => setAllergies(e.target.value)} className="h-12 rounded-2xl font-bold" placeholder="e.g. Peanuts..." />
                   </div>
                 </div>
               </div>
@@ -266,14 +277,20 @@ export default function ProfilePage() {
           <Card className="border-none shadow-xl bg-white rounded-[3rem] overflow-hidden">
             <CardContent className="p-0">
               {[
+                { 
+                  icon: <Bell className="text-orange-500 w-5 h-5" />, 
+                  label: "Smart Notifications", 
+                  sub: "Meal reminders & health insights",
+                  hasSwitch: true
+                },
                 { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
                 { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Apple Health / Google Fit" },
                 { icon: <Settings className="text-muted-foreground w-5 h-5" />, label: "Privacy & Data", sub: "Manage your AI permissions" },
               ].map((item, i, arr) => (
-                <button 
+                <div 
                   key={i} 
                   className={cn(
-                    "w-full flex items-center justify-between p-7 hover:bg-secondary/30 transition-all active:scale-[0.99]",
+                    "w-full flex items-center justify-between p-7 transition-all",
                     i !== arr.length - 1 && "border-b border-muted/30"
                   )}
                 >
@@ -284,8 +301,12 @@ export default function ProfilePage() {
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{item.sub}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
-                </button>
+                  {item.hasSwitch ? (
+                    <Switch checked={notifs} onCheckedChange={handleToggleNotifs} />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
+                  )}
+                </div>
               ))}
             </CardContent>
           </Card>
