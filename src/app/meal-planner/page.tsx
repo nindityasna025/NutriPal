@@ -71,10 +71,6 @@ export default function MealPlannerPage() {
 
   const handlePrevDay = () => date && setDate(subDays(date, 1))
   const handleNextDay = () => date && setDate(addDays(date, 1))
-  const handleToday = () => {
-    const today = startOfToday()
-    setDate(today)
-  }
 
   const handleAddMeal = () => {
     if (!user || !mealsColRef || !mealName) return
@@ -142,9 +138,9 @@ export default function MealPlannerPage() {
             <p className="text-muted-foreground font-medium text-sm">Organize your daily nutrition and schedule.</p>
           </div>
           
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-col items-center gap-4 w-full md:w-auto">
             {/* Date Selector Pill */}
-            <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[280px] flex-1 md:flex-none">
+            <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[300px] flex-1 md:flex-none">
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -169,17 +165,9 @@ export default function MealPlannerPage() {
               </Button>
             </div>
 
-            <Button 
-              variant="outline" 
-              onClick={handleToday} 
-              className="rounded-xl h-11 px-4 font-black uppercase text-[10px] tracking-widest bg-white border-border hidden sm:flex"
-            >
-              today
-            </Button>
-
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg">
+                <Button className="rounded-full bg-primary/20 text-primary hover:bg-primary/30 h-11 px-8 font-black uppercase text-[10px] tracking-widest border border-primary/20 shadow-sm">
                   <Plus className="w-4 h-4 mr-2" /> Add Meal
                 </Button>
               </DialogTrigger>
@@ -253,11 +241,11 @@ export default function MealPlannerPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-10">
                              <div className="text-center min-w-[100px] border-r pr-6 border-border">
-                               <p className="text-xl font-black text-primary">{meal.time}</p>
+                               <p className="text-xl font-black text-primary/40">{meal.time}</p>
                              </div>
                              <div className="space-y-1">
                                 <h3 className="text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-col gap-1">
                                    <p className="text-[11px] font-bold text-muted-foreground uppercase">+{meal.calories || 438} kcal</p>
                                    <div className="flex items-center gap-3">
                                       <div className="flex items-center gap-1">
@@ -277,9 +265,15 @@ export default function MealPlannerPage() {
                              </div>
                           </div>
                           <div className="flex items-center gap-2">
-                             <Button variant="secondary" size="sm" onClick={() => handleGetRecipe(meal.id, meal.name)} disabled={loadingRecipe[meal.id]} className="rounded-xl font-black text-[10px] uppercase tracking-widest h-10 px-6 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20">
+                             <Button 
+                              variant="secondary" 
+                              size="sm" 
+                              onClick={() => handleGetRecipe(meal.id, meal.name)} 
+                              disabled={loadingRecipe[meal.id]} 
+                              className="rounded-full font-black text-[10px] uppercase tracking-widest h-10 px-6 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+                             >
                                 {loadingRecipe[meal.id] ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <CookingPot className="w-3 h-3 mr-2" />}
-                                {recipes[meal.id] ? "Hide Recipe" : "AI Recipe"}
+                                AI RECIPE
                              </Button>
                              <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-10 w-10">
                                <Edit2 className="w-4 h-4" />
