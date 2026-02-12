@@ -87,7 +87,14 @@ export default function Dashboard() {
   const burned = dailyLog?.caloriesBurned || 450 
   const water = dailyLog?.waterIntake || 1.8
   
-  const status = "Daily" // Matching the mockup label
+  // Dynamic Calorie Status Logic
+  const getCalorieStatus = () => {
+    const diff = consumed - calorieTarget;
+    if (Math.abs(diff) <= 100) return "Tercapai";
+    if (diff < 0) return "Kurang";
+    return "Kelebihan";
+  }
+  const status = getCalorieStatus();
 
   const displayMeals = (meals && meals.length > 0) ? meals : (dateId === format(new Date(), "yyyy-MM-dd") ? MOCK_MEALS : [])
 
@@ -148,7 +155,7 @@ export default function Dashboard() {
               <div className="text-[10px] font-black text-muted-foreground uppercase leading-tight tracking-wider">
                 Target<br/>Status
               </div>
-              <span className="text-[10px] font-black px-5 py-2 rounded-full bg-primary/20 text-primary-foreground">
+              <span className="text-[10px] font-black px-5 py-2 rounded-full bg-primary/20 text-primary-foreground border border-primary/20">
                 {status}
               </span>
             </div>
@@ -251,7 +258,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* NEW: Smart Daily Insight Section */}
+      {/* Smart Daily Insight Section */}
       <section className="pt-6">
         <Card className="rounded-[2.5rem] border-none bg-gradient-to-br from-primary/20 to-accent/20 shadow-xl shadow-primary/5 overflow-hidden group">
           <CardContent className="p-10 flex flex-col md:flex-row items-center gap-10 relative">
@@ -267,7 +274,7 @@ export default function Dashboard() {
               <div className="space-y-1">
                 <h2 className="text-2xl font-black tracking-tight flex items-center justify-center md:justify-start gap-2">
                   Smart Daily Insight
-                  <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest">AI Powered</Badge>
+                  <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest px-3 py-1">AI POWERED</Badge>
                 </h2>
                 <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest">Based on your activity today</p>
               </div>
@@ -279,7 +286,7 @@ export default function Dashboard() {
                   onClick={() => router.push("/meal-planner")}
                   className="bg-white text-primary hover:bg-white/90 rounded-2xl h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/5 border border-primary/10"
                 >
-                  Optimize My Schedule <ArrowRight className="ml-2 w-4 h-4" />
+                  OPTIMIZE MY SCHEDULE <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>
             </div>
