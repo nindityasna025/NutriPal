@@ -19,7 +19,10 @@ import {
   Loader2,
   History,
   Plus,
-  Minus
+  Minus,
+  Lightbulb,
+  Sparkles,
+  ArrowRight
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import { collection, doc, setDoc, increment } from "firebase/firestore"
@@ -94,6 +97,14 @@ export default function Dashboard() {
       waterIntake: Number(newWater.toFixed(1)),
       date: dateId
     }, { merge: true });
+  }
+
+  // Simple logic for dynamic suggestion
+  const getSuggestion = () => {
+    if (water < 2.0) return "You're a bit low on hydration. Try to drink 2 more glasses before dinner!";
+    if (burned > 600 && consumed < calorieTarget - 500) return "High activity detected! Consider a protein-rich snack for recovery.";
+    if (consumed > calorieTarget) return "You've reached your calorie goal. Focus on fiber-rich vegetables for the rest of the day.";
+    return "You're doing great! Consistency is key to reaching your wellness goals.";
   }
 
   return (
@@ -237,6 +248,42 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* NEW: Smart Daily Insight Section */}
+      <section className="pt-6">
+        <Card className="rounded-[2.5rem] border-none bg-gradient-to-br from-primary/20 to-accent/20 shadow-xl shadow-primary/5 overflow-hidden group">
+          <CardContent className="p-10 flex flex-col md:flex-row items-center gap-10 relative">
+            <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:rotate-12 transition-transform">
+              <Sparkles className="w-40 h-40 text-primary" />
+            </div>
+            
+            <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-lg shrink-0">
+              <Lightbulb className="w-12 h-12 text-primary fill-primary/10" />
+            </div>
+            
+            <div className="flex-1 space-y-4 text-center md:text-left z-10">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-black tracking-tight flex items-center justify-center md:justify-start gap-2">
+                  Smart Daily Insight
+                  <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest">AI Powered</Badge>
+                </h2>
+                <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest">Based on your activity today</p>
+              </div>
+              <p className="text-lg font-medium text-foreground/80 leading-relaxed italic max-w-2xl">
+                "{getSuggestion()}"
+              </p>
+              <div className="pt-2">
+                <Button 
+                  onClick={() => router.push("/meal-planner")}
+                  className="bg-white text-primary hover:bg-white/90 rounded-2xl h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/5 border border-primary/10"
+                >
+                  Optimize My Schedule <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </div>
   )
