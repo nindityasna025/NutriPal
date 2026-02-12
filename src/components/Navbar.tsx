@@ -14,7 +14,6 @@ const navItems = [
   { href: "/meal-planner", label: "Meal Planner", icon: Utensils },
   { href: "/planner", label: "AI Curation", icon: Sparkles },
   { href: "/record", label: "Record & Recap", icon: Camera },
-  { href: "/profile", label: "My Profile", icon: User },
 ]
 
 export function Navbar() {
@@ -67,7 +66,15 @@ export function Navbar() {
 
         <div className="p-6 border-t mt-auto">
           {user && (
-            <div className="flex items-center gap-3 px-4 py-3 bg-secondary/30 rounded-2xl border border-transparent">
+            <Link 
+              href="/profile"
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-300 active:scale-95 group",
+                pathname === "/profile" 
+                  ? "bg-primary/10 border-primary/20 text-foreground" 
+                  : "bg-secondary/30 border-transparent hover:bg-secondary/50"
+              )}
+            >
               <Avatar className="h-9 w-9 border border-primary/20">
                 <AvatarImage src={user.photoURL || ""} />
                 <AvatarFallback className="bg-primary/10 text-primary font-black text-xs uppercase">
@@ -76,16 +83,16 @@ export function Navbar() {
               </Avatar>
               <div className="flex flex-col overflow-hidden">
                 <span className="text-xs font-black truncate">{user.displayName || "Demo User"}</span>
-                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">Active Account</span>
+                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">My Profile</span>
               </div>
-            </div>
+            </Link>
           )}
         </div>
       </aside>
 
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-border px-2 py-4 flex justify-around items-center shadow-[0_-8px_30px_rgba(0,0,0,0.08)] rounded-t-[2.5rem]">
-        {navItems.map((item) => {
+        {navItems.concat([{ href: "/profile", label: "Profile", icon: User }]).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
           return (
