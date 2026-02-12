@@ -145,8 +145,14 @@ export default function Dashboard() {
 
   const displayMeals = (meals && meals.length > 0) ? meals : (dateId === format(new Date(), "yyyy-MM-dd") ? MOCK_MEALS : [])
 
+  // Generate week view timeline
+  const timelineDays = eachDayOfInterval({
+    start: subDays(startOfToday(), 3),
+    end: addDays(startOfToday(), 3),
+  })
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-700 pb-32">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-700 pb-40">
       {/* Header Summary */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="md:col-span-2 border-none shadow-xl bg-white rounded-[2rem] overflow-hidden">
@@ -328,6 +334,29 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </section>
+
+      {/* Dynamic Timeline - Week View Date Selector */}
+      <div className="fixed bottom-24 left-0 right-0 px-4 md:px-0 md:absolute md:bottom-8 w-full z-50">
+        <div className="max-w-md mx-auto bg-white/90 backdrop-blur-md border border-border rounded-[2rem] p-3 shadow-2xl flex items-center justify-between">
+           {timelineDays.map((day, i) => {
+             const isSelected = isSameDay(day, selectedDate)
+             return (
+               <button 
+                 key={i}
+                 onClick={() => setSelectedDate(day)}
+                 className={cn(
+                   "flex flex-col items-center justify-center w-12 h-16 rounded-2xl transition-all duration-300",
+                   isSelected ? "bg-primary text-primary-foreground shadow-lg scale-110" : "text-muted-foreground hover:bg-secondary"
+                 )}
+               >
+                 <span className="text-[10px] font-black uppercase tracking-tighter mb-1">{format(day, "eee")}</span>
+                 <span className="text-lg font-black">{format(day, "d")}</span>
+                 {isSameDay(day, startOfToday()) && !isSelected && <div className="w-1 h-1 rounded-full bg-primary mt-1" />}
+               </button>
+             )
+           })}
+        </div>
+      </div>
     </div>
   )
 }
