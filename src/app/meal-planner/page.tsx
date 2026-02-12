@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -101,8 +102,8 @@ export default function MealPlannerPage() {
     setIsDialogOpen(false)
     setIsSaving(false)
     toast({
-      title: "Jadwal Berhasil Ditambahkan",
-      description: `${mealName} telah masuk ke daftar menu Anda.`
+      title: "Schedule Added",
+      description: `${mealName} has been added to your menu.`
     })
   }
 
@@ -131,8 +132,8 @@ export default function MealPlannerPage() {
 
     setEditingMealId(null)
     toast({
-      title: "Jadwal Diperbarui",
-      description: "Menu Anda telah berhasil diperbarui."
+      title: "Schedule Updated",
+      description: "Your menu has been successfully updated."
     })
   }
 
@@ -142,8 +143,8 @@ export default function MealPlannerPage() {
     deleteDocumentNonBlocking(mealRef)
     toast({
       variant: "destructive",
-      title: "Menu Dihapus",
-      description: `${mealName} telah dihapus dari jadwal.`
+      title: "Meal Deleted",
+      description: `${mealName} has been removed from your schedule.`
     })
   }
 
@@ -231,10 +232,10 @@ export default function MealPlannerPage() {
                 </DialogHeader>
                 <div className="grid gap-6 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="type" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Waktu Makan</Label>
+                    <Label htmlFor="type" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
                     <Select value={mealType} onValueChange={setMealType}>
                       <SelectTrigger className="h-12 rounded-2xl border-primary/20 font-bold">
-                        <SelectValue placeholder="Pilih Waktu" />
+                        <SelectValue placeholder="Select Time" />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="Breakfast">Breakfast</SelectItem>
@@ -245,10 +246,10 @@ export default function MealPlannerPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Nama Makanan</Label>
+                    <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
                     <Input
                       id="name"
-                      placeholder="Contoh: Bubur Ayam Spesial"
+                      placeholder="e.g. Special Chicken Porridge"
                       className="h-12 rounded-2xl border-primary/20 font-bold"
                       value={mealName}
                       onChange={(e) => setMealName(e.target.value)}
@@ -261,7 +262,7 @@ export default function MealPlannerPage() {
                     disabled={!mealName || isSaving}
                     className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
                   >
-                    {isSaving ? <Loader2 className="animate-spin" /> : "Simpan ke Jadwal"}
+                    {isSaving ? <Loader2 className="animate-spin" /> : "Save to Schedule"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -277,10 +278,10 @@ export default function MealPlannerPage() {
             </DialogHeader>
             <div className="grid gap-6 py-4">
               <div className="space-y-2">
-                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Waktu Makan</Label>
+                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
                 <Select value={editMealType} onValueChange={setEditMealType}>
                   <SelectTrigger className="h-12 rounded-2xl border-primary/20 font-bold">
-                    <SelectValue placeholder="Pilih Waktu" />
+                    <SelectValue placeholder="Select Time" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
                     <SelectItem value="Breakfast">Breakfast</SelectItem>
@@ -291,9 +292,9 @@ export default function MealPlannerPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Nama Makanan</Label>
+                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
                 <Input
-                  placeholder="Contoh: Bubur Ayam Spesial"
+                  placeholder="e.g. Special Chicken Porridge"
                   className="h-12 rounded-2xl border-primary/20 font-bold"
                   value={editMealName}
                   onChange={(e) => setEditMealName(e.target.value)}
@@ -306,7 +307,7 @@ export default function MealPlannerPage() {
                 disabled={!editMealName}
                 className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
               >
-                Update Jadwal
+                Update Schedule
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -321,7 +322,7 @@ export default function MealPlannerPage() {
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-2xl font-black tracking-tight text-foreground">Feeling Indecisive?</h2>
-                  <p className="text-muted-foreground font-medium">Let AI curate your meals from Grab & Gojek berdasarkan profil Anda.</p>
+                  <p className="text-muted-foreground font-medium">Let AI curate your meals from Grab & Gojek based on your profile.</p>
                 </div>
               </div>
               <ChevronRightSquare className="w-10 h-10 opacity-30 text-primary" />
@@ -426,8 +427,8 @@ export default function MealPlannerPage() {
               ) : (
                 <div className="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-muted">
                   <Utensils className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
-                  <p className="text-muted-foreground font-bold">Belum ada makanan yang dijadwalkan.</p>
-                  <p className="text-xs text-muted-foreground">Klik "+ Add Meal" untuk memulai.</p>
+                  <p className="text-muted-foreground font-bold">No meals scheduled yet.</p>
+                  <p className="text-xs text-muted-foreground">Click "+ Add Meal" to get started.</p>
                 </div>
               )}
             </div>

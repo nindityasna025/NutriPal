@@ -90,9 +90,9 @@ export default function Dashboard() {
   // Dynamic Calorie Status Logic
   const getCalorieStatus = () => {
     const diff = consumed - calorieTarget;
-    if (Math.abs(diff) <= 100) return "Tercapai";
-    if (diff < 0) return "Kurang";
-    return "Kelebihan";
+    if (Math.abs(diff) <= 100) return "Goal Met";
+    if (diff < 0) return "Under Goal";
+    return "Over Goal";
   }
   const status = getCalorieStatus();
 

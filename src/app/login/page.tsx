@@ -132,7 +132,7 @@ export default function LoginPage() {
             </Button>
             
             <p className="text-center text-[10px] text-muted-foreground/70 leading-relaxed font-medium px-6">
-              Mode demo mensimulasikan akses ke riwayat pengiriman dan metrik kebugaran Anda secara otomatis.
+              Demo mode simulates access to your delivery history and fitness metrics automatically.
             </p>
           </div>
           
@@ -168,7 +168,7 @@ export default function LoginPage() {
               <Zap className="w-3 h-3 text-primary" />
             </div>
             <p className="text-[9px] text-muted-foreground/80 leading-tight font-medium">
-              <strong className="text-foreground">Info Ekosistem:</strong> Platform akan mensinkronkan data riwayat pesanan secara otomatis.
+              <strong className="text-foreground">Ecosystem Info:</strong> The platform will automatically sync your order history data.
             </p>
           </div>
         </CardContent>

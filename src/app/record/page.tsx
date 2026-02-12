@@ -115,7 +115,7 @@ export default function RecordPage() {
         <section className="space-y-6">
           <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white overflow-hidden p-6 space-y-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Pilih Tanggal Record</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Select Record Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -155,7 +155,7 @@ export default function RecordPage() {
                 <div className="relative w-full h-full">
                   <Image src={preview} alt="Meal Preview" fill className="object-cover" />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-white font-black text-sm uppercase tracking-widest">Ganti Foto</p>
+                    <p className="text-white font-black text-sm uppercase tracking-widest">Change Photo</p>
                   </div>
                 </div>
               ) : (
