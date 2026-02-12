@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -30,6 +29,12 @@
       "description": "Delicious healthy food spread",
       "imageUrl": "https://picsum.photos/seed/nutri-bg/1920/1080",
       "imageHint": "healthy delicious food"
+    },
+    {
+      "id": "llama-avatar",
+      "description": "Stylized llama mascot with sunglasses",
+      "imageUrl": "https://picsum.photos/seed/llama-style/400/400",
+      "imageHint": "llama mascot"
     }
   ]
 }
