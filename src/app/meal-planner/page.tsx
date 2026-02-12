@@ -309,13 +309,6 @@ export default function MealPlannerPage() {
         </div>
       </main>
 
-      {/* Branding Logo Floating */}
-      <div className="fixed bottom-8 right-8 z-[100]">
-        <div className="bg-foreground text-background w-10 h-10 rounded-full flex items-center justify-center font-black text-xs shadow-2xl">
-          N
-        </div>
-      </div>
-
       {/* Edit Dialog */}
       <Dialog open={!!editingMealId} onOpenChange={(open) => !open && setEditingMealId(null)}>
         <DialogContent className="rounded-[2.5rem]">
