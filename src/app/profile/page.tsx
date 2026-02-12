@@ -6,7 +6,7 @@ import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/fireb
 import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { doc, serverTimestamp } from "firebase/firestore"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,9 +23,6 @@ import {
   ChevronRight,
   Edit2,
   Loader2,
-  User,
-  Calculator,
-  Heart,
   Bell
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -50,7 +47,7 @@ export default function ProfilePage() {
   const { toast } = useToast()
 
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
-  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef)
+  const { data: profile } = useDoc(profileRef)
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -205,7 +202,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[9px] font-bold uppercase text-muted-foreground/60">Height (cm)</Label>
-                      <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl font-bold" />
+                      <Input type="number" value={height} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl font-bold" />
                     </div>
                   </div>
                   {bmi && (

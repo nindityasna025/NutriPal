@@ -190,7 +190,7 @@ export default function Dashboard() {
 
             <div className="pt-6 border-t border-muted/50">
                <div className="flex items-center justify-between mb-4">
-                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Macro Balance</p>
+                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Macro Balance (100%)</p>
                  <div className="flex gap-4">
                    <div className="flex items-center gap-1.5">
                      <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
@@ -206,7 +206,7 @@ export default function Dashboard() {
                    </div>
                  </div>
                </div>
-               <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-secondary">
+               <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-secondary shadow-inner">
                   <div style={{ width: '25%' }} className="bg-red-400 h-full" title="Protein: 25%" />
                   <div style={{ width: '45%' }} className="bg-yellow-400 h-full" title="Carbs: 45%" />
                   <div style={{ width: '30%' }} className="bg-blue-400 h-full" title="Fat: 30%" />
@@ -254,7 +254,7 @@ export default function Dashboard() {
               <Card key={meal.id} className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white">
                 <div className="p-8 flex items-center justify-between cursor-pointer" onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}>
                   <div className="flex items-center gap-6">
-                    <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center overflow-hidden relative">
+                    <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center overflow-hidden relative shadow-sm border border-muted/20">
                       {meal.imageUrl ? (
                         <Image 
                           src={meal.imageUrl} 
@@ -285,8 +285,8 @@ export default function Dashboard() {
                 </div>
 
                 {expandedMeal === meal.id && (
-                  <div className="px-8 pb-10 pt-4 border-t border-muted/20 space-y-8 animate-in slide-in-from-top-2 duration-300">
-                    <div className="flex flex-wrap items-center justify-between gap-6 py-4 px-4 bg-primary/5 rounded-2xl">
+                  <div className="px-8 pb-10 pt-4 border-t border-muted/20 space-y-6 animate-in slide-in-from-top-2 duration-300">
+                    <div className="flex flex-wrap items-center justify-between gap-6 py-4 px-6 bg-primary/5 rounded-2xl border border-primary/10">
                       <div className="flex items-center gap-6">
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
@@ -300,16 +300,17 @@ export default function Dashboard() {
                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                            <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span>
                          </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                         <Trophy className="text-primary w-4 h-4" />
-                         <span className="text-[11px] font-black uppercase tracking-widest text-primary">Health Score: {meal.healthScore || 75}/100</span>
+                         <div className="h-4 w-px bg-primary/20" />
+                         <div className="flex items-center gap-2">
+                            <Trophy className="text-primary w-4 h-4" />
+                            <span className="text-[11px] font-black uppercase tracking-widest text-primary">Score: {meal.healthScore || 75}/100</span>
+                         </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-2">
                       <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest"><Info className="w-3.5 h-3.5" /> Description</div>
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest"><Info className="w-3.5 h-3.5" /> AI Insight</div>
                         <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">"{meal.description}"</p>
                       </div>
                       <div className="space-y-4">

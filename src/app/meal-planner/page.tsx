@@ -2,10 +2,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Navbar } from "@/components/Navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Info, ChevronRightIcon, Calendar as CalendarIcon, Bell, BellOff } from "lucide-react"
+import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Calendar as CalendarIcon, Bell, BellOff, ChevronRightIcon } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -161,20 +160,19 @@ export default function MealPlannerPage() {
 
   return (
     <div className="min-h-screen pb-24 bg-background font-body relative">
-      <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
-        {/* Header Section */}
+        {/* Unified Header Section - Single Line on Desktop */}
         <section className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6 border-b border-muted/30">
           <div className="space-y-1.5 w-full lg:w-auto text-center lg:text-left">
             <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
             <p className="text-muted-foreground font-semibold text-xs uppercase tracking-widest opacity-70">Weekly Nutrition Organizer</p>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-end">
             <Button 
               variant="outline" 
               onClick={handleToday} 
-              className="rounded-full h-12 px-5 font-black uppercase text-[10px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all"
+              className="rounded-full h-12 px-5 font-black uppercase text-[10px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all shrink-0"
             >
               Today
             </Button>
@@ -194,7 +192,7 @@ export default function MealPlannerPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
+                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0">
                   <Plus className="w-4 h-4 mr-2" /> Add Meal
                 </Button>
               </DialogTrigger>
@@ -235,7 +233,7 @@ export default function MealPlannerPage() {
           </div>
         </section>
 
-        {/* AI Curation Card */}
+        {/* AI Curation Banner */}
         <Link href="/planner">
           <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] hover:bg-primary/15">
             <CardContent className="p-8 flex items-center justify-between">
@@ -269,7 +267,7 @@ export default function MealPlannerPage() {
                              <div className="text-center min-w-[100px] border-r pr-8 border-border">
                                <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
                              </div>
-                             <div className="space-y-1">
+                             <div className="space-y-1.5">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-2xl font-black tracking-tight">{meal.name}</h3>
                                   {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30" />}
@@ -277,9 +275,9 @@ export default function MealPlannerPage() {
                                 <div className="flex items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories || 438} KCAL</p>
                                    <div className="flex items-center gap-2">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[9px] font-black uppercase text-red-500">{meal.macros?.protein || 12}G P</span>
-                                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 ml-1" /><span className="text-[9px] font-black uppercase text-yellow-600">{meal.macros?.carbs || 33}G C</span>
-                                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 ml-1" /><span className="text-[9px] font-black uppercase text-blue-500">{meal.macros?.fat || 18}G F</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein || 12}G Protein</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 ml-1" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs || 33}G Carbs</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 ml-1" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat || 18}G Fat</span>
                                    </div>
                                 </div>
                              </div>
