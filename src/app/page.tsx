@@ -31,6 +31,7 @@ import { format, addDays, subDays, startOfToday, isSameDay } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 // Mock data for fallback
 const MOCK_MEALS = [
@@ -40,6 +41,7 @@ const MOCK_MEALS = [
     calories: 438, 
     time: "08:00 PM", 
     source: "PHOTO",
+    imageUrl: "https://picsum.photos/seed/nutri1/400/400",
     macros: { protein: 17, carbs: 74, fat: 19 },
     healthScore: 62,
     description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats.",
@@ -52,6 +54,7 @@ const MOCK_MEALS = [
     calories: 320, 
     time: "11:30 AM", 
     source: "PHOTO",
+    imageUrl: "https://picsum.photos/seed/nutri2/400/400",
     macros: { protein: 12, carbs: 28, fat: 18 },
     healthScore: 85,
     description: "Perfect balance of healthy fats and protein.",
@@ -251,8 +254,18 @@ export default function Dashboard() {
               <Card key={meal.id} className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white">
                 <div className="p-8 flex items-center justify-between cursor-pointer" onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}>
                   <div className="flex items-center gap-6">
-                    <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center">
-                      <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
+                    <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center overflow-hidden relative">
+                      {meal.imageUrl ? (
+                        <Image 
+                          src={meal.imageUrl} 
+                          alt={meal.name} 
+                          fill 
+                          className="object-cover"
+                          data-ai-hint="food meal"
+                        />
+                      ) : (
+                        <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
+                      )}
                     </div>
                     <div className="space-y-1">
                       <h3 className="font-black text-2xl tracking-tight leading-tight">{meal.name}</h3>
