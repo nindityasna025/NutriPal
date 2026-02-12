@@ -36,11 +36,8 @@ export function Navbar() {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen fixed left-0 top-0 z-[100] shadow-sm">
         <div className="p-10 flex items-center gap-4">
-          <div className="relative flex items-center justify-center w-10 h-10">
-            <div className="absolute inset-0 bg-muted rounded-full translate-x-1.5 opacity-20" />
-            <div className="z-10 bg-foreground text-background w-full h-full rounded-full flex items-center justify-center font-black text-xs shadow-lg">
-              N
-            </div>
+          <div className="bg-primary/10 text-primary w-12 h-12 rounded-full flex items-center justify-center shadow-sm">
+            <Utensils className="w-6 h-6" strokeWidth={2.5} />
           </div>
           <span className="font-headline font-black text-2xl tracking-tighter text-foreground">NutriPal</span>
         </div>
@@ -56,7 +53,7 @@ export function Navbar() {
                 className={cn(
                   "flex items-center gap-5 px-6 py-4 rounded-full transition-all duration-300 group",
                   isActive 
-                    ? "bg-primary/10 text-foreground font-black border border-primary/20" 
+                    ? "bg-primary/10 text-foreground font-black border border-primary/20 shadow-sm" 
                     : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-bold"
                 )}
               >
@@ -72,8 +69,8 @@ export function Navbar() {
             <Link 
               href="/profile"
               className={cn(
-                "flex items-center gap-3 px-4 py-4 rounded-[2.5rem] transition-all duration-300 active:scale-95 group shadow-sm bg-primary/10 border-transparent hover:bg-primary/20",
-                pathname === "/profile" && "bg-primary/20 border-primary/30"
+                "flex items-center gap-3 p-4 rounded-[2rem] transition-all duration-300 active:scale-95 group shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20",
+                pathname === "/profile" && "bg-primary/20 border-primary/40"
               )}
             >
               <Avatar className="h-10 w-10 border-2 border-white shadow-sm">

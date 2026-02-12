@@ -128,13 +128,13 @@ export default function MealPlannerPage() {
   if (!mounted || !date) return null
 
   return (
-    <div className="min-h-screen pb-24 md:pt-10 bg-background font-body">
+    <div className="min-h-screen pb-24 md:pt-10 bg-background font-body relative">
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
         {/* Header Section */}
         <section className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-1 w-full md:w-auto text-left">
-            <h1 className="text-4xl font-black tracking-tight text-foreground">Meal Planner</h1>
+            <h1 className="text-4xl font-black tracking-tight text-foreground uppercase">Meal Planner</h1>
             <p className="text-muted-foreground font-medium text-sm">Organize your daily nutrition and schedule.</p>
           </div>
           
@@ -150,7 +150,7 @@ export default function MealPlannerPage() {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               
-              <div className="flex items-center gap-2 px-2 font-black text-xs text-foreground uppercase tracking-wider">
+              <div className="flex items-center gap-2 px-2 font-black text-[10px] text-foreground uppercase tracking-[0.15em]">
                 <CalendarIcon className="h-4 w-4 text-primary/60" />
                 <span className="whitespace-nowrap">{format(date, "EEEE, MMM d")}</span>
               </div>
@@ -205,12 +205,12 @@ export default function MealPlannerPage() {
           </div>
         </section>
 
-        {/* AI Curation Promo */}
+        {/* AI Curation Card */}
         <Link href="/planner">
           <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] hover:bg-primary/15">
             <CardContent className="p-8 flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <div className="w-14 h-14 bg-white/60 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
+                <div className="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
                   <Sparkles className="w-7 h-7 text-primary" />
                 </div>
                 <div className="space-y-0.5">
@@ -227,7 +227,7 @@ export default function MealPlannerPage() {
 
         {/* Scheduled Meals List */}
         <div className="space-y-8">
-          <h2 className="text-3xl font-black tracking-tight px-2">Scheduled Meals</h2>
+          <h2 className="text-3xl font-black tracking-tight px-2 uppercase">Scheduled Meals</h2>
           <div className="space-y-5">
             {isLoadingMeals ? (
               <div className="flex justify-center py-20">
@@ -239,7 +239,7 @@ export default function MealPlannerPage() {
                     <Card className={cn("group border-none shadow-sm hover:shadow-md transition-all rounded-[3rem] overflow-hidden bg-white relative", recipes[meal.id] && "rounded-b-none")}>
                       <CardContent className="p-8">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="flex items-center gap-8 lg:gap-12">
+                          <div className="flex items-center gap-8 lg:gap-12 flex-1">
                              <div className="text-center min-w-[100px] border-r pr-8 border-border">
                                <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
                              </div>
@@ -249,36 +249,36 @@ export default function MealPlannerPage() {
                                    <p className="text-[11px] font-bold text-muted-foreground uppercase">+{meal.calories || 438} KCAL</p>
                                    <div className="flex items-center gap-3">
                                       <div className="flex items-center gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-red-400" />
-                                        <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{meal.macros?.protein || 12}G P</span>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                        <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter">{meal.macros?.protein || 12}G P</span>
                                       </div>
                                       <div className="flex items-center gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                                        <span className="text-[10px] font-black text-yellow-600 uppercase tracking-tighter">{meal.macros?.carbs || 33}G C</span>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                                        <span className="text-[9px] font-black text-yellow-600 uppercase tracking-tighter">{meal.macros?.carbs || 33}G C</span>
                                       </div>
                                       <div className="flex items-center gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-blue-400" />
-                                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter">{meal.macros?.fat || 18}G F</span>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">{meal.macros?.fat || 18}G F</span>
                                       </div>
                                    </div>
                                 </div>
                              </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 shrink-0">
                              <Button 
                               variant="secondary" 
                               size="sm" 
                               onClick={() => handleGetRecipe(meal.id, meal.name)} 
                               disabled={loadingRecipe[meal.id]} 
-                              className="rounded-full font-black text-[10px] uppercase tracking-widest h-11 px-8 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+                              className="rounded-full font-black text-[10px] uppercase tracking-widest h-11 px-8 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 shadow-sm"
                              >
                                 {loadingRecipe[meal.id] ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <CookingPot className="w-3 h-3 mr-2" />}
                                 AI RECIPE
                              </Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-11 w-11">
+                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-11 w-11 transition-colors">
                                <Edit2 className="w-4 h-4" />
                              </Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-11 w-11">
+                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-11 w-11 transition-colors">
                                <Trash2 className="w-4 h-4" />
                              </Button>
                           </div>
@@ -308,6 +308,13 @@ export default function MealPlannerPage() {
           </div>
         </div>
       </main>
+
+      {/* Branding Logo Floating */}
+      <div className="fixed bottom-8 right-8 z-[100]">
+        <div className="bg-foreground text-background w-10 h-10 rounded-full flex items-center justify-center font-black text-xs shadow-2xl">
+          N
+        </div>
+      </div>
 
       {/* Edit Dialog */}
       <Dialog open={!!editingMealId} onOpenChange={(open) => !open && setEditingMealId(null)}>
