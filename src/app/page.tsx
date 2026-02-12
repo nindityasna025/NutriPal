@@ -24,7 +24,6 @@ import {
   Watch,
   ChevronLeft,
   Calendar as CalendarIcon,
-  CheckCircle2,
   Trophy,
   Info
 } from "lucide-react"
@@ -43,9 +42,9 @@ const MOCK_MEALS = [
     source: "PHOTO",
     macros: { protein: 17, carbs: 74, fat: 19 },
     healthScore: 62,
-    description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats. Adding a source of lean protein next time could enhance the balance.",
-    ingredients: ["Rice Noodles", "Shrimp", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
-    tips: "Balance for Weight Maintenance: This provides roughly 22% of your daily energy needs. High in sodium, consider drinking extra water."
+    description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats.",
+    ingredients: ["Rice Noodles", "Shrimp", "Carrot", "Egg", "Bean sprouts"],
+    tips: "Consider drinking extra water due to sodium levels."
   },
   { 
     id: "m2", 
@@ -57,7 +56,7 @@ const MOCK_MEALS = [
     healthScore: 85,
     description: "Perfect balance of healthy fats and protein.",
     ingredients: ["Sourdough", "Avocado", "Egg", "Lemon juice"],
-    tips: "Great start to your day! The healthy fats from avocado will keep you full until lunch."
+    tips: "Great start to your day!"
   }
 ]
 
@@ -106,7 +105,7 @@ export default function Dashboard() {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="font-bold text-lg animate-pulse">NutriPal is syncing...</p>
+        <p className="font-black text-sm uppercase tracking-widest animate-pulse">Syncing NutriPal...</p>
       </div>
     )
   }
@@ -116,10 +115,6 @@ export default function Dashboard() {
   const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.7
   
-  const proteinPercent = 25
-  const carbsPercent = 45
-  const fatPercent = 30
-
   const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
   
   const getCalorieStatus = () => {
@@ -140,56 +135,38 @@ export default function Dashboard() {
     }, { merge: true });
   }
 
-  const getSuggestion = () => {
-    if (water < 2.0) return "You're a bit low on hydration. Try to drink 2 more glasses before dinner!";
-    if (burned > 600 && consumed < calorieTarget - 500) return "High activity detected! Consider a protein-rich snack for recovery.";
-    return "You're doing great! Consistency is key to reaching your wellness goals.";
-  }
-
   const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) ? MOCK_MEALS : [])
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700 pb-20">
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700 pb-24">
       {/* Header Section */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1 w-full md:w-auto text-left">
-          <h1 className="text-4xl font-black tracking-tight text-foreground">My Dashboard</h1>
-          <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
+          <h1 className="text-4xl font-black tracking-tight text-foreground uppercase">Dashboard</h1>
+          <p className="text-muted-foreground font-medium text-sm">Welcome back! Here is your daily report.</p>
         </div>
         
         {/* Date Selector Pill */}
-        <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[300px] w-full md:w-auto">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handlePrevDay} 
-            className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
-          >
-            <ChevronLeft className="h-5 w-5" />
+        <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[280px] w-full md:w-auto">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0">
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-          
-          <div className="flex items-center gap-3 px-2 font-black text-sm text-foreground">
-            <CalendarIcon className="h-5 w-5 text-primary/60" />
+          <div className="flex items-center gap-2 px-2 font-black text-[10px] text-foreground uppercase tracking-[0.15em]">
+            <CalendarIcon className="h-4 w-4 text-primary/60" />
             <span className="whitespace-nowrap">{format(selectedDate, "EEEE, MMM d")}</span>
           </div>
-          
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleNextDay} 
-            className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
-          >
-            <ChevronRight className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0">
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </section>
 
       {/* Main Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden">
+        <Card className="md:col-span-2 border-none shadow-xl bg-white rounded-[2.5rem] overflow-hidden">
           <CardHeader className="pb-0">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Calorie Tracker</CardTitle>
+              <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Calorie Progress</CardTitle>
               <span className={cn("font-black text-[9px] uppercase tracking-widest", calorieStatus.color)}>
                 {calorieStatus.label}
               </span>
@@ -209,19 +186,19 @@ export default function Dashboard() {
             </div>
 
             <div className="pt-6 border-t border-muted/50">
-               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4 text-left">Daily Macro Goals</p>
-               <div className="grid grid-cols-3 gap-8">
+               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4">Macro Balance</p>
+               <div className="grid grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-red-500">Protein</span> <span>{proteinPercent}%</span></div>
-                    <Progress value={proteinPercent} className="h-1 bg-red-50" indicatorClassName="bg-red-400" />
+                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-red-500">Protein</span></div>
+                    <Progress value={25} className="h-1 bg-red-50" indicatorClassName="bg-red-400" />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-yellow-500">Carbs</span> <span>{carbsPercent}%</span></div>
-                    <Progress value={carbsPercent} className="h-1 bg-yellow-50" indicatorClassName="bg-yellow-400" />
+                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-yellow-500">Carbs</span></div>
+                    <Progress value={45} className="h-1 bg-yellow-50" indicatorClassName="bg-yellow-400" />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-blue-500">Fat</span> <span>{fatPercent}%</span></div>
-                    <Progress value={fatPercent} className="h-1 bg-blue-50" indicatorClassName="bg-blue-400" />
+                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-blue-500">Fat</span></div>
+                    <Progress value={30} className="h-1 bg-blue-50" indicatorClassName="bg-blue-400" />
                   </div>
                </div>
             </div>
@@ -229,62 +206,43 @@ export default function Dashboard() {
         </Card>
 
         <div className="grid grid-cols-1 gap-6">
-          <Card className="border-none shadow-2xl bg-white rounded-[2.5rem] relative overflow-hidden group">
-            <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-2 h-full">
-              <div className="p-3 bg-red-50 rounded-2xl">
-                <Flame className="w-5 h-5 text-red-500" />
-              </div>
-              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Burned Today</p>
-              <h3 className="text-3xl font-black tracking-tight">{burned} <span className="text-xs font-bold text-muted-foreground">kcal</span></h3>
-              <div className="flex items-center gap-1.5 pt-1">
-                <Watch className="w-3 h-3 text-primary" />
-                <span className="text-[8px] font-black text-primary uppercase tracking-tighter">Connect Apple Health</span>
-              </div>
-            </CardContent>
+          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] flex flex-col items-center justify-center p-6 text-center">
+            <div className="p-3 bg-red-50 rounded-2xl mb-2"><Flame className="w-5 h-5 text-red-500" /></div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Burned</p>
+            <h3 className="text-3xl font-black">{burned} <span className="text-xs font-bold text-muted-foreground">kcal</span></h3>
+            <div className="flex items-center gap-1.5 mt-2">
+              <Watch className="w-3 h-3 text-primary" />
+              <span className="text-[8px] font-black text-primary uppercase">Apple Health Linked</span>
+            </div>
           </Card>
           
-          <Card className="border-none shadow-2xl bg-white rounded-[2.5rem]">
-            <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
-              <div className="p-3 bg-blue-50 rounded-2xl mb-2">
-                <div className="w-5 h-5 flex items-center justify-center">
-                   <Droplets className="w-5 h-5 text-blue-500" />
-                </div>
-              </div>
-              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Water</p>
-              <div className="flex items-center gap-4">
-                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full border border-primary/20"><Minus className="w-4 h-4" /></Button>
-                 <h3 className="text-2xl font-black tracking-tight">{water} <span className="text-xs font-bold text-muted-foreground">L</span></h3>
-                 <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full border border-primary/20 bg-primary/5"><Plus className="w-4 h-4 text-primary" /></Button>
-              </div>
-            </CardContent>
+          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] flex flex-col items-center justify-center p-6 text-center">
+            <div className="p-3 bg-blue-50 rounded-2xl mb-2"><Droplets className="w-5 h-5 text-blue-500" /></div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Hydration</p>
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full border"><Minus className="w-4 h-4" /></Button>
+              <h3 className="text-2xl font-black">{water} <span className="text-xs font-bold text-muted-foreground">L</span></h3>
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full border bg-primary/5"><Plus className="w-4 h-4 text-primary" /></Button>
+            </div>
           </Card>
         </div>
       </section>
 
       {/* Daily Food Report Section */}
-      <section className="space-y-6 pt-4">
+      <section className="space-y-6">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-xl">
-              <History className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-2xl font-black tracking-tight">Daily Food Report</h2>
+            <div className="p-2 bg-primary/10 rounded-xl"><History className="w-5 h-5 text-primary" /></div>
+            <h2 className="text-2xl font-black tracking-tight uppercase">Daily Food Report</h2>
           </div>
-          <Button variant="link" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] hover:no-underline">View All</Button>
+          <Button variant="link" size="sm" className="text-primary font-black text-[10px] uppercase tracking-widest hover:no-underline" onClick={() => router.push("/meal-planner")}>Meal Planner</Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-5">
           {displayMeals.length > 0 ? (
             displayMeals.map((meal) => (
-              <Card 
-                key={meal.id} 
-                className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white animate-in slide-in-from-bottom-2 duration-300"
-              >
-                {/* Header Card Area (Clickable) */}
-                <div 
-                  className="p-8 flex items-center justify-between cursor-pointer"
-                  onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
-                >
+              <Card key={meal.id} className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white">
+                <div className="p-8 flex items-center justify-between cursor-pointer" onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}>
                   <div className="flex items-center gap-6">
                     <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center">
                       <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
@@ -293,83 +251,54 @@ export default function Dashboard() {
                       <h3 className="font-black text-2xl tracking-tight leading-tight">{meal.name}</h3>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
-                        <Badge variant="secondary" className="bg-secondary/60 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-md">
-                          {meal.source}
-                        </Badge>
+                        <Badge variant="secondary" className="bg-secondary/60 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-md">{meal.source}</Badge>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-8">
-                    <div className="text-right space-y-0.5">
-                      <div className="flex items-baseline justify-end gap-1">
+                    <div className="text-right">
                         <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
-                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">kcal</span>
-                      </div>
+                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest ml-1">kcal</span>
                     </div>
-                    <div className="hidden sm:block">
-                      {expandedMeal === meal.id ? (
-                        <ChevronUp className="w-6 h-6 text-muted-foreground/30" />
-                      ) : (
-                        <ChevronDown className="w-6 h-6 text-muted-foreground/30" />
-                      )}
-                    </div>
+                    {expandedMeal === meal.id ? <ChevronUp className="w-6 h-6 opacity-20" /> : <ChevronDown className="w-6 h-6 opacity-20" />}
                   </div>
                 </div>
 
-                {/* Expanded Content Section - Inside the SAME card */}
                 {expandedMeal === meal.id && (
-                  <div className="px-8 pb-10 pt-4 border-t border-muted/50 space-y-8 animate-in slide-in-from-top-2 duration-300">
-                    
-                    {/* Compact Macros and Health Benefit Row */}
-                    <div className="flex items-center justify-between gap-4 py-4 px-2 border-b border-muted/20">
+                  <div className="px-8 pb-10 pt-4 border-t border-muted/20 space-y-8 animate-in slide-in-from-top-2 duration-300">
+                    <div className="flex flex-wrap items-center justify-between gap-4 py-4 px-2 bg-primary/5 rounded-2xl">
                       <div className="flex items-center gap-6">
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                           <span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span>
+                           <span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g P</span>
                          </div>
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                           <span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span>
+                           <span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g C</span>
                          </div>
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                           <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span>
+                           <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g F</span>
                          </div>
                       </div>
                       <div className="flex items-center gap-3">
                          <Trophy className="text-primary w-4 h-4" />
-                         <span className="text-[11px] font-black uppercase tracking-widest text-primary">Health Benefit: {meal.healthScore || 75}/100</span>
+                         <span className="text-[11px] font-black uppercase tracking-widest text-primary">Score: {meal.healthScore || 75}/100</span>
                       </div>
                     </div>
 
-                    {/* Rich Details */}
-                    <div className="space-y-8">
-                      {/* Description */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">
-                          <Info className="w-3.5 h-3.5" /> Description
-                        </div>
-                        <p className="text-base font-medium text-foreground/80 leading-relaxed italic pr-4">
-                          "{meal.description}"
-                        </p>
-                      </div>
-
-                      {/* Ingredients */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-4">
-                        <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Ingredients Detected</p>
-                        <div className="flex flex-wrap gap-2.5">
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest"><Info className="w-3.5 h-3.5" /> Description</div>
+                        <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">"{meal.description}"</p>
+                      </div>
+                      <div className="space-y-4">
+                        <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Ingredients</p>
+                        <div className="flex flex-wrap gap-2">
                           {(meal.ingredients || []).map((ing, i) => (
-                            <Badge key={i} variant="secondary" className="bg-secondary/40 text-muted-foreground font-bold text-xs border-none px-5 py-2.5 rounded-2xl">{ing}</Badge>
+                            <Badge key={i} variant="secondary" className="bg-secondary/40 text-muted-foreground font-bold text-[10px] border-none px-3 py-1.5 rounded-xl">{ing}</Badge>
                           ))}
                         </div>
-                      </div>
-
-                      {/* AI Recommendation Box */}
-                      <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10">
-                         <p className="text-xs font-black text-primary uppercase tracking-[0.1em] mb-2">AI Recommendation</p>
-                         <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                           {meal.tips || "Based on your activity levels and profile, this meal is a solid choice for maintaining your current metabolic rate."}
-                         </p>
                       </div>
                     </div>
                   </div>
@@ -377,38 +306,30 @@ export default function Dashboard() {
               </Card>
             ))
           ) : (
-            <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-muted flex flex-col items-center justify-center">
+            <div className="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-muted flex flex-col items-center justify-center">
               <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
-              <p className="text-muted-foreground font-bold text-lg">No meals logged for this date.</p>
-              <Button onClick={() => router.push("/record")} variant="link" className="mt-2 text-primary font-black uppercase text-[10px] tracking-widest">Log a Meal Now</Button>
+              <p className="text-muted-foreground font-bold text-lg">No meals logged today.</p>
+              <Button onClick={() => router.push("/record")} variant="link" className="mt-2 text-primary font-black uppercase text-[10px] tracking-widest">Record a Meal</Button>
             </div>
           )}
         </div>
       </section>
 
       {/* Smart Insight Card */}
-      <section className="pt-6">
-        <Card className="rounded-[2.5rem] border-none bg-primary/10 shadow-xl shadow-primary/5 overflow-hidden group">
-          <CardContent className="p-10 flex flex-col md:flex-row items-center gap-10 relative">
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:rotate-12 transition-transform">
-              <Sparkles className="w-40 h-40 text-primary" />
+      <Card className="rounded-[2.5rem] border-none bg-primary/10 shadow-sm overflow-hidden group">
+        <CardContent className="p-10 flex flex-col md:flex-row items-center gap-10 relative">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:rotate-12 transition-transform"><Sparkles className="w-32 h-32 text-primary" /></div>
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md shrink-0"><Lightbulb className="w-8 h-8 text-primary" /></div>
+          <div className="flex-1 space-y-3 text-center md:text-left z-10">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <h2 className="text-lg font-black tracking-tight uppercase">Daily Insight</h2>
+              <Badge className="bg-primary text-primary-foreground font-black text-[8px] uppercase tracking-widest border-none px-2 py-0.5">AI Powered</Badge>
             </div>
-            <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center shadow-lg shrink-0">
-              <Lightbulb className="w-10 h-10 text-primary" />
-            </div>
-            <div className="flex-1 space-y-4 text-center md:text-left z-10">
-              <div className="flex items-center justify-center md:justify-start gap-3">
-                <h2 className="text-xl font-black tracking-tight">Smart Daily Insight</h2>
-                <Badge className="bg-primary text-primary-foreground font-black text-[8px] uppercase tracking-widest border-none px-2 py-0.5">AI POWERED</Badge>
-              </div>
-              <p className="text-lg font-medium text-foreground/70 leading-relaxed italic max-w-2xl">"{getSuggestion()}"</p>
-              <Button onClick={() => router.push("/meal-planner")} className="bg-white text-primary hover:bg-white/90 rounded-2xl h-11 px-8 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg border-none">
-                OPTIMIZE MY SCHEDULE <ChevronRight className="ml-2 w-4 h-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+            <p className="text-sm font-medium text-foreground/70 leading-relaxed italic">"You're doing great! Keep up the hydration to maintain your metabolic rate."</p>
+            <Button onClick={() => router.push("/meal-planner")} className="bg-white text-primary hover:bg-white/90 rounded-xl h-10 px-6 font-black uppercase text-[9px] tracking-[0.1em] shadow-sm border-none mt-2">Optimize Schedule</Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
