@@ -19,21 +19,18 @@ import {
   Minus,
   Lightbulb,
   Sparkles,
-  ArrowRight,
   ChevronDown,
   ChevronUp,
-  Activity,
-  Zap,
   Watch,
   ChevronLeft,
   Calendar as CalendarIcon
 } from "lucide-react"
-import { format, addDays, subDays, startOfToday, eachDayOfInterval, isSameDay } from "date-fns"
+import { format, addDays, subDays, startOfToday, isSameDay } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 
-// Mock data updated with rich details
+// Mock data for fallback
 const MOCK_MEALS = [
   { 
     id: "m1", 
@@ -56,17 +53,6 @@ const MOCK_MEALS = [
     healthScore: 85,
     description: "Perfect balance of healthy fats and protein.",
     ingredients: ["Sourdough", "Avocado", "Egg", "Lemon juice"]
-  },
-  { 
-    id: "m3", 
-    name: "Bubur Ayam Spesial", 
-    calories: 400, 
-    time: "02:10 PM", 
-    source: "GOFOOD",
-    macros: { protein: 15, carbs: 60, fat: 10 },
-    healthScore: 78,
-    description: "Traditional comfort food with high energy.",
-    ingredients: ["Rice porridge", "Chicken", "Egg", "Crackers"]
   }
 ]
 
@@ -121,7 +107,7 @@ export default function Dashboard() {
   }
 
   const calorieTarget = profile?.calorieTarget || 2300
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 1080)
+  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 0)
   const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.7
   
@@ -155,29 +141,22 @@ export default function Dashboard() {
     return "You're doing great! Consistency is key to reaching your wellness goals.";
   }
 
-  const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) ? MOCK_MEALS : [])
-
-  // Show 6 days before and the selected date at the far right
-  const timelineDays = eachDayOfInterval({
-    start: subDays(selectedDate, 6),
-    end: selectedDate,
-  })
+  const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) && consumed > 0 ? MOCK_MEALS : [])
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-700 pb-20">
-      {/* Welcome Header with Integrated Date Selector */}
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700 pb-20">
+      {/* Header Section */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1 w-full md:w-auto">
           <h1 className="text-4xl font-black tracking-tight text-foreground">My Dashboard</h1>
           <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
         </div>
         
-        {/* Date Selector component based on reference image */}
         <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
           <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary/50">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-2 px-4 py-2 font-bold text-sm min-w-[180px] justify-center">
+          <div className="flex items-center gap-2 px-6 py-2 font-bold text-sm min-w-[200px] justify-center">
             <CalendarIcon className="h-4 w-4 text-primary" />
             <span>{format(selectedDate, "EEEE, MMM d")}</span>
           </div>
@@ -187,30 +166,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Dynamic Timeline - TOP View - Today/Selected at far right */}
-      <section className="w-full">
-        <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-border flex items-center justify-between overflow-x-auto no-scrollbar">
-           {timelineDays.map((day, i) => {
-             const isSelected = isSameDay(day, selectedDate)
-             return (
-               <button 
-                 key={i}
-                 onClick={() => setSelectedDate(day)}
-                 className={cn(
-                   "flex flex-col items-center justify-center flex-1 min-w-[60px] py-4 rounded-[1.5rem] transition-all duration-300",
-                   isSelected ? "bg-primary text-primary-foreground shadow-lg scale-105" : "text-muted-foreground hover:bg-secondary/50"
-                 )}
-               >
-                 <span className="text-[10px] font-black uppercase tracking-widest mb-2 opacity-60">{format(day, "eee")}</span>
-                 <span className="text-xl font-black leading-none">{format(day, "d")}</span>
-                 {isSameDay(day, startOfToday()) && !isSelected && <div className="w-1.5 h-1.5 rounded-full bg-primary mt-3" />}
-               </button>
-             )
-           })}
-        </div>
-      </section>
-
-      {/* Header Summary */}
+      {/* Main Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden">
           <CardHeader className="pb-0">
@@ -234,7 +190,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Macro Targets Section */}
             <div className="pt-6 border-t border-muted/50">
                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4">Daily Macro Goals</p>
                <div className="grid grid-cols-3 gap-8">
