@@ -31,8 +31,22 @@ import { updateDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/no
 
 // Mock data for initial empty state
 const MOCK_MEALS = [
-  { id: "m1", name: "Avocado & Egg Toast", calories: 320, time: "02:30 PM", source: "PHOTO" },
-  { id: "m2", name: "Avocado & Egg Toast", calories: 320, time: "10:30 AM", source: "PHOTO" },
+  { 
+    id: "m1", 
+    name: "Avocado & Egg Toast", 
+    calories: 320, 
+    time: "02:30 PM", 
+    source: "PHOTO",
+    macros: { protein: 12, carbs: 28, fat: 18 }
+  },
+  { 
+    id: "m2", 
+    name: "Quinoa Salad Bowl", 
+    calories: 410, 
+    time: "10:30 AM", 
+    source: "PLANNER",
+    macros: { protein: 15, carbs: 45, fat: 12 }
+  },
 ]
 
 export default function Dashboard() {
@@ -83,7 +97,7 @@ export default function Dashboard() {
   }
 
   const calorieTarget = profile?.calorieTarget || 2100
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 640)
+  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 730)
   const burned = dailyLog?.caloriesBurned || 450 
   const water = dailyLog?.waterIntake || 1.8
   
@@ -253,8 +267,8 @@ export default function Dashboard() {
           {displayMeals.length > 0 ? (
             displayMeals.map((meal) => (
               <Card key={meal.id} className="rounded-[2rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white group">
-                <CardContent className="p-8 flex items-center justify-between">
-                  <div className="flex items-center gap-8">
+                <CardContent className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                  <div className="flex items-center gap-6">
                     <div className="w-16 h-16 bg-secondary/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Utensils className="text-primary w-8 h-8" />
                     </div>
@@ -266,15 +280,31 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right flex flex-col items-end gap-3">
-                    <p className="font-black text-3xl tracking-tight leading-none">
-                      {meal.calories} <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Kcal</span>
-                    </p>
-                    <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-blue-400" />
+                  
+                  <div className="flex flex-col sm:items-end gap-3">
+                    <div className="flex items-baseline gap-2 sm:justify-end">
+                      <p className="font-black text-3xl tracking-tight leading-none">
+                        {meal.calories}
+                      </p>
+                      <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Kcal</span>
                     </div>
+                    
+                    {meal.macros && (
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-red-400" />
+                          <span className="text-[10px] font-black uppercase text-muted-foreground">{meal.macros.protein}g P</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                          <span className="text-[10px] font-black uppercase text-muted-foreground">{meal.macros.carbs}g C</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-blue-400" />
+                          <span className="text-[10px] font-black uppercase text-muted-foreground">{meal.macros.fat}g F</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
