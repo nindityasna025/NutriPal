@@ -160,7 +160,7 @@ export default function LoginPage() {
                 className={cn(
                   "flex items-center gap-3 p-3 rounded-2xl border border-transparent transition-colors",
                   app.color,
-                  app.fullWidth ? "col-span-2" : "col-span-1"
+                  app.fullWidth ? "col-span-2 justify-center" : "col-span-1"
                 )}
               >
                 <div className="bg-white p-2 rounded-xl shadow-sm">
