@@ -11,7 +11,6 @@
         "connectedApps": {
           "type": "object",
           "properties": {
-            "shopee": { "type": "boolean" },
             "grab": { "type": "boolean" },
             "gofood": { "type": "boolean" },
             "fitness": { "type": "boolean" }

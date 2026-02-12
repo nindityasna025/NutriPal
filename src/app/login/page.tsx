@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useAuth, useUser, useFirestore } from "@/firebase"
 import { signInAnonymously, updateProfile } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
-import { Loader2, Chrome, Smartphone, ShoppingBag, CheckCircle2, ShieldCheck, Zap } from "lucide-react"
+import { Loader2, Chrome, Smartphone, CheckCircle2, ShieldCheck, Zap } from "lucide-react"
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 
@@ -64,7 +64,6 @@ export default function LoginPage() {
           onboarded: false,
           createdAt: serverTimestamp(),
           connectedApps: {
-            shopee: true,
             grab: true,
             gofood: true,
             fitness: true
@@ -144,10 +143,10 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-4">
             {[
-              { icon: <ShoppingBag className="text-orange-500 w-4 h-4" />, label: "ShopeeFood", color: "bg-orange-50/50" },
               { icon: <Smartphone className="text-green-500 w-4 h-4" />, label: "GrabFood", color: "bg-green-50/50" },
-              { icon: <ShieldCheck className="text-red-500 w-4 h-4" />, label: "Fitness Apps", color: "bg-red-50/50" },
               { icon: <Smartphone className="text-emerald-500 w-4 h-4" />, label: "GoFood", color: "bg-emerald-50/50" },
+              { icon: <ShieldCheck className="text-red-500 w-4 h-4" />, label: "Fitness Apps", color: "bg-red-50/50" },
+              { icon: <Zap className="text-yellow-500 w-4 h-4" />, label: "Auto-Sync", color: "bg-yellow-50/50" },
             ].map((app, i) => (
               <div key={i} className={`flex items-center gap-3 p-3 ${app.color} rounded-2xl border border-transparent`}>
                 <div className="bg-white p-2 rounded-xl shadow-sm">
@@ -157,7 +156,7 @@ export default function LoginPage() {
                   <p className="text-[10px] font-black">{app.label}</p>
                   <div className="flex items-center gap-1">
                     <CheckCircle2 className="w-2 h-2 text-primary" />
-                    <span className="text-[7px] text-muted-foreground font-bold uppercase tracking-tighter">Auto-Sync</span>
+                    <span className="text-[7px] text-muted-foreground font-bold uppercase tracking-tighter">Connected</span>
                   </div>
                 </div>
               </div>

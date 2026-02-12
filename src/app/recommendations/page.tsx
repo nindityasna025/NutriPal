@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -5,10 +6,9 @@ import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
-import { Loader2, MapPin, Search, Store, ShoppingBag, Bike, Tag, CheckCircle2 } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Loader2, MapPin, Search, Store, Smartphone, Bike, Tag, CheckCircle2 } from "lucide-react"
 
 export default function RecommendationsPage() {
   const [prefs, setPrefs] = useState("")
@@ -17,7 +17,7 @@ export default function RecommendationsPage() {
   const [result, setResult] = useState<string | null>(null)
 
   // Mock deals for the AI flow
-  const mockDeals = `ShopeeFood: SaladStop 20% off (Rp 45,000), GrabFood: HealthyBowl Buy 1 Get 1 (Rp 55,000), GoFood: VeganVibe Free Delivery (Rp 42,000)`
+  const mockDeals = `GrabFood: HealthyBowl Buy 1 Get 1 (Rp 55,000), GoFood: VeganVibe Free Delivery (Rp 42,000)`
 
   const handleCurate = async () => {
     setLoading(true)
@@ -45,7 +45,7 @@ export default function RecommendationsPage() {
             <Tag className="text-primary w-8 h-8" />
             Decision Fatigue Relief
           </h1>
-          <p className="text-muted-foreground">We find the healthiest, cheapest meals from Shopee, Grab, and Gojek for you.</p>
+          <p className="text-muted-foreground">We find the healthiest, cheapest meals from Grab and Gojek for you.</p>
         </section>
 
         <Card className="border-none shadow-xl overflow-hidden bg-accent/5">
@@ -95,7 +95,7 @@ export default function RecommendationsPage() {
                <CardHeader className="bg-primary/5 border-b border-primary/10">
                  <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <ShoppingBag className="text-primary w-6 h-6" />
+                      <Smartphone className="text-primary w-6 h-6" />
                       Top Curated Recommendations
                     </CardTitle>
                     <CheckCircle2 className="text-primary w-5 h-5" />
@@ -109,18 +109,7 @@ export default function RecommendationsPage() {
              </Card>
 
              <h3 className="text-xl font-headline font-bold pt-4">Price Comparison Summary</h3>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="border-orange-100 hover:border-orange-500 transition-all cursor-pointer">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                       <ShoppingBag className="text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">ShopeeFood</p>
-                      <p className="text-lg font-bold">Best Deals</p>
-                    </div>
-                  </CardContent>
-                </Card>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="border-green-100 hover:border-green-500 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-4">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">

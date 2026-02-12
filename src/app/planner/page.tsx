@@ -10,7 +10,6 @@ import {
   Sparkles, 
   MapPin, 
   TrendingUp, 
-  ShoppingBag, 
   Smartphone, 
   Loader2,
   Bike
@@ -38,7 +37,7 @@ export default function PlannerPage() {
     setLoading(true)
     try {
       const dietary = profile?.dietaryRestrictions?.join(", ") || "No specific restrictions"
-      const mockDeals = "ShopeeFood: SaladStop 20% off, GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
+      const mockDeals = "GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
       
       const { mealSuggestions } = await curateMealSuggestions({
         dietaryPreferences: dietary,
@@ -50,17 +49,6 @@ export default function PlannerPage() {
       setCuratedResult([
         {
           id: 1,
-          name: "Grilled Chicken Buddha Bowl",
-          calories: 450,
-          price: "Rp 42,000",
-          platform: "ShopeeFood",
-          platformIcon: <ShoppingBag className="text-orange-500 w-4 h-4" />,
-          promo: "20% Discount",
-          healthScore: 95,
-          distance: "1.2 km"
-        },
-        {
-          id: 2,
           name: "Organic Tofu Soba Noodles",
           calories: 380,
           price: "Rp 38,500",
@@ -71,7 +59,7 @@ export default function PlannerPage() {
           distance: "0.8 km"
         },
         {
-          id: 3,
+          id: 2,
           name: "Avocado Quinoa Salad",
           calories: 410,
           price: "Rp 45,000",
@@ -145,7 +133,7 @@ export default function PlannerPage() {
             <div className="space-y-3">
               <h2 className="text-3xl font-black">Feeling Indecisive?</h2>
               <p className="text-white/80 max-w-sm mx-auto font-medium leading-relaxed">
-                Let NutriPal analyze your remaining calories and allergy profile to suggest the best meals from Shopee, Grab, and Gojek.
+                Let NutriPal analyze your remaining calories and allergy profile to suggest the best meals from Grab and Gojek.
               </p>
             </div>
             <Button 
@@ -154,14 +142,14 @@ export default function PlannerPage() {
               className="bg-white text-primary hover:bg-white/90 font-black h-16 px-16 rounded-[2rem] text-xl shadow-2xl transition-all active:scale-95"
             >
               {loading ? <Loader2 className="animate-spin mr-3" /> : null}
-              Curate My Top 3
+              Curate My Top Picks
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-500">
           <div className="flex items-center justify-between px-4">
-            <h2 className="font-black text-xs text-muted-foreground uppercase tracking-[0.2em]">Top 3 Curated Matches</h2>
+            <h2 className="font-black text-xs text-muted-foreground uppercase tracking-[0.2em]">Curated Matches</h2>
             <Button variant="ghost" size="sm" onClick={() => setCuratedResult(null)} className="text-[10px] font-black uppercase tracking-widest">Reset Tool</Button>
           </div>
           
