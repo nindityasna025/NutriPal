@@ -8,9 +8,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useAuth, useUser, useFirestore } from "@/firebase"
 import { signInAnonymously, updateProfile } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
-import { Loader2, Chrome, Smartphone, CheckCircle2, ShieldCheck, Zap } from "lucide-react"
+import { Loader2, Chrome, Smartphone, CheckCircle2, ShieldCheck } from "lucide-react"
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { cn } from "@/lib/utils"
 
 export default function LoginPage() {
   const auth = useAuth()
@@ -96,6 +97,13 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center p-4 bg-background overflow-hidden">
+      {/* Top Left Logo */}
+      <div className="absolute top-8 left-8 z-20">
+        <div className="bg-foreground text-background w-10 h-10 rounded-full flex items-center justify-center font-black text-xs shadow-lg">
+          N
+        </div>
+      </div>
+
       {/* Faded Background Image */}
       <div className="absolute inset-0 z-0">
         <Image 
@@ -145,9 +153,16 @@ export default function LoginPage() {
             {[
               { icon: <Smartphone className="text-green-500 w-4 h-4" />, label: "GrabFood", color: "bg-green-50/50" },
               { icon: <Smartphone className="text-emerald-500 w-4 h-4" />, label: "GoFood", color: "bg-emerald-50/50" },
-              { icon: <ShieldCheck className="text-red-500 w-4 h-4" />, label: "Fitness Apps", color: "bg-red-50/50" },
+              { icon: <ShieldCheck className="text-red-500 w-4 h-4" />, label: "Fitness Apps", color: "bg-red-50/50", fullWidth: true },
             ].map((app, i) => (
-              <div key={i} className={`flex items-center gap-3 p-3 ${app.color} rounded-2xl border border-transparent`}>
+              <div 
+                key={i} 
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-2xl border border-transparent transition-colors",
+                  app.color,
+                  app.fullWidth ? "col-span-2" : "col-span-1"
+                )}
+              >
                 <div className="bg-white p-2 rounded-xl shadow-sm">
                   {app.icon}
                 </div>
