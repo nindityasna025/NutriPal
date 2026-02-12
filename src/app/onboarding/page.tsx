@@ -57,7 +57,10 @@ export default function OnboardingPage() {
         bmiCategory: category,
         dietaryRestrictions: restrictions,
         allergies,
-        calorieTarget: category === "Ideal" ? 2000 : category === "Obese" ? 1800 : 2500
+        calorieTarget: category === "Ideal" ? 2000 : category === "Obese" ? 1800 : 2500,
+        proteinTarget: 25, // Default percentage
+        carbsTarget: 45,   // Default percentage
+        fatTarget: 30      // Default percentage
       }
       
       await setDoc(doc(firestore, "users", user.uid), { onboarded: true, email: user.email }, { merge: true })

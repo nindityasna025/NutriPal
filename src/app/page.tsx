@@ -87,6 +87,11 @@ export default function Dashboard() {
   const burned = dailyLog?.caloriesBurned || 450 
   const water = dailyLog?.waterIntake || 1.8
   
+  // Macros from profile or defaults
+  const proteinTarget = profile?.proteinTarget || 25
+  const carbsTarget = profile?.carbsTarget || 45
+  const fatTarget = profile?.fatTarget || 30
+
   // Dynamic Calorie Status Logic
   const getCalorieStatus = () => {
     const diff = consumed - calorieTarget;
@@ -148,6 +153,32 @@ export default function Dashboard() {
               <span className="text-6xl font-black">{consumed}</span>
               <span className="text-sm text-muted-foreground font-bold">/ {calorieTarget} kcal</span>
             </div>
+            
+            <div className="pt-2 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase text-muted-foreground">Macro Targets</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-1">
+                  <div className="h-1 w-full bg-red-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-400" style={{ width: `${proteinTarget}%` }} />
+                  </div>
+                  <p className="text-[8px] font-black uppercase text-center">{proteinTarget}% P</p>
+                </div>
+                <div className="space-y-1">
+                  <div className="h-1 w-full bg-yellow-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-yellow-400" style={{ width: `${carbsTarget}%` }} />
+                  </div>
+                  <p className="text-[8px] font-black uppercase text-center">{carbsTarget}% C</p>
+                </div>
+                <div className="space-y-1">
+                  <div className="h-1 w-full bg-blue-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-400" style={{ width: `${fatTarget}%` }} />
+                  </div>
+                  <p className="text-[8px] font-black uppercase text-center">{fatTarget}% F</p>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="space-y-6 mt-6">
             <Progress value={(consumed / calorieTarget) * 100} className="h-2.5 bg-primary/10" />
@@ -155,9 +186,9 @@ export default function Dashboard() {
               <div className="text-[10px] font-black text-muted-foreground uppercase leading-tight tracking-wider">
                 Target<br/>Status
               </div>
-              <span className="text-[10px] font-black px-5 py-2 rounded-full bg-primary/20 text-primary-foreground border border-primary/20">
+              <Badge className="bg-primary/20 text-primary-foreground border border-primary/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest">
                 {status}
-              </span>
+              </Badge>
             </div>
           </div>
         </Card>
@@ -274,7 +305,7 @@ export default function Dashboard() {
               <div className="space-y-1">
                 <h2 className="text-2xl font-black tracking-tight flex items-center justify-center md:justify-start gap-2">
                   Smart Daily Insight
-                  <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest px-3 py-1">AI POWERED</Badge>
+                  <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest">AI POWERED</Badge>
                 </h2>
                 <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest">Based on your activity today</p>
               </div>

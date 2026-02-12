@@ -31,7 +31,10 @@
         "bmiCategory": { "type": "string" },
         "dietaryRestrictions": { "type": "array", "items": { "type": "string" } },
         "allergies": { "type": "string" },
-        "calorieTarget": { "type": "number" }
+        "calorieTarget": { "type": "number" },
+        "proteinTarget": { "type": "number", "description": "Target percentage of protein" },
+        "carbsTarget": { "type": "number", "description": "Target percentage of carbs" },
+        "fatTarget": { "type": "number", "description": "Target percentage of fat" }
       }
     },
     "DailyLog": {
