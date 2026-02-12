@@ -246,7 +246,9 @@ export default function Dashboard() {
           <Card className="border-none shadow-2xl bg-white rounded-[2.5rem]">
             <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
               <div className="p-3 bg-blue-50 rounded-2xl mb-2">
-                <Droplets className="w-5 h-5 text-blue-500" />
+                <div className="w-5 h-5 flex items-center justify-center">
+                   <Droplets className="w-5 h-5 text-blue-500" />
+                </div>
               </div>
               <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Water</p>
               <div className="flex items-center gap-4">
@@ -316,43 +318,38 @@ export default function Dashboard() {
 
                 {/* Expanded Content Section - Inside the SAME card */}
                 {expandedMeal === meal.id && (
-                  <div className="px-8 pb-10 pt-6 border-t border-muted/50 space-y-10 animate-in slide-in-from-top-2 duration-300">
-                    {/* Macros Grid */}
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="p-8 bg-red-50/50 rounded-[2rem] text-center border border-red-100/50">
-                        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Protein</p>
-                        <p className="text-3xl font-black text-red-600 tracking-tight">{meal.macros?.protein}g</p>
+                  <div className="px-8 pb-10 pt-4 border-t border-muted/50 space-y-8 animate-in slide-in-from-top-2 duration-300">
+                    
+                    {/* Compact Macros and Health Benefit Row */}
+                    <div className="flex items-center justify-between gap-4 py-4 px-2 border-b border-muted/20">
+                      <div className="flex items-center gap-6">
+                         <div className="flex items-center gap-1.5">
+                           <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                           <span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span>
+                         </div>
+                         <div className="flex items-center gap-1.5">
+                           <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                           <span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span>
+                         </div>
+                         <div className="flex items-center gap-1.5">
+                           <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                           <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span>
+                         </div>
                       </div>
-                      <div className="p-8 bg-yellow-50/50 rounded-[2rem] text-center border border-yellow-100/50">
-                        <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-1">Carbs</p>
-                        <p className="text-3xl font-black text-yellow-600 tracking-tight">{meal.macros?.carbs}g</p>
-                      </div>
-                      <div className="p-8 bg-blue-50/50 rounded-[2rem] text-center border border-blue-100/50">
-                        <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Fat</p>
-                        <p className="text-3xl font-black text-blue-600 tracking-tight">{meal.macros?.fat}g</p>
+                      <div className="flex items-center gap-3">
+                         <Trophy className="text-primary w-4 h-4" />
+                         <span className="text-[11px] font-black uppercase tracking-widest text-primary">Health Benefit: {meal.healthScore || 75}/100</span>
                       </div>
                     </div>
 
                     {/* Rich Details */}
-                    <div className="space-y-10">
-                      {/* Health Benefit Header */}
-                      <div className="flex items-center justify-between border-b border-border/50 pb-8">
-                         <div className="flex items-center gap-4">
-                            <Trophy className="text-primary w-8 h-8" />
-                            <span className="text-2xl font-black tracking-tight">Health Benefit</span>
-                         </div>
-                         <div className="flex items-center gap-6">
-                            <span className="text-4xl font-black text-primary/80">{meal.healthScore || 75}/100</span>
-                            <Progress value={meal.healthScore || 75} className="w-32 h-2.5 rounded-full" />
-                         </div>
-                      </div>
-
+                    <div className="space-y-8">
                       {/* Description */}
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">
                           <Info className="w-3.5 h-3.5" /> Description
                         </div>
-                        <p className="text-lg font-medium text-foreground/80 leading-relaxed italic pr-4">
+                        <p className="text-base font-medium text-foreground/80 leading-relaxed italic pr-4">
                           "{meal.description}"
                         </p>
                       </div>
