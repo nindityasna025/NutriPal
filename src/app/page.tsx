@@ -24,7 +24,9 @@ import {
   ChevronUp,
   Activity,
   Zap,
-  Watch
+  Watch,
+  ChevronLeft,
+  Calendar as CalendarIcon
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday, eachDayOfInterval, isSameDay } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -106,6 +108,9 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
+  const handlePrevDay = () => selectedDate && setSelectedDate(subDays(selectedDate, 1))
+  const handleNextDay = () => selectedDate && setSelectedDate(addDays(selectedDate, 1))
+
   if (!mounted || isUserLoading || !user || !selectedDate) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
@@ -160,15 +165,31 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-700 pb-20">
-      {/* Welcome Header */}
-      <section className="space-y-1">
-        <h1 className="text-4xl font-black tracking-tight text-foreground">My Dashboard</h1>
-        <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
+      {/* Welcome Header with Integrated Date Selector */}
+      <section className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-1 w-full md:w-auto">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">My Dashboard</h1>
+          <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
+        </div>
+        
+        {/* Date Selector component based on reference image */}
+        <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary/50">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2 px-4 py-2 font-bold text-sm min-w-[180px] justify-center">
+            <CalendarIcon className="h-4 w-4 text-primary" />
+            <span>{format(selectedDate, "EEEE, MMM d")}</span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary/50">
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </section>
 
       {/* Dynamic Timeline - TOP View - Today/Selected at far right */}
       <section className="w-full">
-        <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-border flex items-center justify-between">
+        <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-border flex items-center justify-between overflow-x-auto no-scrollbar">
            {timelineDays.map((day, i) => {
              const isSelected = isSameDay(day, selectedDate)
              return (
@@ -176,7 +197,7 @@ export default function Dashboard() {
                  key={i}
                  onClick={() => setSelectedDate(day)}
                  className={cn(
-                   "flex flex-col items-center justify-center flex-1 py-4 rounded-[1.5rem] transition-all duration-300",
+                   "flex flex-col items-center justify-center flex-1 min-w-[60px] py-4 rounded-[1.5rem] transition-all duration-300",
                    isSelected ? "bg-primary text-primary-foreground shadow-lg scale-105" : "text-muted-foreground hover:bg-secondary/50"
                  )}
                >
