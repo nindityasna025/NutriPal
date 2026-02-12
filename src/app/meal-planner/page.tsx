@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -133,17 +132,17 @@ export default function MealPlannerPage() {
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
         {/* Header Section */}
-        <section className="flex flex-col md:flex-row items-center justify-between gap-8 pb-4 border-b border-muted/30">
-          <div className="space-y-1.5 w-full md:w-auto text-center md:text-left">
+        <section className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6 border-b border-muted/30">
+          <div className="space-y-1.5 w-full lg:w-auto text-center lg:text-left">
             <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
             <p className="text-muted-foreground font-semibold text-xs uppercase tracking-widest opacity-70">Weekly Nutrition Organizer</p>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 w-full md:w-auto">
+          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
             <Button 
               variant="outline" 
               onClick={handleToday} 
-              className="rounded-full h-12 px-6 font-black uppercase text-[10px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all"
+              className="rounded-full h-12 px-5 font-black uppercase text-[10px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all"
             >
               Today
             </Button>
@@ -152,8 +151,8 @@ export default function MealPlannerPage() {
               <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-2 px-6 font-black text-[11px] text-foreground uppercase tracking-widest min-w-[180px] justify-center">
-                <CalendarIcon className="h-4 w-4 text-primary/60" />
+              <div className="flex items-center gap-2 px-4 font-black text-[11px] text-foreground uppercase tracking-widest min-w-[160px] justify-center">
+                <CalendarIcon className="h-3.5 w-3.5 text-primary/60" />
                 <span className="whitespace-nowrap">{format(date, "EEEE, MMM d")}</span>
               </div>
               <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0">
@@ -163,7 +162,7 @@ export default function MealPlannerPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
+                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
                   <Plus className="w-4 h-4 mr-2" /> Add Meal
                 </Button>
               </DialogTrigger>
