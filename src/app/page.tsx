@@ -274,47 +274,49 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6">
           {displayMeals.length > 0 ? (
             displayMeals.map((meal) => (
-              <div key={meal.id} className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
-                {/* Header Card */}
-                <Card 
-                  className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white cursor-pointer"
+              <Card 
+                key={meal.id} 
+                className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white animate-in slide-in-from-bottom-2 duration-300"
+              >
+                {/* Header Card Area (Clickable) */}
+                <div 
+                  className="p-8 flex items-center justify-between cursor-pointer"
                   onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
                 >
-                  <CardContent className="p-8 flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center">
-                        <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="font-black text-2xl tracking-tight leading-tight">{meal.name}</h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
-                          <Badge variant="secondary" className="bg-secondary/60 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-md">
-                            {meal.source}
-                          </Badge>
-                        </div>
+                  <div className="flex items-center gap-6">
+                    <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center">
+                      <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-black text-2xl tracking-tight leading-tight">{meal.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
+                        <Badge variant="secondary" className="bg-secondary/60 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-md">
+                          {meal.source}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-8">
-                      <div className="text-right space-y-0.5">
-                        <div className="flex items-baseline justify-end gap-1">
-                          <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
-                          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">kcal</span>
-                        </div>
-                      </div>
-                      <div className="hidden sm:block">
-                        {expandedMeal === meal.id ? (
-                          <ChevronUp className="w-6 h-6 text-muted-foreground/30" />
-                        ) : (
-                          <ChevronDown className="w-6 h-6 text-muted-foreground/30" />
-                        )}
+                  </div>
+                  <div className="flex items-center gap-8">
+                    <div className="text-right space-y-0.5">
+                      <div className="flex items-baseline justify-end gap-1">
+                        <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
+                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">kcal</span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="hidden sm:block">
+                      {expandedMeal === meal.id ? (
+                        <ChevronUp className="w-6 h-6 text-muted-foreground/30" />
+                      ) : (
+                        <ChevronDown className="w-6 h-6 text-muted-foreground/30" />
+                      )}
+                    </div>
+                  </div>
+                </div>
 
+                {/* Expanded Content Section - Inside the SAME card */}
                 {expandedMeal === meal.id && (
-                  <>
+                  <div className="px-8 pb-10 pt-6 border-t border-muted/50 space-y-10 animate-in slide-in-from-top-2 duration-300">
                     {/* Macros Grid */}
                     <div className="grid grid-cols-3 gap-4">
                       <div className="p-8 bg-red-50/50 rounded-[2rem] text-center border border-red-100/50">
@@ -331,53 +333,51 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Rich Details Card */}
-                    <Card className="rounded-[3rem] border-none shadow-lg bg-white overflow-hidden">
-                      <CardContent className="p-10 space-y-10">
-                        {/* Health Benefit Header */}
-                        <div className="flex items-center justify-between border-b border-border/50 pb-8">
-                           <div className="flex items-center gap-4">
-                              <Trophy className="text-primary w-8 h-8" />
-                              <span className="text-2xl font-black tracking-tight">Health Benefit</span>
-                           </div>
-                           <div className="flex items-center gap-6">
-                              <span className="text-4xl font-black text-primary/80">{meal.healthScore || 75}/100</span>
-                              <Progress value={meal.healthScore || 75} className="w-32 h-2.5 rounded-full" />
-                           </div>
-                        </div>
+                    {/* Rich Details */}
+                    <div className="space-y-10">
+                      {/* Health Benefit Header */}
+                      <div className="flex items-center justify-between border-b border-border/50 pb-8">
+                         <div className="flex items-center gap-4">
+                            <Trophy className="text-primary w-8 h-8" />
+                            <span className="text-2xl font-black tracking-tight">Health Benefit</span>
+                         </div>
+                         <div className="flex items-center gap-6">
+                            <span className="text-4xl font-black text-primary/80">{meal.healthScore || 75}/100</span>
+                            <Progress value={meal.healthScore || 75} className="w-32 h-2.5 rounded-full" />
+                         </div>
+                      </div>
 
-                        {/* Description */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">
-                            <Info className="w-3.5 h-3.5" /> Description
-                          </div>
-                          <p className="text-lg font-medium text-foreground/80 leading-relaxed italic pr-4">
-                            "{meal.description}"
-                          </p>
+                      {/* Description */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">
+                          <Info className="w-3.5 h-3.5" /> Description
                         </div>
+                        <p className="text-lg font-medium text-foreground/80 leading-relaxed italic pr-4">
+                          "{meal.description}"
+                        </p>
+                      </div>
 
-                        {/* Ingredients */}
-                        <div className="space-y-4">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Ingredients Detected</p>
-                          <div className="flex flex-wrap gap-2.5">
-                            {(meal.ingredients || []).map((ing, i) => (
-                              <Badge key={i} variant="secondary" className="bg-secondary/40 text-muted-foreground font-bold text-xs border-none px-5 py-2.5 rounded-2xl">{ing}</Badge>
-                            ))}
-                          </div>
+                      {/* Ingredients */}
+                      <div className="space-y-4">
+                        <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Ingredients Detected</p>
+                        <div className="flex flex-wrap gap-2.5">
+                          {(meal.ingredients || []).map((ing, i) => (
+                            <Badge key={i} variant="secondary" className="bg-secondary/40 text-muted-foreground font-bold text-xs border-none px-5 py-2.5 rounded-2xl">{ing}</Badge>
+                          ))}
                         </div>
+                      </div>
 
-                        {/* AI Recommendation Box */}
-                        <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10">
-                           <p className="text-xs font-black text-primary uppercase tracking-[0.1em] mb-2">AI Recommendation</p>
-                           <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                             {meal.tips || "Based on your activity levels and profile, this meal is a solid choice for maintaining your current metabolic rate."}
-                           </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </>
+                      {/* AI Recommendation Box */}
+                      <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10">
+                         <p className="text-xs font-black text-primary uppercase tracking-[0.1em] mb-2">AI Recommendation</p>
+                         <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                           {meal.tips || "Based on your activity levels and profile, this meal is a solid choice for maintaining your current metabolic rate."}
+                         </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </div>
+              </Card>
             ))
           ) : (
             <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-muted flex flex-col items-center justify-center">
