@@ -34,14 +34,14 @@ import { cn } from "@/lib/utils"
 const MOCK_MEALS = [
   { 
     id: "m1", 
-    name: "Organic Tofu Soba Noodles", 
-    calories: 380, 
+    name: "Kuetiau Goreng", 
+    calories: 438, 
     time: "08:40 AM", 
-    source: "GRABFOOD",
-    macros: { protein: 18, carbs: 54, fat: 12 },
-    healthScore: 92,
-    description: "Heart-healthy. Soba noodles are low GI, tofu provides plant protein.",
-    ingredients: ["Soba noodles", "Organic tofu", "Broccoli", "Shitake mushrooms"]
+    source: "PHOTO",
+    macros: { protein: 17, carbs: 74, fat: 19 },
+    healthScore: 62,
+    description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats. Adding a source of lean protein next time could enhance the balance.",
+    ingredients: ["Stir fried noodles", "Carrot", "Egg", "Bean sprouts", "Soy sauce"]
   },
   { 
     id: "m2", 
@@ -62,7 +62,7 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [expandedMeal, setExpandedMeal] = useState<string | null>(null)
+  const [expandedMeal, setExpandedMeal] = useState<string | null>("m1")
 
   useEffect(() => {
     setSelectedDate(startOfToday())
@@ -106,14 +106,14 @@ export default function Dashboard() {
     )
   }
 
-  const calorieTarget = profile?.calorieTarget || 2300
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 0)
+  const calorieTarget = profile?.calorieTarget || 2000
+  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 438)
   const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.7
   
-  const proteinTarget = profile?.proteinTarget || 31
-  const carbsTarget = profile?.carbsTarget || 42
-  const fatTarget = profile?.fatTarget || 38
+  const proteinPercent = 25
+  const carbsPercent = 45
+  const fatPercent = 30
 
   const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
   
@@ -141,13 +141,13 @@ export default function Dashboard() {
     return "You're doing great! Consistency is key to reaching your wellness goals.";
   }
 
-  const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) && consumed > 0 ? MOCK_MEALS : [])
+  const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) ? MOCK_MEALS : [])
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700 pb-20">
       {/* Header Section */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-1 w-full md:w-auto">
+        <div className="space-y-1 w-full md:w-auto text-left">
           <h1 className="text-4xl font-black tracking-tight text-foreground">My Dashboard</h1>
           <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
         </div>
@@ -191,19 +191,19 @@ export default function Dashboard() {
             </div>
 
             <div className="pt-6 border-t border-muted/50">
-               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4">Daily Macro Goals</p>
+               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4 text-left">Daily Macro Goals</p>
                <div className="grid grid-cols-3 gap-8">
                   <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-red-500">Protein</span> <span>{proteinTarget}%</span></div>
-                    <Progress value={proteinTarget} className="h-1 bg-red-50" indicatorClassName="bg-red-400" />
+                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-red-500">Protein</span> <span>{proteinPercent}%</span></div>
+                    <Progress value={proteinPercent} className="h-1 bg-red-50" indicatorClassName="bg-red-400" />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-yellow-500">Carbs</span> <span>{carbsTarget}%</span></div>
-                    <Progress value={carbsTarget} className="h-1 bg-yellow-50" indicatorClassName="bg-yellow-400" />
+                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-yellow-500">Carbs</span> <span>{carbsPercent}%</span></div>
+                    <Progress value={carbsPercent} className="h-1 bg-yellow-50" indicatorClassName="bg-yellow-400" />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-blue-500">Fat</span> <span>{fatTarget}%</span></div>
-                    <Progress value={fatTarget} className="h-1 bg-blue-50" indicatorClassName="bg-blue-400" />
+                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-blue-500">Fat</span> <span>{fatPercent}%</span></div>
+                    <Progress value={fatPercent} className="h-1 bg-blue-50" indicatorClassName="bg-blue-400" />
                   </div>
                </div>
             </div>
@@ -260,10 +260,10 @@ export default function Dashboard() {
                 <CardContent className="p-0">
                   <div className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 bg-secondary/30 rounded-[1.5rem] flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Utensils className="text-primary w-7 h-7" />
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1 text-left">
                         <h3 className="font-black text-xl tracking-tight leading-tight">{meal.name}</h3>
                         <div className="flex items-center gap-3">
                           <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
@@ -289,16 +289,16 @@ export default function Dashboard() {
                   </div>
 
                   {expandedMeal === meal.id && (
-                    <div className="px-8 pb-8 pt-4 border-t border-muted/50 space-y-6 animate-in slide-in-from-top-2 duration-300">
+                    <div className="px-8 pb-8 pt-4 border-t border-muted/50 space-y-6 animate-in slide-in-from-top-2 duration-300 text-left">
                       <div className="flex items-center justify-between">
                          <div className="space-y-1">
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Health Score</p>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                                <span className="text-2xl font-black text-primary">{meal.healthScore || 75}/100</span>
-                               <Progress value={meal.healthScore || 75} className="w-24 h-1.5" />
+                               <Progress value={meal.healthScore || 75} className="w-32 h-1.5" />
                             </div>
                          </div>
-                         <Badge variant="outline" className="border-primary/20 text-primary uppercase text-[8px] font-black tracking-widest px-3 py-1">Balanced Choice</Badge>
+                         <Button variant="link" size="sm" className="text-primary font-black text-[9px] uppercase tracking-widest">Brand View</Button>
                       </div>
 
                       <div className="space-y-2">
@@ -312,7 +312,7 @@ export default function Dashboard() {
                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Ingredients</p>
                         <div className="flex flex-wrap gap-2">
                           {(meal.ingredients || []).map((ing, i) => (
-                            <Badge key={i} variant="secondary" className="bg-muted/50 text-muted-foreground/70 font-bold text-[9px] border-none">{ing}</Badge>
+                            <Badge key={i} variant="secondary" className="bg-muted/50 text-muted-foreground/70 font-bold text-[9px] border-none px-3 py-1 rounded-xl uppercase">{ing}</Badge>
                           ))}
                         </div>
                       </div>
