@@ -37,14 +37,14 @@ import { cn } from "@/lib/utils"
 const MOCK_MEALS = [
   { 
     id: "m1", 
-    name: "Kuetiau Goreng", 
-    calories: 438, 
-    time: "08:40 AM", 
-    source: "PHOTO",
-    macros: { protein: 17, carbs: 74, fat: 19 },
+    name: "Nasi Goreng Kambing", 
+    calories: 450, 
+    time: "08:00 AM", 
+    source: "PLANNER",
+    macros: { protein: 20, carbs: 50, fat: 15 },
     healthScore: 62,
     description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats. Adding a source of lean protein next time could enhance the balance.",
-    ingredients: ["Stir fried noodles", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
+    ingredients: ["Rice", "Lamb", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
     tips: "Balance for Weight Maintenance: This provides roughly 22% of your daily energy needs. High in sodium, consider drinking extra water."
   },
   { 
@@ -112,7 +112,7 @@ export default function Dashboard() {
   }
 
   const calorieTarget = profile?.calorieTarget || 2000
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 438)
+  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 450)
   const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.7
   
@@ -269,14 +269,47 @@ export default function Dashboard() {
                 >
                   <CardContent className="p-8 flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center">
-                        <CheckCircle2 className="w-7 h-7 text-green-500" strokeWidth={2.5} />
+                      <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center">
+                        <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
                       </div>
-                      <h3 className="font-black text-3xl tracking-tight leading-tight">{meal.name}</h3>
+                      <div className="space-y-1">
+                        <h3 className="font-black text-2xl tracking-tight leading-tight">{meal.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
+                          <Badge variant="secondary" className="bg-secondary/60 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-md">
+                            {meal.source}
+                          </Badge>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Calories</p>
-                      <p className="font-black text-4xl tracking-tighter text-primary">+{meal.calories}</p>
+                    <div className="flex items-center gap-8">
+                      <div className="text-right space-y-0.5">
+                        <div className="flex items-baseline justify-end gap-1">
+                          <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
+                          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">kcal</span>
+                        </div>
+                        <div className="flex items-center justify-end gap-4 mt-1">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                            <span className="text-[7px] font-black text-muted-foreground/40 uppercase tracking-tighter">{meal.macros?.protein}g</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                            <span className="text-[7px] font-black text-muted-foreground/40 uppercase tracking-tighter">{meal.macros?.carbs}g</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                            <span className="text-[7px] font-black text-muted-foreground/40 uppercase tracking-tighter">{meal.macros?.fat}g</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="hidden sm:block">
+                        {expandedMeal === meal.id ? (
+                          <ChevronUp className="w-6 h-6 text-muted-foreground/30" />
+                        ) : (
+                          <ChevronDown className="w-6 h-6 text-muted-foreground/30" />
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
