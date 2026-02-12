@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -314,18 +313,18 @@ export default function MealPlannerPage() {
         </Dialog>
 
         <Link href="/planner">
-          <Card className="rounded-[2.5rem] bg-primary border-none text-primary-foreground shadow-2xl shadow-primary/20 overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] mb-8">
+          <Card className="rounded-[2.5rem] bg-primary/20 border-none text-primary-foreground shadow-2xl shadow-primary/5 overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] mb-8">
             <CardContent className="p-8 flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-white/20 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform">
-                  <Sparkles className="w-8 h-8" />
+                <div className="w-16 h-16 bg-white/40 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-inner">
+                  <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-2xl font-black tracking-tight">Feeling Indecisive?</h2>
-                  <p className="text-primary-foreground/80 font-medium">Let AI curate your meals from Shopee, Grab & Gojek berdasarkan profil Anda.</p>
+                  <h2 className="text-2xl font-black tracking-tight text-foreground">Feeling Indecisive?</h2>
+                  <p className="text-muted-foreground font-medium">Let AI curate your meals from Grab & Gojek berdasarkan profil Anda.</p>
                 </div>
               </div>
-              <ChevronRightSquare className="w-10 h-10 opacity-30" />
+              <ChevronRightSquare className="w-10 h-10 opacity-30 text-primary" />
             </CardContent>
           </Card>
         </Link>
@@ -350,20 +349,19 @@ export default function MealPlannerPage() {
                 scheduledMeals.map((meal) => (
                   <div key={meal.id} className="space-y-2">
                     <Card className={cn(
-                      "group border-none shadow-sm hover:shadow-md transition-all rounded-[2rem] overflow-hidden border-l-8 border-l-primary bg-white",
+                      "group border-none shadow-sm hover:shadow-md transition-all rounded-[2.5rem] overflow-hidden bg-white",
                       recipes[meal.id] && "rounded-b-none"
                     )}>
                       <CardContent className="p-8">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-6 md:gap-10">
-                             <div className="text-center min-w-[80px] md:min-w-[100px]">
-                                <p className="text-lg md:text-xl font-black text-primary">{meal.time}</p>
-                                <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em]">{meal.type}</p>
+                             <div className="text-center min-w-[100px] flex flex-col justify-center border-r pr-6 border-border">
+                                <p className="text-xl font-black text-primary">{meal.time}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em]">{meal.type}</p>
                              </div>
-                             <div className="h-12 w-px bg-border hidden sm:block" />
-                             <div>
-                                <h3 className="text-xl md:text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
-                                <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{meal.calories} kcal • Personalized for you</p>
+                             <div className="space-y-1">
+                                <h3 className="text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
+                                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{meal.calories} kcal • Personalized for you</p>
                              </div>
                           </div>
                           <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -372,7 +370,7 @@ export default function MealPlannerPage() {
                                 size="sm" 
                                 onClick={() => handleGetRecipe(meal.id, meal.name)}
                                 disabled={loadingRecipe[meal.id]}
-                                className="rounded-xl font-black text-[10px] uppercase tracking-widest h-9 px-4 bg-primary/10 text-primary hover:bg-primary/20"
+                                className="rounded-xl font-black text-[10px] uppercase tracking-widest h-10 px-6 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
                               >
                                 {loadingRecipe[meal.id] ? (
                                   <Loader2 className="w-3 h-3 animate-spin mr-2" />
@@ -385,7 +383,7 @@ export default function MealPlannerPage() {
                               variant="ghost" 
                               size="icon" 
                               onClick={() => handleOpenEdit(meal)}
-                              className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-9 w-9"
+                              className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-10 w-10"
                              >
                                 <Edit2 className="w-4 h-4" />
                              </Button>
@@ -393,7 +391,7 @@ export default function MealPlannerPage() {
                               variant="ghost" 
                               size="icon" 
                               onClick={() => handleDeleteMeal(meal.id, meal.name)}
-                              className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-9 w-9"
+                              className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-10 w-10"
                              >
                                 <Trash2 className="w-4 h-4" />
                              </Button>
@@ -403,7 +401,7 @@ export default function MealPlannerPage() {
                     </Card>
                     
                     {recipes[meal.id] && (
-                      <Card className="border-none shadow-md rounded-[2rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-2 duration-300">
+                      <Card className="border-none shadow-md rounded-[2.5rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-2 duration-300">
                         <CardContent className="p-8 pt-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Sparkles className="w-4 h-4 text-primary" />
@@ -430,8 +428,8 @@ export default function MealPlannerPage() {
           <div className="lg:col-span-4 space-y-8">
              <Card className="bg-secondary/30 border-none rounded-[2.5rem] shadow-none overflow-hidden">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-sm font-black uppercase tracking-widest">
-                    <Bell className="w-4 h-4 text-primary" /> 
+                  <CardTitle className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-primary">
+                    <Bell className="w-4 h-4" /> 
                     Meal Reminders
                   </CardTitle>
                 </CardHeader>
@@ -439,16 +437,16 @@ export default function MealPlannerPage() {
                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       You will receive notifications 30 minutes before each meal time to help you stay on track.
                    </p>
-                   <Button variant="secondary" className="w-full bg-white text-primary hover:bg-white/90 font-black rounded-2xl h-12 uppercase text-[10px] tracking-widest">
+                   <Button variant="secondary" className="w-full bg-white text-primary hover:bg-white/90 font-black rounded-2xl h-12 uppercase text-[10px] tracking-widest border border-border shadow-sm">
                       Manage Alerts
                    </Button>
                 </CardContent>
              </Card>
 
-             <Card className="border-none rounded-[2.5rem] shadow-sm bg-accent/10 border-accent/20">
+             <Card className="border-none rounded-[2.5rem] shadow-sm bg-accent/5 border-accent/10">
                 <CardHeader className="pb-2">
                    <CardTitle className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-muted-foreground">
-                      <Utensils className="w-4 h-4 text-accent-foreground" />
+                      <Utensils className="w-4 h-4 text-primary" />
                       Prep Tips
                    </CardTitle>
                 </CardHeader>
