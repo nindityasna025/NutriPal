@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useEffect, useState } from "react"
@@ -97,13 +96,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center p-4 bg-background overflow-hidden">
-      {/* Top Left Logo */}
-      <div className="absolute top-8 left-8 z-20">
-        <div className="bg-foreground text-background w-10 h-10 rounded-full flex items-center justify-center font-black text-xs shadow-lg">
-          N
-        </div>
-      </div>
-
       {/* Faded Background Image */}
       <div className="absolute inset-0 z-0">
         <Image 
