@@ -78,7 +78,7 @@ export default function ProfilePage() {
               </div>
               <div className="space-y-0.5">
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">BMI</p>
-                <p className="text-2xl font-black">{profile?.bmiCategory || "Normal/Healthy"}</p>
+                <p className="text-2xl font-black">{profile?.bmiCategory || "Ideal"}</p>
               </div>
             </CardContent>
           </Card>
@@ -90,7 +90,7 @@ export default function ProfilePage() {
           <Card className="border-none shadow-sm bg-white rounded-[2.5rem] overflow-hidden">
             <CardContent className="p-0">
               {[
-                { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Shopee, Grab, Gojek linked" },
+                { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek linked" },
                 { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Settings", sub: "Sync health metrics" },
                 { icon: <Settings className="text-muted-foreground w-5 h-5" />, label: "Privacy & Security", sub: "Manage your data" },
               ].map((item, i, arr) => (
