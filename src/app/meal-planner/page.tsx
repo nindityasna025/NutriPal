@@ -75,13 +75,13 @@ export default function MealPlannerPage() {
   const handleAddMeal = () => {
     if (!user || !mealsColRef || !mealName) return
     setIsSaving(true)
-    const timeMap: Record<string, string> = { "Breakfast": "08:00 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:00 PM" }
+    const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
     addDocumentNonBlocking(mealsColRef, {
       name: mealName,
       type: mealType,
       time: timeMap[mealType] || "12:00 PM",
       calories: 438,
-      macros: { protein: 20, carbs: 50, fat: 15 },
+      macros: { protein: 12, carbs: 33, fat: 18 },
       healthScore: 78,
       description: "Scheduled for energy balance throughout your day.",
       source: "planner",
@@ -98,7 +98,7 @@ export default function MealPlannerPage() {
   const handleUpdateMeal = () => {
     if (!user || !mealsColRef || !editingMealId) return
     const mealRef = doc(mealsColRef, editingMealId)
-    const timeMap: Record<string, string> = { "Breakfast": "08:00 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:00 PM" }
+    const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
     updateDocumentNonBlocking(mealRef, { name: editMealName, type: editMealType, time: timeMap[editMealType] || "12:00 PM" })
     setEditingMealId(null)
     toast({ title: "Schedule Updated", description: "Menu updated." })
@@ -138,20 +138,20 @@ export default function MealPlannerPage() {
             <p className="text-muted-foreground font-medium text-sm">Organize your daily nutrition and schedule.</p>
           </div>
           
-          <div className="flex flex-col items-center gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             {/* Date Selector Pill */}
-            <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[300px] flex-1 md:flex-none">
+            <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[280px]">
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={handlePrevDay} 
-                className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
+                className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4" />
               </Button>
               
-              <div className="flex items-center gap-3 px-2 font-black text-sm text-foreground">
-                <CalendarIcon className="h-5 w-5 text-primary/60" />
+              <div className="flex items-center gap-2 px-2 font-black text-xs text-foreground uppercase tracking-wider">
+                <CalendarIcon className="h-4 w-4 text-primary/60" />
                 <span className="whitespace-nowrap">{format(date, "EEEE, MMM d")}</span>
               </div>
               
@@ -159,9 +159,9 @@ export default function MealPlannerPage() {
                 variant="ghost" 
                 size="icon" 
                 onClick={handleNextDay} 
-                className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
+                className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
 
@@ -239,26 +239,26 @@ export default function MealPlannerPage() {
                     <Card className={cn("group border-none shadow-sm hover:shadow-md transition-all rounded-[3rem] overflow-hidden bg-white relative", recipes[meal.id] && "rounded-b-none")}>
                       <CardContent className="p-8">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="flex items-center gap-10">
-                             <div className="text-center min-w-[100px] border-r pr-6 border-border">
-                               <p className="text-xl font-black text-primary/40">{meal.time}</p>
+                          <div className="flex items-center gap-8 lg:gap-12">
+                             <div className="text-center min-w-[100px] border-r pr-8 border-border">
+                               <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
                              </div>
                              <div className="space-y-1">
                                 <h3 className="text-2xl font-black tracking-tight group-hover:text-primary transition-colors">{meal.name}</h3>
                                 <div className="flex flex-col gap-1">
-                                   <p className="text-[11px] font-bold text-muted-foreground uppercase">+{meal.calories || 438} kcal</p>
+                                   <p className="text-[11px] font-bold text-muted-foreground uppercase">+{meal.calories || 438} KCAL</p>
                                    <div className="flex items-center gap-3">
-                                      <div className="flex items-center gap-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                                        <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter">{meal.macros?.protein || 20}g P</span>
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-red-400" />
+                                        <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{meal.macros?.protein || 12}G P</span>
                                       </div>
-                                      <div className="flex items-center gap-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                                        <span className="text-[9px] font-black text-yellow-600 uppercase tracking-tighter">{meal.macros?.carbs || 50}g C</span>
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                        <span className="text-[10px] font-black text-yellow-600 uppercase tracking-tighter">{meal.macros?.carbs || 33}G C</span>
                                       </div>
-                                      <div className="flex items-center gap-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">{meal.macros?.fat || 15}g F</span>
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-blue-400" />
+                                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter">{meal.macros?.fat || 18}G F</span>
                                       </div>
                                    </div>
                                 </div>
@@ -270,15 +270,15 @@ export default function MealPlannerPage() {
                               size="sm" 
                               onClick={() => handleGetRecipe(meal.id, meal.name)} 
                               disabled={loadingRecipe[meal.id]} 
-                              className="rounded-full font-black text-[10px] uppercase tracking-widest h-10 px-6 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+                              className="rounded-full font-black text-[10px] uppercase tracking-widest h-11 px-8 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
                              >
                                 {loadingRecipe[meal.id] ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <CookingPot className="w-3 h-3 mr-2" />}
                                 AI RECIPE
                              </Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-10 w-10">
+                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full hover:bg-primary/5 h-11 w-11">
                                <Edit2 className="w-4 h-4" />
                              </Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-10 w-10">
+                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/5 h-11 w-11">
                                <Trash2 className="w-4 h-4" />
                              </Button>
                           </div>
