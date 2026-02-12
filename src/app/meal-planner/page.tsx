@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Info, ChevronRightIcon } from "lucide-react"
+import { Plus, Utensils, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2, Sparkles, CookingPot, Trophy, Info, ChevronRightIcon, Calendar as CalendarIcon } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { addDays, subDays, format, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -137,26 +137,49 @@ export default function MealPlannerPage() {
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
         {/* Header Section */}
         <section className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <h1 className="text-4xl font-black tracking-tight text-foreground">{format(date, "MMMM d, yyyy")}</h1>
-          <div className="flex items-center gap-3">
+          <div className="space-y-1 w-full md:w-auto text-left">
+            <h1 className="text-4xl font-black tracking-tight text-foreground">Meal Planner</h1>
+            <p className="text-muted-foreground font-medium text-sm">Organize your daily nutrition and schedule.</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            {/* Date Selector Pill */}
+            <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[280px] flex-1 md:flex-none">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handlePrevDay} 
+                className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex items-center gap-3 px-2 font-black text-sm text-foreground">
+                <CalendarIcon className="h-5 w-5 text-primary/60" />
+                <span className="whitespace-nowrap">{format(date, "EEEE, MMM d")}</span>
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleNextDay} 
+                className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+
             <Button 
               variant="outline" 
               onClick={handleToday} 
-              className="rounded-xl h-10 px-4 font-black uppercase text-[10px] tracking-widest bg-white border-border"
+              className="rounded-xl h-11 px-4 font-black uppercase text-[10px] tracking-widest bg-white border-border hidden sm:flex"
             >
               today
             </Button>
-            <div className="flex items-center border border-border rounded-xl bg-white overflow-hidden shadow-sm">
-              <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 border-r rounded-none hover:bg-secondary">
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-none hover:bg-secondary">
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg ml-1">
+                <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg">
                   <Plus className="w-4 h-4 mr-2" /> Add Meal
                 </Button>
               </DialogTrigger>
