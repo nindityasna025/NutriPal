@@ -186,20 +186,27 @@ export default function Dashboard() {
             </div>
 
             <div className="pt-6 border-t border-muted/50">
-               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4">Macro Balance</p>
-               <div className="grid grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-red-500">Protein</span></div>
-                    <Progress value={25} className="h-1 bg-red-50" indicatorClassName="bg-red-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-yellow-500">Carbs</span></div>
-                    <Progress value={45} className="h-1 bg-yellow-50" indicatorClassName="bg-yellow-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[9px] font-black uppercase"><span className="text-blue-500">Fat</span></div>
-                    <Progress value={30} className="h-1 bg-blue-50" indicatorClassName="bg-blue-400" />
-                  </div>
+               <div className="flex items-center justify-between mb-4">
+                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Macro Balance</p>
+                 <div className="flex gap-4">
+                   <div className="flex items-center gap-1.5">
+                     <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                     <span className="text-[8px] font-black uppercase text-muted-foreground">Protein 25%</span>
+                   </div>
+                   <div className="flex items-center gap-1.5">
+                     <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                     <span className="text-[8px] font-black uppercase text-muted-foreground">Carbs 45%</span>
+                   </div>
+                   <div className="flex items-center gap-1.5">
+                     <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                     <span className="text-[8px] font-black uppercase text-muted-foreground">Fat 30%</span>
+                   </div>
+                 </div>
+               </div>
+               <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-secondary">
+                  <div style={{ width: '25%' }} className="bg-red-400 h-full" title="Protein: 25%" />
+                  <div style={{ width: '45%' }} className="bg-yellow-400 h-full" title="Carbs: 45%" />
+                  <div style={{ width: '30%' }} className="bg-blue-400 h-full" title="Fat: 30%" />
                </div>
             </div>
           </CardContent>
@@ -266,28 +273,28 @@ export default function Dashboard() {
 
                 {expandedMeal === meal.id && (
                   <div className="px-8 pb-10 pt-4 border-t border-muted/20 space-y-8 animate-in slide-in-from-top-2 duration-300">
-                    <div className="flex flex-wrap items-center justify-between gap-4 py-4 px-2 bg-primary/5 rounded-2xl">
+                    <div className="flex flex-wrap items-center justify-between gap-6 py-4 px-4 bg-primary/5 rounded-2xl">
                       <div className="flex items-center gap-6">
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                           <span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g P</span>
+                           <span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span>
                          </div>
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                           <span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g C</span>
+                           <span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span>
                          </div>
                          <div className="flex items-center gap-1.5">
                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                           <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g F</span>
+                           <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span>
                          </div>
                       </div>
                       <div className="flex items-center gap-3">
                          <Trophy className="text-primary w-4 h-4" />
-                         <span className="text-[11px] font-black uppercase tracking-widest text-primary">Score: {meal.healthScore || 75}/100</span>
+                         <span className="text-[11px] font-black uppercase tracking-widest text-primary">Health Score: {meal.healthScore || 75}/100</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-2">
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest"><Info className="w-3.5 h-3.5" /> Description</div>
                         <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">"{meal.description}"</p>
