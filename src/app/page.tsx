@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -25,16 +26,14 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
-  Leaf,
+  Activity,
   Zap,
-  Activity
+  Leaf
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday, eachDayOfInterval, isSameDay } from "date-fns"
 import { collection, doc, setDoc, increment } from "firebase/firestore"
 import { updateDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 
 // Mock data updated with rich details
 const MOCK_MEALS = [
@@ -42,7 +41,7 @@ const MOCK_MEALS = [
     id: "m1", 
     name: "Avocado & Egg Toast", 
     calories: 320, 
-    time: "02:30 PM", 
+    time: "08:30 AM", 
     source: "PHOTO",
     macros: { protein: 12, carbs: 28, fat: 18 },
     healthScore: 85,
@@ -53,7 +52,7 @@ const MOCK_MEALS = [
     id: "m2", 
     name: "Quinoa Salad Bowl", 
     calories: 410, 
-    time: "10:30 AM", 
+    time: "01:30 PM", 
     source: "PLANNER",
     macros: { protein: 15, carbs: 45, fat: 12 },
     healthScore: 92,
@@ -102,31 +101,32 @@ export default function Dashboard() {
 
   if (!mounted || isUserLoading || !user || !selectedDate) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-white z-50">
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <p className="font-bold text-lg animate-pulse">NutriPal is syncing...</p>
       </div>
     )
   }
 
-  const calorieTarget = profile?.calorieTarget || 1936
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 438)
-  const burned = dailyLog?.caloriesBurned || 450 
-  const water = dailyLog?.waterIntake || 1.8
+  const calorieTarget = profile?.calorieTarget || 2000
+  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 0)
+  const burned = dailyLog?.caloriesBurned || 0
+  const water = dailyLog?.waterIntake || 0
   
   const proteinTarget = profile?.proteinTarget || 25
   const carbsTarget = profile?.carbsTarget || 45
   const fatTarget = profile?.fatTarget || 30
 
-  // Calculation for the circular view
   const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
   
-  // Weekly dates
-  const weekStart = subDays(selectedDate, 3)
-  const weekEnd = addDays(selectedDate, 3)
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  const getCalorieStatus = () => {
+    if (consumed === 0) return { label: "Not Started", color: "text-muted-foreground" };
+    if (consumed >= calorieTarget - 100 && consumed <= calorieTarget + 100) return { label: "Goal Met", color: "text-green-600" };
+    if (consumed > calorieTarget + 100) return { label: "Over Goal", color: "text-red-500" };
+    return { label: "Under Goal", color: "text-primary" };
+  }
 
-  const displayMeals = (meals && meals.length > 0) ? meals : (dateId === format(new Date(), "yyyy-MM-dd") ? MOCK_MEALS : [])
+  const calorieStatus = getCalorieStatus();
 
   const adjustWater = (amount: number) => {
     if (!dailyLogRef) return;
@@ -140,116 +140,92 @@ export default function Dashboard() {
   const getSuggestion = () => {
     if (water < 2.0) return "You're a bit low on hydration. Try to drink 2 more glasses before dinner!";
     if (burned > 600 && consumed < calorieTarget - 500) return "High activity detected! Consider a protein-rich snack for recovery.";
-    if (consumed > calorieTarget) return "You've reached your calorie goal. Focus on fiber-rich vegetables for the rest of the day.";
     return "You're doing great! Consistency is key to reaching your wellness goals.";
   }
 
-  const llamaImage = PlaceHolderImages.find(img => img.id === 'llama-avatar')?.imageUrl || "https://picsum.photos/seed/llama-style/400/400"
+  const displayMeals = (meals && meals.length > 0) ? meals : (dateId === format(new Date(), "yyyy-MM-dd") ? MOCK_MEALS : [])
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-700 pb-32">
-      {/* Top Calorie Summary */}
-      <section className="text-center space-y-1">
-        <h1 className="text-7xl font-black tracking-tighter text-foreground">{consumed}</h1>
-        <p className="text-muted-foreground font-bold text-lg">{caloriePercent}% from {calorieTarget} calories goal</p>
-      </section>
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-700 pb-32">
+      {/* Header Summary */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="md:col-span-2 border-none shadow-xl bg-white rounded-[2rem] overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-sm font-black uppercase tracking-widest text-muted-foreground">Calorie Tracker</CardTitle>
+              <Badge variant="outline" className={cn("font-black text-[10px] uppercase border-none px-0", calorieStatus.color)}>
+                {calorieStatus.label}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-baseline gap-2">
+              <h1 className="text-6xl font-black tracking-tighter">{consumed}</h1>
+              <span className="text-lg font-bold text-muted-foreground">/ {calorieTarget} kcal</span>
+            </div>
+            <div className="space-y-2">
+              <Progress value={caloriePercent} className="h-3 rounded-full" />
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                <span>{caloriePercent}% Goal Reached</span>
+                <span>{Math.max(0, calorieTarget - consumed)} kcal left</span>
+              </div>
+            </div>
 
-      {/* Central Visualization */}
-      <section className="relative flex justify-center items-center py-10">
-        <div className="relative w-[320px] h-[320px] flex justify-center items-center">
-          {/* Circular Rings (Simple SVG implementation) */}
-          <svg className="absolute w-full h-full -rotate-90">
-            {/* Calories Burned Ring (Red) */}
-            <circle cx="160" cy="160" r="140" fill="none" stroke="hsl(var(--muted))" strokeWidth="24" strokeLinecap="round" />
-            <circle cx="160" cy="160" r="140" fill="none" stroke="hsl(var(--destructive))" strokeWidth="24" strokeDasharray={`${(burned/1000) * 880} 880`} strokeLinecap="round" className="transition-all duration-1000 opacity-20" />
-            
-            {/* Inner rings for macros */}
-            <circle cx="160" cy="160" r="110" fill="none" stroke="hsl(var(--muted))" strokeWidth="18" strokeLinecap="round" />
-          </svg>
+            {/* Macro Targets Section */}
+            <div className="pt-4 border-t border-muted/50">
+               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Daily Macro Goals</p>
+               <div className="grid grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] font-bold uppercase"><span className="text-red-500">Protein</span> <span>{proteinTarget}%</span></div>
+                    <Progress value={proteinTarget} className="h-1 bg-red-100" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] font-bold uppercase"><span className="text-yellow-500">Carbs</span> <span>{carbsTarget}%</span></div>
+                    <Progress value={carbsTarget} className="h-1 bg-yellow-100" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] font-bold uppercase"><span className="text-blue-500">Fat</span> <span>{fatTarget}%</span></div>
+                    <Progress value={fatTarget} className="h-1 bg-blue-100" />
+                  </div>
+               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Avatar & Macro Indicators */}
-          <div className="z-10 relative flex flex-col items-center gap-4">
-             {/* Llama Avatar */}
-             <div className="w-48 h-48 relative rounded-full overflow-hidden border-8 border-white shadow-2xl bg-white">
-                <Image 
-                  src={llamaImage} 
-                  alt="Llama Mascot" 
-                  fill 
-                  className="object-cover"
-                  data-ai-hint="llama mascot"
-                />
-             </div>
-          </div>
-
-          {/* Absolute Positioned Macro Icons */}
-          {/* Protein (Blue) */}
-          <div className="absolute top-[20%] left-[5%] bg-blue-500 p-2.5 rounded-full shadow-lg border-4 border-white">
-            <Droplets className="w-5 h-5 text-white" />
-          </div>
-          {/* Burned (Red) */}
-          <div className="absolute top-[5%] right-[20%] bg-destructive p-2.5 rounded-full shadow-lg border-4 border-white">
-            <Flame className="w-5 h-5 text-white" />
-          </div>
-          {/* Carbs (Green) */}
-          <div className="absolute bottom-[5%] left-[40%] bg-green-500 p-2.5 rounded-full shadow-lg border-4 border-white">
-            <Leaf className="w-5 h-5 text-white" />
-          </div>
-          {/* Fat (Yellow) */}
-          <div className="absolute bottom-[20%] right-[5%] bg-yellow-500 p-2.5 rounded-full shadow-lg border-4 border-white">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-
-          {/* Streak Indicator (Left) */}
-          <div className="absolute left-[-60px] top-1/2 -translate-y-1/2 text-center space-y-1">
-            <Footprints className="w-10 h-10 mx-auto text-foreground" strokeWidth={2.5} />
-            <p className="text-2xl font-black">1d</p>
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">streak</p>
-          </div>
+        <div className="grid grid-cols-1 gap-4">
+          <Card className="border-none shadow-xl bg-white rounded-[2rem]">
+            <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-2 h-full">
+              <div className="p-3 bg-destructive/10 rounded-2xl">
+                <Flame className="w-6 h-6 text-destructive" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Burned Today</p>
+              <h3 className="text-3xl font-black tracking-tight">{burned} <span className="text-sm font-bold">kcal</span></h3>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-xl bg-white rounded-[2rem]">
+            <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-4 h-full">
+              <div className="flex items-center gap-4">
+                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full border border-primary/20"><Minus className="w-4 h-4" /></Button>
+                 <div className="space-y-1">
+                    <div className="p-2 bg-blue-50 rounded-xl mx-auto w-fit"><Droplets className="w-5 h-5 text-blue-500" /></div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Water</p>
+                    <h3 className="text-2xl font-black tracking-tight">{water} <span className="text-sm font-bold text-muted-foreground">L</span></h3>
+                 </div>
+                 <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full border border-primary/20 bg-primary/5"><Plus className="w-4 h-4 text-primary" /></Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
-
-      {/* Macro Percentages */}
-      <section className="flex justify-center gap-10 text-xl font-black">
-        <div className="flex items-center gap-2"><span className="text-blue-500">16%</span> <span className="text-sm font-bold text-muted-foreground lowercase">protein</span></div>
-        <div className="flex items-center gap-2"><span className="text-green-500">67%</span> <span className="text-sm font-bold text-muted-foreground lowercase">carbs</span></div>
-        <div className="flex items-center gap-2"><span className="text-yellow-500">17%</span> <span className="text-sm font-bold text-muted-foreground lowercase">fat</span></div>
-      </section>
-
-      {/* Date Timeline */}
-      <section className="pt-4 overflow-x-auto no-scrollbar">
-        <div className="flex items-center justify-between min-w-[500px] px-2">
-          {weekDays.map((day) => {
-            const isToday = isSameDay(day, selectedDate!)
-            return (
-              <button 
-                key={day.toISOString()} 
-                onClick={() => setSelectedDate(day)}
-                className={cn(
-                  "flex flex-col items-center gap-2 p-4 rounded-[2rem] min-w-[80px] transition-all",
-                  isToday ? "bg-secondary text-foreground shadow-sm" : "text-muted-foreground hover:bg-secondary/20"
-                )}
-              >
-                <span className="text-2xl font-black">{format(day, "d")}</span>
-                <span className="text-[10px] font-black uppercase tracking-widest">{format(day, "EEE")}</span>
-              </button>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* Goal Line Indicator */}
-      <div className="relative h-px w-full bg-border border-dashed border-t-2 my-10">
-        <Badge className="absolute left-0 -top-4 bg-yellow-500 text-black font-black text-xs px-3 rounded-full border-none">{calorieTarget}</Badge>
-      </div>
 
       {/* Daily Food Report Section */}
-      <section className="space-y-8">
+      <section className="space-y-6">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
             <History className="w-6 h-6 text-primary" />
             <h2 className="text-2xl font-black tracking-tight">Daily Food Report</h2>
           </div>
-          <Button variant="link" size="sm" className="text-primary font-black text-xs uppercase tracking-widest">View History</Button>
+          <Button variant="link" size="sm" className="text-primary font-black text-xs uppercase tracking-widest">View All</Button>
         </div>
 
         <div className="grid grid-cols-1 gap-5">
@@ -278,9 +254,9 @@ export default function Dashboard() {
                           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">kcal</span>
                         </div>
                         <div className="flex items-center gap-3 mt-2">
-                          <span className="text-[9px] font-black text-blue-500">{meal.macros?.protein}g P</span>
-                          <span className="text-[9px] font-black text-green-500">{meal.macros?.carbs}g C</span>
-                          <span className="text-[9px] font-black text-yellow-500">{meal.macros?.fat}g F</span>
+                          <span className="text-[9px] font-black text-red-400">{meal.macros?.protein}g P</span>
+                          <span className="text-[9px] font-black text-yellow-500">{meal.macros?.carbs}g C</span>
+                          <span className="text-[9px] font-black text-blue-400">{meal.macros?.fat}g F</span>
                         </div>
                       </div>
                       {expandedMeal === meal.id ? <ChevronUp className="text-muted-foreground" /> : <ChevronDown className="text-muted-foreground" />}
