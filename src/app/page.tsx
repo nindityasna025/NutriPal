@@ -23,13 +23,16 @@ import {
   Minus,
   Lightbulb,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import { collection, doc, setDoc, increment } from "firebase/firestore"
 import { updateDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { cn } from "@/lib/utils"
 
-// Mock data for initial empty state
+// Mock data updated with rich details
 const MOCK_MEALS = [
   { 
     id: "m1", 
@@ -37,7 +40,10 @@ const MOCK_MEALS = [
     calories: 320, 
     time: "02:30 PM", 
     source: "PHOTO",
-    macros: { protein: 12, carbs: 28, fat: 18 }
+    macros: { protein: 12, carbs: 28, fat: 18 },
+    healthScore: 85,
+    description: "This meal offers a perfect balance of healthy fats from avocado and high-quality protein from eggs. Excellent for brain health and sustained energy.",
+    ingredients: ["Sourdough bread", "Avocado", "Poached egg", "Red pepper flakes", "Lemon juice"]
   },
   { 
     id: "m2", 
@@ -45,7 +51,10 @@ const MOCK_MEALS = [
     calories: 410, 
     time: "10:30 AM", 
     source: "PLANNER",
-    macros: { protein: 15, carbs: 45, fat: 12 }
+    macros: { protein: 15, carbs: 45, fat: 12 },
+    healthScore: 92,
+    description: "Quinoa provides all nine essential amino acids. The fiber content keeps you full and helps with digestion.",
+    ingredients: ["Quinoa", "Cucumber", "Cherry tomatoes", "Chickpeas", "Olive oil dressing"]
   },
 ]
 
@@ -55,13 +64,13 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [expandedMeal, setExpandedMeal] = useState<string | null>(null)
 
   useEffect(() => {
     setSelectedDate(startOfToday())
     setMounted(true)
   }, [])
 
-  // Redirect to login if not authenticated after loading
   useEffect(() => {
     if (!isUserLoading && !user && mounted) {
       router.push("/login")
@@ -101,19 +110,11 @@ export default function Dashboard() {
   const burned = dailyLog?.caloriesBurned || 450 
   const water = dailyLog?.waterIntake || 1.8
   
-  // Macros from profile or defaults
   const proteinTarget = profile?.proteinTarget || 25
   const carbsTarget = profile?.carbsTarget || 45
   const fatTarget = profile?.fatTarget || 30
 
-  // Dynamic Calorie Status Logic
-  const getCalorieStatus = () => {
-    const diff = consumed - calorieTarget;
-    if (Math.abs(diff) <= 100) return "Goal Met";
-    if (diff < 0) return "Under Goal";
-    return "Over Goal";
-  }
-  const status = getCalorieStatus();
+  const status = (consumed - calorieTarget) > 100 ? "Over Goal" : (consumed - calorieTarget) < -100 ? "Under Goal" : "Goal Met"
 
   const displayMeals = (meals && meals.length > 0) ? meals : (dateId === format(new Date(), "yyyy-MM-dd") ? MOCK_MEALS : [])
 
@@ -126,7 +127,6 @@ export default function Dashboard() {
     }, { merge: true });
   }
 
-  // Simple logic for dynamic suggestion
   const getSuggestion = () => {
     if (water < 2.0) return "You're a bit low on hydration. Try to drink 2 more glasses before dinner!";
     if (burned > 600 && consumed < calorieTarget - 500) return "High activity detected! Consider a protein-rich snack for recovery.";
@@ -157,8 +157,7 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Calories Card */}
-        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white h-full p-8 flex flex-col justify-between">
+        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white p-8 flex flex-col justify-between">
           <div className="space-y-6">
             <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
               <Flame className="w-3 h-3 text-primary" /> Calories Consumed
@@ -167,11 +166,8 @@ export default function Dashboard() {
               <span className="text-6xl font-black">{consumed}</span>
               <span className="text-sm text-muted-foreground font-bold">/ {calorieTarget} kcal</span>
             </div>
-            
             <div className="pt-2 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase text-muted-foreground">Macro Targets</span>
-              </div>
+              <span className="text-[10px] font-black uppercase text-muted-foreground">Macro Targets</span>
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1">
                   <div className="h-1 w-full bg-red-100 rounded-full overflow-hidden">
@@ -197,18 +193,13 @@ export default function Dashboard() {
           <div className="space-y-6 mt-6">
             <Progress value={(consumed / calorieTarget) * 100} className="h-2.5 bg-primary/10" />
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-black text-muted-foreground uppercase leading-tight tracking-wider">
-                Target<br/>Status
-              </div>
-              <Badge className="bg-primary/20 text-primary-foreground border border-primary/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest">
-                {status}
-              </Badge>
+              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Status</span>
+              <Badge className="bg-primary/20 text-primary-foreground border border-primary/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest">{status}</Badge>
             </div>
           </div>
         </Card>
 
-        {/* Active Burned Card */}
-        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white h-full p-8 flex flex-col justify-between">
+        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white p-8 flex flex-col justify-between">
           <div className="space-y-6">
             <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
               <Footprints className="w-3 h-3 text-orange-500" /> Active Calories
@@ -226,20 +217,15 @@ export default function Dashboard() {
           </div>
         </Card>
 
-        {/* Water Intake Card */}
-        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white h-full p-8 flex flex-col justify-between group">
+        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-gray-100/50 bg-white p-8 flex flex-col justify-between group">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                 <Droplets className="w-3 h-3 text-blue-500" /> Water Intake
               </CardTitle>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => adjustWater(-0.1)}>
-                  <Minus className="w-3 h-3" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => adjustWater(0.1)}>
-                  <Plus className="w-3 h-3" />
-                </Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => adjustWater(-0.1)}><Minus className="w-3 h-3" /></Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => adjustWater(0.1)}><Plus className="w-3 h-3" /></Button>
               </div>
             </div>
             <div className="flex items-baseline gap-2">
@@ -266,46 +252,68 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-5">
           {displayMeals.length > 0 ? (
             displayMeals.map((meal) => (
-              <Card key={meal.id} className="rounded-[2rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white group">
-                <CardContent className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-secondary/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Utensils className="text-primary w-8 h-8" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="font-black text-xl tracking-tight">{meal.name}</h3>
-                      <div className="flex items-center gap-4">
-                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{meal.time}</span>
-                        <span className="text-[9px] px-2.5 py-1 bg-muted rounded-lg font-black text-muted-foreground uppercase tracking-wider">{meal.source}</span>
+              <Card key={meal.id} className="rounded-[2rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white group cursor-pointer" onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}>
+                <CardContent className="p-0">
+                  <div className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6">
+                      <div className="w-16 h-16 bg-secondary/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Utensils className="text-primary w-8 h-8" />
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:items-end gap-3">
-                    <div className="flex items-baseline gap-2 sm:justify-end">
-                      <p className="font-black text-3xl tracking-tight leading-none">
-                        {meal.calories}
-                      </p>
-                      <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Kcal</span>
+                      <div className="space-y-1">
+                        <h3 className="font-black text-xl tracking-tight">{meal.name}</h3>
+                        <div className="flex items-center gap-4">
+                          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{meal.time}</span>
+                          <span className="text-[9px] px-2.5 py-1 bg-muted rounded-lg font-black text-muted-foreground uppercase tracking-wider">{meal.source}</span>
+                        </div>
+                      </div>
                     </div>
                     
-                    {meal.macros && (
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full bg-red-400" />
-                          <span className="text-[10px] font-black uppercase text-muted-foreground">{meal.macros.protein}g P</span>
+                    <div className="flex items-center gap-8">
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-baseline gap-2">
+                          <p className="font-black text-3xl tracking-tight leading-none">+{meal.calories}</p>
+                          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">kcal</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full bg-yellow-400" />
-                          <span className="text-[10px] font-black uppercase text-muted-foreground">{meal.macros.carbs}g C</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full bg-blue-400" />
-                          <span className="text-[10px] font-black uppercase text-muted-foreground">{meal.macros.fat}g F</span>
+                        <div className="flex items-center gap-3 mt-2">
+                          <span className="text-[9px] font-black text-red-400">{meal.macros?.protein}g P</span>
+                          <span className="text-[9px] font-black text-yellow-500">{meal.macros?.carbs}g C</span>
+                          <span className="text-[9px] font-black text-blue-400">{meal.macros?.fat}g F</span>
                         </div>
                       </div>
-                    )}
+                      {expandedMeal === meal.id ? <ChevronUp className="text-muted-foreground" /> : <ChevronDown className="text-muted-foreground" />}
+                    </div>
                   </div>
+
+                  {expandedMeal === meal.id && (
+                    <div className="px-8 pb-8 pt-4 border-t border-muted/50 space-y-6 animate-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
+                         <div className="space-y-1">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Health Benefit</p>
+                            <div className="flex items-center gap-2">
+                               <span className="text-2xl font-black text-primary">{meal.healthScore || 75}/100</span>
+                               <Progress value={meal.healthScore || 75} className="w-24 h-1.5" />
+                            </div>
+                         </div>
+                         <Badge variant="outline" className="border-primary/20 text-primary uppercase text-[8px] font-black tracking-widest px-3 py-1">Balance for Maintenance</Badge>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">AI Insight</p>
+                        <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">
+                          "{meal.description || "This meal provides a good nutritional balance. Adding more leafy greens could further enhance its health score."}"
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Key Ingredients</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(meal.ingredients || ["Stir fried noodles", "Egg", "Vegetables"]).map((ing, i) => (
+                            <Badge key={i} variant="secondary" className="bg-muted/50 text-muted-foreground font-bold text-[10px]">{ing}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))
@@ -319,37 +327,23 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Smart Daily Insight Section */}
       <section className="pt-6">
         <Card className="rounded-[2.5rem] border-none bg-gradient-to-br from-primary/20 to-accent/20 shadow-xl shadow-primary/5 overflow-hidden group">
           <CardContent className="p-10 flex flex-col md:flex-row items-center gap-10 relative">
             <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:rotate-12 transition-transform">
               <Sparkles className="w-40 h-40 text-primary" />
             </div>
-            
             <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-lg shrink-0">
               <Lightbulb className="w-12 h-12 text-primary fill-primary/10" />
             </div>
-            
             <div className="flex-1 space-y-4 text-center md:text-left z-10">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-black tracking-tight flex items-center justify-center md:justify-start gap-2">
-                  Smart Daily Insight
-                  <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest">AI POWERED</Badge>
-                </h2>
-                <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest">Based on your activity today</p>
-              </div>
-              <p className="text-lg font-medium text-foreground/80 leading-relaxed italic max-w-2xl">
-                "{getSuggestion()}"
-              </p>
-              <div className="pt-2">
-                <Button 
-                  onClick={() => router.push("/meal-planner")}
-                  className="bg-white text-primary hover:bg-white/90 rounded-2xl h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/5 border border-primary/10"
-                >
-                  OPTIMIZE MY SCHEDULE <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </div>
+              <h2 className="text-2xl font-black tracking-tight flex items-center justify-center md:justify-start gap-2">
+                Smart Daily Insight <Badge className="bg-primary/30 text-primary-foreground font-black text-[9px] uppercase tracking-widest">AI POWERED</Badge>
+              </h2>
+              <p className="text-lg font-medium text-foreground/80 leading-relaxed italic max-w-2xl">"{getSuggestion()}"</p>
+              <Button onClick={() => router.push("/meal-planner")} className="bg-white text-primary hover:bg-white/90 rounded-2xl h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg border border-primary/10">
+                OPTIMIZE MY SCHEDULE <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>

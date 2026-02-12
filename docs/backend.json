@@ -54,7 +54,7 @@
         "name": { "type": "string" },
         "calories": { "type": "number" },
         "time": { "type": "string" },
-        "source": { "type": "string", "enum": ["photo", "planner", "manual"] },
+        "source": { "type": "string", "enum": ["photo", "planner", "manual", "GrabFood", "GoFood"] },
         "macros": {
           "type": "object",
           "properties": {
@@ -63,6 +63,9 @@
             "fat": { "type": "number" }
           }
         },
+        "healthScore": { "type": "number" },
+        "description": { "type": "string" },
+        "ingredients": { "type": "array", "items": { "type": "string" } },
         "imageUrl": { "type": "string" }
       }
     }
