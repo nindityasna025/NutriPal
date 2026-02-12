@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -157,16 +156,29 @@ export default function Dashboard() {
           <p className="text-muted-foreground font-medium">Welcome back! Here is your daily wellness report:</p>
         </div>
         
-        <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
-          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary/50">
-            <ChevronLeft className="h-4 w-4" />
+        {/* Date Selector Pill */}
+        <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[300px] w-full md:w-auto">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handlePrevDay} 
+            className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
+          >
+            <ChevronLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center gap-2 px-6 py-2 font-bold text-sm min-w-[200px] justify-center">
-            <CalendarIcon className="h-4 w-4 text-primary" />
-            <span>{format(selectedDate, "EEEE, MMM d")}</span>
+          
+          <div className="flex items-center gap-3 px-2 font-black text-sm text-foreground">
+            <CalendarIcon className="h-5 w-5 text-primary/60" />
+            <span className="whitespace-nowrap">{format(selectedDate, "EEEE, MMM d")}</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary/50">
-            <ChevronRight className="h-4 w-4" />
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleNextDay} 
+            className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"
+          >
+            <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
       </section>
