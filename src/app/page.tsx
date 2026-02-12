@@ -37,14 +37,14 @@ import { cn } from "@/lib/utils"
 const MOCK_MEALS = [
   { 
     id: "m1", 
-    name: "Nasi Goreng Kambing", 
-    calories: 450, 
-    time: "08:00 AM", 
-    source: "PLANNER",
-    macros: { protein: 20, carbs: 50, fat: 15 },
+    name: "Kuetiau Goreng", 
+    calories: 438, 
+    time: "08:00 PM", 
+    source: "PHOTO",
+    macros: { protein: 17, carbs: 74, fat: 19 },
     healthScore: 62,
     description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats. Adding a source of lean protein next time could enhance the balance.",
-    ingredients: ["Rice", "Lamb", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
+    ingredients: ["Rice Noodles", "Shrimp", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
     tips: "Balance for Weight Maintenance: This provides roughly 22% of your daily energy needs. High in sodium, consider drinking extra water."
   },
   { 
@@ -67,7 +67,7 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [expandedMeal, setExpandedMeal] = useState<string | null>("m1")
+  const [expandedMeal, setExpandedMeal] = useState<string | null>(null)
 
   useEffect(() => {
     setSelectedDate(startOfToday())
@@ -112,7 +112,7 @@ export default function Dashboard() {
   }
 
   const calorieTarget = profile?.calorieTarget || 2000
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 450)
+  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 438)
   const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.7
   
@@ -287,20 +287,6 @@ export default function Dashboard() {
                         <div className="flex items-baseline justify-end gap-1">
                           <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
                           <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">kcal</span>
-                        </div>
-                        <div className="flex items-center justify-end gap-4 mt-1">
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                            <span className="text-[7px] font-black text-muted-foreground/40 uppercase tracking-tighter">{meal.macros?.protein}g</span>
-                          </div>
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                            <span className="text-[7px] font-black text-muted-foreground/40 uppercase tracking-tighter">{meal.macros?.carbs}g</span>
-                          </div>
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                            <span className="text-[7px] font-black text-muted-foreground/40 uppercase tracking-tighter">{meal.macros?.fat}g</span>
-                          </div>
                         </div>
                       </div>
                       <div className="hidden sm:block">

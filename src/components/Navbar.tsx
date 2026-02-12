@@ -36,8 +36,8 @@ export function Navbar() {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen fixed left-0 top-0 z-[100] shadow-sm">
         <div className="p-10 flex items-center gap-4">
-          <div className="bg-primary/20 p-2.5 rounded-2xl">
-            <Utensils className="w-6 h-6 text-primary" />
+          <div className="bg-foreground text-background w-10 h-10 rounded-full flex items-center justify-center font-black text-xs shadow-lg">
+            N
           </div>
           <span className="font-headline font-black text-2xl tracking-tighter text-foreground">NutriPal</span>
         </div>
@@ -69,21 +69,19 @@ export function Navbar() {
             <Link 
               href="/profile"
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-300 active:scale-95 group",
-                pathname === "/profile" 
-                  ? "bg-primary/10 border-primary/20 text-foreground" 
-                  : "bg-secondary/30 border-transparent hover:bg-secondary/50"
+                "flex items-center gap-3 px-4 py-4 rounded-[2rem] border transition-all duration-300 active:scale-95 group shadow-sm bg-secondary/30 border-transparent hover:bg-secondary/50",
+                pathname === "/profile" && "bg-primary/10 border-primary/20"
               )}
             >
-              <Avatar className="h-9 w-9 border border-primary/20">
+              <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                 <AvatarImage src={user.photoURL || ""} />
-                <AvatarFallback className="bg-primary/10 text-primary font-black text-xs uppercase">
+                <AvatarFallback className="bg-primary/20 text-primary font-black text-xs uppercase">
                   {user.displayName?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-xs font-black truncate">{user.displayName || "Demo User"}</span>
-                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">My Profile</span>
+                <span className="text-sm font-black truncate">{user.displayName || "Demo User"}</span>
+                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">Pro Member</span>
               </div>
             </Link>
           )}
