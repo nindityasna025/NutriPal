@@ -184,7 +184,7 @@ export default function MealPlannerPage() {
     <div className="min-h-screen pb-20 md:pt-10 bg-background font-body">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
+      <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
         <section className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <h1 className="text-4xl font-black tracking-tighter text-foreground">
@@ -329,8 +329,8 @@ export default function MealPlannerPage() {
           </Card>
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
-          <div className="lg:col-span-8 space-y-8">
+        <div className="space-y-10">
+          <div className="space-y-8">
             <div className="flex items-center justify-between px-4">
               <h2 className="text-3xl font-black tracking-tight">
                 Scheduled Meals
@@ -425,44 +425,33 @@ export default function MealPlannerPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-4 space-y-8">
-             <Card className="bg-secondary/30 border-none rounded-[2.5rem] shadow-none overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-primary">
-                    <Bell className="w-4 h-4" /> 
-                    Meal Reminders
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                   <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                      You will receive notifications 30 minutes before each meal time to help you stay on track.
-                   </p>
-                   <Button variant="secondary" className="w-full bg-white text-primary hover:bg-white/90 font-black rounded-2xl h-12 uppercase text-[10px] tracking-widest border border-border shadow-sm">
-                      Manage Alerts
-                   </Button>
-                </CardContent>
-             </Card>
+          <Card className="bg-secondary/30 border-none rounded-[2.5rem] shadow-none overflow-hidden p-8 space-y-6">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-primary" /> 
+              <span className="text-sm font-black uppercase tracking-widest text-primary">Meal Reminders</span>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              You will receive notifications 30 minutes before each meal time to help you stay on track.
+            </p>
+            <Button variant="secondary" className="w-full bg-white text-primary hover:bg-white/90 font-black rounded-2xl h-12 uppercase text-[10px] tracking-widest border border-border shadow-sm">
+              Manage Alerts
+            </Button>
+          </Card>
 
-             <Card className="border-none rounded-[2.5rem] shadow-sm bg-accent/5 border-accent/10">
-                <CardHeader className="pb-2">
-                   <CardTitle className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-muted-foreground">
-                      <Utensils className="w-4 h-4 text-primary" />
-                      Prep Tips
-                   </CardTitle>
-                </CardHeader>
-                <CardContent>
-                   <ul className="space-y-4 text-sm font-medium text-foreground">
-                      <li className="flex items-start gap-3 italic">
-                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                         "Prepare vegetable cuts at night to save time for breakfast."
-                      </li>
-                      <li className="flex items-start gap-3 italic">
-                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                         "Don't forget to drink 2 glasses of water before lunch."
-                      </li>
-                   </ul>
-                </CardContent>
-             </Card>
+          <div className="px-8 space-y-4 pb-10">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary">
+              <Utensils className="w-4 h-4" /> Prep Tips
+            </div>
+            <ul className="space-y-4 text-sm font-medium text-foreground">
+              <li className="flex items-start gap-3 italic">
+                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                 "Prepare vegetable cuts at night to save time for breakfast."
+              </li>
+              <li className="flex items-start gap-3 italic">
+                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                 "Don't forget to drink 2 glasses of water before lunch."
+              </li>
+            </ul>
           </div>
         </div>
       </main>
