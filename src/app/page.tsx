@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -14,65 +13,27 @@ import {
   ChevronRight, 
   Utensils,
   Loader2,
-  History,
   Plus,
   Minus,
-  Lightbulb,
   Sparkles,
-  ChevronDown,
-  ChevronUp,
-  Watch,
-  ChevronLeft,
-  Calendar as CalendarIcon,
-  Trophy,
-  Info
+  Camera,
+  Calendar,
+  Trophy
 } from "lucide-react"
-import { format, addDays, subDays, startOfToday, isSameDay } from "date-fns"
+import { format, startOfToday } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
-// Mock data for fallback
-const MOCK_MEALS = [
-  { 
-    id: "m1", 
-    name: "Kuetiau Goreng", 
-    calories: 438, 
-    time: "08:00 PM", 
-    source: "PHOTO",
-    imageUrl: "https://picsum.photos/seed/nutri1/400/400",
-    macros: { protein: 17, carbs: 74, fat: 19 },
-    healthScore: 62,
-    description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats.",
-    ingredients: ["Rice Noodles", "Shrimp", "Carrot", "Egg", "Bean sprouts"],
-    tips: "Consider drinking extra water due to sodium levels."
-  },
-  { 
-    id: "m2", 
-    name: "Avocado & Egg Toast", 
-    calories: 320, 
-    time: "11:30 AM", 
-    source: "PHOTO",
-    imageUrl: "https://picsum.photos/seed/nutri2/400/400",
-    macros: { protein: 12, carbs: 28, fat: 18 },
-    healthScore: 85,
-    description: "Perfect balance of healthy fats and protein.",
-    ingredients: ["Sourdough", "Avocado", "Egg", "Lemon juice"],
-    tips: "Great start to your day!"
-  }
-]
-
 export default function Dashboard() {
   const router = useRouter()
   const firestore = useFirestore()
   const { user, isUserLoading } = useUser()
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null)
 
   useEffect(() => {
-    setSelectedDate(startOfToday())
     setMounted(true)
   }, [])
 
@@ -82,7 +43,8 @@ export default function Dashboard() {
     }
   }, [user, isUserLoading, mounted, router])
 
-  const dateId = selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""
+  const today = startOfToday()
+  const dateId = format(today, "yyyy-MM-dd")
 
   const profileRef = useMemoFirebase(() => 
     user ? doc(firestore, "users", user.uid, "profile", "main") : null, 
@@ -99,35 +61,22 @@ export default function Dashboard() {
 
   const { data: profile } = useDoc(profileRef)
   const { data: dailyLog } = useDoc(dailyLogRef)
-  const { data: meals } = useCollection(mealsColRef)
+  const { data: meals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
 
-  const handlePrevDay = () => selectedDate && setSelectedDate(subDays(selectedDate, 1))
-  const handleNextDay = () => selectedDate && setSelectedDate(addDays(selectedDate, 1))
-
-  if (!mounted || isUserLoading || !user || !selectedDate) {
+  if (!mounted || isUserLoading || !user) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="font-black text-sm uppercase tracking-widest animate-pulse">Syncing NutriPal...</p>
+        <p className="font-bold text-sm uppercase tracking-widest">Loading Dashboard...</p>
       </div>
     )
   }
 
   const calorieTarget = profile?.calorieTarget || 2000
-  const consumed = dailyLog?.caloriesConsumed || (meals && meals.length > 0 ? meals.reduce((sum, m) => sum + m.calories, 0) : 438)
-  const burned = dailyLog?.caloriesBurned || 450
-  const water = dailyLog?.waterIntake || 1.7
-  
+  const consumed = dailyLog?.caloriesConsumed || (meals?.reduce((sum, m) => sum + m.calories, 0) || 0)
+  const burned = dailyLog?.caloriesBurned || 0
+  const water = dailyLog?.waterIntake || 0
   const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
-  
-  const getCalorieStatus = () => {
-    if (consumed === 0) return { label: "NOT STARTED", color: "text-muted-foreground" };
-    if (consumed >= calorieTarget - 100 && consumed <= calorieTarget + 100) return { label: "GOAL MET", color: "text-green-600" };
-    if (consumed > calorieTarget + 100) return { label: "OVER GOAL", color: "text-red-500" };
-    return { label: "UNDER GOAL", color: "text-primary" };
-  }
-
-  const calorieStatus = getCalorieStatus();
 
   const adjustWater = (amount: number) => {
     if (!dailyLogRef) return;
@@ -138,218 +87,142 @@ export default function Dashboard() {
     }, { merge: true });
   }
 
-  const displayMeals = (meals && meals.length > 0) ? meals : (isSameDay(selectedDate, startOfToday()) ? MOCK_MEALS : [])
-
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700 pb-24">
-      {/* Header Section */}
-      <section className="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-1 w-full md:w-auto text-left">
-          <h1 className="text-4xl font-black tracking-tight text-foreground uppercase">Dashboard</h1>
-          <p className="text-muted-foreground font-medium text-sm">Welcome back! Here is your daily report.</p>
-        </div>
-        
-        {/* Date Selector Pill */}
-        <div className="flex items-center justify-between bg-white rounded-full border border-border shadow-sm p-1 min-w-[280px] w-full md:w-auto">
-          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2 px-2 font-black text-[10px] text-foreground uppercase tracking-[0.15em]">
-            <CalendarIcon className="h-4 w-4 text-primary/60" />
-            <span className="whitespace-nowrap">{format(selectedDate, "EEEE, MMM d")}</span>
-          </div>
-          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50 shrink-0">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 pb-24">
+      {/* 1. Monitoring Header */}
+      <section className="space-y-2">
+        <h1 className="text-4xl font-black tracking-tight">Today</h1>
+        <p className="text-muted-foreground font-medium">{format(today, "EEEE, MMMM do")}</p>
       </section>
 
-      {/* Main Stats Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2 border-none shadow-xl bg-white rounded-[2.5rem] overflow-hidden">
-          <CardHeader className="pb-0">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Calorie Progress</CardTitle>
-              <span className={cn("font-black text-[9px] uppercase tracking-widest", calorieStatus.color)}>
-                {calorieStatus.label}
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6 pt-4">
-            <div className="flex items-baseline gap-2">
-              <h1 className="text-5xl font-black tracking-tighter leading-none">{consumed}</h1>
-              <span className="text-lg font-bold text-muted-foreground">/ {calorieTarget} kcal</span>
-            </div>
-            <div className="space-y-3">
-              <Progress value={caloriePercent} className="h-2 rounded-full bg-secondary" />
-              <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">
-                <span>{caloriePercent}% Goal Reached</span>
-                <span>{Math.max(0, calorieTarget - consumed)} kcal left</span>
-              </div>
-            </div>
+      {/* 2. Primary CTA: Quick Action Hub */}
+      <section className="grid grid-cols-2 gap-4">
+        <Button 
+          onClick={() => router.push("/record")}
+          className="h-32 rounded-[2rem] flex flex-col gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 transition-transform active:scale-95"
+        >
+          <Camera className="w-8 h-8" />
+          <span className="font-black uppercase text-xs tracking-widest">Snap Meal</span>
+        </Button>
+        <Button 
+          variant="secondary"
+          onClick={() => router.push("/meal-planner")}
+          className="h-32 rounded-[2rem] flex flex-col gap-2 bg-white border-2 border-primary/10 hover:bg-primary/5 text-primary transition-transform active:scale-95"
+        >
+          <Calendar className="w-8 h-8" />
+          <span className="font-black uppercase text-xs tracking-widest">Plan Day</span>
+        </Button>
+      </section>
 
-            <div className="pt-6 border-t border-muted/50">
-               <div className="flex items-center justify-between mb-4">
-                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Macro Balance (100%)</p>
-                 <div className="flex gap-4">
-                   <div className="flex items-center gap-1.5">
-                     <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                     <span className="text-[8px] font-black uppercase text-muted-foreground">Protein 25%</span>
-                   </div>
-                   <div className="flex items-center gap-1.5">
-                     <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                     <span className="text-[8px] font-black uppercase text-muted-foreground">Carbs 45%</span>
-                   </div>
-                   <div className="flex items-center gap-1.5">
-                     <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                     <span className="text-[8px] font-black uppercase text-muted-foreground">Fat 30%</span>
-                   </div>
-                 </div>
-               </div>
-               <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-secondary shadow-inner">
-                  <div style={{ width: '25%' }} className="bg-red-400 h-full" title="Protein: 25%" />
-                  <div style={{ width: '45%' }} className="bg-yellow-400 h-full" title="Carbs: 45%" />
-                  <div style={{ width: '30%' }} className="bg-blue-400 h-full" title="Fat: 30%" />
-               </div>
+      {/* 3. Core Stats */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="rounded-[2.5rem] border-none shadow-sm bg-accent/30 overflow-hidden">
+          <CardContent className="p-8 space-y-6">
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Calories Consumed</p>
+                <h2 className="text-5xl font-black tracking-tighter">{consumed}</h2>
+              </div>
+              <p className="text-sm font-bold text-muted-foreground mb-1">Goal: {calorieTarget}</p>
+            </div>
+            <Progress value={caloriePercent} className="h-3 rounded-full bg-white" />
+            
+            <div className="pt-4 border-t border-primary/10">
+              <div className="flex h-2 w-full rounded-full overflow-hidden bg-white">
+                <div style={{ width: '25%' }} className="bg-red-500" />
+                <div style={{ width: '45%' }} className="bg-yellow-500" />
+                <div style={{ width: '30%' }} className="bg-blue-500" />
+              </div>
+              <div className="flex justify-between mt-2 text-[8px] font-black uppercase tracking-widest text-muted-foreground">
+                <span>P: 25%</span>
+                <span>C: 45%</span>
+                <span>F: 30%</span>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] flex flex-col items-center justify-center p-6 text-center">
-            <div className="p-3 bg-red-50 rounded-2xl mb-2"><Flame className="w-5 h-5 text-red-500" /></div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Burned</p>
-            <h3 className="text-3xl font-black">{burned} <span className="text-xs font-bold text-muted-foreground">kcal</span></h3>
-            <div className="flex items-center gap-1.5 mt-2">
-              <Watch className="w-3 h-3 text-primary" />
-              <span className="text-[8px] font-black text-primary uppercase">Apple Health Linked</span>
-            </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="rounded-[2rem] border-none shadow-sm bg-white p-6 flex flex-col items-center justify-center text-center gap-2">
+            <div className="p-3 bg-red-50 rounded-2xl"><Flame className="w-5 h-5 text-red-500" /></div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Burned</p>
+            <h3 className="text-2xl font-black">{burned}</h3>
           </Card>
-          
-          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] flex flex-col items-center justify-center p-6 text-center">
-            <div className="p-3 bg-blue-50 rounded-2xl mb-2"><Droplets className="w-5 h-5 text-blue-500" /></div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Hydration</p>
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full border"><Minus className="w-4 h-4" /></Button>
-              <h3 className="text-2xl font-black">{water} <span className="text-xs font-bold text-muted-foreground">L</span></h3>
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full border bg-primary/5"><Plus className="w-4 h-4 text-primary" /></Button>
+          <Card className="rounded-[2rem] border-none shadow-sm bg-white p-6 flex flex-col items-center justify-center text-center gap-2">
+            <div className="p-3 bg-blue-50 rounded-2xl"><Droplets className="w-5 h-5 text-blue-500" /></div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-6 w-6"><Minus className="w-3 h-3" /></Button>
+              <h3 className="text-xl font-black">{water}L</h3>
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-6 w-6"><Plus className="w-3 h-3 text-primary" /></Button>
             </div>
           </Card>
         </div>
       </section>
 
-      {/* Daily Food Report Section */}
+      {/* 4. Instant Feedback: Daily Log */}
       <section className="space-y-6">
-        <div className="flex items-center justify-between px-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-xl"><History className="w-5 h-5 text-primary" /></div>
-            <h2 className="text-2xl font-black tracking-tight uppercase">Daily Food Report</h2>
-          </div>
-          <Button variant="link" size="sm" className="text-primary font-black text-[10px] uppercase tracking-widest hover:no-underline" onClick={() => router.push("/meal-planner")}>Meal Planner</Button>
-        </div>
-
-        <div className="space-y-5">
-          {displayMeals.length > 0 ? (
-            displayMeals.map((meal) => (
-              <Card key={meal.id} className="rounded-[2.5rem] border-none shadow-sm hover:shadow-md transition-all overflow-hidden bg-white">
-                <div className="p-8 flex items-center justify-between cursor-pointer" onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}>
-                  <div className="flex items-center gap-6">
-                    <div className="w-14 h-14 bg-secondary/30 rounded-2xl flex items-center justify-center overflow-hidden relative shadow-sm border border-muted/20">
+        <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Log</h2>
+        <div className="space-y-4">
+          {isLoadingMeals ? (
+            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+          ) : meals && meals.length > 0 ? (
+            meals.map((meal) => (
+              <Card key={meal.id} className="rounded-[2rem] border-none shadow-sm overflow-hidden bg-white">
+                <div 
+                  className="p-6 flex items-center justify-between cursor-pointer hover:bg-accent/10 transition-colors"
+                  onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center overflow-hidden relative">
                       {meal.imageUrl ? (
-                        <Image 
-                          src={meal.imageUrl} 
-                          alt={meal.name} 
-                          fill 
-                          className="object-cover"
-                          data-ai-hint="food meal"
-                        />
+                        <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
                       ) : (
-                        <Utensils className="w-6 h-6 text-primary/60" strokeWidth={2.5} />
+                        <Utensils className="w-5 h-5 text-primary" />
                       )}
                     </div>
-                    <div className="space-y-1">
-                      <h3 className="font-black text-2xl tracking-tight leading-tight">{meal.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{meal.time}</span>
-                        <Badge variant="secondary" className="bg-secondary/60 text-muted-foreground font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-md">{meal.source}</Badge>
-                      </div>
+                    <div>
+                      <h3 className="font-bold text-lg leading-tight">{meal.name}</h3>
+                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{meal.time}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-8">
-                    <div className="text-right">
-                        <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
-                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest ml-1">kcal</span>
-                    </div>
-                    {expandedMeal === meal.id ? <ChevronUp className="w-6 h-6 opacity-20" /> : <ChevronDown className="w-6 h-6 opacity-20" />}
+                  <div className="text-right">
+                    <span className="font-black text-xl">+{meal.calories}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground ml-1">kcal</span>
                   </div>
                 </div>
-
                 {expandedMeal === meal.id && (
-                  <div className="px-8 pb-10 pt-4 border-t border-muted/20 space-y-6 animate-in slide-in-from-top-2 duration-300">
-                    <div className="flex flex-wrap items-center justify-between gap-6 py-4 px-6 bg-primary/5 rounded-2xl border border-primary/10">
-                      <div className="flex items-center gap-6">
-                         <div className="flex items-center gap-1.5">
-                           <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                           <span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span>
-                         </div>
-                         <div className="flex items-center gap-1.5">
-                           <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                           <span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span>
-                         </div>
-                         <div className="flex items-center gap-1.5">
-                           <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                           <span className="text-[11px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span>
-                         </div>
-                         <div className="h-4 w-px bg-primary/20" />
-                         <div className="flex items-center gap-2">
-                            <Trophy className="text-primary w-4 h-4" />
-                            <span className="text-[11px] font-black uppercase tracking-widest text-primary">Score: {meal.healthScore || 75}/100</span>
-                         </div>
+                  <div className="px-6 pb-6 pt-2 border-t border-muted/50 space-y-4 animate-in slide-in-from-top-2">
+                    <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
+                      <span className="text-red-500">{meal.macros?.protein}g Protein</span>
+                      <span className="text-yellow-600">{meal.macros?.carbs}g Carbs</span>
+                      <span className="text-blue-500">{meal.macros?.fat}g Fat</span>
+                      <div className="ml-auto flex items-center gap-1 text-primary">
+                        <Trophy className="w-3 h-3" /> {meal.healthScore}/100
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-2">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest"><Info className="w-3.5 h-3.5" /> AI Insight</div>
-                        <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">"{meal.description}"</p>
-                      </div>
-                      <div className="space-y-4">
-                        <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Ingredients</p>
-                        <div className="flex flex-wrap gap-2">
-                          {(meal.ingredients || []).map((ing, i) => (
-                            <Badge key={i} variant="secondary" className="bg-secondary/40 text-muted-foreground font-bold text-[10px] border-none px-3 py-1.5 rounded-xl">{ing}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-xs font-medium text-muted-foreground italic leading-relaxed">"{meal.description}"</p>
                   </div>
                 )}
               </Card>
             ))
           ) : (
-            <div className="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-muted flex flex-col items-center justify-center">
-              <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
-              <p className="text-muted-foreground font-bold text-lg">No meals logged today.</p>
-              <Button onClick={() => router.push("/record")} variant="link" className="mt-2 text-primary font-black uppercase text-[10px] tracking-widest">Record a Meal</Button>
+            <div className="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-muted flex flex-col items-center justify-center gap-4">
+              <Utensils className="w-12 h-12 text-muted-foreground/20" />
+              <p className="text-muted-foreground font-bold">Your log is empty today.</p>
+              <Button onClick={() => router.push("/record")} className="rounded-full px-8">Log My First Meal</Button>
             </div>
           )}
         </div>
       </section>
 
-      {/* Smart Insight Card */}
-      <Card className="rounded-[2.5rem] border-none bg-primary/10 shadow-sm overflow-hidden group">
-        <CardContent className="p-10 flex flex-col md:flex-row items-center gap-10 relative">
-          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:rotate-12 transition-transform"><Sparkles className="w-32 h-32 text-primary" /></div>
-          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md shrink-0"><Lightbulb className="w-8 h-8 text-primary" /></div>
-          <div className="flex-1 space-y-3 text-center md:text-left z-10">
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <h2 className="text-lg font-black tracking-tight uppercase">Daily Insight</h2>
-              <Badge className="bg-primary text-primary-foreground font-black text-[8px] uppercase tracking-widest border-none px-2 py-0.5">AI Powered</Badge>
-            </div>
-            <p className="text-sm font-medium text-foreground/70 leading-relaxed italic">"You're doing great! Keep up the hydration to maintain your metabolic rate."</p>
-            <Button onClick={() => router.push("/meal-planner")} className="bg-white text-primary hover:bg-white/90 rounded-xl h-10 px-6 font-black uppercase text-[9px] tracking-[0.1em] shadow-sm border-none mt-2">Optimize Schedule</Button>
-          </div>
-        </CardContent>
+      {/* Smart Insight Banner */}
+      <Card className="rounded-[2.5rem] border-none bg-primary text-primary-foreground p-8 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform"><Sparkles className="w-32 h-32" /></div>
+        <div className="relative z-10 space-y-3">
+          <h2 className="text-xl font-black uppercase tracking-tight">AI Insight</h2>
+          <p className="text-sm font-medium opacity-90 leading-relaxed italic">"You're maintaining a great balance today. Keep drinking water to support recovery from your active morning!"</p>
+          <Button variant="secondary" className="rounded-full font-black text-[10px] uppercase tracking-widest mt-2">View Nutrition Tips</Button>
+        </div>
       </Card>
     </div>
   )
