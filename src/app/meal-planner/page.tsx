@@ -138,7 +138,7 @@ export default function MealPlannerPage() {
   const handleDeleteMeal = (mealId: string, mealName: string) => {
     if (!user || !mealsColRef) return
     deleteDocumentNonBlocking(doc(mealsColRef, mealId))
-    toast({ variant: "destructive", title: "Meal Deleted", description: `${mealName} removed.` })
+    toast({ variant: "destructive", title: "Meal Deleted", description: `${mealName} removed from schedule.` })
   }
 
   const handleGetRecipe = async (mealId: string, mealName: string) => {
@@ -149,8 +149,15 @@ export default function MealPlannerPage() {
     try {
       const { recipe } = await generateRecipe({ mealName, dietaryRestrictions: profile?.dietaryRestrictions || [] })
       setRecipes({ ...recipes, [mealId]: recipe })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to generate recipe", error)
+      toast({
+        variant: "destructive",
+        title: "Recipe AI Unavailable",
+        description: error.message?.includes("429") 
+          ? "Our recipe AI is busy. Please try again in a few seconds." 
+          : "Could not generate recipe at this time.",
+      })
     } finally {
       setLoadingRecipe({ ...loadingRecipe, [mealId]: false })
     }
@@ -161,7 +168,7 @@ export default function MealPlannerPage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body relative">
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
-        {/* Unified Header Section - Single Line on Desktop */}
+        {/* Unified 1-Line Header Section */}
         <section className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6 border-b border-muted/30">
           <div className="space-y-1.5 w-full lg:w-auto text-center lg:text-left">
             <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>

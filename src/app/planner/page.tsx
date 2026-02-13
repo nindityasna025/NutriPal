@@ -17,7 +17,8 @@ import {
   Trophy,
   Info,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  AlertCircle
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
@@ -45,13 +46,15 @@ export default function PlannerPage() {
       const dietary = profile?.dietaryRestrictions?.join(", ") || "No specific restrictions"
       const mockDeals = "GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
       
+      // Call the AI flow
       await curateMealSuggestions({
         dietaryPreferences: dietary,
         location: "Jakarta, Indonesia",
         availableDeals: mockDeals
       })
 
-      // Structured result with full detail
+      // For the purpose of this demo and providing high-fidelity UI, 
+      // we use a structured result that simulates the AI's complex reasoning.
       setCuratedResult([
         {
           id: 1,
@@ -82,8 +85,15 @@ export default function PlannerPage() {
           ingredients: ["White quinoa", "Ripe avocado", "Red onion", "Parsley", "Lemon zest"]
         }
       ])
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Curation failed", error)
+      toast({
+        variant: "destructive",
+        title: "Ecosystem Busy",
+        description: error.message?.includes("429") 
+          ? "Our AI is experiencing high traffic. Please wait a few seconds and try again."
+          : "We couldn't reach the AI curator right now. Please check your connection.",
+      })
     } finally {
       setLoading(false)
     }
@@ -110,7 +120,7 @@ export default function PlannerPage() {
         ingredients: item.ingredients,
         createdAt: serverTimestamp()
       })
-      toast({ title: "Order Processed!", description: `${item.name} recorded.` })
+      toast({ title: "Order Processed!", description: `${item.name} recorded to your dashboard.` })
       router.push("/")
     } catch (error) {
       console.error("Failed to record order", error)
@@ -135,8 +145,13 @@ export default function PlannerPage() {
               <h2 className="text-3xl font-black">Feeling Indecisive?</h2>
               <p className="text-white/80 font-medium leading-relaxed">Let NutriPal analyze available deals from Grab & Gojek to suggest the best matches for your macros.</p>
             </div>
-            <Button onClick={handleCurate} disabled={loading} className="bg-white text-primary hover:bg-white/90 font-black h-16 px-16 rounded-[2rem] text-xl shadow-2xl">
-              {loading ? <Loader2 className="animate-spin mr-3" /> : "Curate Top Picks"}
+            <Button onClick={handleCurate} disabled={loading} className="bg-white text-primary hover:bg-white/90 font-black h-16 px-16 rounded-[2rem] text-xl shadow-2xl active:scale-95 transition-all">
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin mr-3" />
+                  Analyzing Deals...
+                </>
+              ) : "Curate Top Picks"}
             </Button>
           </CardContent>
         </Card>
@@ -172,7 +187,7 @@ export default function PlannerPage() {
                         <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 border" onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}>
                           {expandedId === item.id ? <ChevronUp /> : <ChevronDown />}
                         </Button>
-                        <Button onClick={() => handleOrderNow(item)} className="flex-1 md:flex-none rounded-2xl h-12 px-10 font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20">Order Now</Button>
+                        <Button onClick={() => handleOrderNow(item)} className="flex-1 md:flex-none rounded-2xl h-12 px-10 font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">Order Now</Button>
                       </div>
                     </div>
                   </div>
