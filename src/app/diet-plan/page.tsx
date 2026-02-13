@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -9,12 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { personalizedDietPlans, type PersonalizedDietPlansOutput } from "@/ai/flows/personalized-diet-plans"
 import { Loader2, Apple, CheckCircle2, Leaf } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 export default function DietPlanPage() {
   const [dietaryNeeds, setDietaryNeeds] = useState("")
   const [ingredients, setIngredients] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<PersonalizedDietPlansOutput | null>(null)
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,8 +28,15 @@ export default function DietPlanPage() {
         availableIngredients: ingredients
       })
       setResult(output)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to generate diet plan", error)
+      toast({
+        variant: "destructive",
+        title: "AI Nutritionist Unavailable",
+        description: error.message?.includes("429") 
+          ? "Our nutritionist AI is currently over capacity. Please try again in a few seconds." 
+          : "We couldn't generate your diet plan at this time.",
+      })
     } finally {
       setLoading(false)
     }
