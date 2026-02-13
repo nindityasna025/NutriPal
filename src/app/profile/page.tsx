@@ -52,7 +52,6 @@ export default function ProfilePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  // Edit State
   const [weight, setWeight] = useState("")
   const [height, setHeight] = useState("")
   const [age, setAge] = useState("")
@@ -163,7 +162,7 @@ export default function ProfilePage() {
 
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="absolute top-10 right-0 rounded-full h-12 w-12 p-0 border-primary/20 bg-white shadow-sm hover:bg-primary/5 transition-all">
+              <Button variant="outline" className="absolute top-10 right-0 rounded-full h-12 w-12 p-0 border-primary/20 bg-white shadow-sm hover:bg-primary/5">
                 <Edit2 className="w-5 h-5 text-primary" />
               </Button>
             </DialogTrigger>
@@ -202,7 +201,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[9px] font-bold uppercase text-muted-foreground/60">Height (cm)</Label>
-                      <Input type="number" value={height} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl font-bold" />
+                      <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl font-bold" />
                     </div>
                   </div>
                   {bmi && (
@@ -240,7 +239,7 @@ export default function ProfilePage() {
               </div>
 
               <DialogFooter className="p-8 pt-0">
-                <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-xl uppercase tracking-widest transition-all active:scale-95">
+                <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-xl uppercase tracking-widest">
                   {loading ? <Loader2 className="animate-spin" /> : "Sync Changes"}
                 </Button>
               </DialogFooter>

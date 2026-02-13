@@ -66,8 +66,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     setMounted(true)
-    
-    // Generate actual last 7 days data with specific dates
     const data = []
     for (let i = 6; i >= 0; i--) {
       const d = subDays(new Date(), i)
@@ -133,7 +131,6 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32 animate-in fade-in duration-1000">
-      {/* Monitoring Header */}
       <section className="space-y-1">
         <h1 className="text-5xl font-black tracking-tighter uppercase text-foreground">Today</h1>
         <p className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.25em] opacity-50">
@@ -141,7 +138,6 @@ export default function Dashboard() {
         </p>
       </section>
 
-      {/* Core Stats & Macro Balance */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="rounded-[3rem] border-none shadow-2xl bg-white overflow-hidden group">
           <CardContent className="p-10 space-y-8">
@@ -158,9 +154,9 @@ export default function Dashboard() {
             
             <div className="space-y-4">
               <div className="flex justify-between text-[11px] font-black uppercase tracking-widest">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /> Protein: 25%</div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /> Carbs: 45%</div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Fat: 30%</div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /> Protein</div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /> Carbs</div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Fat</div>
               </div>
               <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary/50 border border-muted/10">
                 <div style={{ width: '25%' }} className="bg-red-500 h-full transition-all duration-700" />
@@ -209,7 +205,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Weekly Macro Overview Chart */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-xl">
@@ -244,8 +239,8 @@ export default function Dashboard() {
                     content={<ChartTooltipContent hideLabel />} 
                   />
                   <ChartLegend content={<ChartLegendContent />} className="pt-10" />
-                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" radius={[0, 0, 0, 0]} barSize={Math.min(36, 100 / (weeklyData.length || 1))} />
-                  <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={36} />
+                  <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" />
                   <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ChartContainer>
@@ -254,7 +249,6 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Daily Food Report */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Food Report</h2>
         <div className="space-y-5">
@@ -300,7 +294,7 @@ export default function Dashboard() {
                     <div className="space-y-3">
                       <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40">Nutritional Analysis</p>
                       <p className="text-base font-medium text-foreground/70 leading-relaxed italic pr-8">
-                        "{meal.description || "Balanced meal providing sustained energy and essential micronutrients for your profile."}"
+                        "{meal.description || "Balanced meal providing sustained energy."}"
                       </p>
                     </div>
                   </div>
@@ -309,14 +303,9 @@ export default function Dashboard() {
             ))
           ) : (
             <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center gap-8">
-              <div className="p-6 bg-secondary/30 rounded-[2.5rem]">
-                <Utensils className="w-16 h-16 text-muted-foreground/20" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-muted-foreground font-black text-xl uppercase tracking-tight">Your Log is Empty</p>
-                <p className="text-muted-foreground/60 text-sm font-medium px-10">Record your first meal to start monitoring your daily balance.</p>
-              </div>
-              <Button onClick={() => router.push("/record")} className="rounded-full px-12 h-14 font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">
+              <Utensils className="w-16 h-16 text-muted-foreground/20" />
+              <p className="text-muted-foreground font-black text-xl uppercase tracking-tight">Your Log is Empty</p>
+              <Button onClick={() => router.push("/record")} className="rounded-full px-12 h-14 font-black uppercase text-xs tracking-widest shadow-xl">
                 Log My First Meal
               </Button>
             </div>
@@ -324,7 +313,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Quick Action Hub */}
       <section className="grid grid-cols-2 gap-6">
         <Button 
           onClick={() => router.push("/record")}
@@ -347,22 +335,21 @@ export default function Dashboard() {
         </Button>
       </section>
 
-      {/* Smart Insight Banner */}
       <Card className="rounded-[3rem] border-none bg-primary text-primary-foreground p-12 relative overflow-hidden group shadow-2xl shadow-primary/30">
         <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
           <Sparkles className="w-48 h-48" />
         </div>
         <div className="relative z-10 space-y-6 max-w-lg">
           <div className="flex items-center gap-4">
-             <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md shadow-lg">
+             <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
                <Sparkles className="w-6 h-6" />
              </div>
              <h2 className="text-2xl font-black uppercase tracking-tight">AI Wellness Insight</h2>
           </div>
-          <p className="text-lg font-medium opacity-90 leading-relaxed italic pr-6">
-            "You're maintaining a great macro balance today. Keep drinking water to support recovery from your active morning and prepare for a healthy dinner!"
+          <p className="text-lg font-medium opacity-90 leading-relaxed italic">
+            "You're maintaining a great macro balance today. Keep drinking water to support recovery from your active morning."
           </p>
-          <Button variant="secondary" className="rounded-full font-black text-[10px] uppercase tracking-[0.2em] h-12 px-10 bg-white text-primary hover:bg-white/95 shadow-lg active:scale-95 transition-all">
+          <Button variant="secondary" className="rounded-full font-black text-[10px] uppercase tracking-[0.2em] h-12 px-10 bg-white text-primary">
             View Full Analysis
           </Button>
         </div>

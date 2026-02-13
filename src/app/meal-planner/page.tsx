@@ -155,8 +155,8 @@ export default function MealPlannerPage() {
         variant: "destructive",
         title: "Recipe AI Unavailable",
         description: error.message?.includes("429") 
-          ? "Our recipe AI is busy. Please try again in a few seconds." 
-          : "Could not generate recipe at this time.",
+          ? "Our recipe AI is currently over capacity. Please try again in a few seconds." 
+          : "We couldn't generate your recipe at this time.",
       })
     } finally {
       setLoadingRecipe({ ...loadingRecipe, [mealId]: false })
@@ -168,7 +168,6 @@ export default function MealPlannerPage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body relative">
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500">
-        {/* Unified 1-Line Header Section */}
         <section className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6 border-b border-muted/30">
           <div className="space-y-1.5 w-full lg:w-auto text-center lg:text-left">
             <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
@@ -240,9 +239,8 @@ export default function MealPlannerPage() {
           </div>
         </section>
 
-        {/* AI Curation Banner */}
         <Link href="/planner">
-          <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] hover:bg-primary/15">
+          <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01]">
             <CardContent className="p-8 flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div className="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
@@ -258,7 +256,6 @@ export default function MealPlannerPage() {
           </Card>
         </Link>
 
-        {/* Scheduled Meals List */}
         <div className="space-y-8">
           <h2 className="text-3xl font-black tracking-tight px-2 uppercase">Your Schedule</h2>
           <div className="space-y-6">
@@ -294,8 +291,8 @@ export default function MealPlannerPage() {
                                 {loadingRecipe[meal.id] ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <CookingPot className="w-3 h-3 mr-2" />}
                                 AI Recipe
                              </Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full h-10 w-10 transition-colors"><Edit2 className="w-4 h-4" /></Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full h-10 w-10 transition-colors"><Trash2 className="w-4 h-4" /></Button>
+                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full"><Edit2 className="w-4 h-4" /></Button>
+                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full"><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </div>
                       </CardContent>
@@ -323,7 +320,6 @@ export default function MealPlannerPage() {
         </div>
       </main>
 
-      {/* Edit Dialog */}
       <Dialog open={!!editingMealId} onOpenChange={(open) => !open && setEditingMealId(null)}>
         <DialogContent className="rounded-[2.5rem]">
           <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">Edit Meal</DialogTitle></DialogHeader>
