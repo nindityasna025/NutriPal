@@ -20,7 +20,7 @@ import {
   Trophy,
   BarChart3
 } from "lucide-react"
-import { format, startOfToday } from "date-fns"
+import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -40,16 +40,6 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-
-const weeklyData = [
-  { day: "Mon", protein: 450, carbs: 1200, fat: 600 },
-  { day: "Tue", protein: 500, carbs: 1100, fat: 550 },
-  { day: "Wed", protein: 480, carbs: 1300, fat: 700 },
-  { day: "Thu", protein: 520, carbs: 1000, fat: 500 },
-  { day: "Fri", protein: 490, carbs: 1150, fat: 580 },
-  { day: "Sat", protein: 400, carbs: 1400, fat: 750 },
-  { day: "Sun", protein: 420, carbs: 1250, fat: 680 },
-]
 
 const chartConfig = {
   protein: {
@@ -72,9 +62,23 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [mounted, setMounted] = useState(false)
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null)
+  const [weeklyData, setWeeklyData] = useState<any[]>([])
 
   useEffect(() => {
     setMounted(true)
+    
+    // Generate dynamic last 7 days data with actual dates
+    const data = []
+    for (let i = 6; i >= 0; i--) {
+      const d = subDays(new Date(), i)
+      data.push({
+        date: format(d, "MMM d"),
+        protein: 400 + Math.floor(Math.random() * 200),
+        carbs: 1000 + Math.floor(Math.random() * 400),
+        fat: 500 + Math.floor(Math.random() * 200),
+      })
+    }
+    setWeeklyData(data)
   }, [])
 
   useEffect(() => {
@@ -214,29 +218,33 @@ export default function Dashboard() {
           Weekly Overview
         </h2>
         <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-          <CardContent className="p-10">
-            <div className="h-[300px] w-full">
+          <CardContent className="p-8 md:p-10">
+            <div className="h-[350px] w-full">
               <ChartContainer config={chartConfig}>
-                <BarChart data={weeklyData}>
+                <BarChart 
+                  data={weeklyData}
+                  margin={{ top: 20, right: 10, left: 0, bottom: 20 }}
+                >
                   <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--muted)/0.5)" />
                   <XAxis 
-                    dataKey="day" 
+                    dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontWeight: 800 }}
-                    dy={15}
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 800 }}
+                    tickMargin={12}
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                    tickMargin={10}
                   />
                   <ChartTooltip 
                     cursor={{ fill: "hsl(var(--muted)/0.1)" }} 
                     content={<ChartTooltipContent hideLabel />} 
                   />
-                  <ChartLegend content={<ChartLegendContent />} className="pt-8" />
-                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" radius={[0, 0, 0, 0]} barSize={36} />
+                  <ChartLegend content={<ChartLegendContent />} className="pt-10" />
+                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" radius={[0, 0, 0, 0]} barSize={Math.min(36, 100 / (weeklyData.length || 1))} />
                   <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" radius={[0, 0, 0, 0]} />
                   <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[8, 8, 0, 0]} />
                 </BarChart>
