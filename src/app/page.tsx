@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -21,7 +22,7 @@ import {
   Trophy,
   BarChart3
 } from "lucide-react"
-import { format, startOfToday, subDays } from "date-fns"
+import { format, startOfToday } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -32,7 +33,6 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  ResponsiveContainer 
 } from "recharts"
 import {
   ChartConfig,
@@ -139,26 +139,7 @@ export default function Dashboard() {
         </p>
       </section>
 
-      {/* 2. Primary CTA: Quick Action Hub */}
-      <section className="grid grid-cols-2 gap-4">
-        <Button 
-          onClick={() => router.push("/record")}
-          className="h-32 rounded-[2rem] flex flex-col gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 transition-transform active:scale-95"
-        >
-          <Camera className="w-8 h-8" />
-          <span className="font-black uppercase text-xs tracking-widest">Snap Meal</span>
-        </Button>
-        <Button 
-          variant="secondary"
-          onClick={() => router.push("/meal-planner")}
-          className="h-32 rounded-[2rem] flex flex-col gap-2 bg-white border-2 border-primary/10 hover:bg-primary/5 text-primary transition-transform active:scale-95"
-        >
-          <Calendar className="w-8 h-8" />
-          <span className="font-black uppercase text-xs tracking-widest">Plan Day</span>
-        </Button>
-      </section>
-
-      {/* 3. Core Stats & Macro Balance */}
+      {/* 2. Core Stats & Macro Balance (Moved Up) */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="rounded-[2.5rem] border-none shadow-sm bg-accent/30 overflow-hidden">
           <CardContent className="p-8 space-y-6">
@@ -211,7 +192,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* 4. Weekly Macro Overview Chart */}
+      {/* 3. Weekly Macro Overview Chart */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-2">
           <BarChart3 className="w-6 h-6 text-primary" />
@@ -266,7 +247,7 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* 5. Daily Food Report */}
+      {/* 4. Daily Food Report */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Food Report</h2>
         <div className="space-y-4">
@@ -343,6 +324,25 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* 5. Quick Action Hub (Moved Down) */}
+      <section className="grid grid-cols-2 gap-4">
+        <Button 
+          onClick={() => router.push("/record")}
+          className="h-32 rounded-[2rem] flex flex-col gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 transition-transform active:scale-95"
+        >
+          <Camera className="w-8 h-8" />
+          <span className="font-black uppercase text-xs tracking-widest">Snap Meal</span>
+        </Button>
+        <Button 
+          variant="secondary"
+          onClick={() => router.push("/meal-planner")}
+          className="h-32 rounded-[2rem] flex flex-col gap-2 bg-white border-2 border-primary/10 hover:bg-primary/5 text-primary transition-transform active:scale-95"
+        >
+          <Calendar className="w-8 h-8" />
+          <span className="font-black uppercase text-xs tracking-widest">Plan Day</span>
+        </Button>
       </section>
 
       {/* 6. Smart Insight Banner */}
