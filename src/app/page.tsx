@@ -23,11 +23,12 @@ import {
   ShoppingBag,
   AlertTriangle,
   Bell,
-  CheckCircle2
+  CheckCircle2,
+  XCircle
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
-import { setDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import { 
   Bar, 
@@ -202,6 +203,16 @@ export default function Dashboard() {
       description: `${meal.name} synced to your daily records.` 
     });
   }
+
+  const handleDropMeal = (meal: any) => {
+    if (!user || !mealsColRef) return;
+    deleteDocumentNonBlocking(doc(mealsColRef, meal.id));
+    toast({
+      variant: "destructive",
+      title: "Meal Dropped",
+      description: `${meal.name} removed from your record.`,
+    });
+  };
 
   const sortedMeals = useMemo(() => {
     if (!meals) return null;
@@ -411,9 +422,42 @@ export default function Dashboard() {
                               <Bell className="w-4 h-4 text-primary fill-primary/20" />
                             )}
                             {meal.allergenWarning && (
-                              <Badge variant="destructive" className="h-5 px-2 text-[8px] font-black uppercase">
-                                <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
-                              </Badge>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="destructive" 
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="h-5 px-2 text-[8px] font-black uppercase animate-pulse shrink-0"
+                                  >
+                                    <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white z-[200]">
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2 text-destructive font-black text-[10px] uppercase">
+                                      <AlertTriangle className="w-4 h-4" /> Safety Warning
+                                    </div>
+                                    <p className="text-[11px] font-bold text-foreground opacity-80">{meal.allergenWarning}</p>
+                                    <div className="grid grid-cols-2 gap-2 pt-2">
+                                      <Button 
+                                        size="sm" 
+                                        onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }}
+                                        className="bg-primary text-foreground font-black text-[8px] uppercase tracking-widest h-8"
+                                      >
+                                        EAT NOW
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="ghost" 
+                                        onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }}
+                                        className="border border-border font-black text-[8px] uppercase tracking-widest hover:text-destructive h-8"
+                                      >
+                                        DROP
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                             )}
                           </div>
                           <div className="flex flex-row items-center gap-6">
@@ -437,15 +481,27 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center gap-4 shrink-0">
                         {meal.status !== 'consumed' && (
-                          <Button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsConsumed(meal);
-                            }}
-                            className="h-10 px-6 rounded-xl bg-primary text-foreground font-black uppercase text-[9px] tracking-widest border-none shadow-xl shadow-primary/20 active:scale-95 transition-all"
-                          >
-                            EAT NOW
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsConsumed(meal);
+                              }}
+                              className="h-10 px-6 rounded-xl bg-primary text-foreground font-black uppercase text-[9px] tracking-widest border-none shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                            >
+                              EAT NOW
+                            </Button>
+                            <Button 
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDropMeal(meal);
+                              }}
+                              className="h-10 px-4 rounded-xl text-foreground opacity-40 hover:opacity-100 hover:text-destructive font-black uppercase text-[9px] tracking-widest border border-border"
+                            >
+                              DROP
+                            </Button>
+                          </div>
                         )}
                         <div className="text-foreground opacity-30 group-hover:opacity-100 transition-all">
                           {isExpanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
