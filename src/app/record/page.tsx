@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -9,6 +10,7 @@ import {
   Sparkles, 
   Loader2, 
   ChevronRight,
+  ChevronDown,
   RefreshCw,
   ChevronLeft,
   ScanSearch,
@@ -26,13 +28,12 @@ import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -42,7 +43,7 @@ export default function RecordPage() {
   const [mounted, setMounted] = useState(false)
   const [logDate, setLogDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
   const [logTime, setLogTime] = useState<string>(format(new Date(), "HH:mm"))
-  const [isInsightOpen, setIsInsightOpen] = useState(false)
+  const [isInsightExpanded, setIsInsightExpanded] = useState(false)
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -136,6 +137,7 @@ export default function RecordPage() {
     setMode("choice")
     setFilePreview(null)
     setResult(null)
+    setIsInsightExpanded(false)
   }
 
   const handleAnalyze = async () => {
@@ -261,42 +263,83 @@ export default function RecordPage() {
 
           <section className="space-y-6">
             {result ? (
-              <Card 
-                onClick={() => setIsInsightOpen(true)}
-                className="rounded-[2.5rem] border-none shadow-premium bg-white p-6 sm:p-8 space-y-8 animate-in slide-in-from-right-2 duration-500 cursor-pointer group active:scale-[0.99] transition-all"
-              >
-                <div className="flex justify-between items-start border-b border-muted/20 pb-6">
-                  <div className="space-y-1 flex-1 pr-4">
-                    <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60">AI Nutritionist Result</span>
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight group-hover:text-primary transition-colors">{result.name}</h2>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-3xl sm:text-4xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Pro</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
-                  <div className="p-4 bg-accent/20 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent-foreground uppercase mb-1">Cho</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
-                  <div className="p-4 bg-blue-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-blue-500 uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-black uppercase tracking-tight">Health Score</span>
-                    <span className="text-2xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
-                  </div>
-                  <Progress value={result.healthScore} className="h-3 rounded-full" />
-                </div>
-                <div className="space-y-4 pt-2">
-                  <div className="p-5 bg-secondary/20 rounded-[1.5rem] border border-transparent group-hover:border-primary/20 transition-all flex items-center justify-between">
-                     <p className="text-[12px] font-bold leading-relaxed italic text-foreground/80 flex-1 mr-4 line-clamp-2">"{result.description}"</p>
-                     <Sparkles className="w-5 h-5 text-primary animate-pulse shrink-0" />
-                  </div>
-                  <div className="grid grid-cols-1 gap-3">
-                     <Button onClick={(e) => { e.stopPropagation(); setIsInsightOpen(true); }} variant="outline" className="w-full h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest border-primary/20 text-primary">VIEW AI INSIGHTS</Button>
-                     <Button onClick={(e) => { e.stopPropagation(); handleSave(); }} className="w-full h-14 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium">LOG TO DAILY RECORD <ChevronRight className="w-4 h-4 ml-2" /></Button>
-                  </div>
-                </div>
-              </Card>
+              <Collapsible open={isInsightExpanded} onOpenChange={setIsInsightExpanded}>
+                <Card className="rounded-[2.5rem] border-none shadow-premium bg-white overflow-hidden transition-all duration-300">
+                  <CollapsibleTrigger asChild>
+                    <div className="p-6 sm:p-8 space-y-8 cursor-pointer group active:scale-[0.99] transition-all">
+                      <div className="flex justify-between items-start border-b border-muted/20 pb-6">
+                        <div className="space-y-1 flex-1 pr-4">
+                          <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60">Analysis Result</span>
+                          <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight group-hover:text-primary transition-colors">{result.name}</h2>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-3xl sm:text-4xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Pro</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
+                        <div className="p-4 bg-accent/20 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent-foreground uppercase mb-1">Cho</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
+                        <div className="p-4 bg-blue-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-blue-500 uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
+                      </div>
+                      <div className="flex items-center justify-between p-5 bg-secondary/20 rounded-[1.5rem] transition-all group-hover:bg-secondary/30">
+                         <p className="text-[12px] font-bold leading-relaxed italic text-foreground/80 flex-1 mr-4 line-clamp-2">"{result.description}"</p>
+                         <ChevronDown className={cn("w-5 h-5 text-primary transition-transform duration-300", isInsightExpanded ? "rotate-180" : "")} />
+                      </div>
+                    </div>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
+                    <div className="px-6 sm:px-8 pb-8 pt-0 space-y-8">
+                       <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-black uppercase tracking-tight">Health Score</span>
+                            <span className="text-2xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
+                          </div>
+                          <Progress value={result.healthScore} className="h-3 rounded-full" />
+                       </div>
+
+                       <div className="grid grid-cols-1 gap-6">
+                          <section className="space-y-3">
+                             <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                <Heart className="w-4 h-4" /> Health Benefit
+                             </div>
+                             <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
+                                {result.healthBenefit}
+                             </p>
+                          </section>
+
+                          <section className="space-y-3">
+                             <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
+                                <Scale className="w-4 h-4" /> Goal Alignment
+                             </div>
+                             <div className="p-5 bg-secondary/30 rounded-2xl border border-transparent">
+                                <p className="text-[11px] font-bold leading-relaxed text-foreground/90">
+                                   {result.weightGoalAdvice}
+                                </p>
+                             </div>
+                          </section>
+
+                          <section className="space-y-3">
+                             <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
+                                <Leaf className="w-4 h-4" /> Ingredients
+                             </div>
+                             <div className="flex flex-wrap gap-2">
+                                {result.ingredients.map((ing, i) => (
+                                  <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-bold text-[9px] uppercase">
+                                    {ing}
+                                  </Badge>
+                                ))}
+                             </div>
+                          </section>
+                       </div>
+                       
+                       <Button onClick={handleSave} className="w-full h-14 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium mt-4">
+                         LOG TO DAILY RECORD <ChevronRight className="w-4 h-4 ml-2" />
+                       </Button>
+                    </div>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             ) : (
               <div className="h-[300px] border border-dashed border-border/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center bg-white/30 backdrop-blur-sm">
                 <ScanSearch className="w-12 h-12 text-primary/10 mb-6" />
@@ -306,65 +349,6 @@ export default function RecordPage() {
           </section>
         </div>
       )}
-      
-      <Dialog open={isInsightOpen} onOpenChange={setIsInsightOpen}>
-        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
-          <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground">
-             <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-1">
-                   <CheckCircle2 className="w-4 h-4" />
-                   <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-80">Nutritionist Insight</span>
-                </div>
-                <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight">
-                  {result?.name}
-                </DialogTitle>
-             </div>
-          </DialogHeader>
-          <div className="p-6 sm:p-8">
-            <ScrollArea className="h-[400px] pr-4">
-               <div className="space-y-8 pb-4">
-                  <section className="space-y-3">
-                     <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                        <Heart className="w-4 h-4" /> Health Benefit
-                     </div>
-                     <p className="text-sm font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
-                        {result?.healthBenefit || "High-quality nutrient density detected."}
-                     </p>
-                  </section>
-
-                  <section className="space-y-3">
-                     <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
-                        <Scale className="w-4 h-4" /> Goal Alignment
-                     </div>
-                     <div className="p-5 bg-secondary/30 rounded-2xl border border-transparent">
-                        <p className="text-xs font-bold leading-relaxed text-foreground/90">
-                           {result?.weightGoalAdvice || "Balanced macronutrients suitable for weight maintenance."}
-                        </p>
-                     </div>
-                  </section>
-
-                  <section className="space-y-3">
-                     <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
-                        <Leaf className="w-4 h-4" /> Ingredients
-                     </div>
-                     <div className="flex flex-wrap gap-2">
-                        {result?.ingredients?.map((ing, i) => (
-                          <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-bold text-[10px] uppercase">
-                            {ing}
-                          </Badge>
-                        ))}
-                     </div>
-                  </section>
-               </div>
-            </ScrollArea>
-          </div>
-          <div className="p-8 pt-0">
-             <Button onClick={() => setIsInsightOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium">
-                Return to Analysis
-             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <canvas ref={canvasRef} className="hidden" />
     </div>
