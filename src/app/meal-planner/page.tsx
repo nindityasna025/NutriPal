@@ -50,7 +50,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", // Forest Green
   carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Teal
+  fat: "hsl(var(--accent))",     // Teal/Lime
 }
 
 // Dummy Recipe Database
@@ -199,27 +199,29 @@ export default function MealPlannerPage() {
   if (!mounted || !date) return null
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
-      <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
-        <div className="space-y-1 w-full lg:w-auto">
-          <h1 className="text-3xl font-black tracking-tight text-foreground uppercase lg:text-left text-center">Plan</h1>
-          <p className="text-[10px] font-black text-foreground uppercase tracking-[0.25em] opacity-60 lg:text-left text-center">Strategic Daily Menu</p>
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative animate-in fade-in duration-700">
+      <header className="flex flex-col items-center gap-6 text-center">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">PLAN</h1>
+          <p className="text-[10px] font-black text-foreground uppercase tracking-[0.4em] opacity-60">STRATEGIC DAILY MENU</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-center lg:justify-end">
-          <Button variant="outline" onClick={handleToday} className="rounded-full h-11 px-6 font-black uppercase text-[9px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all text-foreground">
+        <div className="flex flex-wrap items-center gap-4 justify-center">
+          <Button variant="outline" onClick={handleToday} className="rounded-full h-11 px-8 font-black uppercase text-[10px] tracking-[0.2em] border-border shadow-sm hover:bg-secondary/50 transition-all text-foreground">
             Today
           </Button>
           
           <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
-            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronLeft className="h-4 w-4 text-foreground" /></Button>
-            <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center text-foreground">{format(date, "EEEE, MMM d")}</div>
-            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronRight className="h-4 w-4 text-foreground" /></Button>
+            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronLeft className="h-5 w-5 text-foreground" /></Button>
+            <div className="px-6 font-black text-[10px] uppercase tracking-[0.2em] min-w-[160px] text-center text-foreground">
+              {format(date, "EEEE, MMM d")}
+            </div>
+            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronRight className="h-5 w-5 text-foreground" /></Button>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="rounded-full bg-primary text-foreground hover:bg-primary/90 h-11 px-6 font-black uppercase text-[9px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
+              <Button className="rounded-full bg-primary text-foreground hover:bg-primary/90 h-11 px-8 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-primary/20 transition-all active:scale-95">
                 <Plus className="w-4 h-4 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
@@ -270,76 +272,72 @@ export default function MealPlannerPage() {
       </header>
 
       <section className="space-y-6">
-        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left text-foreground">Your Schedule</h2>
-        <div className="space-y-4">
+        <h2 className="text-xs font-black tracking-[0.2em] px-1 uppercase text-left text-foreground opacity-80">YOUR SCHEDULE</h2>
+        <div className="space-y-5">
           {isLoadingMeals ? (
-            <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+            <div className="flex justify-center py-24"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
           ) : scheduledMeals && scheduledMeals.length > 0 ? (
               sortedMeals.map((meal) => (
-                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white">
-                  <CardContent className="p-6 sm:p-8">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                      <div className="flex items-center gap-8 flex-1">
-                         <div className="text-center min-w-[100px] border-r pr-8 border-border hidden sm:block">
-                           <p className="text-xl font-black text-foreground opacity-40 leading-none">{meal.time}</p>
+                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white group">
+                  <CardContent className="p-8 sm:p-10">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+                      <div className="flex items-center gap-10 flex-1 w-full">
+                         <div className="text-left min-w-[120px] border-r border-border/50 pr-10 hidden sm:block">
+                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter">{meal.time}</p>
                          </div>
-                         <div className="space-y-2 flex-1">
-                            <div className="flex items-center gap-4">
-                              <div className="space-y-1 text-left">
-                                <div className="flex items-center gap-2.5">
-                                  <h3 className="text-xl font-black tracking-tight uppercase leading-tight text-foreground">{meal.name}</h3>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-4">
-                                   <p className="text-[10px] font-black text-foreground opacity-60 uppercase tracking-widest">+{meal.calories} KCAL</p>
-                                   <div className="flex items-center gap-4">
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span></div>
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span></div>
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span></div>
-                                   </div>
-                                </div>
-                              </div>
+                         <div className="space-y-3 flex-1 text-left">
+                            <h3 className="text-xl font-black tracking-tight uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                              {meal.name}
+                            </h3>
+                            <div className="flex flex-col gap-2">
+                               <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{meal.calories} KCAL</p>
+                               <div className="flex flex-wrap items-center gap-4">
+                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span></div>
+                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span></div>
+                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span></div>
+                               </div>
                             </div>
                          </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                          {meal.source === 'planner' && (
-                           <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/10 rounded-xl h-10 w-10 border border-primary/10 shadow-sm"><ChefHat className="w-5 h-5" /></Button>
+                           <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-xl h-10 w-10 border border-border bg-secondary/10 shadow-sm transition-all"><ChefHat className="w-5 h-5" /></Button>
                          )}
-                         <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-60 hover:bg-secondary rounded-xl h-10 w-10 border border-border/50"><Edit2 className="w-4 h-4" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-foreground opacity-60 hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-60 hover:bg-secondary rounded-xl h-10 w-10 border border-border shadow-sm transition-all"><Edit2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-foreground opacity-60 hover:text-destructive rounded-xl h-10 w-10 border border-border shadow-sm transition-all"><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-8">
-                <Utensils className="w-16 h-16 mb-4 text-foreground opacity-10" />
-                <p className="text-foreground opacity-60 font-black text-lg uppercase tracking-tight">Your timeline is clear.</p>
-                <p className="text-[9px] text-foreground opacity-30 font-black uppercase tracking-widest mt-1">Plan a meal below.</p>
+              <div className="text-center py-32 bg-white/40 rounded-[3rem] border-2 border-dashed border-border/30 flex flex-col items-center justify-center shadow-sm px-8">
+                <Utensils className="w-20 h-20 mb-6 text-foreground opacity-10" />
+                <p className="text-foreground opacity-60 font-black text-xl uppercase tracking-tight">Your timeline is clear.</p>
+                <p className="text-[10px] text-foreground opacity-30 font-black uppercase tracking-[0.4em] mt-2">PLAN A MEAL BELOW</p>
               </div>
             )}
         </div>
       </section>
 
-      <section className="pt-6">
+      <section className="pt-8">
         <Link href="/planner">
-          <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
-            <CardContent className="p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-8 flex-1">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
-                  <Sparkles className="w-8 h-8 text-primary" />
+          <Card className="rounded-[3rem] bg-primary/25 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/40">
+            <CardContent className="p-10 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-8">
+              <div className="flex items-center gap-10 flex-1">
+                <div className="w-20 h-20 bg-white rounded-[1.5rem] flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0 border border-primary/20">
+                  <Sparkles className="w-10 h-10 text-primary" />
                 </div>
-                <div className="space-y-1 text-left">
-                  <p className="text-[9px] font-black uppercase text-foreground opacity-80 tracking-[0.3em] mb-0.5">Feeling Indecisive?</p>
-                  <h3 className="text-2xl font-black uppercase leading-tight text-foreground">AI Decision Hub</h3>
-                  <p className="text-foreground opacity-60 font-black text-xs uppercase tracking-widest leading-relaxed max-w-sm">
-                    Let AI analyze delivery deals or curate a menu instantly.
+                <div className="space-y-2 text-left">
+                  <p className="text-[10px] font-black uppercase text-foreground opacity-80 tracking-[0.4em] mb-1">FEELING INDECISIVE?</p>
+                  <h3 className="text-2xl font-black uppercase tracking-tight leading-none text-foreground">AI DECISION HUB</h3>
+                  <p className="text-foreground opacity-70 font-black text-xs uppercase tracking-widest leading-relaxed max-w-sm">
+                    LET AI ANALYZE DELIVERY DEALS OR CURATE A MENU INSTANTLY.
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-primary text-foreground px-6 h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20">
-                Explore AI Hub <ChevronRightIcon className="w-4 h-4" />
+              <div className="flex items-center gap-3 bg-primary text-foreground px-8 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 group-hover:bg-primary/90 transition-all">
+                EXPLORE AI HUB <ChevronRightIcon className="w-5 h-5" />
               </div>
             </CardContent>
           </Card>
@@ -347,54 +345,54 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-h-[90vh] flex flex-col">
-          <DialogHeader className="bg-primary p-6 sm:p-8 text-foreground shrink-0">
+        <DialogContent className="max-w-2xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-h-[90vh] flex flex-col">
+          <DialogHeader className="bg-primary p-8 text-foreground shrink-0">
             <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight text-center">
               {activeRecipeName}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-6 overflow-y-auto flex-1">
+          <div className="p-8 overflow-y-auto flex-1 no-scrollbar">
             <ScrollArea className="h-full pr-4">
               {generatingRecipe ? (
                 <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
-                  <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                  <p className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60">Retrieving Recipe...</p>
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-60">RETRIEVING RECIPE...</p>
                 </div>
               ) : activeRecipe ? (
-                <Card className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white">
-                  <CardContent className="p-8 space-y-8 text-left">
-                    <section className="space-y-3">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
-                        <Sparkles className="w-4 h-4 text-primary" /> Expert Insight
+                <Card className="border-none shadow-sm rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardContent className="p-10 space-y-10 text-left">
+                    <section className="space-y-4">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[11px] uppercase tracking-[0.2em] text-left">
+                        <Sparkles className="w-5 h-5 text-primary" /> EXPERT INSIGHT
                       </div>
-                      <p className="text-xs font-black leading-relaxed text-foreground opacity-80 bg-primary/5 p-5 rounded-2xl border border-primary/10">
+                      <p className="text-sm font-black leading-relaxed text-foreground opacity-80 bg-primary/5 p-7 rounded-[2rem] border border-primary/10">
                         {activeRecipe.insight}
                       </p>
                     </section>
-                    <section className="space-y-4">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
-                        <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
+                    <section className="space-y-5">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[11px] uppercase tracking-[0.2em]">
+                        <ShoppingBag className="w-5 h-5 text-primary" /> INGREDIENTS
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
                         {activeRecipe.ingredients.map((ing, i) => (
-                          <div key={i} className="flex items-center gap-3 text-xs font-black text-foreground opacity-80">
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
+                          <div key={i} className="flex items-center gap-4 text-xs font-black text-foreground opacity-80">
+                            <div className="w-2 h-2 rounded-full bg-primary/40 shrink-0" />
                             {ing}
                           </div>
                         ))}
                       </div>
                     </section>
-                    <section className="space-y-4">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
-                        <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path
+                    <section className="space-y-6">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[11px] uppercase tracking-[0.2em]">
+                        <ListOrdered className="w-5 h-5 text-primary" /> COOKING PATH
                       </div>
-                      <div className="space-y-5">
+                      <div className="space-y-6">
                         {activeRecipe.instructions.map((step, i) => (
-                          <div key={i} className="flex gap-4 items-start">
-                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-black text-foreground shrink-0">
+                          <div key={i} className="flex gap-5 items-start">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[12px] font-black text-foreground shrink-0 border border-primary/20">
                               {i + 1}
                             </div>
-                            <p className="text-xs font-black text-foreground opacity-80 leading-relaxed pt-1">
+                            <p className="text-[13px] font-black text-foreground opacity-80 leading-relaxed pt-1">
                               {step}
                             </p>
                           </div>
@@ -407,7 +405,7 @@ export default function MealPlannerPage() {
             </ScrollArea>
           </div>
           <DialogFooter className="p-8 pt-0 shrink-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium text-foreground">Return to Schedule</Button>
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] shadow-premium text-foreground">RETURN TO SCHEDULE</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
