@@ -32,12 +32,12 @@ Please generate a healthy, delicious, and easy-to-follow recipe for: "{{{mealNam
 Consider these dietary restrictions: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{else}}None{{/if}}.
 
 Please structure the response clearly with these EXACT section headers in bold:
-1. **🌟 HEALTH BENEFIT**
+1. **🌟 AI INSIGHT** (Maximum 400 characters summary of health benefits and how this aligns with a healthy lifestyle)
 2. **🛒 INGREDIENTS** (Use bullet points)
 3. **👨‍🍳 INSTRUCTIONS** (Use numbered steps)
-4. **⏱️ PREP & COOK TIME**
 
-Keep the tone professional yet encouraging. Avoid long paragraphs; use clear spacing between sections.`,
+Keep the tone professional yet encouraging. Avoid long paragraphs; use clear spacing between sections.
+CRITICAL: The AI INSIGHT section MUST NOT exceed 400 characters.`,
 });
 
 const generateRecipeFlow = ai.defineFlow(

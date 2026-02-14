@@ -391,7 +391,7 @@ export default function MealPlannerPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="p-6">
-            <ScrollArea className="h-[350px] pr-4">
+            <ScrollArea className="h-[450px] pr-4">
               {generatingRecipe ? (
                 <div className="flex flex-col items-center justify-center h-full space-y-4">
                   <Loader2 className="w-10 h-10 animate-spin text-primary" />
