@@ -220,6 +220,7 @@ export default function MealPlannerPage() {
 
   const resetForm = () => {
     setMealName("")
+    setMealType("Breakfast")
     setCalories("0")
     setProtein("0")
     setCarbs("0")
@@ -279,7 +280,7 @@ export default function MealPlannerPage() {
   if (!mounted || !date) return null
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6 space-y-8 pb-32 min-h-screen relative animate-in fade-in duration-700 overflow-x-hidden">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6 space-y-8 pb-32 min-h-screen relative animate-in fade-in duration-700 overflow-x-hidden text-center">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Strategic Daily Menu</p>
