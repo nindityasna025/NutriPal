@@ -12,23 +12,18 @@ import {
   Smartphone, 
   Loader2,
   Bike,
-  ChevronDown,
-  ChevronUp,
   ChefHat,
-  ShoppingBag,
   ArrowLeft,
-  Info,
   RefreshCw,
   Utensils
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
-import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 
-// Constant Macro Colors - Themed
+// Consistent Macro Colors - Themed
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
   carbs: "hsl(38 92% 50%)",
@@ -37,12 +32,10 @@ const MACRO_COLORS = {
 
 // Scraped Delivery Database
 const SCRAPED_DATABASE = [
-  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein", "Low Fat"], restricts: [] },
-  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan", "Fiber"], restricts: ["Vegetarian", "Vegan"] },
-  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["Keto Friendly", "High Protein"], restricts: ["Keto"] },
-  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb", "Diabetes Friendly"], restricts: ["Keto", "Diabetes"] },
-  { id: "s5", name: "Organic Tofu Curry", restaurant: "Herbivore", price: "Rp 38,000", platform: "GrabFood" as const, calories: 320, macros: { protein: 15, carbs: 35, fat: 14 }, healthScore: 92, tags: ["Vegan", "Gluten-free", "Budget"], restricts: ["Vegan", "Gluten-free"] },
-  { id: "s6", name: "Lean Turkey Burger", restaurant: "Burgreens", price: "Rp 68,000", platform: "GoFood" as const, calories: 480, macros: { protein: 25, carbs: 42, fat: 18 }, healthScore: 85, tags: ["Healthy", "Clean Eating"], restricts: [] },
+  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein"], restricts: [] },
+  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan"], restricts: ["Vegetarian", "Vegan"] },
+  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["High Protein"], restricts: ["Keto"] },
+  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb"], restricts: ["Keto", "Diabetes"] },
 ];
 
 // Smart Menu Template Pools
@@ -69,7 +62,6 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false)
   const [deliveryResult, setDeliveryResult] = useState<any[] | null>(null)
   const [menuPlan, setMenuPlan] = useState<any | null>(null)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -84,21 +76,18 @@ export default function ExplorePage() {
       const filtered = SCRAPED_DATABASE.filter(item => {
         if (!profile) return true;
         const matchesRestrictions = profile.dietaryRestrictions?.length 
-          ? profile.dietaryRestrictions.every((res: string) => item.restricts.includes(res) || item.tags.includes(res))
+          ? profile.dietaryRestrictions.every((res: string) => item.restricts.includes(res))
           : true;
-        let fitsBmi = true;
-        if (profile.bmiCategory === "Obese" || profile.bmiCategory === "Overweight") fitsBmi = item.calories < 550;
-        return matchesRestrictions && fitsBmi;
+        return matchesRestrictions;
       });
 
-      const grabMatch = filtered.find(item => item.platform === "GrabFood");
-      const goMatch = filtered.find(item => item.platform === "GoFood");
+      const grabMatch = filtered.find(item => item.platform === "GrabFood") || SCRAPED_DATABASE[0];
+      const goMatch = filtered.find(item => item.platform === "GoFood") || SCRAPED_DATABASE[1];
 
-      const final = [];
-      if (grabMatch) final.push({ ...grabMatch, reasoning: "Optimized for your profile metrics and daily caloric budget." });
-      if (goMatch) final.push({ ...goMatch, reasoning: "Tailored healthy match from the GoFood ecosystem." });
-
-      setDeliveryResult(final);
+      setDeliveryResult([
+        { ...grabMatch, reasoning: "Optimized match for your profile metrics." },
+        { ...goMatch, reasoning: "High health score match from local ecosystem." }
+      ]);
       setLoading(false);
     }, 800);
   }
@@ -141,7 +130,7 @@ export default function ExplorePage() {
     addDocumentNonBlocking(mealsColRef, {
       name: item.name,
       calories: item.calories,
-      time: timeStr,
+      time: item.time || timeStr,
       source: item.platform || "planner",
       macros: item.macros,
       healthScore: item.healthScore || 90,
@@ -155,7 +144,7 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Order/Sync Processed", description: `${item.name} recorded.` })
+    toast({ title: "Order Processed", description: `${item.name} recorded in schedule.` })
     router.push("/")
   }
 
@@ -163,7 +152,7 @@ export default function ExplorePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Decision Hub</p>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Smart Decision Hub</p>
       </header>
 
       {view === "hub" && (
@@ -205,50 +194,46 @@ export default function ExplorePage() {
             </Button>
           </div>
           
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {loading ? (
-              <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+              <div className="col-span-full flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
             ) : deliveryResult?.map((item) => (
-              <Card key={item.id} className="rounded-[2rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2 overflow-hidden">
-                <CardContent className="p-6 flex flex-col md:flex-row justify-between gap-6">
-                  <div className="flex-1 space-y-4">
+              <Card key={item.id} className="rounded-[2rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2 overflow-hidden flex flex-col">
+                <CardContent className="p-8 flex flex-col h-full space-y-6">
+                  <div className="space-y-4 flex-1">
                     <div className="space-y-1 text-left">
                       <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score</div>
-                      <h3 className="text-xl font-black tracking-tight uppercase">{item.name}</h3>
+                      <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{item.name}</h3>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
                     </div>
+                    
                     <div className="flex gap-2 flex-wrap">
                       <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-bold uppercase text-[8px]">+{item.calories} kcal</Badge>
                       {item.tags.map((tag: string, i: number) => (
                         <Badge key={i} variant="outline" className="rounded-xl px-3 py-1 border-muted-foreground/10 text-muted-foreground font-bold uppercase text-[8px]">{tag}</Badge>
                       ))}
                     </div>
+
+                    <p className="text-[11px] font-medium leading-relaxed italic text-muted-foreground bg-primary/5 p-4 rounded-xl border border-primary/10 text-left">"{item.reasoning}"</p>
                   </div>
-                  <div className="md:text-right flex flex-col justify-between items-center md:items-end">
-                    <div className="space-y-0.5 text-center md:text-right">
-                      <p className="text-2xl font-black tracking-tighter">{item.price}</p>
-                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+
+                  <div className="pt-6 border-t border-muted/20 space-y-4">
+                    <div className="grid grid-cols-3 gap-3">
+                       <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p><p className="font-black text-primary">{item.macros.protein}g</p></div>
+                       <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p><p className="font-black text-orange-500">{item.macros.carbs}g</p></div>
+                       <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p><p className="font-black text-accent">{item.macros.fat}g</p></div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                         {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
                         {item.platform}
                       </div>
+                      <p className="text-xl font-black tracking-tighter">{item.price}</p>
                     </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 border" onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}>
-                        {expandedId === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </Button>
-                      <Button onClick={() => handleOrderNow(item)} className="rounded-xl h-10 px-8 font-black uppercase text-[10px] tracking-widest">Order Now</Button>
-                    </div>
+
+                    <Button onClick={() => handleOrderNow(item)} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px]">Order & Sync</Button>
                   </div>
-                  {expandedId === item.id && (
-                    <div className="w-full pt-4 border-t border-muted/30 mt-4 space-y-4 text-left">
-                      <p className="text-[12px] font-medium leading-relaxed italic bg-primary/5 p-4 rounded-xl border border-primary/10">"{item.reasoning}"</p>
-                      <div className="grid grid-cols-3 gap-3">
-                         <div className="p-3 bg-red-50 rounded-xl text-center"><p className="text-[8px] font-black text-red-600 uppercase">Protein</p><p className="font-black">{item.macros.protein}g</p></div>
-                         <div className="p-3 bg-amber-50 rounded-xl text-center"><p className="text-[8px] font-black text-amber-600 uppercase">Carbs</p><p className="font-black">{item.macros.carbs}g</p></div>
-                         <div className="p-3 bg-blue-50 rounded-xl text-center"><p className="text-[8px] font-black text-blue-600 uppercase">Fat</p><p className="font-black">{item.macros.fat}g</p></div>
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ))}
@@ -269,7 +254,7 @@ export default function ExplorePage() {
             {(["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
               const meal = menuPlan[type];
               return (
-                <Card key={type} className="rounded-[2rem] border-none shadow-premium bg-white overflow-hidden">
+                <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white overflow-hidden">
                   <CardContent className="p-8">
                     <div className="flex flex-col md:flex-row justify-between gap-8">
                        <div className="flex-1 space-y-6">
@@ -286,22 +271,22 @@ export default function ExplorePage() {
                             <p className="text-xs font-medium text-muted-foreground leading-relaxed">{meal.description}</p>
                          </div>
                          <div className="grid grid-cols-3 gap-3">
-                            <div className="space-y-0.5"><p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p><p className="text-lg font-black" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p></div>
-                            <div className="space-y-0.5"><p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p><p className="text-lg font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p></div>
-                            <div className="space-y-0.5"><p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p><p className="text-lg font-black" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p></div>
+                            <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p><p className="text-lg font-black text-primary">{meal.macros.protein}g</p></div>
+                            <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p><p className="text-lg font-black text-orange-500">{meal.macros.carbs}g</p></div>
+                            <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p><p className="text-lg font-black text-accent">{meal.macros.fat}g</p></div>
                          </div>
                        </div>
                        <div className="w-full md:w-64 space-y-4">
                           <div className="bg-secondary/30 p-5 rounded-2xl text-center space-y-1">
-                             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Target Energy</p>
+                             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Energy Value</p>
                              <p className="text-2xl font-black tracking-tighter">+{meal.calories} kcal</p>
                           </div>
                           <div className="grid grid-cols-1 gap-2">
-                             <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" })} className="w-full bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest gap-2">
-                               Order via Grab
+                             <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" })} className="w-full bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest">
+                               Order Grab
                              </Button>
-                             <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" })} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest gap-2">
-                               Order via GoFood
+                             <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" })} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest">
+                               Order GoFood
                              </Button>
                              <Button onClick={() => handleOrderNow(meal)} variant="outline" className="w-full rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary">
                                Cook Myself

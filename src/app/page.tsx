@@ -20,9 +20,8 @@ import {
   BarChart3,
   Info,
   ChevronDown,
-  Heart,
-  Leaf,
-  Activity
+  Activity,
+  Leaf
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -74,7 +73,7 @@ const MacroInfoContent = () => (
       <Sparkles className="w-3.5 h-3.5" /> Macro Balance Guide
     </div>
     <p className="text-[11px] font-medium leading-relaxed text-muted-foreground text-left">
-      Breaking down your intake into protein, carbs, and fat—the building blocks of energy and recovery.
+      Breaking down your intake into Protein, Carbs, and Fat—the building blocks of energy and recovery.
     </p>
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">

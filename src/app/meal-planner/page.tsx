@@ -57,9 +57,9 @@ const MACRO_COLORS = {
 // Dummy Recipe Database
 const DUMMY_RECIPES: Record<string, { insight: string, ingredients: string[], instructions: string[] }> = {
   "default": {
-    insight: "This balanced meal is optimized for your health goals. It provides a high-quality protein profile that supports muscle recovery while maintaining a stable glycemic response. Perfect for sustained energy and metabolic health throughout your busy day.",
-    ingredients: ["Fresh seasonal protein", "Complex carbohydrates", "Healthy fats", "Fiber-rich greens", "House seasoning"],
-    instructions: ["Prepare the main protein source with light seasoning.", "Steam or lightly sauté the greens to preserve nutrients.", "Assemble the base with complex grains.", "Combine all elements and garnish for serving."]
+    insight: "This balanced meal is optimized for your health goals. It provides a high-quality Protein profile that supports muscle recovery while maintaining a stable glycemic response.",
+    ingredients: ["Fresh seasonal protein", "Complex carbohydrates", "Healthy fats", "Fiber-rich greens"],
+    instructions: ["Prepare the main Protein source with light seasoning.", "Steam or lightly sauté the greens to preserve nutrients.", "Assemble the base with complex grains.", "Combine all elements and garnish."]
   }
 }
 
@@ -99,7 +99,7 @@ export default function MealPlannerPage() {
   const { data: profile } = useDoc(profileRef)
   const { data: scheduledMeals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
 
-  // Sort meals from morning to night
+  // Sort meals pagi -> malam
   const sortedMeals = useMemo(() => {
     if (!scheduledMeals) return null;
     return [...scheduledMeals].sort((a, b) => {
@@ -265,7 +265,7 @@ export default function MealPlannerPage() {
                 <Plus className="w-4 h-4 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-w-lg md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-w-lg flex flex-col">
               <DialogHeader className="bg-primary p-8 text-primary-foreground text-center shrink-0">
                 <DialogTitle className="text-2xl font-black uppercase tracking-tight text-center">
                   {editingMealId ? "Refine Meal" : "New Schedule"}
@@ -386,7 +386,7 @@ export default function MealPlannerPage() {
               <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-8">
                 <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
                 <p className="text-muted-foreground font-black text-lg uppercase tracking-tight">Your timeline is clear.</p>
-                <p className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-1">Plan a meal or ask the AI for a decision relief below.</p>
+                <p className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-1">Plan a meal below.</p>
               </div>
             )}
         </div>
@@ -401,10 +401,10 @@ export default function MealPlannerPage() {
                   <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <div className="space-y-1 text-left">
-                  <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5 text-left">Feeling Indecisive?</p>
-                  <h3 className="text-2xl font-black uppercase leading-tight text-left">AI Decision Hub</h3>
-                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm text-left">
-                    Let AI analyze delivery deals or curate a BMR-matched menu instantly.
+                  <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5">Feeling Indecisive?</p>
+                  <h3 className="text-2xl font-black uppercase leading-tight">AI Decision Hub</h3>
+                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm">
+                    Let AI analyze delivery deals or curate a menu instantly.
                   </p>
                 </div>
               </div>
@@ -417,7 +417,7 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-h-[90vh] flex flex-col">
           <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground shrink-0">
             <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight text-center">
               {activeRecipeName}
@@ -434,20 +434,20 @@ export default function MealPlannerPage() {
                 <Card className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white">
                   <CardContent className="p-8 space-y-8 text-left">
                     <section className="space-y-3">
-                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
+                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                         <Sparkles className="w-4 h-4" /> Expert Insight
                       </div>
-                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10 text-left">
+                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
                         {activeRecipe.insight}
                       </p>
                     </section>
                     <section className="space-y-4">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
                         <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         {activeRecipe.ingredients.map((ing, i) => (
-                          <div key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground text-left">
+                          <div key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
                             {ing}
                           </div>
@@ -455,16 +455,16 @@ export default function MealPlannerPage() {
                       </div>
                     </section>
                     <section className="space-y-4">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
                         <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path
                       </div>
                       <div className="space-y-5">
                         {activeRecipe.instructions.map((step, i) => (
-                          <div key={i} className="flex gap-4 items-start text-left">
+                          <div key={i} className="flex gap-4 items-start">
                             <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-black text-primary shrink-0">
                               {i + 1}
                             </div>
-                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-1 text-left">
+                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-1">
                               {step}
                             </p>
                           </div>

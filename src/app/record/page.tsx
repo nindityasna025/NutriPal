@@ -15,8 +15,7 @@ import {
   ScanSearch,
   ImageIcon,
   Calendar as CalendarIcon,
-  Leaf,
-  Activity
+  Leaf
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -167,14 +166,7 @@ export default function RecordPage() {
       setResult(output)
     } catch (error: any) {
       console.error(error)
-      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
-      toast({ 
-        variant: "destructive", 
-        title: isQuotaError ? "AI Capacity Reached" : "AI Error", 
-        description: isQuotaError 
-          ? "Our nutritionist AI is currently over capacity. Please try again in 20 seconds." 
-          : "Could not analyze meal photo." 
-      })
+      toast({ variant: "destructive", title: "AI Error", description: "Could not analyze meal photo." })
     } finally {
       setAnalyzing(false)
     }
@@ -261,11 +253,9 @@ export default function RecordPage() {
                   <ChevronLeft className="w-3.5 h-3.5 mr-1.5" /> Back
                 </Button>
                 {mode === "gallery" && !result && (
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-3 h-10 flex-1">
-                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                      <input type="date" value={logDate} onChange={e => setLogDate(e.target.value)} className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-full" />
-                    </div>
+                  <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-3 h-10">
+                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                    <input type="date" value={logDate} onChange={e => setLogDate(e.target.value)} className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0" />
                   </div>
                 )}
               </div>
@@ -290,25 +280,25 @@ export default function RecordPage() {
           <section className="space-y-6">
             {result ? (
               <Card className="rounded-[2.5rem] border-none shadow-premium bg-white overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="p-6 sm:p-8 space-y-8">
+                <div className="p-8 space-y-8">
                   <div className="flex justify-between items-start border-b border-muted/20 pb-6">
-                    <div className="space-y-1 flex-1 pr-4 text-left">
-                      <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60 text-left block">Analysis Result</span>
-                      <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight text-left uppercase">{result.name}</h2>
+                    <div className="space-y-1 text-left">
+                      <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60">Analysis Result</span>
+                      <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight uppercase">{result.name}</h2>
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-3xl sm:text-4xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
+                    <div className="text-right">
+                      <p className="text-3xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="p-4 bg-red-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-red-600 uppercase mb-1">Protein</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
-                    <div className="p-4 bg-amber-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-amber-600 uppercase mb-1">Carbs</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-4 bg-blue-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-blue-500 uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Protein</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
+                    <div className="p-4 bg-orange-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-orange-500 uppercase mb-1">Carbs</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-4 bg-accent/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
                   </div>
 
-                  <div className="p-5 bg-secondary/20 rounded-[1.5rem]">
-                    <p className="text-[12px] font-bold leading-relaxed italic text-foreground/80 text-left">"{result.description}"</p>
+                  <div className="p-5 bg-secondary/20 rounded-[1.5rem] text-left">
+                    <p className="text-[12px] font-bold leading-relaxed italic text-foreground/80">"{result.description}"</p>
                   </div>
 
                   <div className="space-y-4">
@@ -329,8 +319,8 @@ export default function RecordPage() {
                       </p>
                     </section>
                     <section className="space-y-3 text-left">
-                      <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
-                        <Leaf className="w-4 h-4" /> Ingredients
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                        <Leaf className="w-4 h-4 text-primary" /> Ingredients
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {result.ingredients.map((ing, i) => (
@@ -342,7 +332,7 @@ export default function RecordPage() {
                     </section>
                   </div>
                   
-                  <Button onClick={handleSave} className="w-full h-14 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium mt-4 uppercase tracking-widest transition-all hover:scale-[1.01] active:scale-95">
+                  <Button onClick={handleSave} className="w-full h-14 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium mt-4 uppercase tracking-widest">
                     LOG TO DAILY RECORD <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
