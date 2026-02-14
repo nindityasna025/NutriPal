@@ -70,9 +70,15 @@ export default function MealPlannerPage() {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
+  
+  // Form State
   const [mealName, setMealName] = useState("")
   const [mealType, setMealType] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
+  const [calories, setCalories] = useState<string>("0")
+  const [protein, setProtein] = useState<string>("0")
+  const [carbs, setCarbs] = useState<string>("0")
+  const [fat, setFat] = useState<string>("0")
   const [isSaving, setIsSaving] = useState(false)
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
@@ -125,12 +131,29 @@ export default function MealPlannerPage() {
     setIsSaving(true)
     
     try {
-      // Trigger AI Analysis
-      let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
-      if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
-      else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
+      let finalCalories = parseFloat(calories)
+      let finalProtein = parseFloat(protein)
+      let finalCarbs = parseFloat(carbs)
+      let finalFat = parseFloat(fat)
+      let expertInsight = ""
+      let description = ""
+      let healthScore = 85
 
-      const aiResult = await analyzeTextMeal({ mealName, userGoal });
+      // If it's a NEW meal or if values are 0, trigger AI Analysis
+      if (!editingMealId) {
+        let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
+        if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
+        else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
+
+        const aiResult = await analyzeTextMeal({ mealName, userGoal });
+        finalCalories = aiResult.calories
+        finalProtein = aiResult.macros.protein
+        finalCarbs = aiResult.macros.carbs
+        finalFat = aiResult.macros.fat
+        expertInsight = aiResult.expertInsight
+        description = aiResult.description
+        healthScore = aiResult.healthScore
+      }
 
       const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
       const finalTime = timeMap[mealType] || "12:00 PM";
@@ -139,34 +162,48 @@ export default function MealPlannerPage() {
         name: mealName,
         type: mealType,
         time: finalTime,
-        calories: aiResult.calories,
-        macros: aiResult.macros,
-        healthScore: aiResult.healthScore,
-        description: aiResult.description,
-        expertInsight: aiResult.expertInsight,
+        calories: finalCalories,
+        macros: {
+          protein: finalProtein,
+          carbs: finalCarbs,
+          fat: finalFat
+        },
+        healthScore,
+        description,
+        expertInsight,
         source: "planner",
         reminderEnabled,
         updatedAt: serverTimestamp()
       }
 
       if (editingMealId) {
+        // When editing, find the old meal to subtract its values first
+        const oldMeal = scheduledMeals?.find(m => m.id === editingMealId)
+        if (oldMeal) {
+          setDocumentNonBlocking(dailyLogRef, {
+            caloriesConsumed: increment(finalCalories - (oldMeal.calories || 0)),
+            proteinTotal: increment(finalProtein - (oldMeal.macros?.protein || 0)),
+            carbsTotal: increment(finalCarbs - (oldMeal.macros?.carbs || 0)),
+            fatTotal: increment(finalFat - (oldMeal.macros?.fat || 0))
+          }, { merge: true });
+        }
         updateDocumentNonBlocking(doc(mealsColRef, editingMealId), mealData);
-        toast({ title: "Schedule Updated", description: "AI analysis has refined your menu." })
+        toast({ title: "Schedule Updated", description: "Changes synced to your daily plan." })
       } else {
         addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
         setDocumentNonBlocking(dailyLogRef, {
           date: dateId,
-          caloriesConsumed: increment(aiResult.calories),
-          proteinTotal: increment(aiResult.macros.protein),
-          carbsTotal: increment(aiResult.macros.carbs),
-          fatTotal: increment(aiResult.macros.fat)
+          caloriesConsumed: increment(finalCalories),
+          proteinTotal: increment(finalProtein),
+          carbsTotal: increment(finalCarbs),
+          fatTotal: increment(finalFat)
         }, { merge: true });
         toast({ title: "Meal Scheduled", description: `${mealName} analyzed and synced.` })
       }
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try again." });
+      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try зagain." });
     } finally {
       setIsSaving(false);
     }
@@ -174,6 +211,10 @@ export default function MealPlannerPage() {
 
   const resetForm = () => {
     setMealName("")
+    setCalories("0")
+    setProtein("0")
+    setCarbs("0")
+    setFat("0")
     setEditingMealId(null)
     setIsDialogOpen(false)
     setIsSaving(false)
@@ -184,6 +225,10 @@ export default function MealPlannerPage() {
     setMealName(meal.name)
     setMealType(meal.type || "Breakfast")
     setReminderEnabled(!!meal.reminderEnabled)
+    setCalories(meal.calories?.toString() || "0")
+    setProtein(meal.macros?.protein?.toString() || "0")
+    setCarbs(meal.macros?.carbs?.toString() || "0")
+    setFat(meal.macros?.fat?.toString() || "0")
     setIsDialogOpen(true)
   }
 
@@ -249,7 +294,7 @@ export default function MealPlannerPage() {
                 {editingMealId ? "Refine Meal" : "New Schedule"}
               </DialogTitle>
             </DialogHeader>
-            <div className="p-10 space-y-8 overflow-y-auto flex-1">
+            <div className="p-10 space-y-8 overflow-y-auto flex-1 no-scrollbar">
               <div className="grid gap-6">
                 <div className="space-y-2 text-left">
                   <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing</Label>
@@ -269,6 +314,30 @@ export default function MealPlannerPage() {
                   <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
                   <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                 </div>
+
+                {editingMealId && (
+                  <div className="space-y-6 pt-4 border-t-2 border-border/50">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary">Nutritional Override</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 text-left">
+                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Calories (Kcal)</Label>
+                        <Input type="number" value={calories} onChange={(e) => setCalories(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                      </div>
+                      <div className="space-y-2 text-left">
+                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
+                        <Input type="number" value={protein} onChange={(e) => setProtein(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                      </div>
+                      <div className="space-y-2 text-left">
+                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
+                        <Input type="number" value={carbs} onChange={(e) => setCarbs(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                      </div>
+                      <div className="space-y-2 text-left">
+                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
+                        <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem] border-2 border-transparent hover:border-border transition-all">
                   <div className="space-y-1 text-left">
@@ -318,15 +387,15 @@ export default function MealPlannerPage() {
                              <div className="flex flex-wrap items-center gap-4">
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
-                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span>
+                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
-                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span>
+                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
-                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span>
+                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
                                 </div>
                              </div>
                           </div>
@@ -440,3 +509,5 @@ export default function MealPlannerPage() {
     </div>
   )
 }
+
+    
