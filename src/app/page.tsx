@@ -232,27 +232,27 @@ export default function Dashboard() {
 
         {/* Quick Sync Stats */}
         <div className="md:col-span-4 grid grid-cols-1 gap-6">
-          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col justify-between bg-white group hover:shadow-ios-lg transition-all">
-            <div className="p-4 bg-primary/5 rounded-2xl w-fit group-hover:scale-110 transition-transform">
+          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-ios-lg transition-all">
+            <div className="p-4 bg-primary/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
               <Flame className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Burned</p>
-              <p className="text-3xl font-extrabold">{burned} <span className="text-sm font-bold text-muted-foreground">kcal</span></p>
+              <p className="text-4xl font-extrabold">{burned} <span className="text-sm font-bold text-muted-foreground">kcal</span></p>
             </div>
           </Card>
 
-          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col justify-between bg-white group hover:shadow-ios-lg transition-all">
-            <div className="p-4 bg-blue-50 rounded-2xl w-fit group-hover:scale-110 transition-transform">
+          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-ios-lg transition-all">
+            <div className="p-4 bg-blue-50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
               <Droplets className="w-6 h-6 text-blue-500" />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 w-full">
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Hydration</p>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-10 w-10 rounded-full border border-border/50 bg-secondary/30">
                   <Minus className="w-4 h-4" />
                 </Button>
-                <span className="text-3xl font-extrabold">{water}L</span>
+                <span className="text-4xl font-extrabold whitespace-nowrap">{water}L</span>
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-sm">
                   <Plus className="w-4 h-4" />
                 </Button>
