@@ -32,15 +32,13 @@ export function Navbar() {
 
   return (
     <>
-      {/* Material Design 3 Navigation Rail - Desktop */}
-      <aside className="hidden md:flex flex-col w-20 bg-card border-r border-border h-screen fixed left-0 top-0 z-[100] elevation-1">
-        <div className="p-5 flex justify-center mb-8">
-          <div className="bg-primary text-primary-foreground w-12 h-12 rounded-2xl flex items-center justify-center elevation-2">
-            <Utensils className="w-6 h-6" />
-          </div>
+      {/* iOS Sidebar - Desktop */}
+      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border/50 h-screen fixed left-0 top-0 z-[100]">
+        <div className="p-8 mb-4">
+          <h1 className="text-2xl font-extrabold tracking-tighter text-primary">NutriPal</h1>
         </div>
         
-        <nav className="flex-1 flex flex-col items-center gap-6">
+        <nav className="flex-1 flex flex-col gap-1 px-4">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -49,41 +47,45 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 group transition-all",
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
+                  isActive 
+                    ? "bg-primary text-primary-foreground shadow-ios-lg" 
+                    : "text-muted-foreground hover:bg-secondary hover:text-primary"
                 )}
               >
-                <div className={cn(
-                  "w-14 h-8 rounded-full flex items-center justify-center transition-all",
-                  isActive ? "bg-primary/10" : "group-hover:bg-muted"
-                )}>
-                  <Icon className={cn("w-5 h-5", isActive && "stroke-[2.5px]")} />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-tight">{item.label}</span>
+                <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive ? "scale-110" : "group-hover:scale-105")} />
+                <span className="text-sm font-bold tracking-tight">{item.label}</span>
               </Link>
             )
           })}
         </nav>
 
-        <div className="p-4 flex justify-center border-t border-border">
+        <div className="p-6 border-t border-border/30">
           {user && (
-            <Link href="/profile">
-              <Avatar className={cn(
-                "h-12 w-12 border-2 transition-all hover:scale-105",
-                pathname === "/profile" ? "border-primary shadow-md" : "border-white"
-              )}>
+            <Link 
+              href="/profile"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-2xl transition-all",
+                pathname === "/profile" ? "bg-secondary" : "hover:bg-secondary/50"
+              )}
+            >
+              <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                 <AvatarImage src={user.photoURL || ""} />
-                <AvatarFallback className="bg-primary/5 text-primary font-bold text-sm">
+                <AvatarFallback className="bg-primary text-primary-foreground font-bold">
                   {user.displayName?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-xs font-bold truncate">{user.displayName || "User"}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">Pro Member</p>
+              </div>
             </Link>
           )}
         </div>
       </aside>
 
-      {/* Material Design 3 Navigation Bar - Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-card border-t border-border px-2 py-3 flex justify-around items-center rounded-t-[1.5rem] elevation-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      {/* iOS Tab Bar - Mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] glass border-t border-border/20 px-4 pt-3 pb-8 flex justify-around items-center">
         {navItems.concat([{ href: "/profile", label: "Profile", icon: User }]).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -92,17 +94,12 @@ export function Navbar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1 flex-1 transition-all",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                "flex flex-col items-center gap-1 flex-1 transition-all duration-300",
+                isActive ? "text-primary scale-105" : "text-muted-foreground"
               )}
             >
-              <div className={cn(
-                "w-16 h-8 rounded-full flex items-center justify-center transition-all",
-                isActive ? "bg-primary/10" : ""
-              )}>
-                <Icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-tight">{item.label}</span>
+              <Icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />
+              <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
             </Link>
           )
         })}
