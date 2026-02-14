@@ -16,7 +16,7 @@ const GenerateRecipeInputSchema = z.object({
 export type GenerateRecipeInput = z.infer<typeof GenerateRecipeInputSchema>;
 
 const GenerateRecipeOutputSchema = z.object({
-  insight: z.string().max(200).describe('A concise summary of health benefits and goal alignment (max 200 chars).'),
+  insight: z.string().max(200).describe('A concise summary of health benefits. STRICTLY MAX 200 chars.'),
   ingredients: z.array(z.string()).describe('List of necessary ingredients.'),
   instructions: z.array(z.string()).describe('Step-by-step cooking instructions.'),
 });
@@ -36,9 +36,10 @@ Generate a healthy, delicious, and easy-to-follow recipe for: "{{{mealName}}}".
 User's Dietary Context: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{else}}None{{/if}}.
 
 Requirements:
-1. The "insight" must combine the health benefits of this meal and explain how it supports the user's current fitness goal. It MUST NOT exceed 200 characters.
-2. The "ingredients" should be a clear list.
-3. The "instructions" should be sequential and easy to follow.
+1. The "insight" must combine the health benefits of this meal and explain how it supports the user's current fitness goal. 
+2. CRITICAL: The "insight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. Validation will fail if it's longer.
+3. The "ingredients" should be a clear list.
+4. The "instructions" should be sequential and easy to follow.
 
 Provide the response in the specified structured JSON format.`,
 });

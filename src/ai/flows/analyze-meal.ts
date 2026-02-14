@@ -27,7 +27,7 @@ const AnalyzeMealOutputSchema = z.object({
   healthScore: z.number().min(0).max(100).describe("A score from 0-100 based on nutritional quality."),
   description: z.string().describe("A brief summary of the meal."),
   ingredients: z.array(z.string()).describe("List of main ingredients identified."),
-  expertInsight: z.string().max(200).describe("A combined nutritionist insight covering health benefits and how it aligns with the user's specific goal. Max 200 characters."),
+  expertInsight: z.string().max(200).describe("A combined nutritionist insight. STRICTLY MAX 200 characters."),
 });
 export type AnalyzeMealOutput = z.infer<typeof AnalyzeMealOutputSchema>;
 
@@ -47,7 +47,7 @@ User's Specific Health Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maint
 
 For the "expertInsight" field, provide a single, professional, and encouraging summary that combines the key health benefits of this meal AND how it specifically supports the user's goal ({{{userGoal}}}). 
 
-CRITICAL: The "expertInsight" MUST NOT EXCEED 200 characters.
+CRITICAL: The "expertInsight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. If it exceeds 200 characters, the system will fail. Aim for around 150-180 characters to be safe.
 
 If a description is provided, use it to refine your analysis: "{{{description}}}"
 

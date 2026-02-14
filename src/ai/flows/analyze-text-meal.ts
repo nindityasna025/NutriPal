@@ -25,7 +25,7 @@ const AnalyzeTextMealOutputSchema = z.object({
   healthScore: z.number().min(0).max(100).describe("A score from 0-100 based on nutritional quality."),
   description: z.string().describe("A brief professional description of the meal."),
   ingredients: z.array(z.string()).describe("List of main ingredients identified in the meal."),
-  expertInsight: z.string().max(200).describe("A combined nutritionist insight covering health benefits and goal alignment. Max 200 characters."),
+  expertInsight: z.string().max(200).describe("A combined nutritionist insight. STRICTLY MAX 200 characters."),
 });
 export type AnalyzeTextMealOutput = z.infer<typeof AnalyzeTextMealOutputSchema>;
 
@@ -48,7 +48,7 @@ Requirements:
 1. Provide accurate estimates for calories and macros.
 2. Identify the likely main ingredients used.
 3. The "expertInsight" MUST be encouraging and explain how this specific meal supports the goal ({{{userGoal}}}). 
-4. CRITICAL: The "expertInsight" MUST NOT EXCEED 200 characters.
+4. CRITICAL: The "expertInsight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. If it exceeds 200 characters, the validation will fail. Aim for 150-180 characters.
 
 Provide the output in the specified JSON format.`,
 });
