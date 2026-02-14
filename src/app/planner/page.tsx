@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,11 +18,12 @@ import {
   Utensils,
   ChevronRight,
   Target,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Clock
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
-import { format, startOfToday, parseISO } from "date-fns"
+import { format, startOfToday } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -66,7 +67,10 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false)
   const [deliveryResult, setDeliveryResult] = useState<any[] | null>(null)
   const [menuPlan, setMenuPlan] = useState<any | null>(null)
+  
+  // Shared state for scheduling
   const [targetDate, setTargetDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
+  const [targetTime, setTargetTime] = useState<string>(format(new Date(), "HH:mm"))
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -125,7 +129,16 @@ export default function ExplorePage() {
   const handleOrderNow = async (item: any) => {
     if (!user || !firestore) return
     const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
-    const timeStr = item.time || "12:00 PM"
+    
+    // Format time correctly
+    let finalTime = item.time || "12:00 PM"
+    if (targetTime) {
+      const [hours, mins] = targetTime.split(':')
+      const h = parseInt(hours)
+      const ampm = h >= 12 ? 'PM' : 'AM'
+      const h12 = h % 12 || 12
+      finalTime = `${h12}:${mins} ${ampm}`
+    }
 
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
@@ -134,7 +147,7 @@ export default function ExplorePage() {
     addDocumentNonBlocking(mealsColRef, {
       name: item.name,
       calories: item.calories,
-      time: timeStr,
+      time: finalTime,
       source: item.platform || "planner",
       macros: item.macros,
       healthScore: item.healthScore || 90,
@@ -148,7 +161,7 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Schedule Synced", description: `${item.name} added to your plan for ${dateId}.` })
+    toast({ title: "Schedule Synced", description: `${item.name} added to your plan for ${dateId} at ${finalTime}.` })
     router.push("/")
   }
 
@@ -191,8 +204,30 @@ export default function ExplorePage() {
 
       {view === "delivery" && (
         <section className="space-y-6 animate-in fade-in zoom-in duration-500">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="font-black text-lg uppercase tracking-tight text-left">Top Profile Matches</h2>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-1">
+            <div className="flex items-center gap-4">
+               <h2 className="font-black text-lg uppercase tracking-tight text-left">Top Profile Matches</h2>
+               <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-11 border border-primary/10 shadow-inner">
+                  <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
+                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                    <input 
+                      type="date" 
+                      value={targetDate} 
+                      onChange={e => setTargetDate(e.target.value)} 
+                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24" 
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 pl-1">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <input 
+                      type="time" 
+                      value={targetTime} 
+                      onChange={e => setTargetTime(e.target.value)} 
+                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                    />
+                  </div>
+               </div>
+            </div>
             <Button variant="ghost" onClick={() => setView("hub")} className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
               <ArrowLeft className="w-3 h-3" /> Back
             </Button>
@@ -261,14 +296,25 @@ export default function ExplorePage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-1">
             <div className="flex items-center gap-4">
                <h2 className="font-black text-lg uppercase tracking-tight text-left">Matched Menu Templates</h2>
-               <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-3 h-10 border border-primary/10 shadow-inner">
-                  <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                  <input 
-                    type="date" 
-                    value={targetDate} 
-                    onChange={e => setTargetDate(e.target.value)} 
-                    className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0" 
-                  />
+               <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-11 border border-primary/10 shadow-inner">
+                  <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
+                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                    <input 
+                      type="date" 
+                      value={targetDate} 
+                      onChange={e => setTargetDate(e.target.value)} 
+                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24" 
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 pl-1">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <input 
+                      type="time" 
+                      value={targetTime} 
+                      onChange={e => setTargetTime(e.target.value)} 
+                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                    />
+                  </div>
                </div>
             </div>
             <Button variant="ghost" onClick={() => setView("hub")} className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">

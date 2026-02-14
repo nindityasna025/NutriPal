@@ -49,9 +49,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Standardized Macro Colors
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))",
-  carbs: "hsl(38 92% 50%)",
-  fat: "hsl(var(--accent))",
+  protein: "hsl(var(--primary))", // Forest Green
+  carbs: "hsl(38 92% 50%)",      // Amber
+  fat: "hsl(var(--accent))",     // Teal
 }
 
 // Dummy Recipe Database
@@ -99,7 +99,7 @@ export default function MealPlannerPage() {
   const { data: profile } = useDoc(profileRef)
   const { data: scheduledMeals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
 
-  // Sort meals pagi -> malam
+  // Chronological sort: pagi to malam
   const sortedMeals = useMemo(() => {
     if (!scheduledMeals) return null;
     return [...scheduledMeals].sort((a, b) => {
@@ -275,7 +275,7 @@ export default function MealPlannerPage() {
         <div className="space-y-4">
           {isLoadingMeals ? (
             <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-          ) : sortedMeals && sortedMeals.length > 0 ? (
+          ) : scheduledMeals && scheduledMeals.length > 0 ? (
               sortedMeals.map((meal) => (
                 <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white">
                   <CardContent className="p-6 sm:p-8">

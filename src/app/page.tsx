@@ -54,7 +54,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-// Standardized Macro Colors - Consistent across app
+// Standardized Macro Colors
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", // Forest Green
   carbs: "hsl(38 92% 50%)",      // Amber
@@ -107,6 +107,7 @@ export default function Dashboard() {
     const data = []
     for (let i = 6; i >= 0; i--) {
       const d = subDays(new Date(), i)
+      // Mocked data using the Kcal conversion formula
       const gramsProtein = 30 + Math.floor(Math.random() * 20)
       const gramsCarbs = 60 + Math.floor(Math.random() * 40)
       const gramsFat = 20 + Math.floor(Math.random() * 15)
