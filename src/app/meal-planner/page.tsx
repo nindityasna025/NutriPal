@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
@@ -91,6 +91,25 @@ export default function MealPlannerPage() {
 
   const { data: profile } = useDoc(profileRef)
   const { data: scheduledMeals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
+
+  // Sort meals from morning to night
+  const sortedMeals = useMemo(() => {
+    if (!scheduledMeals) return null;
+    return [...scheduledMeals].sort((a, b) => {
+      const timeToMinutes = (t: string) => {
+        if (!t) return 0;
+        const parts = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!parts) return 0;
+        let hours = parseInt(parts[1], 10);
+        const minutes = parseInt(parts[2], 10);
+        const ampm = parts[3].toUpperCase();
+        if (ampm === 'PM' && hours < 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+      };
+      return timeToMinutes(a.time) - timeToMinutes(b.time);
+    });
+  }, [scheduledMeals]);
 
   const handlePrevDay = () => date && setDate(subDays(date, 1))
   const handleNextDay = () => date && setDate(addDays(date, 1))
@@ -319,8 +338,8 @@ export default function MealPlannerPage() {
         <div className="space-y-4">
           {isLoadingMeals ? (
             <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-          ) : scheduledMeals && scheduledMeals.length > 0 ? (
-              scheduledMeals.map((meal) => (
+          ) : sortedMeals && sortedMeals.length > 0 ? (
+              sortedMeals.map((meal) => (
                 <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white">
                   <CardContent className="p-6 sm:p-8">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">

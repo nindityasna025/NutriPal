@@ -127,6 +127,25 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
+  // Sort meals from morning to night
+  const sortedMeals = useMemo(() => {
+    if (!meals) return null;
+    return [...meals].sort((a, b) => {
+      const timeToMinutes = (t: string) => {
+        if (!t) return 0;
+        const parts = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!parts) return 0;
+        let hours = parseInt(parts[1], 10);
+        const minutes = parseInt(parts[2], 10);
+        const ampm = parts[3].toUpperCase();
+        if (ampm === 'PM' && hours < 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+      };
+      return timeToMinutes(a.time) - timeToMinutes(b.time);
+    });
+  }, [meals]);
+
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
     return meals.reduce((acc, meal) => ({
@@ -297,8 +316,8 @@ export default function Dashboard() {
           Daily Food Record
         </h2>
         <div className="space-y-4">
-          {meals && meals.length > 0 ? (
-            meals.map((meal) => (
+          {sortedMeals && sortedMeals.length > 0 ? (
+            sortedMeals.map((meal) => (
               <Collapsible 
                 key={meal.id} 
                 open={expandedMealId === meal.id} 
