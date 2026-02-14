@@ -47,7 +47,6 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)

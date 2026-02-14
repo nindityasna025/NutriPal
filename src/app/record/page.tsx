@@ -15,7 +15,8 @@ import {
   ScanSearch,
   ImageIcon,
   Calendar as CalendarIcon,
-  Leaf
+  Leaf,
+  Activity
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -24,7 +25,6 @@ import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
