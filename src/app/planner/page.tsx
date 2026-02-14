@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -135,12 +136,9 @@ export default function ExplorePage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
+    // NOTE: We DO NOT update dailyLog aggregates here because it's only "planned"
     setDocumentNonBlocking(dailyLogRef, { 
-      date: dateId, 
-      caloriesConsumed: increment(item.calories),
-      proteinTotal: increment(item.macros?.protein || 0),
-      carbsTotal: increment(item.macros?.carbs || 0),
-      fatTotal: increment(item.macros?.fat || 0)
+      date: dateId
     }, { merge: true })
 
     addDocumentNonBlocking(mealsColRef, {
@@ -152,6 +150,7 @@ export default function ExplorePage() {
       healthScore: item.healthScore || 90,
       description: item.description || item.reasoning || "Balanced choice curated for your profile.",
       expertInsight: item.reasoning || "Matched to your profile goals.",
+      status: "planned",
       createdAt: serverTimestamp()
     })
 
@@ -160,7 +159,7 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Schedule Synced", description: `${item.name} added to your plan.` })
+    toast({ title: "Schedule Synced", description: `${item.name} added as planned.` })
     setIsDeliveryOpen(false)
     setIsMenuOpen(false)
     router.push("/")
@@ -172,28 +171,9 @@ export default function ExplorePage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
-    const totalCals = (menuPlan.breakfast?.calories || 0) + 
-                      (menuPlan.lunch?.calories || 0) + 
-                      (menuPlan.dinner?.calories || 0);
-    
-    const totalProtein = (menuPlan.breakfast?.macros?.protein || 0) + 
-                         (menuPlan.lunch?.macros?.protein || 0) + 
-                         (menuPlan.dinner?.macros?.protein || 0);
-
-    const totalCarbs = (menuPlan.breakfast?.macros?.carbs || 0) + 
-                       (menuPlan.lunch?.macros?.carbs || 0) + 
-                       (menuPlan.dinner?.macros?.carbs || 0);
-
-    const totalFat = (menuPlan.breakfast?.macros?.fat || 0) + 
-                     (menuPlan.lunch?.macros?.fat || 0) + 
-                     (menuPlan.dinner?.macros?.fat || 0);
-
+    // NOTE: We DO NOT update dailyLog aggregates here because it's only "planned"
     setDocumentNonBlocking(dailyLogRef, { 
-      date: dateId, 
-      caloriesConsumed: increment(totalCals),
-      proteinTotal: increment(totalProtein),
-      carbsTotal: increment(totalCarbs),
-      fatTotal: increment(totalFat)
+      date: dateId
     }, { merge: true })
 
     const types = ["breakfast", "lunch", "dinner"] as const;
@@ -208,11 +188,12 @@ export default function ExplorePage() {
         healthScore: 90,
         description: item.description || "Part of your daily curated plan.",
         expertInsight: "Daily systematic recommendation.",
+        status: "planned",
         createdAt: serverTimestamp()
       })
     });
 
-    toast({ title: "Full Day Planned", description: `All meals synced for ${dateId}.` })
+    toast({ title: "Full Day Planned", description: `All meals added as planned for ${dateId}.` })
     setIsMenuOpen(false)
     router.push("/")
   }
@@ -317,7 +298,7 @@ export default function ExplorePage() {
                           </div>
                           <p className="text-2xl font-black tracking-tighter text-foreground">{item.price}</p>
                         </div>
-                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Order & Sync</Button>
+                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Schedule & Order</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -424,7 +405,7 @@ export default function ExplorePage() {
                             </div>
                           ) : (
                             <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border border-border text-foreground opacity-60 hover:bg-secondary shadow-sm">
-                              <Plus className="w-4 h-4 mr-2" /> Cook Myself
+                              <Plus className="w-4 h-4 mr-2" /> Plan to Cook
                             </Button>
                           )}
                         </div>

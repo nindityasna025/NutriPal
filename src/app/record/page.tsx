@@ -209,6 +209,7 @@ export default function RecordPage() {
       description: result.description,
       ingredients: result.ingredients,
       expertInsight: result.expertInsight,
+      status: "consumed", // Recorded via Snap is considered consumed
       imageUrl: preview, 
       createdAt: serverTimestamp()
     });

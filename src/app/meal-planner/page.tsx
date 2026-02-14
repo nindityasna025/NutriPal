@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -18,7 +19,8 @@ import {
   ListOrdered,
   Clock,
   AlertTriangle,
-  Bell
+  Bell,
+  CheckCircle2
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -75,7 +77,16 @@ export default function MealPlannerPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
-  const [activeRecipe, setActiveRecipe] = useState<{ insight: string, ingredients: string[], instructions: string[], allergenWarning?: string } | null>(null)
+  const [activeRecipe, setActiveRecipe] = useState<{ 
+    id: string,
+    status: string,
+    calories: number,
+    macros: any,
+    insight: string, 
+    ingredients: string[], 
+    instructions: string[], 
+    allergenWarning?: string 
+  } | null>(null)
   const [activeRecipeName, setActiveRecipeName] = useState("")
 
   const { user } = useUser()
@@ -197,12 +208,14 @@ export default function MealPlannerPage() {
         allergenWarning,
         source: "planner",
         reminderEnabled,
+        status: editingMealId ? (scheduledMeals?.find(m => m.id === editingMealId)?.status || "planned") : "planned",
         updatedAt: serverTimestamp()
       }
 
       if (editingMealId) {
         const oldMeal = scheduledMeals?.find(m => m.id === editingMealId)
-        if (oldMeal) {
+        if (oldMeal && oldMeal.status === "consumed") {
+          // Only update daily log if the meal was already consumed
           setDocumentNonBlocking(dailyLogRef, {
             caloriesConsumed: increment(finalCalories - (oldMeal.calories || 0)),
             proteinTotal: increment(finalProtein - (oldMeal.macros?.protein || 0)),
@@ -214,14 +227,8 @@ export default function MealPlannerPage() {
         toast({ title: "Schedule Updated", description: "Changes synced to your daily plan." })
       } else {
         addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
-        setDocumentNonBlocking(dailyLogRef, {
-          date: dateId,
-          caloriesConsumed: increment(finalCalories),
-          proteinTotal: increment(finalProtein),
-          carbsTotal: increment(finalCarbs),
-          fatTotal: increment(finalFat)
-        }, { merge: true });
-        toast({ title: "Meal Scheduled", description: `${mealName} analyzed and synced.` })
+        // NOTE: We DO NOT update dailyLog aggregates here because it's only "planned"
+        toast({ title: "Meal Scheduled", description: `${mealName} added as planned.` })
       }
       resetForm()
     } catch (err: any) {
@@ -229,6 +236,29 @@ export default function MealPlannerPage() {
       toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try again." });
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  const markAsConsumed = (meal: any) => {
+    if (!user || !mealsColRef || !dailyLogRef || meal.status === 'consumed') return
+
+    setDocumentNonBlocking(dailyLogRef, {
+      date: dateId,
+      caloriesConsumed: increment(meal.calories),
+      proteinTotal: increment(meal.macros?.protein || 0),
+      carbsTotal: increment(meal.macros?.carbs || 0),
+      fatTotal: increment(meal.macros?.fat || 0)
+    }, { merge: true });
+
+    updateDocumentNonBlocking(doc(mealsColRef, meal.id), { status: "consumed", updatedAt: serverTimestamp() });
+    
+    toast({ 
+      title: "Bon Appétit!", 
+      description: `${meal.name} synced to your daily records.` 
+    });
+
+    if (activeRecipe?.id === meal.id) {
+      setIsRecipeDialogOpen(false);
     }
   }
 
@@ -262,12 +292,14 @@ export default function MealPlannerPage() {
     if (!user || !mealsColRef || !dailyLogRef) return
     try {
       deleteDocumentNonBlocking(doc(mealsColRef, meal.id));
-      setDocumentNonBlocking(dailyLogRef, {
-        caloriesConsumed: increment(-(meal.calories || 0)),
-        proteinTotal: increment(-(meal.macros?.protein || 0)),
-        carbsTotal: increment(-(meal.macros?.carbs || 0)),
-        fatTotal: increment(-(meal.macros?.fat || 0))
-      }, { merge: true });
+      if (meal.status === 'consumed') {
+        setDocumentNonBlocking(dailyLogRef, {
+          caloriesConsumed: increment(-(meal.calories || 0)),
+          proteinTotal: increment(-(meal.macros?.protein || 0)),
+          carbsTotal: increment(-(meal.macros?.carbs || 0)),
+          fatTotal: increment(-(meal.macros?.fat || 0))
+        }, { merge: true });
+      }
       toast({ variant: "destructive", title: "Meal Removed", description: `${meal.name} taken off your schedule.` })
     } catch (err: any) {
       console.error(err);
@@ -279,6 +311,10 @@ export default function MealPlannerPage() {
     setIsRecipeDialogOpen(true)
     
     setActiveRecipe({
+      id: meal.id,
+      status: meal.status,
+      calories: meal.calories,
+      macros: meal.macros,
       insight: meal.expertInsight || "A balanced meal designed for your specific health targets.",
       ingredients: meal.ingredients && meal.ingredients.length > 0 ? meal.ingredients : ["Fresh seasonal ingredients"],
       instructions: meal.instructions && meal.instructions.length > 0 ? meal.instructions : [
@@ -423,7 +459,12 @@ export default function MealPlannerPage() {
                           <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                             {meal.name}
                           </h3>
-                          {meal.reminderEnabled && (
+                          {meal.status === 'consumed' && (
+                            <Badge className="h-5 px-2 text-[8px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20">
+                              <CheckCircle2 className="w-3 h-3 mr-1" /> CONSUMED
+                            </Badge>
+                          )}
+                          {meal.reminderEnabled && meal.status !== 'consumed' && (
                             <Bell className="w-4 h-4 text-primary fill-primary/20" />
                           )}
                           {meal.allergenWarning && (
@@ -452,6 +493,14 @@ export default function MealPlannerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      {meal.status !== 'consumed' && (
+                        <Button 
+                          onClick={() => markAsConsumed(meal)}
+                          className="h-9 px-4 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 font-black uppercase text-[8px] tracking-widest border border-primary/20"
+                        >
+                          EAT NOW
+                        </Button>
+                      )}
                       {meal.source !== 'GrabFood' && meal.source !== 'GoFood' && (
                         <Button 
                           variant="ghost" 
@@ -577,7 +626,21 @@ export default function MealPlannerPage() {
             </ScrollArea>
           </div>
           <DialogFooter className="p-12 pt-0 shrink-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-[12px] shadow-premium text-foreground border-none">COOKED</Button>
+             {activeRecipe?.status !== 'consumed' ? (
+               <Button 
+                 onClick={() => markAsConsumed(activeRecipe)} 
+                 className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-[12px] shadow-premium text-foreground border-none"
+               >
+                 COOKED
+               </Button>
+             ) : (
+               <Button 
+                 onClick={() => setIsRecipeDialogOpen(false)} 
+                 className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-[12px] shadow-premium text-foreground border-none opacity-50"
+               >
+                 ALREADY CONSUMED
+               </Button>
+             )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

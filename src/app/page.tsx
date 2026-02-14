@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -21,11 +22,12 @@ import {
   ChevronUp,
   ShoppingBag,
   AlertTriangle,
-  Bell
+  Bell,
+  CheckCircle2
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
-import { collection, doc, query, orderBy, limit } from "firebase/firestore"
-import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
+import { setDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import { 
   Bar, 
@@ -47,6 +49,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
+import { useToast } from "@/hooks/use-toast"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", 
@@ -92,6 +95,7 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     setToday(startOfToday())
@@ -153,7 +157,8 @@ export default function Dashboard() {
 
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    return meals.reduce((acc, meal) => ({
+    // Only count CONSUMED meals in daily totals
+    return meals.filter(m => m.status === 'consumed').reduce((acc, meal) => ({
       calories: acc.calories + (meal.calories || 0),
       protein: acc.protein + (meal.macros?.protein || 0),
       carbs: acc.carbs + (meal.macros?.carbs || 0),
@@ -178,6 +183,25 @@ export default function Dashboard() {
     if (!dailyLogRef || !dateId) return;
     const newWater = Math.max(0, water + amount);
     setDocumentNonBlocking(dailyLogRef, { waterIntake: Number(newWater.toFixed(1)), date: dateId }, { merge: true });
+  }
+
+  const markAsConsumed = (meal: any) => {
+    if (!user || !mealsColRef || !dailyLogRef || meal.status === 'consumed') return
+
+    setDocumentNonBlocking(dailyLogRef, {
+      date: dateId,
+      caloriesConsumed: increment(meal.calories),
+      proteinTotal: increment(meal.macros?.protein || 0),
+      carbsTotal: increment(meal.macros?.carbs || 0),
+      fatTotal: increment(meal.macros?.fat || 0)
+    }, { merge: true });
+
+    updateDocumentNonBlocking(doc(mealsColRef, meal.id), { status: "consumed", updatedAt: serverTimestamp() });
+    
+    toast({ 
+      title: "Bon Appétit!", 
+      description: `${meal.name} synced to your daily records.` 
+    });
   }
 
   const sortedMeals = useMemo(() => {
@@ -379,7 +403,16 @@ export default function Dashboard() {
                             <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                               {meal.name}
                             </h3>
-                            {meal.reminderEnabled && (
+                            {meal.status === 'consumed' ? (
+                              <Badge className="h-5 px-2 text-[8px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20">
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> CONSUMED
+                              </Badge>
+                            ) : (
+                               <Badge className="h-5 px-2 text-[8px] font-black uppercase bg-primary/10 text-primary border-primary/20">
+                                PLANNED
+                              </Badge>
+                            )}
+                            {meal.reminderEnabled && meal.status !== 'consumed' && (
                               <Bell className="w-4 h-4 text-primary fill-primary/20" />
                             )}
                             {meal.allergenWarning && (
@@ -407,8 +440,21 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="shrink-0 text-foreground opacity-30 group-hover:opacity-100 transition-all">
-                        {isExpanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                      <div className="flex items-center gap-4 shrink-0">
+                        {meal.status !== 'consumed' && (
+                          <Button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsConsumed(meal);
+                            }}
+                            className="h-10 px-6 rounded-xl bg-primary text-foreground font-black uppercase text-[9px] tracking-widest border-none shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                          >
+                            EAT NOW
+                          </Button>
+                        )}
+                        <div className="text-foreground opacity-30 group-hover:opacity-100 transition-all">
+                          {isExpanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                        </div>
                       </div>
                     </div>
 
