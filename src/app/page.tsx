@@ -111,7 +111,7 @@ export default function Dashboard() {
       const gramsCarbs = 60 + Math.floor(Math.random() * 40)
       const gramsFat = 20 + Math.floor(Math.random() * 15)
       
-      // kcal = (protein × 4) + (karbohidrat × 4) + (lemak × 9)
+      // kcal = (protein × 4) + (carbs × 4) + (fat × 9)
       data.push({
         date: format(d, "MMM d"),
         protein: gramsProtein * 4,

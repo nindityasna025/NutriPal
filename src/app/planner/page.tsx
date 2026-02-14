@@ -17,7 +17,7 @@ import {
   RefreshCw,
   Utensils
 } from "lucide-react"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -250,49 +250,60 @@ export default function ExplorePage() {
             </Button>
           </div>
 
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
               const meal = menuPlan[type];
               return (
-                <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white overflow-hidden">
-                  <CardContent className="p-8">
-                    <div className="flex flex-col md:flex-row justify-between gap-8">
-                       <div className="flex-1 space-y-6">
-                         <div className="flex items-center justify-between">
-                            <Badge variant="secondary" className="bg-primary/10 text-primary uppercase text-[9px] font-black tracking-[0.2em] px-3 py-1 rounded-lg">
-                              {type}
-                            </Badge>
-                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-10 w-10">
-                              <RefreshCw className="w-4 h-4" />
-                            </Button>
-                         </div>
-                         <div className="space-y-2 text-left">
-                            <h3 className="text-2xl font-black uppercase tracking-tight">{meal.name}</h3>
-                            <p className="text-xs font-medium text-muted-foreground leading-relaxed">{meal.description}</p>
-                         </div>
-                         <div className="grid grid-cols-3 gap-3">
-                            <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p><p className="text-lg font-black text-primary">{meal.macros.protein}g</p></div>
-                            <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p><p className="text-lg font-black text-orange-500">{meal.macros.carbs}g</p></div>
-                            <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p><p className="text-lg font-black text-accent">{meal.macros.fat}g</p></div>
-                         </div>
-                       </div>
-                       <div className="w-full md:w-64 space-y-4">
-                          <div className="bg-secondary/30 p-5 rounded-2xl text-center space-y-1">
-                             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Energy Value</p>
-                             <p className="text-2xl font-black tracking-tighter">+{meal.calories} kcal</p>
-                          </div>
-                          <div className="grid grid-cols-1 gap-2">
-                             <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" })} className="w-full bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest">
-                               Order Grab
-                             </Button>
-                             <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" })} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest">
-                               Order GoFood
-                             </Button>
-                             <Button onClick={() => handleOrderNow(meal)} variant="outline" className="w-full rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary">
-                               Cook Myself
-                             </Button>
-                          </div>
-                       </div>
+                <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2 overflow-hidden flex flex-col">
+                  <CardContent className="p-8 flex flex-col h-full space-y-6">
+                    <div className="flex-1 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary uppercase text-[9px] font-black tracking-[0.2em] px-3 py-1 rounded-lg">
+                          {type}
+                        </Badge>
+                        <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-9 w-9">
+                          <RefreshCw className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-2 text-left">
+                        <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
+                        <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">{meal.description}</p>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-0.5 text-left">
+                          <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                          <p className="text-lg font-black text-primary">{meal.macros.protein}g</p>
+                        </div>
+                        <div className="space-y-0.5 text-left">
+                          <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                          <p className="text-lg font-black text-orange-500">{meal.macros.carbs}g</p>
+                        </div>
+                        <div className="space-y-0.5 text-left">
+                          <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                          <p className="text-lg font-black text-accent">{meal.macros.fat}g</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-secondary/30 p-4 rounded-xl text-center">
+                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Energy Value</p>
+                        <p className="text-xl font-black tracking-tighter">+{meal.calories} kcal</p>
+                      </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-muted/20 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" })} className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-10 text-[8px] font-black uppercase tracking-widest">
+                          GrabFood
+                        </Button>
+                        <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" })} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 text-[8px] font-black uppercase tracking-widest">
+                          GoFood
+                        </Button>
+                      </div>
+                      <Button onClick={() => handleOrderNow(meal)} variant="outline" className="w-full rounded-xl h-10 text-[8px] font-black uppercase tracking-widest border-primary/20 text-primary">
+                        Cook Myself
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

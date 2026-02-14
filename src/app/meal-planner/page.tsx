@@ -434,7 +434,7 @@ export default function MealPlannerPage() {
                 <Card className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white">
                   <CardContent className="p-8 space-y-8 text-left">
                     <section className="space-y-3">
-                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                         <Sparkles className="w-4 h-4" /> Expert Insight
                       </div>
                       <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
