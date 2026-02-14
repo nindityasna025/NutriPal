@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -15,7 +16,8 @@ import {
   Image as ImageIcon,
   RefreshCw,
   ChevronLeft,
-  X
+  X,
+  ArrowDown
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -23,6 +25,7 @@ import { format, startOfToday } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "upload">("choice")
@@ -175,40 +178,54 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 pt-safe min-h-screen">
-      <header className="text-center space-y-2 mb-10">
-        <h1 className="text-4xl font-black tracking-tighter uppercase text-foreground">Snap Meal</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Instant AI Expert Analysis</p>
+    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 pt-safe min-h-screen relative">
+      {/* Top Right Avatar Placeholder */}
+      <div className="absolute top-10 right-10 hidden md:block">
+        <Avatar className="h-10 w-10 border shadow-sm">
+          <AvatarFallback className="bg-muted text-muted-foreground font-black text-xs">N</AvatarFallback>
+        </Avatar>
+      </div>
+
+      <header className="text-center space-y-3 mb-12 animate-in fade-in duration-700">
+        <div className="inline-block border-[3px] border-foreground px-8 py-2 rounded-2xl mb-2">
+          <h1 className="text-4xl font-black tracking-tighter uppercase text-foreground">Snap Meal</h1>
+        </div>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-80">
+          Instant AI Expert Analysis
+        </p>
+        <div className="flex justify-center pt-2">
+          <ArrowDown className="w-5 h-5 text-foreground/20" />
+        </div>
       </header>
 
       {mode === "choice" && !preview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4 max-w-2xl mx-auto">
           <Card 
             onClick={startCamera}
-            className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.97]"
+            className="rounded-[4rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
           >
-            <CardContent className="p-14 flex flex-col items-center gap-8">
-              <div className="w-24 h-24 bg-primary/5 rounded-[2.5rem] flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
-                <Camera className="w-12 h-12 text-primary" />
+            <CardContent className="p-16 flex flex-col items-center gap-10">
+              <div className="w-24 h-24 bg-accent/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                <Camera className="w-10 h-10 text-primary" strokeWidth={2.5} />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-2xl font-black tracking-tight uppercase">Live Camera</h3>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Capture Now</p>
+                <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
+                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
               </div>
             </CardContent>
           </Card>
 
           <Card 
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.97]"
+            className="rounded-[4rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
           >
-            <CardContent className="p-14 flex flex-col items-center gap-8">
-              <div className="w-24 h-24 bg-accent/20 rounded-[2.5rem] flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
-                <ImageIcon className="w-12 h-12 text-accent-foreground" />
+            <CardContent className="p-16 flex flex-col items-center gap-10">
+              <div className="w-24 h-24 bg-accent/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                <ImageIcon className="w-10 h-10 text-primary" strokeWidth={2.5} />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-2xl font-black tracking-tight uppercase">Gallery</h3>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Upload Photo</p>
+                <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
+                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Upload Photo</p>
               </div>
             </CardContent>
           </Card>
@@ -217,7 +234,7 @@ export default function RecordPage() {
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start pt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start pt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <section className="space-y-8">
             <Card className="rounded-[4rem] border-none shadow-premium bg-white p-10 space-y-8">
               <div className="flex items-center justify-between mb-2">
