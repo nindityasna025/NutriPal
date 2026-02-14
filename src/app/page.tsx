@@ -324,47 +324,11 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Health Benefit Guide */}
-            <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-              <CardContent className="p-10 space-y-8">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center shrink-0">
-                    <Heart className="w-10 h-10 text-primary" />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-xl font-black tracking-tight uppercase">Health Benefit</h3>
-                    <p className="text-muted-foreground font-medium leading-relaxed">
-                      The Health Benefit score is a quick 0-100 rate of how healthy your meal is.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 bg-secondary/30 rounded-[2rem] space-y-3">
-                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                      <Sparkles className="w-3 h-3" /> The Formula
-                    </div>
-                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
-                      Behind the scenes, the algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins, and minerals. It also makes sure to help you stay away from ultra-processed foods, refined grains, added sugars, and sneaky trans fats.
-                    </p>
-                  </div>
-                  <div className="p-6 bg-primary/5 border border-primary/10 rounded-[2rem] space-y-3">
-                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                      <Trophy className="w-3 h-3" /> The Goal
-                    </div>
-                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
-                      The closer you get to a 100, the more balanced and nutrient-rich your meal is. It's an instant visual indicator of your nutritional quality for the day.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
 
-      {/* Daily Report */}
+      {/* Daily Food Report */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Food Report</h2>
         <div className="space-y-5">
@@ -404,7 +368,29 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.protein}g Protein</span></div>
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.carbs}g Carbs</span></div>
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.fat}g Fat</span></div>
-                        <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full"><Trophy className="w-3.5 h-3.5 text-primary" /><span className="text-[11px] font-black uppercase text-primary">{meal.healthScore}/100 Score</span></div>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
+                          <Trophy className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-[11px] font-black uppercase text-primary">{meal.healthScore}/100 Score</span>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full text-primary hover:bg-primary/20 ml-1">
+                                <Info className="w-2.5 h-2.5" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                  <Trophy className="w-4 h-4" /> Health Benefit Score
+                                </div>
+                                <p className="text-xs font-medium leading-relaxed text-foreground/80">
+                                  Health Benefit score is a quick 0-100 rate of how healthy your meal is.
+                                  Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
+                                  The closer to 100, the more nutrient-rich your meal is!
+                                </p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                       </div>
                     </div>
                     

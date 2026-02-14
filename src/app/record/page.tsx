@@ -251,7 +251,29 @@ export default function RecordPage() {
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2"><Trophy className="text-primary w-5 h-5" /><span className="text-lg font-black uppercase tracking-tight">Health Score</span></div>
+                     <div className="flex items-center gap-2">
+                       <Trophy className="text-primary w-5 h-5" />
+                       <span className="text-lg font-black uppercase tracking-tight">Health Score</span>
+                       <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary">
+                            <Info className="w-3.5 h-3.5" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                              <Trophy className="w-4 h-4" /> Health Benefit Score
+                            </div>
+                            <p className="text-xs font-medium leading-relaxed text-foreground/80">
+                              Health Benefit score is a quick 0-100 rate of how healthy your meal is.
+                              Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
+                              The closer to 100, the more nutrient-rich your meal is!
+                            </p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                     </div>
                      <div className="flex items-center gap-4">
                         <span className="text-2xl font-black text-primary">{result.healthScore}/100</span>
                         <Progress value={result.healthScore} className="w-24 h-2" />
