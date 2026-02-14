@@ -218,9 +218,18 @@ export default function Dashboard() {
                 <div style={{ width: `${fatPercent}%` }} className="bg-blue-500 h-full transition-all duration-700" />
               </div>
               <div className="grid grid-cols-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest gap-2">
-                <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-primary" /> {totals.protein}g Protein</div>
-                <div className="flex items-center gap-2 justify-center"><div className="w-2.5 h-2.5 rounded-full bg-accent" /> {totals.carbs}g Carbs</div>
-                <div className="flex items-center gap-2 justify-end"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /> {totals.fat}g Fat</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary" /> 
+                  {Math.round(proteinPercent)}% Protein
+                </div>
+                <div className="flex items-center gap-2 justify-center">
+                  <div className="w-2.5 h-2.5 rounded-full bg-accent" /> 
+                  {Math.round(carbsPercent)}% Carbs
+                </div>
+                <div className="flex items-center gap-2 justify-end">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500" /> 
+                  {Math.round(fatPercent)}% Fat
+                </div>
               </div>
             </div>
 
