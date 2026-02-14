@@ -15,11 +15,13 @@ import {
   Edit2,
   ChefHat,
   Camera,
-  X
+  X,
+  ShoppingBag,
+  ListOrdered
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
-import { generateRecipe } from "@/ai/flows/generate-recipe"
+import { generateRecipe, type GenerateRecipeOutput } from "@/ai/flows/generate-recipe"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, updateDoc, setDoc, deleteDoc } from "firebase/firestore"
 import { cn } from "@/lib/utils"
@@ -44,6 +46,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -61,7 +64,7 @@ export default function MealPlannerPage() {
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
   const [generatingRecipe, setGeneratingRecipe] = useState(false)
-  const [activeRecipe, setActiveRecipe] = useState<string | null>(null)
+  const [activeRecipe, setActiveRecipe] = useState<GenerateRecipeOutput | null>(null)
   const [activeRecipeName, setActiveRecipeName] = useState("")
 
   const { user } = useUser()
@@ -195,7 +198,7 @@ export default function MealPlannerPage() {
     setIsRecipeDialogOpen(true)
     try {
       const result = await generateRecipe({ mealName, dietaryRestrictions: profile?.dietaryRestrictions || [] })
-      setActiveRecipe(result.recipe)
+      setActiveRecipe(result)
     } catch (error: any) {
       console.error(error)
       toast({ variant: "destructive", title: "AI Error", description: "Could not fetch recipe instructions." })
@@ -391,17 +394,63 @@ export default function MealPlannerPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="p-6">
-            <ScrollArea className="h-[450px] pr-4">
+            <ScrollArea className="h-[500px] pr-4">
               {generatingRecipe ? (
-                <div className="flex flex-col items-center justify-center h-full space-y-4">
+                <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
                   <Loader2 className="w-10 h-10 animate-spin text-primary" />
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Formulating instructions...</p>
                 </div>
               ) : activeRecipe ? (
-                <div className="prose prose-sm prose-green max-w-none">
-                  <div className="whitespace-pre-wrap leading-relaxed font-bold text-foreground/80 text-sm">
-                    {activeRecipe}
-                  </div>
+                <div className="space-y-6">
+                  {/* AI Insight Card */}
+                  <Card className="border-none bg-primary/5 rounded-[1.5rem] shadow-sm">
+                    <CardContent className="p-6 space-y-3">
+                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                        <Sparkles className="w-4 h-4" /> AI Expert Insight
+                      </div>
+                      <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+                        {activeRecipe.insight}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Ingredients Card */}
+                  <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
+                    <CardContent className="p-6 space-y-4">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                        <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
+                      </div>
+                      <ul className="space-y-2">
+                        {activeRecipe.ingredients.map((ing, i) => (
+                          <li key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
+                            {ing}
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+
+                  {/* Instructions Card */}
+                  <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
+                    <CardContent className="p-6 space-y-4">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                        <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path
+                      </div>
+                      <div className="space-y-4">
+                        {activeRecipe.instructions.map((step, i) => (
+                          <div key={i} className="flex gap-4 items-start">
+                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary shrink-0">
+                              {i + 1}
+                            </div>
+                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-0.5">
+                              {step}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               ) : null}
             </ScrollArea>

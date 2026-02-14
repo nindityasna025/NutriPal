@@ -1,7 +1,9 @@
 'use server';
 
 /**
- * @fileOverview AI flow for generating a detailed recipe for a specific meal.
+ * @fileOverview AI flow for generating a structured recipe for a specific meal.
+ * 
+ * - generateRecipe - Generates a health-focused recipe with an insight, ingredients, and instructions.
  */
 
 import { ai } from '@/ai/genkit';
@@ -14,7 +16,9 @@ const GenerateRecipeInputSchema = z.object({
 export type GenerateRecipeInput = z.infer<typeof GenerateRecipeInputSchema>;
 
 const GenerateRecipeOutputSchema = z.object({
-  recipe: z.string().describe('A detailed, step-by-step recipe including ingredients and instructions.'),
+  insight: z.string().max(400).describe('A concise summary of health benefits and goal alignment (max 400 chars).'),
+  ingredients: z.array(z.string()).describe('List of necessary ingredients.'),
+  instructions: z.array(z.string()).describe('Step-by-step cooking instructions.'),
 });
 export type GenerateRecipeOutput = z.infer<typeof GenerateRecipeOutputSchema>;
 
@@ -26,18 +30,17 @@ const prompt = ai.definePrompt({
   name: 'generateRecipePrompt',
   input: { schema: GenerateRecipeInputSchema },
   output: { schema: GenerateRecipeOutputSchema },
-  prompt: `You are an expert nutritionist and chef. 
-Please generate a healthy, delicious, and easy-to-follow recipe for: "{{{mealName}}}".
+  prompt: `You are an expert AI Nutritionist and Chef. 
+Generate a healthy, delicious, and easy-to-follow recipe for: "{{{mealName}}}".
 
-Consider these dietary restrictions: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{else}}None{{/if}}.
+User's Dietary Context: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{else}}None{{/if}}.
 
-Please structure the response clearly with these EXACT section headers in bold:
-1. **🌟 AI INSIGHT** (Maximum 400 characters summary of health benefits and how this aligns with a healthy lifestyle)
-2. **🛒 INGREDIENTS** (Use bullet points)
-3. **👨‍🍳 INSTRUCTIONS** (Use numbered steps)
+Requirements:
+1. The "insight" must combine the health benefits of this meal and explain how it supports a balanced lifestyle. It MUST NOT exceed 400 characters.
+2. The "ingredients" should be a clear list.
+3. The "instructions" should be sequential and easy to follow.
 
-Keep the tone professional yet encouraging. Avoid long paragraphs; use clear spacing between sections.
-CRITICAL: The AI INSIGHT section MUST NOT exceed 400 characters.`,
+Provide the response in the specified structured JSON format.`,
 });
 
 const generateRecipeFlow = ai.defineFlow(
@@ -48,6 +51,7 @@ const generateRecipeFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    return output!;
+    if (!output) throw new Error("AI failed to generate recipe.");
+    return output;
   }
 );
