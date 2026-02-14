@@ -9,12 +9,12 @@ import { useUser } from "@/firebase"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-// Reordered navItems: Snap now comes before Explore as requested
+// Reordered navItems: Home, Plan, Snap, Explore
 const navItems = [
   { href: "/", label: "Home", icon: LayoutDashboard },
+  { href: "/meal-planner", label: "Plan", icon: Utensils },
   { href: "/record", label: "Snap", icon: Camera },
   { href: "/planner", label: "Explore", icon: Sparkles },
-  { href: "/meal-planner", label: "Plan", icon: Utensils },
 ]
 
 export function Navbar() {
