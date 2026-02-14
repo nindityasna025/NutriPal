@@ -4,18 +4,16 @@
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { 
   Camera, 
   Sparkles, 
   Loader2, 
   ChevronRight,
-  Image as ImageIcon,
   RefreshCw,
   ChevronLeft,
-  Calendar as CalendarIcon,
-  Trophy
+  Trophy,
+  ScanSearch
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -23,28 +21,18 @@ import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
-  const [mode, setMode] = useState<"choice" | "camera" | "upload">("choice")
-  const [file, setFile] = useState<File | null>(null)
+  const [mode, setMode] = useState<"choice" | "camera">("choice")
   const [preview, setFilePreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useUser()
   const firestore = useFirestore()
 
@@ -81,21 +69,6 @@ export default function RecordPage() {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0]
-    if (selected) {
-      setFile(selected)
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFilePreview(reader.result as string);
-        setMode("upload")
-      };
-      reader.readAsDataURL(selected);
-      setResult(null)
-      stopCamera()
-    }
-  }
-
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
@@ -115,10 +88,8 @@ export default function RecordPage() {
   const resetAll = () => {
     stopCamera()
     setMode("choice")
-    setFile(null)
     setFilePreview(null)
     setResult(null)
-    setSelectedDate(new Date())
   }
 
   const handleAnalyze = async () => {
@@ -143,8 +114,9 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    const dateId = format(selectedDate, "yyyy-MM-dd")
-    const timeStr = format(new Date(), "hh:mm a")
+    const today = new Date()
+    const dateId = format(today, "yyyy-MM-dd")
+    const timeStr = format(today, "hh:mm a")
     
     try {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -159,7 +131,7 @@ export default function RecordPage() {
         name: result.name,
         calories: result.calories,
         time: timeStr,
-        source: mode === "upload" ? "manual" : "photo",
+        source: "photo",
         macros: result.macros,
         healthScore: result.healthScore,
         description: result.description,
@@ -167,7 +139,7 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${format(selectedDate, 'MMM d')}.` })
+      toast({ title: "Logged Successfully", description: `${result.name} recorded to your dashboard.` })
       resetAll()
     } catch (e) {
       console.error(e)
@@ -186,37 +158,21 @@ export default function RecordPage() {
       </header>
 
       {mode === "choice" && !preview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+        <div className="pt-4 max-w-xl mx-auto md:mx-0">
           <Card 
             onClick={startCamera}
             className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
           >
             <CardContent className="p-12 flex flex-col items-center gap-8">
-              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
                 <Camera className="w-8 h-8 text-primary" strokeWidth={2.5} />
               </div>
               <div className="text-center space-y-1">
                 <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
+                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Your Meal Now</p>
               </div>
             </CardContent>
           </Card>
-
-          <Card 
-            onClick={() => fileInputRef.current?.click()}
-            className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
-          >
-            <CardContent className="p-12 flex flex-col items-center gap-8">
-              <div className="w-20 h-20 bg-accent/20 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                <ImageIcon className="w-8 h-8 text-accent-foreground" strokeWidth={2.5} />
-              </div>
-              <div className="text-center space-y-1">
-                <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Upload Photo</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
         </div>
       )}
 
@@ -228,25 +184,6 @@ export default function RecordPage() {
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
-
-                {mode === "upload" && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white shadow-sm")}>
-                        <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
-                        {format(selectedDate, "PPP")}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(date) => date && setSelectedDate(date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
               </div>
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
@@ -327,7 +264,7 @@ export default function RecordPage() {
             ) : (
               <div className="h-[500px] border border-dashed border-border/40 rounded-[3rem] flex flex-col items-center justify-center p-14 text-center bg-white/30 backdrop-blur-sm">
                 <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-premium mb-8">
-                  <Sparkles className="w-10 h-10 text-primary/10" />
+                  <ScanSearch className="w-10 h-10 text-primary/10" />
                 </div>
                 <div className="space-y-3">
                   <p className="text-muted-foreground font-black uppercase text-xs tracking-[0.3em]">Awaiting Content</p>
