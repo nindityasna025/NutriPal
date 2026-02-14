@@ -230,7 +230,7 @@ export default function RecordPage() {
       {(mode !== "choice" || preview) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
           <section className="space-y-8">
-            <Card className="rounded-[3rem] border-none shadow-premium bg-white p-8 space-y-8">
+            <Card className="rounded-[3rem] border-none shadow-premium bg-white p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
@@ -239,6 +239,28 @@ export default function RecordPage() {
                   Secure Sync
                 </div>
               </div>
+
+              {!result && (
+                <div className="flex items-center justify-between px-2 py-2 bg-secondary/20 rounded-2xl">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Meal Date</span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white")}>
+                        <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
+                        {format(selectedDate, "PPP")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => date && setSelectedDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && (
@@ -264,31 +286,10 @@ export default function RecordPage() {
               )}
               
               {preview && !result && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between px-2">
-                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Meal Date</span>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30")}>
-                          <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
-                          {format(selectedDate, "PPP")}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) => date && setSelectedDate(date)}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
-                    {analyzing ? <Loader2 className="animate-spin mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
-                    {analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}
-                  </Button>
-                </div>
+                <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
+                  {analyzing ? <Loader2 className="animate-spin mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
+                  {analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}
+                </Button>
               )}
             </Card>
           </section>
