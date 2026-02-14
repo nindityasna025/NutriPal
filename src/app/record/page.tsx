@@ -178,37 +178,25 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 pt-safe min-h-screen relative">
-      {/* Top Right Avatar Placeholder */}
-      <div className="absolute top-10 right-10 hidden md:block">
-        <Avatar className="h-10 w-10 border shadow-sm">
-          <AvatarFallback className="bg-muted text-muted-foreground font-black text-xs">N</AvatarFallback>
-        </Avatar>
-      </div>
-
-      <header className="text-center space-y-3 mb-12 animate-in fade-in duration-700">
-        <div className="inline-block border-[3px] border-foreground px-8 py-2 rounded-2xl mb-2">
-          <h1 className="text-4xl font-black tracking-tighter uppercase text-foreground">Snap Meal</h1>
-        </div>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-80">
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32 pt-safe min-h-screen relative">
+      <header className="space-y-1 animate-in fade-in duration-700">
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           Instant AI Expert Analysis
         </p>
-        <div className="flex justify-center pt-2">
-          <ArrowDown className="w-5 h-5 text-foreground/20" />
-        </div>
       </header>
 
       {mode === "choice" && !preview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           <Card 
             onClick={startCamera}
-            className="rounded-[4rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
+            className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
           >
-            <CardContent className="p-16 flex flex-col items-center gap-10">
-              <div className="w-24 h-24 bg-accent/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                <Camera className="w-10 h-10 text-primary" strokeWidth={2.5} />
+            <CardContent className="p-12 flex flex-col items-center gap-8">
+              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                <Camera className="w-8 h-8 text-primary" strokeWidth={2.5} />
               </div>
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-1">
                 <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
                 <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
               </div>
@@ -217,13 +205,13 @@ export default function RecordPage() {
 
           <Card 
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-[4rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
+            className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
           >
-            <CardContent className="p-16 flex flex-col items-center gap-10">
-              <div className="w-24 h-24 bg-accent/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                <ImageIcon className="w-10 h-10 text-primary" strokeWidth={2.5} />
+            <CardContent className="p-12 flex flex-col items-center gap-8">
+              <div className="w-20 h-20 bg-accent/20 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                <ImageIcon className="w-8 h-8 text-accent-foreground" strokeWidth={2.5} />
               </div>
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-1">
                 <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
                 <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Upload Photo</p>
               </div>
@@ -234,19 +222,19 @@ export default function RecordPage() {
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start pt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
           <section className="space-y-8">
-            <Card className="rounded-[4rem] border-none shadow-premium bg-white p-10 space-y-8">
-              <div className="flex items-center justify-between mb-2">
-                <Button variant="ghost" onClick={resetAll} className="rounded-full h-12 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:bg-secondary">
+            <Card className="rounded-[3rem] border-none shadow-premium bg-white p-8 space-y-8">
+              <div className="flex items-center justify-between">
+                <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
-                <div className="flex items-center gap-2 px-5 py-2 bg-primary/10 rounded-full text-primary font-black text-[9px] uppercase tracking-widest">
+                <div className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full text-primary font-black text-[9px] uppercase tracking-widest">
                   Secure Sync
                 </div>
               </div>
 
-              <div className="relative border-2 border-dashed border-primary/10 rounded-[3.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner group">
+              <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && (
                   <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
                 )}
@@ -255,7 +243,7 @@ export default function RecordPage() {
                   <div className="relative w-full h-full animate-in fade-in duration-500">
                     <Image src={preview} alt="Meal Preview" fill className="object-cover" />
                     {!result && (
-                      <Button variant="secondary" size="icon" onClick={() => setFilePreview(null)} className="absolute top-6 right-6 rounded-full bg-white/90 shadow-premium active:scale-90 transition-transform">
+                      <Button variant="secondary" size="icon" onClick={() => setFilePreview(null)} className="absolute top-4 right-4 rounded-full bg-white/90 shadow-premium active:scale-90 transition-transform">
                         <RefreshCw className="w-5 h-5 text-primary" />
                       </Button>
                     )}
@@ -264,13 +252,13 @@ export default function RecordPage() {
               </div>
 
               {mode === "camera" && !preview && (
-                <Button onClick={capturePhoto} className="w-full h-18 rounded-[2.5rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
+                <Button onClick={capturePhoto} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
                   CAPTURE PHOTO
                 </Button>
               )}
               
               {preview && !result && (
-                <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-18 rounded-[2.5rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
+                <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
                   {analyzing ? <Loader2 className="animate-spin mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
                   {analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}
                 </Button>
@@ -281,7 +269,7 @@ export default function RecordPage() {
           <section className="space-y-8">
             {result ? (
               <div className="animate-in slide-in-from-right-8 duration-700">
-                <Card className="rounded-[4rem] border-none shadow-premium bg-white p-10 space-y-10">
+                <Card className="rounded-[3rem] border-none shadow-premium bg-white p-10 space-y-10">
                   <div className="flex justify-between items-start border-b border-muted/20 pb-8">
                     <div className="space-y-1.5">
                       <span className="text-[10px] font-black uppercase text-primary tracking-widest opacity-60">AI Nutritionist</span>
@@ -293,9 +281,9 @@ export default function RecordPage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="p-6 bg-primary/5 rounded-[2.5rem] text-center"><p className="text-[9px] font-black text-primary uppercase mb-1.5 tracking-widest">Pro</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
-                    <div className="p-6 bg-accent/20 rounded-[2.5rem] text-center"><p className="text-[9px] font-black text-accent-foreground uppercase mb-1.5 tracking-widest">Cho</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-6 bg-blue-50 rounded-[2.5rem] text-center"><p className="text-[9px] font-black text-blue-500 uppercase mb-1.5 tracking-widest">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
+                    <div className="p-6 bg-primary/5 rounded-[2rem] text-center"><p className="text-[9px] font-black text-primary uppercase mb-1.5 tracking-widest">Pro</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
+                    <div className="p-6 bg-accent/20 rounded-[2rem] text-center"><p className="text-[9px] font-black text-accent-foreground uppercase mb-1.5 tracking-widest">Cho</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-6 bg-blue-50 rounded-[2rem] text-center"><p className="text-[9px] font-black text-blue-500 uppercase mb-1.5 tracking-widest">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
                   </div>
 
                   <div className="space-y-5">
@@ -309,18 +297,18 @@ export default function RecordPage() {
                     <Progress value={result.healthScore} className="h-4 rounded-full" />
                   </div>
 
-                  <div className="space-y-3 p-6 bg-secondary/20 rounded-[2.5rem]">
+                  <div className="space-y-3 p-6 bg-secondary/20 rounded-[2rem]">
                     <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Dietary Insight</p>
                     <p className="text-sm font-bold leading-relaxed italic text-foreground/80 opacity-90">"{result.description}"</p>
                   </div>
 
-                  <Button onClick={handleSave} className="w-full h-18 rounded-[2.5rem] font-black text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
+                  <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
                     LOG TO DASHBOARD <ChevronRight className="w-6 h-6 ml-3" />
                   </Button>
                 </Card>
               </div>
             ) : (
-              <div className="h-[600px] border-2 border-dashed border-border/40 rounded-[4rem] flex flex-col items-center justify-center p-14 text-center bg-white/30 backdrop-blur-sm">
+              <div className="h-[500px] border border-dashed border-border/40 rounded-[3rem] flex flex-col items-center justify-center p-14 text-center bg-white/30 backdrop-blur-sm">
                 <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-premium mb-8">
                   <Sparkles className="w-10 h-10 text-primary/10" />
                 </div>
@@ -333,6 +321,7 @@ export default function RecordPage() {
           </section>
         </div>
       )}
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   )
 }
