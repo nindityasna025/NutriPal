@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -134,7 +135,6 @@ export default function MealPlannerPage() {
       let healthScore = 85
       let finalIngredients: string[] = ingredients.split(",").map(i => i.trim()).filter(i => i !== "")
 
-      // AI Analysis for NEW meals
       if (!editingMealId) {
         let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
         if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
@@ -251,7 +251,6 @@ export default function MealPlannerPage() {
     setGeneratingRecipe(true)
     setIsRecipeDialogOpen(true)
     
-    // Simulate recipe generation based on identified ingredients
     setTimeout(() => {
       setActiveRecipe({
         insight: meal.expertInsight || "A balanced meal designed for your specific health targets.",
@@ -270,29 +269,29 @@ export default function MealPlannerPage() {
   if (!mounted || !date) return null
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative animate-in fade-in duration-700">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6 space-y-8 pb-32 min-h-screen relative animate-in fade-in duration-700 overflow-x-hidden">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Strategic Daily Menu</p>
       </header>
       
-      <div className="flex flex-wrap items-center gap-6 justify-center">
-        <Button variant="outline" onClick={handleToday} className="rounded-full h-12 px-10 font-black uppercase text-[11px] tracking-widest border-2 border-border shadow-sm hover:bg-secondary transition-all text-foreground">
+      <div className="flex flex-wrap items-center gap-4 justify-center">
+        <Button variant="outline" onClick={handleToday} className="rounded-full h-10 px-6 font-black uppercase text-[9px] tracking-widest border-2 border-border shadow-sm hover:bg-secondary transition-all text-foreground">
           Today
         </Button>
         
-        <div className="flex items-center bg-white rounded-full border-2 border-border shadow-sm p-1.5">
-          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary"><ChevronLeft className="h-6 w-6 text-foreground" /></Button>
-          <div className="px-8 font-black text-[11px] uppercase tracking-widest min-w-[180px] text-center text-foreground">
+        <div className="flex items-center bg-white rounded-full border-2 border-border shadow-sm p-1">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-8 w-8 rounded-full hover:bg-secondary"><ChevronLeft className="h-5 w-5 text-foreground" /></Button>
+          <div className="px-4 font-black text-[9px] uppercase tracking-widest min-w-[140px] text-center text-foreground">
             {format(date, "EEEE, MMM d")}
           </div>
-          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary"><ChevronRight className="h-6 w-6 text-foreground" /></Button>
+          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-8 w-8 rounded-full hover:bg-secondary"><ChevronRight className="h-5 w-5 text-foreground" /></Button>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button className="rounded-full bg-primary text-foreground hover:bg-primary/90 h-12 px-10 font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 border-none">
-              <Plus className="w-5 h-5 mr-3" /> Add Meal
+            <Button className="rounded-full bg-primary text-foreground hover:bg-primary/90 h-10 px-8 font-black uppercase text-[9px] tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 border-none">
+              <Plus className="w-4 h-4 mr-2" /> Add Meal
             </Button>
           </DialogTrigger>
           <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col">
@@ -378,81 +377,81 @@ export default function MealPlannerPage() {
         </Dialog>
       </div>
 
-      <section className="space-y-8">
-        <h2 className="text-xl font-black tracking-tighter flex items-center gap-4 px-2 uppercase text-left text-foreground">
-          <Clock className="w-7 h-7 text-foreground opacity-80" />
+      <section className="space-y-4">
+        <h2 className="text-[11px] font-black tracking-[0.2em] flex items-center gap-3 px-2 uppercase text-left text-foreground opacity-60">
+          <Clock className="w-4 h-4 text-foreground" />
           YOUR SCHEDULE
         </h2>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {isLoadingMeals ? (
-            <div className="flex justify-center py-32"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>
+            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
           ) : scheduledMeals && scheduledMeals.length > 0 ? (
               sortedMeals.map((meal) => (
-                <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
-                  <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-6 flex-1 w-full">
-                       <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
-                         <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
+                <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden hover:shadow-premium-lg transition-all group">
+                  <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-1 w-full">
+                       <div className="text-left min-w-[70px] border-r border-border/50 pr-4 hidden sm:block">
+                         <p className="text-[13px] font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                        </div>
-                       <div className="space-y-2 flex-1 text-left">
-                          <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                       <div className="space-y-1 flex-1 text-left">
+                          <h3 className="text-sm font-black tracking-tight uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                             {meal.name}
                           </h3>
-                          <div className="flex flex-row items-center gap-6">
-                             <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
-                             <div className="flex flex-wrap items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
-                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
+                          <div className="flex flex-row items-center gap-4">
+                             <p className="text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                             <div className="flex flex-wrap items-center gap-3">
+                                <div className="flex items-center gap-1.5">
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
+                                  <span className="text-[8px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
-                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
+                                <div className="flex items-center gap-1.5">
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
+                                  <span className="text-[8px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
-                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
+                                <div className="flex items-center gap-1.5">
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
+                                  <span className="text-[8px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
                                 </div>
                              </div>
                           </div>
                        </div>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                       <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-xl h-10 w-10 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-5 h-5" /></Button>
-                       <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-xl h-10 w-10 border border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-4 h-4" /></Button>
-                       <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-xl h-10 w-10 border border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-4 h-4" /></Button>
+                    <div className="flex items-center gap-2 shrink-0">
+                       <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-lg h-8 w-8 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-4 h-4" /></Button>
+                       <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-lg h-8 w-8 border border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-3.5 h-3.5" /></Button>
+                       <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-lg h-8 w-8 border border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-3.5 h-3.5" /></Button>
                     </div>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <div className="text-center py-40 bg-white/50 rounded-[4rem] border-4 border-dashed border-border/30 flex flex-col items-center justify-center shadow-sm px-10">
-                <Utensils className="w-24 h-24 mb-8 text-foreground opacity-10" />
-                <p className="text-foreground opacity-60 font-black text-2xl uppercase tracking-tighter">Your timeline is clear.</p>
-                <p className="text-[12px] text-foreground opacity-30 font-black uppercase tracking-[0.5em] mt-4">PLAN A MEAL BELOW</p>
+              <div className="text-center py-16 bg-white/50 rounded-[2.5rem] border-2 border-dashed border-border/30 flex flex-col items-center justify-center shadow-sm px-6">
+                <Utensils className="w-12 h-12 mb-4 text-foreground opacity-10" />
+                <p className="text-foreground opacity-60 font-black text-lg uppercase tracking-tighter">Your timeline is clear.</p>
+                <p className="text-[10px] text-foreground opacity-30 font-black uppercase tracking-[0.4em] mt-2">PLAN A MEAL BELOW</p>
               </div>
             )}
         </div>
       </section>
 
-      <section className="pt-12">
+      <section className="pt-2">
         <Link href="/planner">
-          <Card className="rounded-[4rem] bg-primary/25 border-4 border-primary/40 text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]">
-            <CardContent className="p-12 sm:p-16 flex flex-col sm:flex-row items-center justify-between gap-12">
-              <div className="flex items-center gap-12 flex-1">
-                <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0 border-2 border-primary/30">
-                  <Sparkles className="w-12 h-12 text-primary" />
+          <Card className="rounded-[2.5rem] bg-primary/20 border-2 border-primary/30 text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]">
+            <CardContent className="p-6 sm:p-8 flex flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6 flex-1">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0 border border-primary/20">
+                  <Sparkles className="w-6 h-6 text-primary" />
                 </div>
-                <div className="space-y-3 text-left">
-                  <p className="text-[12px] font-black uppercase text-foreground opacity-70 tracking-[0.5em] mb-1">FEELING INDECISIVE?</p>
-                  <h3 className="text-3xl font-black uppercase tracking-tighter leading-none text-foreground">AI DECISION HUB</h3>
-                  <p className="text-foreground opacity-80 font-black text-sm uppercase tracking-widest leading-relaxed max-w-md">
-                    LET AI ANALYZE DELIVERY DEALS OR CURATE A MENU INSTANTLY.
+                <div className="space-y-1 text-left">
+                  <p className="text-[9px] font-black uppercase text-foreground opacity-70 tracking-[0.3em] mb-0.5">FEELING INDECISIVE?</p>
+                  <h3 className="text-xl font-black uppercase tracking-tighter leading-none text-foreground">AI DECISION HUB</h3>
+                  <p className="text-foreground opacity-60 font-black text-[9px] uppercase tracking-widest leading-relaxed max-w-[200px] hidden sm:block">
+                    LET AI ANALYZE DEALS OR CURATE A MENU INSTANTLY.
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 bg-primary text-foreground px-10 h-16 rounded-[1.5rem] font-black uppercase text-[12px] tracking-widest shadow-2xl shadow-primary/30 group-hover:bg-primary/90 transition-all border-none">
-                EXPLORE AI HUB <ChevronRightIcon className="w-6 h-6" />
+              <div className="flex items-center gap-3 bg-primary text-foreground px-6 h-10 rounded-xl font-black uppercase text-[9px] tracking-widest shadow-xl shadow-primary/20 group-hover:bg-primary/90 transition-all border-none shrink-0">
+                EXPLORE <ChevronRightIcon className="w-4 h-4" />
               </div>
             </CardContent>
           </Card>
