@@ -392,7 +392,7 @@ export default function Dashboard() {
       {/* Action Hub */}
       <div className="flex gap-6 pt-6">
         <Button 
-          onClick={() => router.push("/planner")}
+          onClick={() => router.push("/record")}
           className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-primary text-primary-foreground shadow-ios-lg hover:shadow-ios-lg transition-all active:scale-95 group"
         >
           <div className="p-4 bg-white/10 rounded-2xl group-hover:scale-110 transition-transform">
@@ -402,13 +402,13 @@ export default function Dashboard() {
         </Button>
         <Button 
           variant="secondary"
-          onClick={() => router.push("/meal-planner")}
+          onClick={() => router.push("/planner")}
           className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-white text-primary border-none shadow-ios hover:shadow-ios-lg transition-all active:scale-95 group"
         >
           <div className="p-4 bg-primary/5 rounded-2xl group-hover:scale-110 transition-transform">
-            <Calendar className="w-8 h-8" />
+            <Sparkles className="w-8 h-8" />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em]">Plan Day</span>
+          <span className="font-black text-xs uppercase tracking-[0.2em]">Explore Deals</span>
         </Button>
       </div>
 
