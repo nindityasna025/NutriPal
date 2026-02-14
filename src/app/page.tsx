@@ -56,9 +56,9 @@ import {
 
 // Standardized Macro Colors - Consistent across app
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Deep Forest Green
-  carbs: "hsl(38 92% 50%)",      // Warm Amber
-  fat: "hsl(var(--accent))",     // Soft Teal
+  protein: "hsl(var(--primary))", // Forest Green
+  carbs: "hsl(38 92% 50%)",      // Amber
+  fat: "hsl(var(--accent))",     // Teal
 }
 
 const chartConfig = {
@@ -111,7 +111,6 @@ export default function Dashboard() {
       const gramsCarbs = 60 + Math.floor(Math.random() * 40)
       const gramsFat = 20 + Math.floor(Math.random() * 15)
       
-      // kcal = (protein × 4) + (carbohydrates × 4) + (fat × 9)
       data.push({
         date: format(d, "MMM d"),
         protein: gramsProtein * 4,
@@ -138,7 +137,7 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
-  // Sort meals from pagi (morning) to malam (night)
+  // Chronological sort: pagi to malam
   const sortedMeals = useMemo(() => {
     if (!meals) return null;
     return [...meals].sort((a, b) => {
@@ -169,7 +168,6 @@ export default function Dashboard() {
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = totals.calories
-  const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.8
   
   const actualPercent = Math.round((consumed / calorieTarget) * 100)
@@ -272,7 +270,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-0.5">
               <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Burned</p>
-              <p className="text-3xl font-black tracking-tighter">{burned} <span className="text-[10px] font-bold text-muted-foreground">kcal</span></p>
+              <p className="text-3xl font-black tracking-tighter">{dailyLog?.caloriesBurned || 450} <span className="text-[10px] font-bold text-muted-foreground">kcal</span></p>
             </div>
           </Card>
 
@@ -318,7 +316,6 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9, fontWeight: 600 }}
                     unit="kcal"
-                    label={{ value: 'Kcal', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: 700, fill: 'hsl(var(--muted-foreground))', fontSize: 10 } }}
                   />
                   <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
                   <ChartLegend content={<ChartLegendContent />} className="pt-6" />
@@ -441,23 +438,6 @@ export default function Dashboard() {
           <span className="font-black text-xs uppercase tracking-[0.3em]">Explore Healthy Picks</span>
         </Button>
       </div>
-
-      <Card className="rounded-[3rem] border-none shadow-premium-lg bg-primary text-primary-foreground p-8 sm:p-12 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:rotate-6 transition-transform duration-1000 hidden lg:block">
-          <Sparkles className="w-48 h-48" />
-        </div>
-        <div className="relative z-10 space-y-6 max-w-2xl text-center lg:text-left">
-          <div className="flex flex-col lg:flex-row items-center gap-4">
-             <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-xl shrink-0 shadow-inner">
-               <Sparkles className="w-6 h-6" />
-             </div>
-             <h2 className="text-xl font-black uppercase tracking-tight text-left">AI Health Whisper</h2>
-          </div>
-          <p className="text-xl sm:text-2xl font-bold leading-tight opacity-90 italic text-left">
-            "Your macro balance is perfectly aligned with your recovery goals. Increase water intake by 0.5L this afternoon to maximize metabolic efficiency."
-          </p>
-        </div>
-      </Card>
     </div>
   )
 }
