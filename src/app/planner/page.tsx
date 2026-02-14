@@ -109,12 +109,17 @@ export default function ExplorePage() {
         }
 
         return matchesRestrictions && fitsBmi;
-      }).map(item => ({
-        ...item,
-        reasoning: `Matched to your ${profile.bmiCategory || 'Profile'} category. This meal optimizes your ${profile.calorieTarget || 2000}kcal daily limit.`
-      }));
+      });
 
-      setCuratedResult(filtered.slice(0, 3));
+      // Pick exactly 2 matches: One for GrabFood and One for GoFood
+      const grabMatch = filtered.find(item => item.platform === "GrabFood");
+      const goMatch = filtered.find(item => item.platform === "GoFood");
+
+      const finalCurated = [];
+      if (grabMatch) finalCurated.push({ ...grabMatch, reasoning: `Top GrabFood match for your ${profile.bmiCategory || 'Profile'}. Optimizes your ${profile.calorieTarget || 2000}kcal daily limit.` });
+      if (goMatch) finalCurated.push({ ...goMatch, reasoning: `Top GoFood match for your ${profile.bmiCategory || 'Profile'}. Fits perfectly with your ${profile.calorieTarget || 2000}kcal daily goal.` });
+
+      setCuratedResult(finalCurated);
       setLoadingDelivery(false);
     }, 800);
   }
