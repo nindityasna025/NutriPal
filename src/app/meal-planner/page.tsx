@@ -215,7 +215,6 @@ export default function MealPlannerPage() {
       if (editingMealId) {
         const oldMeal = scheduledMeals?.find(m => m.id === editingMealId)
         if (oldMeal && oldMeal.status === "consumed") {
-          // Only update daily log if the meal was already consumed
           setDocumentNonBlocking(dailyLogRef, {
             caloriesConsumed: increment(finalCalories - (oldMeal.calories || 0)),
             proteinTotal: increment(finalProtein - (oldMeal.macros?.protein || 0)),
@@ -227,7 +226,6 @@ export default function MealPlannerPage() {
         toast({ title: "Schedule Updated", description: "Changes synced to your daily plan." })
       } else {
         addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
-        // NOTE: We DO NOT update dailyLog aggregates here because it's only "planned"
         toast({ title: "Meal Scheduled", description: `${mealName} added as planned.` })
       }
       resetForm()
@@ -493,14 +491,6 @@ export default function MealPlannerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {meal.status !== 'consumed' && (
-                        <Button 
-                          onClick={() => markAsConsumed(meal)}
-                          className="h-9 px-4 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 font-black uppercase text-[8px] tracking-widest border border-primary/20"
-                        >
-                          EAT NOW
-                        </Button>
-                      )}
                       {meal.source !== 'GrabFood' && meal.source !== 'GoFood' && (
                         <Button 
                           variant="ghost" 

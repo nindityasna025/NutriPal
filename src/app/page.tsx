@@ -157,7 +157,6 @@ export default function Dashboard() {
 
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    // Only count CONSUMED meals in daily totals
     return meals.filter(m => m.status === 'consumed').reduce((acc, meal) => ({
       calories: acc.calories + (meal.calories || 0),
       protein: acc.protein + (meal.macros?.protein || 0),
@@ -403,13 +402,9 @@ export default function Dashboard() {
                             <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                               {meal.name}
                             </h3>
-                            {meal.status === 'consumed' ? (
+                            {meal.status === 'consumed' && (
                               <Badge className="h-5 px-2 text-[8px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20">
                                 <CheckCircle2 className="w-3 h-3 mr-1" /> CONSUMED
-                              </Badge>
-                            ) : (
-                               <Badge className="h-5 px-2 text-[8px] font-black uppercase bg-primary/10 text-primary border-primary/20">
-                                PLANNED
                               </Badge>
                             )}
                             {meal.reminderEnabled && meal.status !== 'consumed' && (
