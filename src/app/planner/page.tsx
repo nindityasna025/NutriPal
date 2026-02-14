@@ -23,9 +23,9 @@ import {
   Plus,
   CheckCircle2
 } from "lucide-react"
-import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
-import { format, startOfToday } from "date-fns"
+import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -39,9 +39,9 @@ import {
 
 // Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
-  protein: "#BFDCCB", // Pastel Green
-  carbs: "#F3F8C6",   // Warm Amber/Light
-  fat: "#DCE96A",     // Soft Lime
+  protein: "hsl(var(--primary))", // Forest Green
+  carbs: "hsl(38 92% 50%)",      // Amber
+  fat: "hsl(var(--accent))",     // Teal
 }
 
 const SCRAPED_DATABASE = [
@@ -171,7 +171,6 @@ export default function ExplorePage() {
     }
 
     toast({ title: "Schedule Synced", description: `${item.name} added to your plan.` })
-    
     setIsDeliveryOpen(false)
     setIsMenuOpen(false)
     router.push("/")
@@ -217,35 +216,36 @@ export default function ExplorePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
-        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Decision Hub</p>
+        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40">Decision Hub</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4">
+        {/* Delivery Hub Trigger */}
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-primary/20 rounded-[2.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
-                 <Bike className="w-12 h-12 text-primary" />
+            <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
+              <div className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
+                 <Bike className="w-10 h-10 text-primary" />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 text-center">
                 <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Delivery Hub</h3>
-                <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight">
+                <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight opacity-60">
                   Real-time curation from GrabFood & GoFood based on your profile.
                 </p>
               </div>
-              <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-primary shadow-sm text-primary-foreground">Analyze Ecosystem</Button>
+              <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-primary text-primary-foreground">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-primary p-7 text-primary-foreground shrink-0 text-center relative rounded-t-[3rem]">
+            <DialogHeader className="bg-primary p-8 text-primary-foreground shrink-0 text-center rounded-t-[3rem]">
               <DialogTitle className="text-lg font-black uppercase tracking-widest text-center">AI Curation: Delivery Hub</DialogTitle>
             </DialogHeader>
-            <div className="p-8 overflow-y-auto flex-1">
+            <div className="p-10 overflow-y-auto flex-1 no-scrollbar">
               <div className="space-y-10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
                   <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase text-foreground">Top Matches</h2>
-                  <div className="flex items-center gap-4 bg-secondary rounded-full px-6 h-12 border border-muted shadow-inner">
-                    <div className="flex items-center gap-2.5 border-r border-muted/50 pr-4">
+                  <div className="flex items-center gap-4 bg-secondary rounded-full px-6 h-12 border border-border">
+                    <div className="flex items-center gap-2.5 border-r border-border pr-4">
                       <CalendarIcon className="w-4 h-4 text-primary" />
                       <input 
                         type="date" 
@@ -266,14 +266,14 @@ export default function ExplorePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   {loading ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
                       <Loader2 className="w-12 h-12 animate-spin text-primary" />
                       <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">Scanning Platforms...</p>
                     </div>
                   ) : deliveryResult?.map((item) => (
-                    <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-8 overflow-hidden flex flex-col active:scale-[0.99]">
+                    <Card key={item.id} className="rounded-[2.5rem] border border-border shadow-premium bg-white group transition-all ring-primary/10 hover:ring-8 overflow-hidden flex flex-col">
                       <CardContent className="p-8 flex flex-col h-full space-y-6">
                         <div className="space-y-5 flex-1 text-left">
                           <div className="space-y-1.5">
@@ -281,34 +281,34 @@ export default function ExplorePage() {
                               <TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Rank
                             </div>
                             <h3 className="text-xl font-black tracking-tight leading-tight uppercase text-foreground">{item.name}</h3>
-                            <p className="text-[11px] font-black text-muted-foreground/60 uppercase tracking-widest">{item.restaurant}</p>
+                            <p className="text-[11px] font-black text-muted-foreground opacity-50 uppercase tracking-widest">{item.restaurant}</p>
                           </div>
                           
                           <div className="flex gap-2 flex-wrap">
-                            <Badge className="rounded-xl px-4 py-1 bg-primary text-primary-foreground border-none font-black text-[9px] uppercase">+{item.calories} kcal</Badge>
+                            <Badge className="rounded-xl px-4 py-1.5 bg-primary text-primary-foreground border-none font-black text-[9px] uppercase">+{item.calories} kcal</Badge>
                             {item.tags.map((tag: string, i: number) => (
-                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1 border-muted text-muted-foreground font-black text-[9px] uppercase">{tag}</Badge>
+                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1.5 border-border text-muted-foreground font-black text-[9px] uppercase">{tag}</Badge>
                             ))}
                           </div>
 
-                          <div className="bg-primary/5 p-5 rounded-[1.5rem] border border-primary/10">
+                          <div className="bg-primary/10 p-5 rounded-[1.5rem] border border-primary/20">
                             <p className="text-[12px] font-black leading-relaxed italic text-foreground/80">"{item.reasoning}"</p>
                           </div>
                         </div>
 
-                        <div className="pt-6 border-t border-muted/30 space-y-5">
+                        <div className="pt-6 border-t border-border space-y-6">
                           <div className="grid grid-cols-3 gap-3">
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase">Protein</p>
-                               <p className="text-lg font-black" style={{ color: "#7FB79A" }}>{item.macros.protein}g</p>
+                               <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Protein</p>
+                               <p className="text-lg font-black" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
                              </div>
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase">Carbs</p>
-                               <p className="text-lg font-black" style={{ color: "#E6B800" }}>{item.macros.carbs}g</p>
+                               <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Carbs</p>
+                               <p className="text-lg font-black" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
                              </div>
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase">Fat</p>
-                               <p className="text-lg font-black" style={{ color: "#DCE96A" }}>{item.macros.fat}g</p>
+                               <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Fat</p>
+                               <p className="text-lg font-black" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
                              </div>
                           </div>
                           
@@ -320,7 +320,7 @@ export default function ExplorePage() {
                             <p className="text-2xl font-black tracking-tight text-foreground">{item.price}</p>
                           </div>
 
-                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
+                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -331,34 +331,35 @@ export default function ExplorePage() {
           </DialogContent>
         </Dialog>
 
+        {/* Smart Menu Trigger */}
         <Dialog open={isMenuOpen} onOpenChange={(open) => { setIsMenuOpen(open); if(open) handleGenerateMenu(); }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-accent/15 rounded-[2.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
-                 <Sparkles className="w-12 h-12 text-accent" />
+            <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
+              <div className="w-20 h-20 bg-accent/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
+                 <Sparkles className="w-10 h-10 text-accent" />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 text-center">
                 <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Smart Menu</h3>
-                <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight">
+                <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight opacity-60">
                   Generate a randomized daily plan with seamless platform integration.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-sm bg-accent hover:opacity-90 text-accent-foreground">Generate Plan</Button>
+              <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-sm bg-accent text-accent-foreground hover:opacity-90">Generate Plan</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-accent p-7 text-accent-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+            <DialogHeader className="bg-accent p-8 text-accent-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               <DialogTitle className="text-lg font-black uppercase tracking-widest text-left">Daily Smart Menu</DialogTitle>
               {menuPlan && !loading && (
-                <Button onClick={handleAddAll} className="h-11 px-6 rounded-2xl bg-white text-accent hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
+                <Button onClick={handleAddAll} className="h-12 px-8 rounded-2xl bg-white text-accent hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
                    <Plus className="w-4 h-4 mr-2" /> Add All to Planner
                 </Button>
               )}
             </DialogHeader>
-            <div className="p-8 flex-1 flex flex-col overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2 mb-8 shrink-0">
+            <div className="p-10 flex-1 flex flex-col overflow-hidden no-scrollbar">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2 mb-10 shrink-0">
                 <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase text-foreground">Plan Your Day</h2>
-                <div className="flex items-center gap-4 bg-secondary rounded-full px-7 h-12 border border-muted shadow-inner">
+                <div className="flex items-center gap-4 bg-secondary rounded-full px-8 h-12 border border-border">
                   <div className="flex items-center gap-2.5">
                     <CalendarIcon className="w-4 h-4 text-primary" />
                     <input 
@@ -371,7 +372,7 @@ export default function ExplorePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 flex-1">
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-accent" />
@@ -380,55 +381,55 @@ export default function ExplorePage() {
                 ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
                   return (
-                    <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-accent/5 hover:ring-4 overflow-hidden flex flex-col">
-                      <CardContent className="p-6 flex flex-col h-full space-y-4">
-                        <div className="flex-1 space-y-4 text-left">
+                    <Card key={type} className="rounded-[2.5rem] border border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-8 overflow-hidden flex flex-col">
+                      <CardContent className="p-8 flex flex-col h-full space-y-6">
+                        <div className="flex-1 space-y-6 text-left">
                           <div className="flex items-center justify-between">
-                            <Badge variant="secondary" className="bg-accent/15 text-accent-foreground uppercase text-[9px] font-black tracking-widest px-3 py-1 rounded-xl">
+                            <Badge variant="secondary" className="bg-accent/20 text-accent-foreground uppercase text-[9px] font-black tracking-widest px-4 py-1.5 rounded-xl border-none">
                               {type}
                             </Badge>
-                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-8 w-8">
+                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-9 w-9">
                               <RefreshCw className="w-4 h-4" />
                             </Button>
                           </div>
                           
-                          <div className="space-y-1.5">
-                            <h3 className="text-sm font-black tracking-tight leading-tight line-clamp-1 uppercase text-foreground">{meal.name}</h3>
-                            <p className="text-[10px] font-black leading-relaxed text-muted-foreground line-clamp-2 uppercase opacity-60 tracking-tight">{meal.description}</p>
+                          <div className="space-y-2">
+                            <h3 className="text-base font-black tracking-tight leading-tight line-clamp-1 uppercase text-foreground">{meal.name}</h3>
+                            <p className="text-[10px] font-black leading-relaxed text-muted-foreground line-clamp-2 uppercase opacity-40 tracking-tight">{meal.description}</p>
                           </div>
 
-                          <div className="grid grid-cols-3 gap-2 border-y border-muted/30 py-4">
+                          <div className="grid grid-cols-3 gap-2 border-y border-border py-6">
                             <div className="space-y-1 text-left">
-                              <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
-                              <p className="text-sm font-black" style={{ color: "#7FB79A" }}>{meal.macros.protein}g</p>
+                              <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Protein</p>
+                              <p className="text-sm font-black" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
                             </div>
                             <div className="space-y-1 text-left">
-                              <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                              <p className="text-sm font-black" style={{ color: "#E6B800" }}>{meal.macros.carbs}g</p>
+                              <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Carbs</p>
+                              <p className="text-sm font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
                             </div>
                             <div className="space-y-1 text-left">
-                              <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
-                              <p className="text-sm font-black" style={{ color: "#DCE96A" }}>{meal.macros.fat}g</p>
+                              <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Fat</p>
+                              <p className="text-sm font-black" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
                             </div>
                           </div>
 
-                          <div className="bg-secondary/50 py-3 rounded-2xl text-center border border-muted/20">
-                            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Energy Target</p>
-                            <p className="text-lg font-black tracking-tight text-foreground">+{meal.calories} kcal</p>
+                          <div className="bg-secondary/50 py-4 rounded-2xl text-center border border-border/50">
+                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1 opacity-60">Energy Target</p>
+                            <p className="text-xl font-black tracking-tight text-foreground">+{meal.calories} kcal</p>
                           </div>
                         </div>
 
-                        <div className="pt-3 space-y-2.5">
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-9 text-[8px] font-black uppercase tracking-widest border-none">
+                        <div className="pt-4 space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-none">
                               GrabFood
                             </Button>
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-9 text-[8px] font-black uppercase tracking-widest border-none">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-none">
                               GoFood
                             </Button>
                           </div>
-                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-9 text-[8px] font-black uppercase tracking-widest border-muted text-muted-foreground hover:bg-secondary">
-                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Cook Myself
+                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-border text-muted-foreground hover:bg-secondary">
+                            <Plus className="w-4 h-4 mr-2" /> Cook Myself
                           </Button>
                         </div>
                       </CardContent>

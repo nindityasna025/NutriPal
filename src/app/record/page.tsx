@@ -25,11 +25,11 @@ import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 
-// Standardized Macro Colors - Consistent with Theme
+// Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Forest Green
+  protein: "hsl(var(--primary))", // Forest Green Brand
   carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Teal
+  fat: "hsl(var(--accent))",     // Lime
 }
 
 export default function RecordPage() {
@@ -83,7 +83,7 @@ export default function RecordPage() {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
       };
     });
   };
@@ -213,137 +213,133 @@ export default function RecordPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Snap Meal</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Expert Analysis</p>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-40">AI Expert Analysis</p>
       </header>
 
       {mode === "choice" && !preview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          <Card onClick={startCamera} className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden">
-            <CardContent className="p-10 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
-                <Camera className="w-7 h-7 text-primary" strokeWidth={2.5} />
-              </div>
-              <div className="text-center space-y-0.5">
-                <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Live Camera</h3>
-                <p className="text-[8px] text-muted-foreground font-black uppercase tracking-[0.2em]">Capture Now</p>
-              </div>
-            </CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+          <Card onClick={startCamera} className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 active:scale-[0.98] overflow-hidden flex flex-col items-center gap-8">
+            <div className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
+              <Camera className="w-10 h-10 text-primary" strokeWidth={2.5} />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
+              <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.3em] opacity-40">Capture Now</p>
+            </div>
           </Card>
 
-          <Card onClick={() => fileInputRef.current?.click()} className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden">
-            <CardContent className="p-10 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
-                <ImageIcon className="w-7 h-7 text-accent" strokeWidth={2.5} />
-              </div>
-              <div className="text-center space-y-0.5">
-                <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Gallery</h3>
-                <p className="text-[8px] text-muted-foreground/40 font-black uppercase tracking-[0.2em]">Upload File</p>
-              </div>
-            </CardContent>
+          <Card onClick={() => fileInputRef.current?.click()} className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 active:scale-[0.98] overflow-hidden flex flex-col items-center gap-8">
+            <div className="w-20 h-20 bg-accent/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
+              <ImageIcon className="w-10 h-10 text-accent" strokeWidth={2.5} />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
+              <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.3em] opacity-40">Upload File</p>
+            </div>
           </Card>
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
         </div>
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <section className="space-y-6">
-            <Card className="rounded-[2.5rem] border-none shadow-premium bg-white p-6 space-y-6">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <Button variant="ghost" onClick={resetAll} className="rounded-full h-9 px-4 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
-                  <ChevronLeft className="w-3.5 h-3.5 mr-1.5" /> Back
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <section className="space-y-8">
+            <Card className="rounded-[3rem] border-none shadow-premium bg-white p-8 space-y-8">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
+                  <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
                 
                 {mode === "gallery" && !result && (
-                  <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-11 border border-primary/10 shadow-inner">
-                    <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
-                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                  <div className="flex items-center gap-4 bg-secondary rounded-full px-6 h-12 border border-border">
+                    <div className="flex items-center gap-3 border-r border-border pr-5">
+                      <CalendarIcon className="w-4 h-4 text-primary" />
                       <input 
                         type="date" 
                         value={logDate} 
                         onChange={e => setLogDate(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24 text-foreground" 
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-28 text-foreground" 
                       />
                     </div>
-                    <div className="flex items-center gap-2 pl-1">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
+                    <div className="flex items-center gap-3 pl-2">
+                      <Clock className="w-4 h-4 text-primary" />
                       <input 
                         type="time" 
                         value={logTime} 
                         onChange={e => setLogTime(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16 text-foreground" 
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-16 text-foreground" 
                       />
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="relative border border-muted/30 rounded-[2rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
+              <div className="relative border border-border rounded-[2.5rem] bg-secondary/30 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
                 {preview && (
                   <div className="relative w-full h-full">
                     <Image src={preview} alt="Meal" fill className="object-cover" />
                     {!result && (
-                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-3 right-3 rounded-full bg-white/90 shadow-premium">
-                        <RefreshCw className="w-4 h-4 text-primary" />
+                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-5 right-5 rounded-full bg-white shadow-premium">
+                        <RefreshCw className="w-5 h-5 text-primary" />
                       </Button>
                     )}
                   </div>
                 )}
               </div>
-              {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-14 rounded-2xl font-black text-sm bg-primary text-primary-foreground">CAPTURE PHOTO</Button>}
-              {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-14 rounded-2xl font-black text-sm bg-primary text-primary-foreground">{analyzing ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="w-4 h-4 mr-2" />}{analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}</Button>}
+              {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-16 rounded-2xl font-black text-sm bg-primary text-primary-foreground">CAPTURE PHOTO</Button>}
+              {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-2xl font-black text-sm bg-primary text-primary-foreground">{analyzing ? <Loader2 className="animate-spin mr-3 h-5 w-5" /> : <Sparkles className="w-5 h-5 mr-3" />}{analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}</Button>}
             </Card>
           </section>
 
-          <section className="space-y-6">
+          <section className="space-y-8">
             {result ? (
-              <Card className="rounded-[2.5rem] border-none shadow-premium bg-white overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="p-8 space-y-8">
-                  <div className="flex justify-between items-start border-b border-muted/20 pb-6">
-                    <div className="space-y-1 text-left">
-                      <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60">Analysis Result</span>
-                      <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight uppercase text-foreground">{result.name}</h2>
+              <Card className="rounded-[3rem] border-none shadow-premium bg-white overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="p-10 space-y-10">
+                  <div className="flex justify-between items-start border-b border-border pb-8">
+                    <div className="space-y-2 text-left">
+                      <span className="text-[10px] font-black uppercase text-primary tracking-widest opacity-40">Analysis Result</span>
+                      <h2 className="text-2xl font-black tracking-tight leading-tight uppercase text-foreground">{result.name}</h2>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
+                      <p className="text-4xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[10px] ml-1 uppercase opacity-20">kcal</span></p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Protein</p><p className="text-lg font-black text-foreground">{result.macros.protein}g</p></div>
-                    <div className="p-4 bg-orange-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-orange-500 uppercase mb-1">Carbs</p><p className="text-lg font-black text-foreground">{result.macros.carbs}g</p></div>
-                    <div className="p-4 bg-accent/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent uppercase mb-1">Fat</p><p className="text-lg font-black text-foreground">{result.macros.fat}g</p></div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="p-5 bg-primary/10 rounded-[1.5rem] text-center"><p className="text-[9px] font-black text-primary uppercase mb-1">Protein</p><p className="text-xl font-black text-foreground">{result.macros.protein}g</p></div>
+                    <div className="p-5 bg-orange-50 rounded-[1.5rem] text-center"><p className="text-[9px] font-black text-orange-500 uppercase mb-1">Carbs</p><p className="text-xl font-black text-foreground">{result.macros.carbs}g</p></div>
+                    <div className="p-5 bg-accent/10 rounded-[1.5rem] text-center"><p className="text-[9px] font-black text-accent uppercase mb-1">Fat</p><p className="text-xl font-black text-foreground">{result.macros.fat}g</p></div>
                   </div>
 
-                  <div className="p-5 bg-secondary/20 rounded-[1.5rem] text-left">
-                    <p className="text-[12px] font-black leading-relaxed italic text-foreground/80">"{result.description}"</p>
+                  <div className="p-7 bg-secondary/50 rounded-[2rem] text-left border border-border/50">
+                    <p className="text-[13px] font-black leading-relaxed italic text-foreground/80">"{result.description}"</p>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-black uppercase tracking-tight text-foreground">Health Score</span>
-                      <span className="text-2xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
+                      <span className="text-3xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
                     </div>
-                    <Progress value={result.healthScore} className="h-3 rounded-full" />
+                    <Progress value={result.healthScore} className="h-4 rounded-full" indicatorClassName="bg-accent" />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-6">
-                    <section className="space-y-3">
+                  <div className="grid grid-cols-1 gap-10">
+                    <section className="space-y-4">
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
-                        <Sparkles className="w-4 h-4" /> AI Expert Insight
+                        <Sparkles className="w-5 h-5" /> AI Expert Insight
                       </div>
-                      <p className="text-xs font-black leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10 text-left">
+                      <p className="text-[13px] font-bold leading-relaxed text-muted-foreground bg-primary/10 p-7 rounded-[2rem] border border-primary/20 text-left">
                         {result.expertInsight}
                       </p>
                     </section>
-                    <section className="space-y-3 text-left">
+                    <section className="space-y-4 text-left">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
-                        <Leaf className="w-4 h-4 text-primary" /> Ingredients
+                        <Leaf className="w-5 h-5 text-primary" /> Ingredients
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-3">
                         {result.ingredients.map((ing, i) => (
-                          <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-black text-[9px] uppercase">
+                          <Badge key={i} variant="outline" className="rounded-xl border-border text-muted-foreground px-5 py-1.5 font-black text-[10px] uppercase">
                             {ing}
                           </Badge>
                         ))}
@@ -351,15 +347,15 @@ export default function RecordPage() {
                     </section>
                   </div>
                   
-                  <Button onClick={handleSave} className="w-full h-14 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium mt-4 uppercase tracking-widest">
-                    LOG TO DAILY RECORD <ChevronRight className="w-4 h-4 ml-2" />
+                  <Button onClick={handleSave} className="w-full h-16 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium mt-6 uppercase tracking-widest">
+                    Log to Daily Record <ChevronRight className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
               </Card>
             ) : (
-              <div className="h-[300px] border border-dashed border-border/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center bg-white/30 backdrop-blur-sm">
-                <ScanSearch className="w-12 h-12 text-primary/10 mb-6" />
-                <p className="text-muted-foreground font-black uppercase text-[10px] tracking-[0.2em]">Awaiting Content</p>
+              <div className="h-[400px] border-2 border-dashed border-border/50 rounded-[3rem] flex flex-col items-center justify-center p-12 text-center bg-white shadow-inner">
+                <ScanSearch className="w-16 h-16 text-primary/10 mb-8" />
+                <p className="text-muted-foreground font-black uppercase text-[11px] tracking-[0.3em] opacity-40">Awaiting Content</p>
               </div>
             )}
           </section>
