@@ -381,7 +381,7 @@ export default function Dashboard() {
                 <p className="text-muted-foreground font-extrabold text-lg">No activity logged today.</p>
                 <p className="text-sm text-muted-foreground font-medium">Capture your first meal to start tracking.</p>
               </div>
-              <Button onClick={() => router.push("/planner")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
+              <Button onClick={() => router.push("/meal-planner")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
                 PLAN
               </Button>
             </div>
