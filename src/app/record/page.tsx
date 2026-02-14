@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -13,26 +12,32 @@ import {
   RefreshCw,
   ChevronLeft,
   Trophy,
-  ScanSearch
+  ScanSearch,
+  Calendar as CalendarIcon,
+  Image as ImageIcon
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format } from "date-fns"
+import { format, startOfToday } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 
 export default function RecordPage() {
-  const [mode, setMode] = useState<"choice" | "camera">("choice")
+  const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
   const [preview, setFilePreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useUser()
   const firestore = useFirestore()
 
@@ -42,6 +47,7 @@ export default function RecordPage() {
 
   const startCamera = async () => {
     setMode("camera")
+    setSelectedDate(new Date()) // Default to now for camera
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } } 
@@ -85,11 +91,24 @@ export default function RecordPage() {
     }
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMode("gallery")
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   const resetAll = () => {
     stopCamera()
     setMode("choice")
     setFilePreview(null)
     setResult(null)
+    setSelectedDate(new Date())
   }
 
   const handleAnalyze = async () => {
@@ -114,9 +133,8 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    const today = new Date()
-    const dateId = format(today, "yyyy-MM-dd")
-    const timeStr = format(today, "hh:mm a")
+    const dateId = format(selectedDate, "yyyy-MM-dd")
+    const timeStr = format(selectedDate, "hh:mm a")
     
     try {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -131,7 +149,7 @@ export default function RecordPage() {
         name: result.name,
         calories: result.calories,
         time: timeStr,
-        source: "photo",
+        source: mode === "camera" ? "photo" : "manual",
         macros: result.macros,
         healthScore: result.healthScore,
         description: result.description,
@@ -139,7 +157,7 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Logged Successfully", description: `${result.name} recorded to your dashboard.` })
+      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${format(selectedDate, "MMM d, yyyy")}.` })
       resetAll()
     } catch (e) {
       console.error(e)
@@ -158,7 +176,7 @@ export default function RecordPage() {
       </header>
 
       {mode === "choice" && !preview && (
-        <div className="pt-4 max-w-xl mx-auto md:mx-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           <Card 
             onClick={startCamera}
             className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
@@ -169,10 +187,32 @@ export default function RecordPage() {
               </div>
               <div className="text-center space-y-1">
                 <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Your Meal Now</p>
+                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
               </div>
             </CardContent>
           </Card>
+
+          <Card 
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
+          >
+            <CardContent className="p-12 flex flex-col items-center gap-8">
+              <div className="w-20 h-20 bg-accent/10 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
+                <ImageIcon className="w-8 h-8 text-accent" strokeWidth={2.5} />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
+                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Upload Photo</p>
+              </div>
+            </CardContent>
+          </Card>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            accept="image/*" 
+            className="hidden" 
+          />
         </div>
       )}
 
@@ -184,6 +224,25 @@ export default function RecordPage() {
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
+
+                {mode === "gallery" && preview && !result && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest border-primary/20 text-primary hover:bg-primary/5">
+                        <CalendarIcon className="w-4 h-4 mr-2" />
+                        {format(selectedDate, "MMM d, yyyy")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-[1.5rem]" align="end">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => date && setSelectedDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
@@ -195,7 +254,7 @@ export default function RecordPage() {
                   <div className="relative w-full h-full animate-in fade-in duration-500">
                     <Image src={preview} alt="Meal Preview" fill className="object-cover" />
                     {!result && (
-                      <Button variant="secondary" size="icon" onClick={() => setFilePreview(null)} className="absolute top-4 right-4 rounded-full bg-white/90 shadow-premium active:scale-90 transition-transform">
+                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-4 right-4 rounded-full bg-white/90 shadow-premium active:scale-90 transition-transform">
                         <RefreshCw className="w-5 h-5 text-primary" />
                       </Button>
                     )}

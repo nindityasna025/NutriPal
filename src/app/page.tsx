@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -24,7 +23,7 @@ import {
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils"
 import Image from "next/image"
 import { 
   Bar, 
@@ -176,7 +175,7 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32">
-      <header className="space-y-1">
+      <header className="space-y-1 pt-safe md:pt-8">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Today</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           {format(today, "EEEE, MMMM do")}
