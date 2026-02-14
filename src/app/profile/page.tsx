@@ -138,37 +138,24 @@ export default function ProfilePage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen pb-24 bg-background font-body">
-      <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-700">
-        <header className="space-y-1 pt-safe md:pt-8">
-          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
-        </header>
+    <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
+      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700">
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
+      </header>
 
-        <section className="flex flex-col items-center text-center space-y-6 pt-4 relative">
-          <Avatar className="w-32 h-32 border-[6px] border-white shadow-2xl">
+      <section className="flex flex-col items-center text-center space-y-8 pt-4 relative">
+        <div className="relative">
+          <Avatar className="w-40 h-40 border-[8px] border-white shadow-premium">
             <AvatarImage src={user.photoURL || ""} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-4xl font-black uppercase">
+            <AvatarFallback className="bg-primary text-primary-foreground text-5xl font-black uppercase">
               {user.displayName?.charAt(0) || user.email?.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          
-          <div className="space-y-2">
-            <h2 className="text-4xl font-black tracking-tight uppercase">{user.displayName || "Demo User"}</h2>
-            <div className="flex justify-center gap-2">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-widest">
-                Pro Member
-              </Badge>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-widest">
-                Verified AI
-              </Badge>
-            </div>
-          </div>
-
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="absolute top-0 right-0 rounded-full h-12 w-12 p-0 border-primary/20 bg-white shadow-sm hover:bg-primary/5">
-                <Edit2 className="w-5 h-5 text-primary" />
+              <Button variant="outline" className="absolute bottom-0 right-0 rounded-full h-12 w-12 p-0 border-white bg-primary text-white shadow-premium hover:bg-primary/90">
+                <Edit2 className="w-5 h-5" />
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-[3rem] p-0 border-none bg-background">
@@ -178,16 +165,16 @@ export default function ProfilePage() {
               <div className="p-8 pt-0 space-y-8">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Weight (kg)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
                     <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Height (cm)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Height (cm)</Label>
                     <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age</Label>
                   <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
                 </div>
               </div>
@@ -198,60 +185,72 @@ export default function ProfilePage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </section>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-6 flex items-center gap-6">
-            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
-              <Scale className="w-7 h-7 text-primary" />
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
-              <p className="text-2xl font-black">{profile?.weight || "--"} <span className="text-sm font-bold text-muted-foreground">kg</span></p>
-            </div>
-          </Card>
-          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-6 flex items-center gap-6">
-            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
-              <Activity className="w-7 h-7 text-blue-500" />
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status</p>
-              <p className="text-2xl font-black">{profile?.bmiCategory || "Healthy"}</p>
-            </div>
-          </Card>
         </div>
+        
+        <div className="space-y-3">
+          <h2 className="text-4xl font-black tracking-tight uppercase">{user.displayName || "Demo User"}</h2>
+          <div className="flex justify-center gap-3">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border-none">
+              Pro Member
+            </Badge>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border-none">
+              Verified AI
+            </Badge>
+          </div>
+        </div>
+      </section>
 
-        <div className="space-y-4">
-          <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-4">Ecosystem Settings</h2>
-          <Card className="border-none shadow-xl bg-white rounded-[3rem] overflow-hidden">
-            <CardContent className="p-0">
-              {[
-                { icon: <Bell className="text-orange-500 w-5 h-5" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
-                { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
-                { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Health Apps" },
-              ].map((item, i, arr) => (
-                <div key={i} className={cn("w-full flex items-center justify-between p-7 transition-all", i !== arr.length - 1 && "border-b border-muted/30")}>
-                  <div className="flex items-center gap-6">
-                    <div className="bg-secondary/50 p-3 rounded-2xl">{item.icon}</div>
-                    <div className="text-left">
-                      <p className="text-sm font-black tracking-tight uppercase">{item.label}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{item.sub}</p>
-                    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex items-center gap-6 group hover:shadow-premium-lg transition-all">
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
+            <Scale className="w-8 h-8 text-primary" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
+            <p className="text-3xl font-black tracking-tight">{profile?.weight || "--"} <span className="text-sm font-bold text-muted-foreground">kg</span></p>
+          </div>
+        </Card>
+        <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex items-center gap-6 group hover:shadow-premium-lg transition-all">
+          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
+            <Activity className="w-8 h-8 text-blue-500" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status</p>
+            <p className="text-3xl font-black tracking-tight">{profile?.bmiCategory || "Healthy"}</p>
+          </div>
+        </Card>
+      </div>
+
+      <div className="space-y-6">
+        <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] px-4">Ecosystem Settings</h2>
+        <Card className="border-none shadow-premium bg-white rounded-[3rem] overflow-hidden">
+          <CardContent className="p-0">
+            {[
+              { icon: <Bell className="text-orange-500 w-5 h-5" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
+              { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
+              { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Health Apps" },
+            ].map((item, i, arr) => (
+              <div key={i} className={cn("w-full flex items-center justify-between p-8 transition-all hover:bg-secondary/20", i !== arr.length - 1 && "border-b border-muted/30")}>
+                <div className="flex items-center gap-6">
+                  <div className="bg-secondary/50 p-4 rounded-2xl">{item.icon}</div>
+                  <div className="text-left">
+                    <p className="text-sm font-black tracking-tight uppercase">{item.label}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-1">{item.sub}</p>
                   </div>
-                  {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={handleToggleNotifs} /> : <ChevronRight className="w-5 h-5 text-muted-foreground/30" />}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+                {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={handleToggleNotifs} /> : <ChevronRight className="w-5 h-5 text-muted-foreground/30" />}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
 
-        <div className="pt-6">
-          <Button onClick={handleLogout} className="w-full h-16 rounded-[2rem] font-black text-lg bg-red-500 hover:bg-red-600 text-white shadow-xl flex gap-3">
-            <LogOut className="w-6 h-6 rotate-180" />
-            Sign Out
-          </Button>
-        </div>
-      </main>
+      <div className="pt-6">
+        <Button onClick={handleLogout} className="w-full h-20 rounded-[2.5rem] font-black text-xl bg-red-500 hover:bg-red-600 text-white shadow-premium flex gap-4 transition-all active:scale-[0.98]">
+          <LogOut className="w-7 h-7 rotate-180" />
+          Sign Out
+        </Button>
+      </div>
     </div>
   )
 }
