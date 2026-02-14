@@ -16,7 +16,8 @@ import {
   Edit2,
   ChefHat,
   ShoppingBag,
-  ListOrdered
+  ListOrdered,
+  Clock
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -281,7 +282,10 @@ export default function MealPlannerPage() {
       </div>
 
       <section className="space-y-8">
-        <h2 className="text-[11px] font-black tracking-[0.3em] px-2 uppercase text-left text-foreground opacity-60">YOUR SCHEDULE</h2>
+        <h2 className="text-xl font-black tracking-tighter flex items-center gap-4 px-2 uppercase text-left text-foreground">
+          <Clock className="w-7 h-7 text-foreground opacity-80" />
+          YOUR SCHEDULE
+        </h2>
         <div className="space-y-6">
           {isLoadingMeals ? (
             <div className="flex justify-center py-32"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>
