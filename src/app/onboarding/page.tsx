@@ -44,26 +44,52 @@ export default function OnboardingPage() {
     }
   }, [weight, height])
 
+  const calculateCalorieTarget = (w: number, h: number, a: number, g: "male" | "female", cat: string) => {
+    // Mifflin-St Jeor Equation
+    let bmr = (10 * w) + (6.25 * h) - (5 * a)
+    if (g === "male") bmr += 5
+    else bmr -= 161
+
+    // Baseline TDEE (Sedentary factor 1.2)
+    const tdee = bmr * 1.2
+
+    // Adjust based on health category goal
+    if (cat === "Obese" || cat === "Overweight") return Math.round(tdee - 500) // Weight loss
+    if (cat === "Underweight") return Math.round(tdee + 500) // Weight gain
+    return Math.round(tdee) // Maintenance
+  }
+
   const handleFinish = async () => {
     if (!user || !weight || !height || !gender || !age) return
     setLoading(true)
     try {
+      const w = parseFloat(weight)
+      const h = parseFloat(height)
+      const a = parseInt(age)
+      
+      const calorieTarget = calculateCalorieTarget(w, h, a, gender, category)
+
       const profileData = {
         gender,
-        age: parseInt(age),
-        weight: parseFloat(weight),
-        height: parseFloat(height),
+        age: a,
+        weight: w,
+        height: h,
         bmi,
         bmiCategory: category,
         dietaryRestrictions: restrictions,
         allergies,
-        calorieTarget: category === "Ideal" ? 2000 : category === "Obese" ? 1800 : 2500,
-        proteinTarget: 25, // Default percentage
-        carbsTarget: 45,   // Default percentage
-        fatTarget: 30      // Default percentage
+        calorieTarget,
+        proteinTarget: 30, // 30% Protein
+        carbsTarget: 40,   // 40% Carbs
+        fatTarget: 30,     // 30% Fat
+        onboardedAt: new Date().toISOString()
       }
       
-      await setDoc(doc(firestore, "users", user.uid), { onboarded: true, email: user.email }, { merge: true })
+      await setDoc(doc(firestore, "users", user.uid), { 
+        onboarded: true, 
+        email: user.email 
+      }, { merge: true })
+      
       await setDoc(doc(firestore, "users", user.uid, "profile", "main"), profileData)
       
       router.push("/")
