@@ -19,8 +19,9 @@ import {
   ArrowUpCircle,
   CheckCircle,
   ArrowDownCircle,
-  ScanSearch,
-  RefreshCw
+  Image as ImageIcon,
+  RefreshCw,
+  ChevronLeft
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -38,26 +39,27 @@ const MacroInfoContent = () => (
       <Sparkles className="w-4 h-4" /> Macro Balance Guide
     </div>
     <p className="text-xs font-medium leading-relaxed text-foreground/80">
-      This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good.
+      Breakdown of protein, carbs, and fats to keep your body fueled.
     </p>
     <div className="space-y-3">
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
         <span className="text-primary font-bold">Protein</span>
-        <span>20-30g / 15-35% daily</span>
+        <span>20-30g</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
         <span className="text-accent-foreground font-bold">Carbs</span>
-        <span>20-30g / 40-50% daily</span>
+        <span>20-30g</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
         <span className="text-blue-500 font-bold">Fat</span>
-        <span>10-15g / 20-35% daily</span>
+        <span>10-15g</span>
       </div>
     </div>
   </div>
 )
 
 export default function RecordPage() {
+  const [mode, setMode] = useState<"choice" | "camera" | "upload">("choice")
   const [file, setFile] = useState<File | null>(null)
   const [preview, setFilePreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
@@ -81,27 +83,33 @@ export default function RecordPage() {
 
   useEffect(() => {
     setMounted(true)
-    const getCameraPermission = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-      }
-    };
-    getCameraPermission();
-
-    return () => {
-      if (videoRef.current?.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    }
   }, [])
+
+  const startCamera = async () => {
+    setMode("camera")
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setHasCameraPermission(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      toast({
+        variant: "destructive",
+        title: "Camera Denied",
+        description: "Please enable camera permissions or upload an image instead.",
+      })
+    }
+  }
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0]
@@ -110,13 +118,11 @@ export default function RecordPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFilePreview(reader.result as string);
+        setMode("upload")
       };
       reader.readAsDataURL(selected);
       setResult(null)
-      if (videoRef.current?.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
+      stopCamera()
     }
   }
 
@@ -137,27 +143,17 @@ export default function RecordPage() {
             const capturedFile = new File([blob], "capture.jpg", { type: "image/jpeg" });
             setFile(capturedFile);
           });
-        if (video.srcObject) {
-          const stream = video.srcObject as MediaStream;
-          stream.getTracks().forEach(track => track.stop());
-        }
+        stopCamera()
       }
     }
   }
 
-  const retakePhoto = async () => {
-    setFile(null);
-    setFilePreview(null);
-    setResult(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      setHasCameraPermission(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (error) {
-      setHasCameraPermission(false);
-    }
+  const resetAll = () => {
+    stopCamera()
+    setMode("choice")
+    setFile(null)
+    setFilePreview(null)
+    setResult(null)
   }
 
   const handleAnalyze = async () => {
@@ -174,8 +170,8 @@ export default function RecordPage() {
         variant: "destructive",
         title: "Expert Unavailable",
         description: error.message?.includes("429") 
-          ? "Our AI Nutritionist is over capacity. Please wait a few seconds." 
-          : "Could not analyze meal. Please try again.",
+          ? "Our AI Nutritionist is over capacity. Please try again." 
+          : "Could not analyze meal.",
       })
     } finally {
       setAnalyzing(false)
@@ -208,11 +204,8 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Meal Logged", description: `${result.name} added for ${format(recordDate, "PPP")}.` })
-      setFile(null)
-      setFilePreview(null)
-      setResult(null)
-      retakePhoto()
+      toast({ title: "Meal Logged", description: `${result.name} added to your report.` })
+      resetAll()
     } catch (e) {
       console.error(e)
     }
@@ -220,229 +213,199 @@ export default function RecordPage() {
 
   const personalizedSuggestion = useMemo(() => {
     if (!profile) return null;
-    const category = profile.bmiCategory || "Ideal";
-    if (category === "Underweight") {
-      return {
-        title: "Weight Gain Target",
-        goal: "Calorie Surplus Required",
-        suggestion: "Your focus should be on nutrient-dense foods. Aim for higher healthy fats (Avocados, Nuts) and complex carbs to support healthy weight gain.",
-        icon: <ArrowUpCircle className="text-blue-500 w-6 h-6" />,
-        color: "bg-blue-50",
-        textColor: "text-blue-700",
-        borderColor: "border-blue-200"
-      }
-    } else if (category === "Ideal") {
-      return {
-        title: "Maintenance Goal",
-        goal: "Caloric Equilibrium",
-        suggestion: "You are in the ideal zone! Maintain a balanced macro ratio (40% Carbs, 30% Protein, 30% Fat) to stay fit and energized.",
-        icon: <CheckCircle className="text-primary w-6 h-6" />,
-        color: "bg-primary/5",
-        textColor: "text-primary",
-        borderColor: "border-primary/20"
-      }
-    } else {
-      return {
-        title: "Weight Loss Goal",
-        goal: "Calorie Deficit Focus",
-        suggestion: "To support weight loss, prioritize lean protein to protect muscle mass while significantly reducing simple carbs and added sugars.",
-        icon: <ArrowDownCircle className="text-red-500 w-6 h-6" />,
-        color: "bg-red-50",
-        textColor: "text-red-700",
-        borderColor: "border-red-200"
-      }
+    const cat = profile.bmiCategory || "Ideal";
+    if (cat === "Underweight") return {
+      title: "Surplus Focus",
+      icon: <ArrowUpCircle className="text-blue-500 w-6 h-6" />,
+      color: "bg-blue-50",
+      textColor: "text-blue-700",
+      borderColor: "border-blue-200"
+    }
+    if (cat === "Ideal") return {
+      title: "Maintain Balance",
+      icon: <CheckCircle className="text-primary w-6 h-6" />,
+      color: "bg-primary/5",
+      textColor: "text-primary",
+      borderColor: "border-primary/20"
+    }
+    return {
+      title: "Deficit Focus",
+      icon: <ArrowDownCircle className="text-red-500 w-6 h-6" />,
+      color: "bg-red-50",
+      textColor: "text-red-700",
+      borderColor: "border-red-200"
     }
   }, [profile]);
 
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500 pb-24 overflow-x-hidden">
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-500 pb-24 min-h-screen">
       <header className="text-center space-y-2">
-        <h1 className="text-4xl font-black tracking-tight uppercase">Record & Recap</h1>
-        <p className="text-muted-foreground font-medium text-sm">Snap your food for instant AI Expert nutritional analysis.</p>
+        <h1 className="text-4xl font-black tracking-tight uppercase text-foreground">Snap Your Meal</h1>
+        <p className="text-muted-foreground font-medium text-sm">Choose your method to analyze your nutrition.</p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <section className="space-y-6">
-          <Card className="rounded-[3rem] border-none shadow-xl bg-white p-8 space-y-8">
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Date of Consumption</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-bold h-12 rounded-2xl border-primary/20 bg-primary/5">
-                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                    {recordDate ? format(recordDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={recordDate} onSelect={(date) => date && setRecordDate(date)} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="relative border-2 border-dashed border-primary/20 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden">
-              <video 
-                ref={videoRef} 
-                className={cn("w-full h-full object-cover", (preview || hasCameraPermission === false) && "hidden")} 
-                autoPlay 
-                muted 
-                playsInline
-              />
-              <canvas ref={canvasRef} className="hidden" />
-              
-              {preview && (
-                <div className="relative w-full h-full">
-                  <Image src={preview} alt="Captured Meal" fill className="object-cover" />
-                  <Button 
-                    variant="secondary" 
-                    size="icon" 
-                    onClick={retakePhoto} 
-                    className="absolute top-4 right-4 rounded-full bg-white/80 backdrop-blur-sm"
-                  >
-                    <RefreshCw className="w-4 h-4 text-primary" />
-                  </Button>
-                </div>
-              )}
-
-              {hasCameraPermission === false && !preview && (
-                <div className="text-center space-y-4 p-8">
-                  <Camera className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
-                  <Alert variant="destructive" className="rounded-2xl border-none bg-destructive/10">
-                    <AlertTitle className="font-bold">Camera Access Required</AlertTitle>
-                    <AlertDescription className="text-xs">
-                      Please allow camera access to use this feature, or upload a photo manually.
-                    </AlertDescription>
-                  </Alert>
-                  <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="rounded-full">
-                    Upload Manually
-                  </Button>
-                </div>
-              )}
-
-              <Input 
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
-                onChange={handleFileChange} 
-                ref={fileInputRef} 
-              />
-            </div>
-
-            {hasCameraPermission && !preview && (
-              <Button onClick={capturePhoto} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-lg flex gap-2">
-                <Camera className="w-6 h-6" /> CAPTURE PHOTO
-              </Button>
-            )}
-            
-            {preview && (
-              <Button onClick={handleAnalyze} disabled={analyzing || !!result} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-lg">
-                {analyzing ? <Loader2 className="animate-spin mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />}
-                {result ? "Analysis Ready" : "Analyze Meal"}
-              </Button>
-            )}
+      {mode === "choice" && !preview && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+          <Card 
+            onClick={startCamera}
+            className="rounded-[2.5rem] border-none shadow-ios hover:shadow-ios-lg transition-all bg-white cursor-pointer group active:scale-[0.98]"
+          >
+            <CardContent className="p-10 flex flex-col items-center gap-6">
+              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Camera className="w-10 h-10 text-primary" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="text-xl font-black tracking-tight uppercase">Live Camera</h3>
+                <p className="text-xs text-muted-foreground font-medium">Capture a fresh meal now</p>
+              </div>
+            </CardContent>
           </Card>
-        </section>
 
-        <section className="space-y-6">
-          {result ? (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-              <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 space-y-8">
-                <div className="flex items-center justify-between border-b border-muted/20 pb-6">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Identified Meal</p>
-                    <h2 className="text-3xl font-black tracking-tight">{result.name}</h2>
-                  </div>
-                  <div className="text-right">
-                     <p className="text-[10px] font-black text-muted-foreground uppercase">Calories</p>
-                     <p className="text-4xl font-black text-primary tracking-tighter">+{result.calories}</p>
-                  </div>
-                </div>
+          <Card 
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-[2.5rem] border-none shadow-ios hover:shadow-ios-lg transition-all bg-white cursor-pointer group active:scale-[0.98]"
+          >
+            <CardContent className="p-10 flex flex-col items-center gap-6">
+              <div className="w-20 h-20 bg-accent/30 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ImageIcon className="w-10 h-10 text-accent-foreground" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="text-xl font-black tracking-tight uppercase">Upload Photo</h3>
+                <p className="text-xs text-muted-foreground font-medium">Select from your gallery</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+        </div>
+      )}
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Macro Composition</p>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
-                          <Info className="w-3.5 h-3.5" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                        <MacroInfoContent />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 bg-primary/10 rounded-2xl text-center"><p className="text-[10px] font-black text-primary uppercase">Protein</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
-                    <div className="p-4 bg-accent/30 rounded-2xl text-center"><p className="text-[10px] font-black text-accent-foreground uppercase">Carbs</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-4 bg-blue-50 rounded-2xl text-center"><p className="text-[10px] font-black text-blue-500 uppercase">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
-                  </div>
-                </div>
+      {(mode !== "choice" || preview) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <section className="space-y-6">
+            <Card className="rounded-[3rem] border-none shadow-ios bg-white p-8 space-y-8">
+              <div className="flex items-center justify-between mb-2">
+                <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-xs font-black uppercase text-muted-foreground hover:bg-secondary">
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="h-10 rounded-full border-primary/20 bg-primary/5 text-xs font-bold px-4">
+                      <CalendarIcon className="mr-2 h-3 w-3 text-primary" />
+                      {format(recordDate, "MMM d")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-[2rem] border-none shadow-2xl">
+                    <Calendar mode="single" selected={recordDate} onSelect={(date) => date && setRecordDate(date)} initialFocus />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-                {personalizedSuggestion && (
-                  <div className={cn("p-6 rounded-[2rem] border space-y-4", personalizedSuggestion.color, personalizedSuggestion.borderColor)}>
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                         {personalizedSuggestion.icon}
-                         <span className={cn("text-xs font-black uppercase tracking-widest", personalizedSuggestion.textColor)}>
-                           {personalizedSuggestion.title}
-                         </span>
-                       </div>
-                    </div>
-                    <p className="text-sm font-bold leading-tight">{personalizedSuggestion.goal}</p>
-                    <p className="text-xs font-medium text-foreground/70 leading-relaxed italic">
-                      "{personalizedSuggestion.suggestion}"
-                    </p>
+              <div className="relative border-2 border-dashed border-primary/10 rounded-[2.5rem] bg-secondary/5 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
+                {mode === "camera" && !preview && (
+                  <video 
+                    ref={videoRef} 
+                    className="w-full h-full object-cover" 
+                    autoPlay 
+                    muted 
+                    playsInline
+                  />
+                )}
+                
+                {preview && (
+                  <div className="relative w-full h-full animate-in fade-in duration-300">
+                    <Image src={preview} alt="Meal Preview" fill className="object-cover" />
+                    {!result && (
+                      <Button 
+                        variant="secondary" 
+                        size="icon" 
+                        onClick={resetAll} 
+                        className="absolute top-4 right-4 rounded-full bg-white/90 backdrop-blur-md shadow-md"
+                      >
+                        <RefreshCw className="w-4 h-4 text-primary" />
+                      </Button>
+                    )}
                   </div>
                 )}
 
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2">
-                       <Trophy className="text-primary w-5 h-5" />
-                       <span className="text-lg font-black uppercase tracking-tight">Health Score</span>
-                     </div>
-                     <div className="flex items-center gap-4">
-                        <span className="text-2xl font-black text-primary">{result.healthScore}/100</span>
-                        <Progress value={result.healthScore} className="w-24 h-2" />
-                     </div>
+                {mode === "camera" && hasCameraPermission === false && (
+                  <div className="p-8 text-center space-y-4">
+                    <Camera className="w-12 h-12 text-muted-foreground/20 mx-auto" />
+                    <p className="text-sm font-bold text-destructive">Camera blocked. Please check permissions.</p>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground"><Info className="w-3 h-3" /> Analysis Detail</div>
-                      <p className="text-sm font-medium leading-relaxed italic pr-4">"{result.description}"</p>
-                    </div>
-                    <div className="space-y-3">
-                       <div className="flex items-center justify-between">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients Detected</p>
-                       </div>
-                       <div className="flex flex-wrap gap-2">
-                          {result.ingredients.map((ing: string, i: number) => (
-                            <Badge key={i} variant="secondary" className="px-4 py-1.5 rounded-xl font-bold bg-secondary/50 border-none">{ing}</Badge>
-                          ))}
-                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-lg bg-foreground text-white hover:bg-foreground/90 shadow-xl mt-4">
-                  Log to Dashboard <ChevronRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Card>
-            </div>
-          ) : (
-            <div className="h-full min-h-[400px] border-2 border-dashed border-muted/30 rounded-[3rem] flex flex-col items-center justify-center p-12 text-center space-y-4">
-              <Camera className="w-16 h-16 text-muted-foreground/10" strokeWidth={1} />
-              <div className="space-y-1">
-                <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">Waiting for Photo</p>
-                <p className="text-muted-foreground/60 text-sm font-medium">Capture your meal using the live camera feed.</p>
+                )}
+                <canvas ref={canvasRef} className="hidden" />
               </div>
-            </div>
-          )}
-        </section>
-      </div>
+
+              {mode === "camera" && !preview && (
+                <Button onClick={capturePhoto} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-ios-lg">
+                  CAPTURE PHOTO
+                </Button>
+              )}
+              
+              {preview && (
+                <Button onClick={handleAnalyze} disabled={analyzing || !!result} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-ios-lg">
+                  {analyzing ? <Loader2 className="animate-spin mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />}
+                  {result ? "Analyzed" : "Expert Analysis"}
+                </Button>
+              )}
+            </Card>
+          </section>
+
+          <section className="space-y-6">
+            {result ? (
+              <div className="animate-in slide-in-from-right-4 duration-500">
+                <Card className="rounded-[3rem] border-none shadow-ios bg-white p-8 space-y-8">
+                  <div className="flex justify-between items-start border-b border-muted/20 pb-6">
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-primary tracking-widest">Nutritionist Report</span>
+                      <h2 className="text-3xl font-black tracking-tight mt-1">{result.name}</h2>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-4xl font-black text-primary">+{result.calories}<span className="text-xs ml-1">kcal</span></p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-4 bg-primary/5 rounded-3xl text-center"><p className="text-[10px] font-black text-primary uppercase mb-1">PRO</p><p className="text-xl font-black">{result.macros.protein}g</p></div>
+                    <div className="p-4 bg-accent/20 rounded-3xl text-center"><p className="text-[10px] font-black text-accent-foreground uppercase mb-1">CHO</p><p className="text-xl font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-4 bg-blue-50 rounded-3xl text-center"><p className="text-[10px] font-black text-blue-500 uppercase mb-1">FAT</p><p className="text-xl font-black">{result.macros.fat}g</p></div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <Trophy className="text-primary w-5 h-5" />
+                         <span className="text-lg font-black uppercase">Health Score</span>
+                       </div>
+                       <span className="text-2xl font-black text-primary">{result.healthScore}/100</span>
+                    </div>
+                    <Progress value={result.healthScore} className="h-2" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Expert Summary</p>
+                    <p className="text-sm font-medium leading-relaxed italic text-foreground/80">"{result.description}"</p>
+                  </div>
+
+                  <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-lg bg-foreground text-white shadow-xl">
+                    Log Meal <ChevronRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Card>
+              </div>
+            ) : (
+              <div className="h-[500px] border-2 border-dashed border-muted/20 rounded-[3rem] flex flex-col items-center justify-center p-12 text-center bg-secondary/5">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                  <Sparkles className="w-8 h-8 text-primary/20" />
+                </div>
+                <p className="text-muted-foreground font-black uppercase text-xs tracking-widest">Awaiting Capture</p>
+                <p className="text-muted-foreground/50 text-xs font-medium mt-2 max-w-[200px]">AI Nutritionist will analyze your meal once photo is ready.</p>
+              </div>
+            )}
+          </section>
+        </div>
+      )}
     </div>
   )
 }
