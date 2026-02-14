@@ -217,7 +217,7 @@ export default function MealPlannerPage() {
 
       {/* Your Daily Agenda */}
       <section className="space-y-6">
-        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-center lg:text-left">Your Agenda</h2>
+        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">Your Agenda</h2>
         <div className="space-y-4">
           {isLoadingMeals ? (
             <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
@@ -272,7 +272,7 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      {/* Decision Fatigue Relief Hub */}
+      {/* AI Hub Access */}
       <section className="pt-6">
         <Link href="/planner">
           <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
@@ -301,7 +301,6 @@ export default function MealPlannerPage() {
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
         <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
           <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground">
-            <h3 className="text-[8px] font-black uppercase tracking-[0.4em] opacity-80 mb-1.5">Professional Kitchen Guide</h3>
             <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight">
               {activeRecipeName}
             </DialogTitle>

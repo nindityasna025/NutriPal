@@ -258,7 +258,7 @@ export default function Dashboard() {
 
       {/* Weekly Trends */}
       <section className="space-y-6">
-        <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 text-center lg:text-left justify-center lg:justify-start uppercase">
+        <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 uppercase text-left">
           <BarChart3 className="w-5 h-5 text-primary" />
           Weekly Macro Trends
         </h2>
@@ -284,7 +284,7 @@ export default function Dashboard() {
 
       {/* Daily Food Record */}
       <section className="space-y-6">
-        <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 text-center lg:text-left justify-center lg:justify-start uppercase">
+        <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 uppercase text-left">
           <Utensils className="w-5 h-5 text-primary" />
           Daily Food Record
         </h2>

@@ -166,7 +166,7 @@ export default function ExplorePage() {
 
       {!curatedResult && !aiPlan && (
         <section className="space-y-8">
-          <h2 className="text-xl font-black tracking-tight px-1 uppercase text-center lg:text-left">How can AI help today?</h2>
+          <h2 className="text-xl font-black tracking-tight px-1 uppercase text-left">How can AI help today?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card 
               onClick={handleCurateDelivery}
@@ -216,7 +216,7 @@ export default function ExplorePage() {
       {curatedResult && (
         <section className="space-y-6 animate-in fade-in zoom-in duration-500">
           <div className="flex items-center justify-between px-1">
-            <h2 className="font-black text-lg uppercase tracking-tight">Top Delivery Matches</h2>
+            <h2 className="font-black text-lg uppercase tracking-tight text-left">Top Delivery Matches</h2>
             <Button variant="ghost" onClick={() => setCuratedResult(null)} className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
               <ArrowLeft className="w-3 h-3" /> Back
             </Button>
@@ -271,7 +271,7 @@ export default function ExplorePage() {
       {aiPlan && (
         <section className="space-y-8 animate-in zoom-in duration-500">
           <div className="flex items-center justify-between px-1">
-            <h2 className="font-black text-lg uppercase tracking-tight">AI Curated Picks</h2>
+            <h2 className="font-black text-lg uppercase tracking-tight text-left">AI Curated Picks</h2>
             <Button variant="ghost" onClick={() => setAiPlan(null)} className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
               <ArrowLeft className="w-3 h-3" /> Back
             </Button>
