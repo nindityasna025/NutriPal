@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -8,11 +9,12 @@ import { useUser } from "@/firebase"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+// Reordered navItems: Snap now comes before Explore as requested
 const navItems = [
   { href: "/", label: "Home", icon: LayoutDashboard },
-  { href: "/meal-planner", label: "Plan", icon: Utensils },
-  { href: "/planner", label: "Explore", icon: Sparkles },
   { href: "/record", label: "Snap", icon: Camera },
+  { href: "/planner", label: "Explore", icon: Sparkles },
+  { href: "/meal-planner", label: "Plan", icon: Utensils },
 ]
 
 export function Navbar() {
@@ -53,7 +55,7 @@ export function Navbar() {
                     : "text-muted-foreground hover:bg-secondary hover:text-primary"
                 )}
               >
-                <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive ? "scale-110" : "group-hover:scale-105")} />
+                <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive ? "stroke-[2.5px] scale-110" : "group-hover:scale-105")} />
                 <span className="text-sm font-bold tracking-tight">{item.label}</span>
               </Link>
             )

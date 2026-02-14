@@ -18,7 +18,8 @@ import {
   Camera,
   Trophy,
   BarChart3,
-  Info
+  Info,
+  ScanSearch
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -67,22 +68,59 @@ const MacroInfoContent = () => (
       <Sparkles className="w-4 h-4" /> Macro Balance Guide
     </div>
     <p className="text-xs font-medium leading-relaxed text-muted-foreground">
-      Daily intake breakdown for sustained energy and recovery.
+      This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good.
     </p>
     <div className="space-y-3 pt-2">
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-primary">Protein</span>
-        <span>15-35% daily</span>
+        <span className="text-primary font-bold">Protein</span>
+        <span>20-30g / 15-35% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-accent">Carbs</span>
-        <span>40-50% daily</span>
+        <span className="text-accent font-bold">Carbs</span>
+        <span>20-30g / 40-50% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-blue-500">Fat</span>
-        <span>20-35% daily</span>
+        <span className="text-blue-500 font-bold">Fat</span>
+        <span>10-15g / 20-35% daily</span>
       </div>
     </div>
+    <p className="text-[10px] italic text-muted-foreground/80 leading-tight border-t pt-2">
+      Our smart tech looks at the ingredients and portions to figure out how your macros stack up.
+    </p>
+  </div>
+)
+
+const HealthBenefitInfoContent = () => (
+  <div className="space-y-4">
+    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+      <Trophy className="w-4 h-4" /> Health Benefit Algorithm
+    </div>
+    <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+      Health Benefit score is a quick 0-100 rate of how healthy your meal is.
+    </p>
+    <p className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
+      Our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also helps you stay away from ultra-processed foods, refined grains, and added sugars.
+    </p>
+    <p className="text-[10px] font-bold text-primary">
+      The closer you get to a 100, the more balanced and nutrient-rich your meal is.
+    </p>
+  </div>
+)
+
+const IngredientsInfoContent = () => (
+  <div className="space-y-4">
+    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+      <ScanSearch className="w-4 h-4" /> AI Recognition
+    </div>
+    <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+      AI scans the photo to pick out ingredients and estimate portions.
+    </p>
+    <p className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
+      While AI usually gets things right, it can sometimes mix up ingredients in complex dishes. It works best when each item is clearly visible.
+    </p>
+    <p className="text-[10px] italic text-primary">
+      Feel free to edit results in the Planner for 100% accuracy.
+    </p>
   </div>
 )
 
@@ -229,7 +267,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Quick Sync Stats */}
+        {/* Quick Sync Stats - Centered Content */}
         <div className="md:col-span-4 grid grid-cols-1 gap-6">
           <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-ios-lg transition-all">
             <div className="p-4 bg-primary/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
@@ -245,9 +283,9 @@ export default function Dashboard() {
             <div className="p-4 bg-blue-50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
               <Droplets className="w-6 h-6 text-blue-500" />
             </div>
-            <div className="space-y-4 w-full">
+            <div className="space-y-4 w-full flex flex-col items-center">
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Hydration</p>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-center gap-4 w-full">
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-10 w-10 rounded-full border border-border/50 bg-secondary/30">
                   <Minus className="w-4 h-4" />
                 </Button>
@@ -264,7 +302,7 @@ export default function Dashboard() {
       {/* Weekly Trends */}
       <section className="space-y-6">
         <h2 className="text-2xl font-extrabold tracking-tight flex items-center gap-3">
-          <BarChart3 className="w-6 h-6 text-primary" />
+          < BarChart3 className="w-6 h-6 text-primary" />
           Weekly Overview
         </h2>
         <Card className="border-none shadow-ios rounded-[2.5rem] overflow-hidden bg-white">
@@ -343,30 +381,33 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 w-full">
                         <div className="p-2 bg-white rounded-xl shadow-sm">
                           <Trophy className="w-4 h-4 text-primary" />
                         </div>
                         <span className="text-sm font-black uppercase tracking-tight text-primary">Health Score: {meal.healthScore}/100</span>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary ml-auto">
-                              <Info className="w-3.5 h-3.5" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                                <Trophy className="w-4 h-4" /> Health Benefit Score
-                              </div>
-                              <p className="text-xs font-medium leading-relaxed text-foreground/80">
-                                Health Benefit score is a quick 0-100 rate of how healthy your meal is.
-                                Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
-                                The closer to 100, the more nutrient-rich your meal is!
-                              </p>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
+                        <div className="flex gap-2 ml-auto">
+                           <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-white/50 hover:bg-white">
+                                <Trophy className="w-4 h-4 text-primary" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
+                              <HealthBenefitInfoContent />
+                            </PopoverContent>
+                          </Popover>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-white/50 hover:bg-white">
+                                <ScanSearch className="w-4 h-4 text-primary" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
+                              <IngredientsInfoContent />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -388,7 +429,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Action Hub */}
+      {/* Action Hub - Snap then Explore order */}
       <div className="flex gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
