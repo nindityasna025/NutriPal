@@ -36,7 +36,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Standardized Macro Colors
 const MACRO_COLORS = {
@@ -127,6 +126,7 @@ export default function ExplorePage() {
   }
 
   const swapMeal = (type: "Breakfast" | "Lunch" | "Dinner") => {
+    if (!menuPlan) return;
     const pool = TEMPLATE_MEALS[type];
     let nextMeal;
     do {
@@ -203,99 +203,97 @@ export default function ExplorePage() {
               <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-primary shadow-lg shadow-primary/20">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] max-h-[92vh] flex flex-col">
-            <DialogHeader className="bg-primary p-10 text-primary-foreground shrink-0 text-center relative">
-              <DialogTitle className="text-2xl font-black uppercase tracking-widest text-center">AI Meal Curation by Delivery Hub</DialogTitle>
+          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] max-h-[95vh] flex flex-col left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <DialogHeader className="bg-primary p-6 text-primary-foreground shrink-0 text-center relative rounded-t-[3rem]">
+              <DialogTitle className="text-xl font-black uppercase tracking-widest text-center">AI Meal Curation by Delivery Hub</DialogTitle>
             </DialogHeader>
-            <div className="p-8 sm:p-10 overflow-y-auto flex-1">
-              <ScrollArea className="h-full pr-4">
-                <div className="space-y-8">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
-                    <h2 className="font-black text-xl uppercase tracking-tight text-left w-full sm:w-auto">Top Profile Matches</h2>
-                    <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-6 h-12 border border-primary/10 shadow-inner">
-                      <div className="flex items-center gap-2 border-r border-muted/30 pr-4">
-                        <CalendarIcon className="w-4 h-4 text-primary" />
-                        <input 
-                          type="date" 
-                          value={targetDate} 
-                          onChange={e => setTargetDate(e.target.value)} 
-                          className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-28" 
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 pl-2">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <input 
-                          type="time" 
-                          value={targetTime} 
-                          onChange={e => setTargetTime(e.target.value)} 
-                          className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-18" 
-                        />
-                      </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+                  <h2 className="font-black text-lg uppercase tracking-tight text-left w-full sm:w-auto">Top Profile Matches</h2>
+                  <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-5 h-10 border border-primary/10 shadow-inner">
+                    <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
+                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                      <input 
+                        type="date" 
+                        value={targetDate} 
+                        onChange={e => setTargetDate(e.target.value)} 
+                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-26" 
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 pl-1">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      <input 
+                        type="time" 
+                        value={targetTime} 
+                        onChange={e => setTargetTime(e.target.value)} 
+                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                      />
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {loading ? (
-                      <div className="col-span-full flex flex-col items-center justify-center py-32 space-y-6">
-                        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Analyzing Ecosystem...</p>
-                      </div>
-                    ) : deliveryResult?.map((item) => (
-                      <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-4 overflow-hidden flex flex-col active:scale-[0.99]">
-                        <CardContent className="p-8 flex flex-col h-full space-y-6">
-                          <div className="space-y-6 flex-1 text-left">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                                <TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Score
-                              </div>
-                              <h3 className="text-2xl font-black tracking-tight uppercase leading-tight">{item.name}</h3>
-                              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
-                            </div>
-                            
-                            <div className="flex gap-2 flex-wrap">
-                              <Badge className="rounded-xl px-4 py-1.5 bg-primary/10 text-primary border-none font-black uppercase text-[9px]">+{item.calories} kcal</Badge>
-                              {item.tags.map((tag: string, i: number) => (
-                                <Badge key={i} variant="outline" className="rounded-xl px-4 py-1.5 border-muted-foreground/10 text-muted-foreground font-black uppercase text-[9px]">{tag}</Badge>
-                              ))}
-                            </div>
-
-                            <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10">
-                              <p className="text-xs font-medium leading-relaxed italic text-muted-foreground text-left">"{item.reasoning}"</p>
-                            </div>
-                          </div>
-
-                          <div className="pt-8 border-t border-muted/20 space-y-6">
-                            <div className="grid grid-cols-3 gap-4">
-                               <div className="space-y-1 text-left">
-                                 <p className="text-[9px] font-black text-muted-foreground uppercase">Protein</p>
-                                 <p className="text-lg font-black" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
-                               </div>
-                               <div className="space-y-1 text-left">
-                                 <p className="text-[9px] font-black text-muted-foreground uppercase">Carbs</p>
-                                 <p className="text-lg font-black" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
-                               </div>
-                               <div className="space-y-1 text-left">
-                                 <p className="text-[9px] font-black text-muted-foreground uppercase">Fat</p>
-                                 <p className="text-lg font-black" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
-                               </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 text-xs font-black text-muted-foreground uppercase tracking-widest">
-                                {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-5 h-5" /> : <Bike className="text-emerald-500 w-5 h-5" />}
-                                {item.platform}
-                              </div>
-                              <p className="text-2xl font-black tracking-tighter">{item.price}</p>
-                            </div>
-
-                            <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-premium">Order &amp; Sync</Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
                 </div>
-              </ScrollArea>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {loading ? (
+                    <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
+                      <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Analyzing Ecosystem...</p>
+                    </div>
+                  ) : deliveryResult?.map((item) => (
+                    <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-4 overflow-hidden flex flex-col active:scale-[0.99]">
+                      <CardContent className="p-6 flex flex-col h-full space-y-4">
+                        <div className="space-y-4 flex-1 text-left">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-primary font-black text-[9px] uppercase tracking-widest">
+                              <TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score
+                            </div>
+                            <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{item.name}</h3>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
+                          </div>
+                          
+                          <div className="flex gap-1.5 flex-wrap">
+                            <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-black uppercase text-[8px]">+{item.calories} kcal</Badge>
+                            {item.tags.map((tag: string, i: number) => (
+                              <Badge key={i} variant="outline" className="rounded-xl px-3 py-1 border-muted-foreground/10 text-muted-foreground font-black uppercase text-[8px]">{tag}</Badge>
+                            ))}
+                          </div>
+
+                          <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                            <p className="text-[10px] font-medium leading-relaxed italic text-muted-foreground text-left">"{item.reasoning}"</p>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-muted/20 space-y-4">
+                          <div className="grid grid-cols-3 gap-2">
+                             <div className="space-y-0.5 text-left">
+                               <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                               <p className="text-base font-black" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
+                             </div>
+                             <div className="space-y-0.5 text-left">
+                               <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                               <p className="text-base font-black" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
+                             </div>
+                             <div className="space-y-0.5 text-left">
+                               <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                               <p className="text-base font-black" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
+                             </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                              {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
+                              {item.platform}
+                            </div>
+                            <p className="text-xl font-black tracking-tighter">{item.price}</p>
+                          </div>
+
+                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-11 rounded-xl font-black uppercase tracking-widest text-[9px] shadow-premium">Order &amp; Sync</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -316,95 +314,91 @@ export default function ExplorePage() {
               <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-accent/10">Generate Plan</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] max-h-[92vh] flex flex-col">
-            <DialogHeader className="bg-accent p-10 text-accent-foreground shrink-0 text-center">
-              <DialogTitle className="text-2xl font-black uppercase tracking-widest text-center">Smart Menu Generation</DialogTitle>
+          <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] max-h-[95vh] flex flex-col left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <DialogHeader className="bg-accent p-6 text-accent-foreground shrink-0 text-center rounded-t-[3rem]">
+              <DialogTitle className="text-xl font-black uppercase tracking-widest text-center">Smart Menu Generation</DialogTitle>
             </DialogHeader>
-            <div className="p-8 sm:p-10 overflow-y-auto flex-1">
-              <ScrollArea className="h-full pr-4">
-                <div className="space-y-8">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
-                    <h2 className="font-black text-xl uppercase tracking-tight text-left w-full sm:w-auto">Matched Menu Templates</h2>
-                    <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-8 h-12 border border-primary/10 shadow-inner">
-                      <div className="flex items-center gap-2">
-                        <CalendarIcon className="w-4 h-4 text-primary" />
-                        <input 
-                          type="date" 
-                          value={targetDate} 
-                          onChange={e => setTargetDate(e.target.value)} 
-                          className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-32" 
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {loading ? (
-                      <div className="col-span-full flex flex-col items-center justify-center py-32 space-y-6">
-                        <Loader2 className="w-12 h-12 animate-spin text-accent" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Curating Daily Plan...</p>
-                      </div>
-                    ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
-                      const meal = menuPlan[type];
-                      return (
-                        <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-4 overflow-hidden flex flex-col active:scale-[0.99]">
-                          <CardContent className="p-8 flex flex-col h-full space-y-6">
-                            <div className="flex-1 space-y-6 text-left">
-                              <div className="flex items-center justify-between">
-                                <Badge variant="secondary" className="bg-primary/10 text-primary uppercase text-[10px] font-black tracking-[0.2em] px-4 py-1.5 rounded-xl">
-                                  {type}
-                                </Badge>
-                                <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-10 w-10 transition-transform active:rotate-180">
-                                  <RefreshCw className="w-5 h-5" />
-                                </Button>
-                              </div>
-                              
-                              <div className="space-y-3">
-                                <h3 className="text-2xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
-                                <p className="text-[12px] font-medium leading-relaxed text-muted-foreground">{meal.description}</p>
-                              </div>
-
-                              <div className="grid grid-cols-3 gap-4 border-y border-muted/20 py-6">
-                                <div className="space-y-1 text-left">
-                                  <p className="text-[9px] font-black text-muted-foreground uppercase">Protein</p>
-                                  <p className="text-lg font-black" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
-                                </div>
-                                <div className="space-y-1 text-left">
-                                  <p className="text-[9px] font-black text-muted-foreground uppercase">Carbs</p>
-                                  <p className="text-lg font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
-                                </div>
-                                <div className="space-y-1 text-left">
-                                  <p className="text-[9px] font-black text-muted-foreground uppercase">Fat</p>
-                                  <p className="text-lg font-black" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
-                                </div>
-                              </div>
-
-                              <div className="bg-secondary/30 p-5 rounded-2xl text-center space-y-1">
-                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Energy Value</p>
-                                <p className="text-2xl font-black tracking-tighter text-foreground">+{meal.calories} kcal</p>
-                              </div>
-                            </div>
-
-                            <div className="pt-8 space-y-3">
-                              <div className="grid grid-cols-2 gap-3">
-                                <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                                  GrabFood
-                                </Button>
-                                <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                                  GoFood
-                                </Button>
-                              </div>
-                              <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary hover:bg-primary/5">
-                                <Plus className="w-3 h-3 mr-2" /> Cook Myself
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+            <div className="p-6 flex-1 flex flex-col">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 mb-6">
+                <h2 className="font-black text-lg uppercase tracking-tight text-left w-full sm:w-auto">Matched Menu Templates</h2>
+                <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-6 h-10 border border-primary/10 shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                    <input 
+                      type="date" 
+                      value={targetDate} 
+                      onChange={e => setTargetDate(e.target.value)} 
+                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-30" 
+                    />
                   </div>
                 </div>
-              </ScrollArea>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1">
+                {loading ? (
+                  <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
+                    <Loader2 className="w-10 h-10 animate-spin text-accent" />
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Curating Daily Plan...</p>
+                  </div>
+                ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
+                  const meal = menuPlan[type];
+                  return (
+                    <Card key={type} className="rounded-[2rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-2 overflow-hidden flex flex-col active:scale-[0.99]">
+                      <CardContent className="p-6 flex flex-col h-full space-y-4">
+                        <div className="flex-1 space-y-4 text-left">
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary" className="bg-primary/10 text-primary uppercase text-[8px] font-black tracking-[0.2em] px-3 py-1 rounded-lg">
+                              {type}
+                            </Badge>
+                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-8 w-8 transition-transform active:rotate-180">
+                              <RefreshCw className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <h3 className="text-lg font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
+                            <p className="text-[10px] font-medium leading-relaxed text-muted-foreground">{meal.description}</p>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-2 border-y border-muted/20 py-4">
+                            <div className="space-y-0.5 text-left">
+                              <p className="text-[7px] font-black text-muted-foreground uppercase">Protein</p>
+                              <p className="text-base font-black" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
+                            </div>
+                            <div className="space-y-0.5 text-left">
+                              <p className="text-[7px] font-black text-muted-foreground uppercase">Carbs</p>
+                              <p className="text-base font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
+                            </div>
+                            <div className="space-y-0.5 text-left">
+                              <p className="text-[7px] font-black text-muted-foreground uppercase">Fat</p>
+                              <p className="text-base font-black" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
+                            </div>
+                          </div>
+
+                          <div className="bg-secondary/20 p-3 rounded-xl text-center space-y-0.5">
+                            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Energy Value</p>
+                            <p className="text-xl font-black tracking-tighter text-foreground">+{meal.calories} kcal</p>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-lg h-9 text-[8px] font-black uppercase tracking-widest">
+                              GrabFood
+                            </Button>
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg h-9 text-[8px] font-black uppercase tracking-widest">
+                              GoFood
+                            </Button>
+                          </div>
+                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-lg h-9 text-[8px] font-black uppercase tracking-widest border-primary/20 text-primary hover:bg-primary/5">
+                            <Plus className="w-3 h-3 mr-1" /> Cook Myself
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
           </DialogContent>
         </Dialog>
