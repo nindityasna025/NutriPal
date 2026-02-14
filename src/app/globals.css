@@ -4,27 +4,27 @@
 
 @layer base {
   :root {
-    /* Apple Human Interface Guidelines - Premium Cream & Green Palette */
-    --background: 33 30% 97%; /* White Cream */
-    --foreground: 142 76% 10%; /* Deepest Green for text */
+    /* NutriPal Design Philosophy: Health, Fresh, Trust */
+    --background: 33 30% 97%; /* Warm White Cream */
+    --foreground: 142 76% 10%; /* Deep Green for maximum readability */
     
-    --card: 0 0% 100%; /* Pure white cards */
+    --card: 0 0% 100%; /* Pure white for high contrast */
     --card-foreground: 142 76% 10%;
     
     --popover: 33 30% 97%;
     --popover-foreground: 142 76% 10%;
     
-    --primary: 142 76% 24%; /* Hijau (Deep Forest Green) */
+    --primary: 142 76% 24%; /* Natural Forest Green */
     --primary-foreground: 33 30% 98%;
     
-    --secondary: 142 20% 92%; /* Subtle Green Tint */
+    --secondary: 142 20% 92%; /* Soft Secondary Green */
     --secondary-foreground: 142 76% 20%;
     
-    --muted: 33 20% 92%; /* Creamy Muted */
+    --muted: 33 20% 92%;
     --muted-foreground: 142 10% 40%;
     
-    --accent: 84 100% 92%; /* Lime Pastel */
-    --accent-foreground: 142 76% 20%;
+    --accent: 162 44% 45%; /* Soft Teal Accent for health markers */
+    --accent-foreground: 162 100% 10%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -33,7 +33,7 @@
     --input: 33 20% 88%;
     --ring: 142 76% 24%;
     
-    --radius: 1.5rem; /* iOS-style smooth corners */
+    --radius: 1.75rem; /* Smoother, more premium corners */
   }
 }
 
@@ -42,22 +42,31 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-primary/20;
+    @apply bg-background text-foreground font-body antialiased selection:bg-primary/20 overflow-x-hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-extrabold tracking-tight text-foreground;
+    @apply font-headline font-black tracking-tight text-foreground uppercase;
   }
 }
 
-/* Premium iOS Shadows */
-.shadow-ios {
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
+/* Premium Tactile Depth */
+.shadow-premium {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
 }
 
-.shadow-ios-lg {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+.shadow-premium-lg {
+  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.08);
 }
 
 .glass {
-  @apply backdrop-blur-xl bg-white/70;
+  @apply backdrop-blur-2xl bg-white/70;
+}
+
+/* iPhone Safe Areas */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
 }

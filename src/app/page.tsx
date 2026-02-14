@@ -67,7 +67,7 @@ const MacroInfoContent = () => (
       <Sparkles className="w-4 h-4" /> Macro Balance Guide
     </div>
     <p className="text-xs font-medium leading-relaxed text-muted-foreground">
-      This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good.
+      Breaking down your intake into protein, carbs, and fats—the building blocks of energy and recovery.
     </p>
     <div className="space-y-3 pt-2">
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
@@ -75,7 +75,7 @@ const MacroInfoContent = () => (
         <span>20-30g / 15-35% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-accent-foreground font-bold">Carbs</span>
+        <span className="text-accent font-bold">Carbs</span>
         <span>20-30g / 40-50% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
@@ -83,34 +83,6 @@ const MacroInfoContent = () => (
         <span>10-15g / 20-35% daily</span>
       </div>
     </div>
-  </div>
-)
-
-const HealthBenefitInfoContent = () => (
-  <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-      <Trophy className="w-4 h-4" /> Health Benefit Algorithm
-    </div>
-    <p className="text-xs font-medium leading-relaxed text-muted-foreground">
-      Health Benefit score is a quick 0-100 rate of how healthy your meal is.
-    </p>
-    <p className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
-      Our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also helps you stay away from ultra-processed foods, refined grains, and added sugars.
-    </p>
-  </div>
-)
-
-const IngredientsInfoContent = () => (
-  <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-      <ScanSearch className="w-4 h-4" /> AI Recognition
-    </div>
-    <p className="text-xs font-medium leading-relaxed text-muted-foreground">
-      AI scans the photo to pick out ingredients and estimate portions.
-    </p>
-    <p className="text-[10px] italic text-primary">
-      Feel free to edit results in the Planner for 100% accuracy.
-    </p>
   </div>
 )
 
@@ -184,14 +156,6 @@ export default function Dashboard() {
   const carbsPercent = totalMacros > 0 ? (totals.carbs / totalMacros) * 100 : 0;
   const fatPercent = totalMacros > 0 ? (totals.fat / totalMacros) * 100 : 0;
 
-  if (!mounted || isUserLoading || !user) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   const adjustWater = (amount: number) => {
     if (!dailyLogRef) return;
     const newWater = Math.max(0, water + amount);
@@ -201,25 +165,33 @@ export default function Dashboard() {
     }, { merge: true });
   }
 
+  if (!mounted || isUserLoading || !user) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32 overflow-x-hidden">
-      <header className="space-y-1">
-        <h1 className="text-5xl font-extrabold tracking-tighter text-foreground">Today</h1>
-        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest opacity-60">
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32">
+      <header className="space-y-1 pt-safe">
+        <h1 className="text-5xl font-black tracking-tighter text-foreground">Today</h1>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           {format(today, "EEEE, MMMM do")}
         </p>
       </header>
 
       {/* Hero Calories Card */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <Card className="md:col-span-8 border-none shadow-ios bg-card rounded-[2.5rem] overflow-hidden">
-          <CardContent className="p-10 space-y-8">
+        <Card className="md:col-span-8 border-none shadow-premium bg-white rounded-[3rem] overflow-hidden">
+          <CardContent className="p-10 space-y-10">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Daily Energy</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
                 <div className="flex items-baseline gap-3">
-                  <h2 className="text-6xl font-extrabold tracking-tighter">{consumed}</h2>
-                  <span className="text-xl font-bold text-muted-foreground">/ {calorieTarget} kcal</span>
+                  <h2 className="text-6xl font-black tracking-tighter">{consumed}</h2>
+                  <span className="text-xl font-bold text-muted-foreground/40 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
@@ -228,59 +200,59 @@ export default function Dashboard() {
                     <Info className="w-5 h-5 text-primary" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
+                <PopoverContent className="w-80 p-6 rounded-[2.5rem] shadow-premium-lg border-none glass">
                   <MacroInfoContent />
                 </PopoverContent>
               </Popover>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary">
+            <div className="space-y-5">
+              <div className="flex h-5 w-full rounded-full overflow-hidden bg-secondary">
                 <div style={{ width: `${proteinPercent}%` }} className="bg-primary h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%` }} className="bg-accent h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%` }} className="bg-blue-500 h-full transition-all duration-700" />
               </div>
-              <div className="flex justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-widest opacity-80">
-                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /> {totals.protein}g Protein</span>
-                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /> {totals.carbs}g Carbs</span>
-                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> {totals.fat}g Fat</span>
+              <div className="grid grid-cols-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest gap-2">
+                <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-primary" /> {totals.protein}g Protein</div>
+                <div className="flex items-center gap-2 justify-center"><div className="w-2.5 h-2.5 rounded-full bg-accent" /> {totals.carbs}g Carbs</div>
+                <div className="flex items-center gap-2 justify-end"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /> {totals.fat}g Fat</div>
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-2">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Progress</span>
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Goal Completion</span>
                 <span className="text-sm font-black text-primary">{caloriePercent}%</span>
               </div>
-              <Progress value={caloriePercent} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-primary" />
+              <Progress value={caloriePercent} className="h-4 rounded-full bg-secondary" indicatorClassName="bg-primary" />
             </div>
           </CardContent>
         </Card>
 
         {/* Quick Sync Stats */}
         <div className="md:col-span-4 grid grid-cols-1 gap-6">
-          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-card group hover:shadow-ios-lg transition-all">
-            <div className="p-4 bg-primary/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
-              <Flame className="w-6 h-6 text-primary" />
+          <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-premium-lg transition-all">
+            <div className="p-4 bg-primary/5 rounded-3xl mb-4 group-hover:scale-110 transition-transform">
+              <Flame className="w-7 h-7 text-primary" />
             </div>
-            <div className="flex flex-col items-center">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Burned</p>
-              <p className="text-4xl font-extrabold">{burned} <span className="text-sm font-bold text-muted-foreground">kcal</span></p>
+            <div className="space-y-1">
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Burned Today</p>
+              <p className="text-4xl font-black tracking-tighter">{burned} <span className="text-xs font-bold text-muted-foreground">kcal</span></p>
             </div>
           </Card>
 
-          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-card group hover:shadow-ios-lg transition-all">
-            <div className="p-4 bg-blue-50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
-              <Droplets className="w-6 h-6 text-blue-500" />
+          <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-premium-lg transition-all">
+            <div className="p-4 bg-blue-50 rounded-3xl mb-4 group-hover:scale-110 transition-transform">
+              <Droplets className="w-7 h-7 text-blue-500" />
             </div>
-            <div className="space-y-4 w-full flex flex-col items-center">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Hydration</p>
-              <div className="flex items-center justify-center gap-4 w-full">
+            <div className="space-y-4 w-full">
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Hydration</p>
+              <div className="flex items-center justify-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-10 w-10 rounded-full border border-border/50 bg-secondary/30">
                   <Minus className="w-4 h-4" />
                 </Button>
-                <span className="text-4xl font-extrabold whitespace-nowrap">{water}L</span>
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-sm">
+                <span className="text-4xl font-black tracking-tighter">{water}L</span>
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-premium">
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
@@ -291,11 +263,11 @@ export default function Dashboard() {
 
       {/* Weekly Trends */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-extrabold tracking-tight flex items-center gap-3">
-          < BarChart3 className="w-6 h-6 text-primary" />
+        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-2">
+          <BarChart3 className="w-6 h-6 text-primary" />
           Weekly Overview
         </h2>
-        <Card className="border-none shadow-ios rounded-[2.5rem] overflow-hidden bg-card">
+        <Card className="border-none shadow-premium rounded-[3rem] overflow-hidden bg-white">
           <CardContent className="p-10">
             <div className="h-[350px] w-full">
               <ChartContainer config={chartConfig}>
@@ -305,14 +277,14 @@ export default function Dashboard() {
                     dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 700 }}
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 800 }}
                   />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }} />
                   <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                   <ChartLegend content={<ChartLegendContent />} className="pt-8" />
                   <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={40} radius={[0, 0, 0, 0]} />
                   <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" />
-                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -322,82 +294,66 @@ export default function Dashboard() {
 
       {/* Daily Meals List */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-extrabold tracking-tight px-2">Daily Report</h2>
-        <div className="space-y-4">
+        <h2 className="text-xl font-black tracking-tight px-2 uppercase">Daily Activity</h2>
+        <div className="space-y-5">
           {isLoadingMeals ? (
             <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>
           ) : meals && meals.length > 0 ? (
             meals.map((meal) => (
               <Card 
                 key={meal.id} 
-                className="rounded-[2rem] border-none shadow-ios hover:shadow-ios-lg transition-all cursor-pointer overflow-hidden group bg-card"
+                className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all cursor-pointer overflow-hidden group bg-white"
                 onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
               >
-                <div className="p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-secondary rounded-2xl relative overflow-hidden flex-shrink-0 shadow-sm">
+                <div className="p-8 flex items-center justify-between">
+                  <div className="flex items-center gap-8">
+                    <div className="w-20 h-20 bg-secondary rounded-3xl relative overflow-hidden flex-shrink-0 shadow-inner">
                       <Image 
-                        src={`https://picsum.photos/seed/${meal.id}/200`} 
+                        src={`https://picsum.photos/seed/${meal.id}/400`} 
                         alt={meal.name} 
                         fill 
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        data-ai-hint="delicious meal"
+                        className="object-cover group-hover:scale-110 transition-transform duration-1000"
+                        data-ai-hint="healthy meal"
                       />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-xl tracking-tight">{meal.name}</h3>
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-1">{meal.time}</p>
+                      <h3 className="font-black text-2xl tracking-tight">{meal.name}</h3>
+                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1.5">{meal.time}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-black text-primary">+{meal.calories}</span>
-                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">kcal</span>
+                    <span className="text-3xl font-black text-primary tracking-tighter">+{meal.calories}</span>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1.5">kcal</span>
                   </div>
                 </div>
                 {expandedMeal === meal.id && (
-                  <div className="px-8 pb-8 pt-2 border-t border-border/20 animate-in slide-in-from-top-4 duration-500">
-                    <div className="grid grid-cols-3 gap-4 mb-8">
-                      <div className="text-center p-4 bg-primary/5 rounded-2xl">
-                        <span className="block text-[10px] font-black text-primary uppercase tracking-widest mb-1">Protein</span>
-                        <span className="text-xl font-extrabold">{meal.macros?.protein}g</span>
+                  <div className="px-10 pb-10 pt-4 border-t border-muted/20 animate-in slide-in-from-top-4 duration-500">
+                    <div className="grid grid-cols-3 gap-5 mb-10">
+                      <div className="text-center p-6 bg-primary/5 rounded-[2rem]">
+                        <span className="block text-[9px] font-black text-primary uppercase tracking-widest mb-1.5">Protein</span>
+                        <span className="text-2xl font-black">{meal.macros?.protein}g</span>
                       </div>
-                      <div className="text-center p-4 bg-accent/20 rounded-2xl">
-                        <span className="block text-[10px] font-black text-accent-foreground uppercase tracking-widest mb-1">Carbs</span>
-                        <span className="text-xl font-extrabold">{meal.macros?.carbs}g</span>
+                      <div className="text-center p-6 bg-accent/20 rounded-[2rem]">
+                        <span className="block text-[9px] font-black text-accent-foreground uppercase tracking-widest mb-1.5">Carbs</span>
+                        <span className="text-2xl font-black">{meal.macros?.carbs}g</span>
                       </div>
-                      <div className="text-center p-4 bg-blue-50 rounded-2xl">
-                        <span className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Fat</span>
-                        <span className="text-xl font-extrabold">{meal.macros?.fat}g</span>
+                      <div className="text-center p-6 bg-blue-50 rounded-[2rem]">
+                        <span className="block text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1.5">Fat</span>
+                        <span className="text-2xl font-black">{meal.macros?.fat}g</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="p-2 bg-white rounded-xl shadow-sm">
-                          <Trophy className="w-4 h-4 text-primary" />
+                    <div className="p-6 bg-secondary/50 rounded-[2.5rem] flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-white p-3 rounded-2xl shadow-sm">
+                          <Trophy className="w-5 h-5 text-primary" />
                         </div>
-                        <span className="text-sm font-black uppercase tracking-tight text-primary">Health Score: {meal.healthScore}/100</span>
-                        <div className="flex gap-2 ml-auto">
-                           <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-white/50 hover:bg-white">
-                                <Trophy className="w-4 h-4 text-primary" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
-                              <HealthBenefitInfoContent />
-                            </PopoverContent>
-                          </Popover>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-white/50 hover:bg-white">
-                                <ScanSearch className="w-4 h-4 text-primary" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
-                              <IngredientsInfoContent />
-                            </PopoverContent>
-                          </Popover>
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Nutritionist Score</p>
+                          <p className="text-lg font-black text-primary uppercase">{meal.healthScore}/100 Health Score</p>
                         </div>
+                      </div>
+                      <div className="flex gap-3">
+                         <div className="bg-white/80 p-2 rounded-xl"><ScanSearch className="w-5 h-5 text-primary" /></div>
                       </div>
                     </div>
                   </div>
@@ -405,13 +361,13 @@ export default function Dashboard() {
               </Card>
             ))
           ) : (
-            <div className="text-center py-24 bg-secondary/20 rounded-[3rem] border-2 border-dashed border-border/50 flex flex-col items-center gap-6">
-              <Utensils className="w-16 h-16 text-muted-foreground/10" />
-              <div className="space-y-1">
-                <p className="text-muted-foreground font-extrabold text-lg">No activity logged today.</p>
-                <p className="text-sm text-muted-foreground font-medium">Plan your first meal to start tracking.</p>
+            <div className="text-center py-28 bg-white/40 rounded-[3.5rem] border-2 border-dashed border-border flex flex-col items-center gap-8">
+              <Utensils className="w-20 h-20 text-muted-foreground/10" />
+              <div className="space-y-2">
+                <p className="text-muted-foreground font-black text-2xl uppercase tracking-tighter">Nothing Logged</p>
+                <p className="text-sm text-muted-foreground/60 font-bold uppercase tracking-widest">Plan your first meal to start tracking</p>
               </div>
-              <Button onClick={() => router.push("/meal-planner")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
+              <Button onClick={() => router.push("/meal-planner")} className="rounded-full px-12 h-16 font-black uppercase tracking-[0.2em] shadow-premium-lg bg-primary text-primary-foreground hover:scale-105 transition-transform active:scale-95">
                 MEAL PLANNER
               </Button>
             </div>
@@ -419,43 +375,43 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Action Hub - Thumb-friendly controls */}
-      <div className="flex gap-6 pt-6">
+      {/* Action Hub - High-fidelity tactile controls */}
+      <div className="grid grid-cols-2 gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
-          className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-primary text-primary-foreground shadow-ios-lg hover:shadow-ios-lg transition-all active:scale-95 group"
+          className="h-44 rounded-[3.5rem] flex flex-col gap-4 bg-primary text-primary-foreground shadow-premium-lg hover:shadow-premium-lg transition-all active:scale-[0.97] group"
         >
-          <div className="p-4 bg-white/10 rounded-2xl group-hover:scale-110 transition-transform">
-            <Camera className="w-8 h-8" />
+          <div className="p-5 bg-white/10 rounded-3xl group-hover:scale-110 transition-transform">
+            <Camera className="w-9 h-9" />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em]">Snap Meal</span>
+          <span className="font-black text-sm uppercase tracking-[0.3em]">Snap Meal</span>
         </Button>
         <Button 
           variant="secondary"
           onClick={() => router.push("/planner")}
-          className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-card text-primary border-none shadow-ios hover:shadow-ios-lg transition-all active:scale-95 group"
+          className="h-44 rounded-[3.5rem] flex flex-col gap-4 bg-white text-primary border-none shadow-premium hover:shadow-premium-lg transition-all active:scale-[0.97] group"
         >
-          <div className="p-4 bg-accent/30 rounded-2xl group-hover:scale-110 transition-transform">
-            <Sparkles className="w-8 h-8" />
+          <div className="p-5 bg-accent/20 rounded-3xl group-hover:scale-110 transition-transform">
+            <Sparkles className="w-9 h-9" />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em]">Explore Deals</span>
+          <span className="font-black text-sm uppercase tracking-[0.3em]">Explore</span>
         </Button>
       </div>
 
-      {/* AI Wellness Insights Card */}
-      <Card className="rounded-[3rem] border-none shadow-ios-lg bg-primary text-primary-foreground p-10 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:rotate-12 transition-transform duration-700">
-          <Sparkles className="w-48 h-48" />
+      {/* AI Wellness Coach */}
+      <Card className="rounded-[4rem] border-none shadow-premium-lg bg-primary text-primary-foreground p-12 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
+          <Sparkles className="w-56 h-56" />
         </div>
-        <div className="relative z-10 space-y-6 max-w-2xl">
+        <div className="relative z-10 space-y-8 max-w-2xl">
           <div className="flex items-center gap-4">
-             <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
-               <Sparkles className="w-6 h-6" />
+             <div className="bg-white/20 p-4 rounded-3xl backdrop-blur-xl">
+               <Sparkles className="w-8 h-8" />
              </div>
-             <h2 className="text-xl font-black uppercase tracking-tight">AI Wellness Coach</h2>
+             <h2 className="text-2xl font-black uppercase tracking-tight">Wellness Coach</h2>
           </div>
-          <p className="text-xl font-bold leading-relaxed opacity-90 italic">
-            "You&apos;re doing great! Your protein levels are optimal for recovery today. Try adding a bit more water after your next meal to boost digestion."
+          <p className="text-2xl font-bold leading-tight opacity-90 italic">
+            "Your protein levels are optimal for recovery today. Try adding a bit more hydration after your next meal to boost digestion."
           </p>
         </div>
       </Card>
