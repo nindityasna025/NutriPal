@@ -20,10 +20,8 @@ import {
   Trophy,
   BarChart3,
   Info,
-  CheckCircle2,
   ScanSearch,
-  AlertCircle,
-  Heart
+  CheckCircle2
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -66,6 +64,31 @@ const chartConfig = {
     color: "hsl(221.2 83.2% 53.3%)",
   },
 } satisfies ChartConfig
+
+const MacroInfoContent = () => (
+  <div className="space-y-4">
+    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+      <Sparkles className="w-4 h-4" /> Macro Balance Guide
+    </div>
+    <p className="text-xs font-medium leading-relaxed text-foreground/80">
+      This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good.
+    </p>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+        <span className="text-red-500">Protein</span>
+        <span>20-30g / 15-35% daily</span>
+      </div>
+      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+        <span className="text-yellow-600">Carbs</span>
+        <span>20-30g / 40-50% daily</span>
+      </div>
+      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+        <span className="text-blue-500">Fat</span>
+        <span>10-15g / 20-35% daily</span>
+      </div>
+    </div>
+  </div>
+)
 
 export default function Dashboard() {
   const router = useRouter()
@@ -165,10 +188,22 @@ export default function Dashboard() {
             </div>
             
             <div className="space-y-4">
-              <div className="flex justify-between text-[11px] font-black uppercase tracking-widest">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /> Protein</div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /> Carbs</div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Fat</div>
+              <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /> Protein</div>
+                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /> Carbs</div>
+                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Fat</div>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full text-muted-foreground/40 hover:text-primary">
+                      <Info className="w-3 h-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                    <MacroInfoContent />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary/50 border border-muted/10">
                 <div style={{ width: '25%' }} className="bg-red-500 h-full transition-all duration-700" />
@@ -262,72 +297,6 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Wellness Guides Hub */}
-      <section className="space-y-8">
-        <div className="space-y-6">
-          <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
-            <div className="p-2 bg-orange-50 rounded-xl">
-              <Info className="w-5 h-5 text-orange-500" />
-            </div>
-            Wellness Guides
-          </h2>
-          
-          <div className="grid grid-cols-1 gap-8">
-            {/* Macro Balance Guide */}
-            <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-              <CardContent className="p-10 space-y-8">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-black tracking-tight uppercase flex items-center gap-2">
-                    Macro Balance
-                  </h3>
-                  <p className="text-muted-foreground font-medium leading-relaxed">
-                    This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good. Our smart tech looks at the ingredients and portions to figure out how your macros stack up.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { 
-                      title: "Protein", 
-                      color: "bg-red-500", 
-                      guide: "20-30g per meal", 
-                      perc: "15-35% daily",
-                      desc: "Essential for muscle repair and satiety."
-                    },
-                    { 
-                      title: "Carbs", 
-                      color: "bg-yellow-500", 
-                      guide: "20-30g per meal", 
-                      perc: "40-50% daily",
-                      desc: "Aim for good sources like veggies and grains."
-                    },
-                    { 
-                      title: "Fat", 
-                      color: "bg-blue-500", 
-                      guide: "10-15g per meal", 
-                      perc: "20-35% daily",
-                      desc: "Healthy fats from nuts, seeds, or avocado."
-                    }
-                  ].map((m, i) => (
-                    <div key={i} className="space-y-4 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-muted-foreground/10 transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className={cn("w-3 h-3 rounded-full", m.color)} />
-                        <span className="font-black text-xs uppercase tracking-widest">{m.title}</span>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-lg font-black tracking-tight">{m.guide}</p>
-                        <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{m.perc}</p>
-                      </div>
-                      <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">{m.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Daily Food Report */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Food Report</h2>
@@ -368,28 +337,41 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.protein}g Protein</span></div>
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.carbs}g Carbs</span></div>
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.fat}g Fat</span></div>
-                        <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
-                          <Trophy className="w-3.5 h-3.5 text-primary" />
-                          <span className="text-[11px] font-black uppercase text-primary">{meal.healthScore}/100 Score</span>
-                          <Popover>
+                        
+                        <div className="flex items-center gap-2 ml-auto">
+                           <Popover>
                             <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full text-primary hover:bg-primary/20 ml-1">
-                                <Info className="w-2.5 h-2.5" />
+                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
+                                <Info className="w-3.5 h-3.5" />
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                                  <Trophy className="w-4 h-4" /> Health Benefit Score
-                                </div>
-                                <p className="text-xs font-medium leading-relaxed text-foreground/80">
-                                  Health Benefit score is a quick 0-100 rate of how healthy your meal is.
-                                  Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
-                                  The closer to 100, the more nutrient-rich your meal is!
-                                </p>
-                              </div>
+                              <MacroInfoContent />
                             </PopoverContent>
                           </Popover>
+                          <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
+                            <Trophy className="w-3.5 h-3.5 text-primary" />
+                            <span className="text-[11px] font-black uppercase text-primary">{meal.healthScore}/100 Score</span>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full text-primary hover:bg-primary/20 ml-1">
+                                  <Info className="w-2.5 h-2.5" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                    <Trophy className="w-4 h-4" /> Health Benefit Score
+                                  </div>
+                                  <p className="text-xs font-medium leading-relaxed text-foreground/80">
+                                    Health Benefit score is a quick 0-100 rate of how healthy your meal is.
+                                    Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
+                                    The closer to 100, the more nutrient-rich your meal is!
+                                  </p>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -400,7 +382,7 @@ export default function Dashboard() {
                          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40">Ingredients Intelligence</p>
                          <Popover>
                             <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary">
+                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
                                 <Info className="w-3.5 h-3.5" />
                               </Button>
                             </PopoverTrigger>

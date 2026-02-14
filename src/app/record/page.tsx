@@ -16,7 +16,6 @@ import {
   Calendar as CalendarIcon,
   Trophy,
   Info,
-  Target,
   ArrowUpCircle,
   CheckCircle,
   ArrowDownCircle,
@@ -30,6 +29,31 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+
+const MacroInfoContent = () => (
+  <div className="space-y-4">
+    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+      <Sparkles className="w-4 h-4" /> Macro Balance Guide
+    </div>
+    <p className="text-xs font-medium leading-relaxed text-foreground/80">
+      This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good.
+    </p>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+        <span className="text-red-500">Protein</span>
+        <span>20-30g / 15-35% daily</span>
+      </div>
+      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+        <span className="text-yellow-600">Carbs</span>
+        <span>20-30g / 40-50% daily</span>
+      </div>
+      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+        <span className="text-blue-500">Fat</span>
+        <span>10-15g / 20-35% daily</span>
+      </div>
+    </div>
+  </div>
+)
 
 export default function RecordPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -222,10 +246,25 @@ export default function RecordPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-red-50 rounded-2xl text-center"><p className="text-[10px] font-black text-red-600 uppercase">Protein</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
-                  <div className="p-4 bg-yellow-50 rounded-2xl text-center"><p className="text-[10px] font-black text-yellow-600 uppercase">Carbs</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
-                  <div className="p-4 bg-blue-50 rounded-2xl text-center"><p className="text-[10px] font-black text-blue-600 uppercase">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Macro Composition</p>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
+                          <Info className="w-3.5 h-3.5" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                        <MacroInfoContent />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="p-4 bg-red-50 rounded-2xl text-center"><p className="text-[10px] font-black text-red-600 uppercase">Protein</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
+                    <div className="p-4 bg-yellow-50 rounded-2xl text-center"><p className="text-[10px] font-black text-yellow-600 uppercase">Carbs</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-4 bg-blue-50 rounded-2xl text-center"><p className="text-[10px] font-black text-blue-600 uppercase">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
+                  </div>
                 </div>
 
                 {/* Personalized Suggestion Section */}
@@ -256,7 +295,7 @@ export default function RecordPage() {
                        <span className="text-lg font-black uppercase tracking-tight">Health Score</span>
                        <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary">
+                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
                             <Info className="w-3.5 h-3.5" />
                           </Button>
                         </PopoverTrigger>
@@ -290,7 +329,7 @@ export default function RecordPage() {
                           <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients Detected</p>
                           <Popover>
                              <PopoverTrigger asChild>
-                               <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary">
+                               <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
                                  <Info className="w-3.5 h-3.5" />
                                </Button>
                              </PopoverTrigger>
