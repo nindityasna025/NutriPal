@@ -17,7 +17,8 @@ import {
   ChefHat,
   ShoppingBag,
   ArrowLeft,
-  Info
+  Info,
+  RefreshCw
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
@@ -36,17 +37,41 @@ const SCRAPED_DATABASE = [
   { id: "s6", name: "Lean Turkey Burger", restaurant: "Burgreens", price: "Rp 68,000", platform: "GoFood" as const, calories: 480, macros: { protein: 25, carbs: 42, fat: 18 }, healthScore: 85, tags: ["Healthy", "Clean Eating"], restricts: [] },
 ];
 
-// Custom Model: Menu Templates
-const MENU_TEMPLATES = {
+// Alternative Pools for Swapping
+const ALTERNATIVE_POOL = {
   standard: {
-    breakfast: { name: "Berry Oat Smoothie Bowl", calories: 350, macros: { protein: 12, carbs: 65, fat: 8 }, description: "Antioxidant-rich base with flax seeds.", ingredients: ["Oats", "Mixed Berries", "Almond Milk"] },
-    lunch: { name: "Mediterranean Chicken Wrap", calories: 550, macros: { protein: 35, carbs: 45, fat: 22 }, description: "Grilled lean chicken with hummus and greens.", ingredients: ["Chicken breast", "Whole wheat wrap", "Hummus"] },
-    dinner: { name: "Baked Cod with Asparagus", calories: 420, macros: { protein: 40, carbs: 10, fat: 24 }, description: "Omega-3 dense white fish with steamed greens.", ingredients: ["Cod fillet", "Asparagus", "Lemon"] }
+    Breakfast: [
+      { name: "Berry Oat Smoothie Bowl", calories: 350, macros: { protein: 12, carbs: 65, fat: 8 }, description: "Antioxidant-rich base with flax seeds.", ingredients: ["Oats", "Mixed Berries", "Almond Milk"] },
+      { name: "Avocado & Egg Sourdough", calories: 380, macros: { protein: 16, carbs: 40, fat: 22 }, description: "High-protein breakfast for sustained energy.", ingredients: ["Sourdough", "Avocado", "Poached Egg"] },
+      { name: "Greek Yogurt Parfait", calories: 310, macros: { protein: 20, carbs: 35, fat: 6 }, description: "Low-fat, high-protein probiotic start.", ingredients: ["Greek Yogurt", "Granola", "Honey"] }
+    ],
+    Lunch: [
+      { name: "Mediterranean Chicken Wrap", calories: 550, macros: { protein: 35, carbs: 45, fat: 22 }, description: "Grilled lean chicken with hummus and greens.", ingredients: ["Chicken breast", "Whole wheat wrap", "Hummus"] },
+      { name: "Steak & Quinoa Power Bowl", calories: 620, macros: { protein: 42, carbs: 50, fat: 28 }, description: "Lean sirloin with complex grains.", ingredients: ["Sirloin", "Quinoa", "Spinach"] },
+      { name: "Miso Glazed Salmon Bowl", calories: 580, macros: { protein: 34, carbs: 55, fat: 24 }, description: "Rich Omega-3s with brown rice.", ingredients: ["Salmon", "Brown Rice", "Edamame"] }
+    ],
+    Dinner: [
+      { name: "Baked Cod with Asparagus", calories: 420, macros: { protein: 40, carbs: 10, fat: 24 }, description: "Omega-3 dense white fish with steamed greens.", ingredients: ["Cod fillet", "Asparagus", "Lemon"] },
+      { name: "Lemon Herb Roast Turkey", calories: 480, macros: { protein: 38, carbs: 20, fat: 18 }, description: "Ultra-lean poultry with roasted roots.", ingredients: ["Turkey Breast", "Sweet Potato", "Broccoli"] },
+      { name: "Lean Beef Stir-fry", calories: 510, macros: { protein: 35, carbs: 30, fat: 22 }, description: "Snap peas and lean beef in light soy.", ingredients: ["Beef Strips", "Snap Peas", "Bell Peppers"] }
+    ]
   },
   vegetarian: {
-    breakfast: { name: "Tofu Scramble with Spinach", calories: 320, macros: { protein: 22, carbs: 10, fat: 18 }, description: "Plant-based protein packed with iron.", ingredients: ["Tofu", "Spinach", "Turmeric"] },
-    lunch: { name: "Lentil & Sweet Potato Stew", calories: 480, macros: { protein: 18, carbs: 75, fat: 6 }, description: "Slow-burning complex carbs for sustained energy.", ingredients: ["Lentils", "Sweet Potato", "Carrots"] },
-    dinner: { name: "Mushroom Risotto", calories: 510, macros: { protein: 14, carbs: 85, fat: 12 }, description: "Savory wild mushrooms over arborio rice.", ingredients: ["Mushrooms", "Rice", "Parmesan"] }
+    Breakfast: [
+      { name: "Tofu Scramble with Spinach", calories: 320, macros: { protein: 22, carbs: 10, fat: 18 }, description: "Plant-based protein packed with iron.", ingredients: ["Tofu", "Spinach", "Turmeric"] },
+      { name: "Almond Butter & Banana Toast", calories: 360, macros: { protein: 10, carbs: 45, fat: 18 }, description: "Potassium-rich start with healthy fats.", ingredients: ["Whole grain toast", "Almond Butter", "Banana"] },
+      { name: "Chia Seed Pudding", calories: 290, macros: { protein: 12, carbs: 35, fat: 14 }, description: "Fiber-dense meal for long satiety.", ingredients: ["Chia Seeds", "Coconut Milk", "Mango"] }
+    ],
+    Lunch: [
+      { name: "Lentil & Sweet Potato Stew", calories: 480, macros: { protein: 18, carbs: 75, fat: 6 }, description: "Slow-burning complex carbs for sustained energy.", ingredients: ["Lentils", "Sweet Potato", "Carrots"] },
+      { name: "Falafel & Hummus Plate", calories: 520, macros: { protein: 22, carbs: 60, fat: 24 }, description: "Classic Middle-Eastern plant power.", ingredients: ["Falafel", "Hummus", "Tabbouleh"] },
+      { name: "Roasted Veggie Pasta", calories: 490, macros: { protein: 15, carbs: 80, fat: 12 }, description: "Whole wheat pasta with seasonal greens.", ingredients: ["Whole Wheat Pasta", "Zucchini", "Bell Peppers"] }
+    ],
+    Dinner: [
+      { name: "Mushroom Risotto", calories: 510, macros: { protein: 14, carbs: 85, fat: 12 }, description: "Savory wild mushrooms over arborio rice.", ingredients: ["Mushrooms", "Rice", "Parmesan"] },
+      { name: "Black Bean Quinoa Tacos", calories: 450, macros: { protein: 18, carbs: 65, fat: 15 }, description: "Mexican-inspired protein duo.", ingredients: ["Black Beans", "Quinoa", "Corn Tortillas"] },
+      { name: "Grilled Halloumi Salad", calories: 540, macros: { protein: 24, carbs: 12, fat: 42 }, description: "Mediterranean classic with balsamic glaze.", ingredients: ["Halloumi", "Arugula", "Cherry Tomatoes"] }
+    ]
   }
 };
 
@@ -86,7 +111,7 @@ export default function ExplorePage() {
         return matchesRestrictions && fitsBmi;
       }).map(item => ({
         ...item,
-        reasoning: `Matched to your ${profile.bmiCategory || 'Profile'} category. This meal optimizes your ${profile.calorieTarget || 2000}kcal daily limit with a health score of ${item.healthScore}%.`
+        reasoning: `Matched to your ${profile.bmiCategory || 'Profile'} category. This meal optimizes your ${profile.calorieTarget || 2000}kcal daily limit.`
       }));
 
       setCuratedResult(filtered.slice(0, 3));
@@ -101,15 +126,40 @@ export default function ExplorePage() {
     
     setTimeout(() => {
       const isVeggie = profile.dietaryRestrictions?.includes("Vegetarian");
-      const template = isVeggie ? MENU_TEMPLATES.vegetarian : MENU_TEMPLATES.standard;
+      const pool = isVeggie ? ALTERNATIVE_POOL.vegetarian : ALTERNATIVE_POOL.standard;
       
       setAiPlan({
-        breakfast: { ...template.breakfast, deliveryMatch: { isAvailable: false } },
-        lunch: { ...template.lunch, deliveryMatch: { isAvailable: true, platform: "GrabFood", restaurant: "NutriKitchen", price: "Rp 55,000" } },
-        dinner: { ...template.dinner, deliveryMatch: { isAvailable: true, platform: "GoFood", restaurant: "HealthGlow", price: "Rp 62,000" } }
+        Breakfast: { ...pool.Breakfast[0], deliveryMatch: { isAvailable: false } },
+        Lunch: { ...pool.Lunch[0], deliveryMatch: { isAvailable: true, platform: "GrabFood", restaurant: "NutriKitchen", price: "Rp 55,000" } },
+        Dinner: { ...pool.Dinner[0], deliveryMatch: { isAvailable: true, platform: "GoFood", restaurant: "HealthGlow", price: "Rp 62,000" } }
       });
       setGeneratingPlan(false);
     }, 1000);
+  }
+
+  const handleSwapMeal = (type: string) => {
+    if (!profile || !aiPlan) return;
+    const isVeggie = profile.dietaryRestrictions?.includes("Vegetarian");
+    const pool = (isVeggie ? ALTERNATIVE_POOL.vegetarian : ALTERNATIVE_POOL.standard)[type as keyof typeof ALTERNATIVE_POOL.standard];
+    
+    const currentMealName = aiPlan[type].name;
+    const alternatives = pool.filter(m => m.name !== currentMealName);
+    const nextMeal = alternatives[Math.floor(Math.random() * alternatives.length)];
+    
+    setAiPlan((prev: any) => ({
+      ...prev,
+      [type]: { 
+        ...nextMeal, 
+        deliveryMatch: { 
+          isAvailable: Math.random() > 0.4, 
+          platform: Math.random() > 0.5 ? "GrabFood" : "GoFood", 
+          restaurant: "Alternative Kitchen", 
+          price: "Rp 58,000" 
+        } 
+      }
+    }));
+    
+    toast({ title: "Meal Swapped", description: `${nextMeal.name} is now suggested for ${type}.` });
   }
 
   const handleOrderNow = async (item: any) => {
@@ -128,9 +178,9 @@ export default function ExplorePage() {
       time: timeStr,
       source: item.platform,
       macros: item.macros,
-      healthScore: item.healthScore,
-      description: item.reasoning || "Balanced meal curated for your profile.",
-      expertInsight: item.reasoning || "Matched to your profile goals.",
+      healthScore: item.healthScore || 90,
+      description: item.reasoning || item.description || "Balanced meal curated for your profile.",
+      expertInsight: item.reasoning || item.description || "Matched to your profile goals.",
       createdAt: serverTimestamp()
     })
 
@@ -152,7 +202,6 @@ export default function ExplorePage() {
     const timeMap: Record<string, string> = { 
       "Breakfast": "08:30 AM", 
       "Lunch": "01:00 PM", 
-      "Snack": "04:00 PM", 
       "Dinner": "07:30 PM" 
     };
     const mealTime = timeMap[type] || "12:00 PM";
@@ -320,14 +369,24 @@ export default function ExplorePage() {
             <CardContent className="p-8 sm:p-10 space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { time: "Breakfast", data: aiPlan.breakfast },
-                  { time: "Lunch", data: aiPlan.lunch },
-                  { time: "Dinner", data: aiPlan.dinner }
+                  { time: "Breakfast", data: aiPlan.Breakfast },
+                  { time: "Lunch", data: aiPlan.Lunch },
+                  { time: "Dinner", data: aiPlan.Dinner }
                 ].map((meal, i) => (
                   <div key={i} className="flex flex-col h-full space-y-6 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-primary/20 transition-all group">
                     <div className="flex-1 space-y-4">
                       <div className="flex items-center justify-between">
-                        <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em]">{meal.time}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em]">{meal.time}</p>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleSwapMeal(meal.time)}
+                            className="h-6 w-6 rounded-full hover:bg-primary/10 text-primary group-hover:rotate-180 transition-all duration-500"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                        </div>
                         {meal.data.deliveryMatch?.isAvailable && (
                           <Badge className="bg-green-500 text-white border-none text-[8px] font-black uppercase px-2 py-0.5">Delivery</Badge>
                         )}
