@@ -15,8 +15,9 @@ import {
   ChevronLeft,
   Trophy,
   ScanSearch,
-  Image as ImageIcon,
-  Calendar as CalendarIcon
+  ImageIcon,
+  Calendar as CalendarIcon,
+  Clock
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -33,6 +34,7 @@ export default function RecordPage() {
   const [mounted, setMounted] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
   const [logDate, setLogDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
+  const [logTime, setLogTime] = useState<string>(format(new Date(), "HH:mm"))
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -137,6 +139,7 @@ export default function RecordPage() {
     setFilePreview(null)
     setResult(null)
     setLogDate(format(new Date(), "yyyy-MM-dd"))
+    setLogTime(format(new Date(), "HH:mm"))
   }
 
   const handleAnalyze = async () => {
@@ -163,10 +166,16 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!user || !result || !mounted) return
     
-    // Parse the selected date from the input
     const selectedDate = parseISO(logDate)
     const dateId = format(selectedDate, "yyyy-MM-dd")
-    const timeStr = format(new Date(), "hh:mm a") // We keep the current time of logging
+    
+    let timeStr = format(new Date(), "hh:mm a")
+    if (mode === "gallery" && logTime) {
+      const [hours, mins] = logTime.split(':')
+      const d = new Date(selectedDate)
+      d.setHours(parseInt(hours), parseInt(mins))
+      timeStr = format(d, "hh:mm a")
+    }
     
     try {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -189,7 +198,7 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${dateId}.` })
+      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${dateId} at ${timeStr}.` })
       resetAll()
     } catch (e) {
       console.error(e)
@@ -252,20 +261,31 @@ export default function RecordPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
           <section className="space-y-8">
             <Card className="rounded-[3rem] border-none shadow-premium bg-white p-8 space-y-6">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
                 
                 {mode === "gallery" && !result && (
-                  <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-10">
-                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                    <input 
-                      type="date" 
-                      value={logDate}
-                      onChange={(e) => setLogDate(e.target.value)}
-                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer"
-                    />
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-10">
+                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                      <input 
+                        type="date" 
+                        value={logDate}
+                        onChange={(e) => setLogDate(e.target.value)}
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-10">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      <input 
+                        type="time" 
+                        value={logTime}
+                        onChange={(e) => setLogTime(e.target.value)}
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -340,7 +360,7 @@ export default function RecordPage() {
                     </div>
 
                     <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
-                      LOG TO {logDate === format(new Date(), "yyyy-MM-dd") ? 'TODAY' : logDate.toUpperCase()} <ChevronRight className="w-6 h-6 ml-3" />
+                      LOG RECORD <ChevronRight className="w-6 h-6 ml-3" />
                     </Button>
                   </div>
                 </Card>
