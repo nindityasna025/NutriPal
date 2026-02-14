@@ -395,7 +395,7 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="space-y-2 text-left">
-                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left" style={{ color: MACRO_COLORS.fat }}>
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                           <Leaf className="w-3.5 h-3.5" /> Key Ingredients
                         </div>
                         <div className="flex flex-wrap gap-2 text-left">

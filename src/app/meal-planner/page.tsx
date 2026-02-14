@@ -47,6 +47,13 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+// Consistent Macro Colors - Themed
+const MACRO_COLORS = {
+  protein: "hsl(var(--primary))",
+  carbs: "hsl(38 92% 50%)",
+  fat: "hsl(var(--accent))",
+}
+
 // Dummy Recipe Database
 const DUMMY_RECIPES: Record<string, { insight: string, ingredients: string[], instructions: string[] }> = {
   "default": {
@@ -224,7 +231,6 @@ export default function MealPlannerPage() {
     setGeneratingRecipe(true)
     setIsRecipeDialogOpen(true)
     
-    // Using dummy data instead of AI
     setTimeout(() => {
       const recipe = DUMMY_RECIPES[mealName] || DUMMY_RECIPES["default"]
       setActiveRecipe(recipe)
@@ -356,9 +362,9 @@ export default function MealPlannerPage() {
                                 <div className="flex flex-wrap items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
                                    <div className="flex items-center gap-4">
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-600" /><span className="text-[10px] font-black uppercase text-amber-600">{meal.macros?.carbs}g Carbs</span></div>
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span></div>
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span></div>
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span></div>
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span></div>
                                    </div>
                                 </div>
                               </div>
@@ -427,7 +433,6 @@ export default function MealPlannerPage() {
               ) : activeRecipe ? (
                 <Card className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white">
                   <CardContent className="p-8 space-y-8 text-left">
-                    {/* Insight Section */}
                     <section className="space-y-3">
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                         <Sparkles className="w-4 h-4" /> Expert Insight
@@ -436,8 +441,6 @@ export default function MealPlannerPage() {
                         {activeRecipe.insight}
                       </p>
                     </section>
-
-                    {/* Ingredients Section */}
                     <section className="space-y-4">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
                         <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
@@ -451,8 +454,6 @@ export default function MealPlannerPage() {
                         ))}
                       </div>
                     </section>
-
-                    {/* Path Section */}
                     <section className="space-y-4">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
                         <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path

@@ -26,6 +26,13 @@ import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 
+// Consistent Macro Colors - Themed
+const MACRO_COLORS = {
+  protein: "hsl(var(--primary))",
+  carbs: "hsl(38 92% 50%)",
+  fat: "hsl(var(--accent))",
+}
+
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
   const [preview, setFilePreview] = useState<string | null>(null)
@@ -321,7 +328,6 @@ export default function RecordPage() {
                         {result.expertInsight}
                       </p>
                     </section>
-
                     <section className="space-y-3 text-left">
                       <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
                         <Leaf className="w-4 h-4" /> Ingredients
