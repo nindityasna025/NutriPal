@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -20,7 +21,8 @@ import {
   Info,
   ChevronDown,
   Heart,
-  Leaf
+  Leaf,
+  Activity
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -315,7 +317,10 @@ export default function Dashboard() {
                         </div>
                         <div className="min-w-0 text-left">
                           <h4 className="text-sm font-black uppercase truncate group-hover:text-primary transition-colors">{meal.name}</h4>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
+                            <Badge className="h-4 px-1.5 py-0 text-[7px] font-black uppercase bg-primary/10 text-primary border-none">Score: {meal.healthScore || 85}</Badge>
+                          </div>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-[8px] font-black text-red-500 uppercase">{meal.macros?.protein}g P</span>
                             <span className="text-[8px] font-black text-yellow-600 uppercase">{meal.macros?.carbs}g C</span>
@@ -332,8 +337,16 @@ export default function Dashboard() {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
                     <div className="px-8 pb-8 pt-2 space-y-6 border-t border-muted/20">
-                      <div className="space-y-4 text-left">
-                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
+                      <div className="space-y-4 text-left pt-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                            <Activity className="w-3.5 h-3.5" /> Health Score
+                          </div>
+                          <span className="text-xl font-black text-primary tracking-tighter">{meal.healthScore || 85}/100</span>
+                        </div>
+                        <Progress value={meal.healthScore || 85} className="h-2 rounded-full mb-6" />
+
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left mt-6">
                           <Sparkles className="w-3.5 h-3.5" /> AI Health Insight
                         </div>
                         <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10 text-left">
