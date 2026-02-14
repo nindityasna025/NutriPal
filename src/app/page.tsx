@@ -130,10 +130,10 @@ export default function Dashboard() {
   const { data: meals } = useCollection(mealsColRef)
   const { data: logsData } = useCollection(logsQuery)
 
+  // Rentang Waktu: H-7 hingga H-1 (e.g. jika tgl 14, maka tampilkan tgl 7-13)
   const weeklyData = useMemo(() => {
     if (!today) return [];
     const days = [];
-    // Rentang waktu H-7 hingga H-1 (e.g. tanggal 7-13 jika hari ini tanggal 14)
     for (let i = 7; i >= 1; i--) {
       const d = subDays(today, i);
       const dStr = format(d, "yyyy-MM-dd");
@@ -384,9 +384,9 @@ export default function Dashboard() {
                             <div className="flex flex-row items-center gap-6">
                                <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
                                <div className="flex flex-wrap items-center gap-4">
-                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>P {meal.macros?.protein}G</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>C {meal.macros?.carbs}G</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>F {meal.macros?.fat}G</span></div>
+                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span></div>
+                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span></div>
+                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span></div>
                                </div>
                             </div>
                          </div>
