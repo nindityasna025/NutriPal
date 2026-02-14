@@ -1,6 +1,7 @@
+
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
 import { Card, CardContent } from "@/components/ui/card"
@@ -135,6 +136,28 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
 
+  // Dynamic calculations based on meal reports
+  const totals = useMemo(() => {
+    if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    return meals.reduce((acc, meal) => ({
+      calories: acc.calories + (meal.calories || 0),
+      protein: acc.protein + (meal.macros?.protein || 0),
+      carbs: acc.carbs + (meal.macros?.carbs || 0),
+      fat: acc.fat + (meal.macros?.fat || 0),
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+  }, [meals]);
+
+  const calorieTarget = profile?.calorieTarget || 2000
+  const consumed = totals.calories
+  const burned = dailyLog?.caloriesBurned || 450
+  const water = dailyLog?.waterIntake || 1.8
+  const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
+
+  const totalMacros = totals.protein + totals.carbs + totals.fat;
+  const proteinPercent = totalMacros > 0 ? (totals.protein / totalMacros) * 100 : 0;
+  const carbsPercent = totalMacros > 0 ? (totals.carbs / totalMacros) * 100 : 0;
+  const fatPercent = totalMacros > 0 ? (totals.fat / totalMacros) * 100 : 0;
+
   if (!mounted || isUserLoading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -142,12 +165,6 @@ export default function Dashboard() {
       </div>
     )
   }
-
-  const calorieTarget = profile?.calorieTarget || 2000
-  const consumed = dailyLog?.caloriesConsumed || (meals?.reduce((sum, m) => sum + m.calories, 0) || 0)
-  const burned = dailyLog?.caloriesBurned || 450
-  const water = dailyLog?.waterIntake || 1.8
-  const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
 
   const adjustWater = (amount: number) => {
     if (!dailyLogRef) return;
@@ -193,14 +210,14 @@ export default function Dashboard() {
 
             <div className="space-y-4">
               <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary">
-                <div style={{ width: '25%' }} className="bg-primary h-full transition-all duration-700" />
-                <div style={{ width: '45%' }} className="bg-accent h-full transition-all duration-700" />
-                <div style={{ width: '30%' }} className="bg-blue-500 h-full transition-all duration-700" />
+                <div style={{ width: `${proteinPercent}%` }} className="bg-primary h-full transition-all duration-700" />
+                <div style={{ width: `${carbsPercent}%` }} className="bg-accent h-full transition-all duration-700" />
+                <div style={{ width: `${fatPercent}%` }} className="bg-blue-500 h-full transition-all duration-700" />
               </div>
               <div className="flex justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-widest opacity-80">
-                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /> Protein</span>
-                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /> Carbs</span>
-                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Fat</span>
+                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /> {totals.protein}g Protein</span>
+                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-accent" /> {totals.carbs}g Carbs</span>
+                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> {totals.fat}g Fat</span>
               </div>
             </div>
 
@@ -333,6 +350,25 @@ export default function Dashboard() {
                           <Trophy className="w-4 h-4 text-primary" />
                         </div>
                         <span className="text-sm font-black uppercase tracking-tight text-primary">Health Score: {meal.healthScore}/100</span>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary ml-auto">
+                              <Info className="w-3.5 h-3.5" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                <Trophy className="w-4 h-4" /> Health Benefit Score
+                              </div>
+                              <p className="text-xs font-medium leading-relaxed text-foreground/80">
+                                Health Benefit score is a quick 0-100 rate of how healthy your meal is.
+                                Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
+                                The closer to 100, the more nutrient-rich your meal is!
+                              </p>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
                   </div>
@@ -354,7 +390,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* iOS Action Buttons */}
+      {/* Action Hub */}
       <div className="flex gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
