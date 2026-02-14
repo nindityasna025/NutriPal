@@ -212,9 +212,9 @@ export default function MealPlannerPage() {
           </Button>
           
           <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
-            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronLeft className="h-4 w-4" /></Button>
-            <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center">{format(date, "EEEE, MMM d")}</div>
-            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronRight className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronLeft className="h-4 w-4 text-foreground" /></Button>
+            <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center text-foreground">{format(date, "EEEE, MMM d")}</div>
+            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronRight className="h-4 w-4 text-foreground" /></Button>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) resetForm(); }}>
@@ -234,7 +234,7 @@ export default function MealPlannerPage() {
                   <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
                     <Select value={mealType} onValueChange={setMealType}>
-                      <SelectTrigger className="h-12 rounded-[1.25rem] font-bold border-muted-foreground/10">
+                      <SelectTrigger className="h-12 rounded-[1.25rem] font-black border-muted-foreground/10 text-foreground">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
@@ -247,13 +247,13 @@ export default function MealPlannerPage() {
                   </div>
                   <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Description</Label>
-                    <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-[1.25rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                    <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-[1.25rem] font-black border-primary/10 text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
                   
                   <div className="flex items-center justify-between p-5 bg-secondary/30 rounded-[1.5rem]">
                     <div className="space-y-0.5 text-left">
-                      <Label className="text-[10px] font-black uppercase tracking-widest">Smart Alerts</Label>
-                      <p className="text-[9px] text-muted-foreground font-medium uppercase">Notify 15m before meal time.</p>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
+                      <p className="text-[9px] text-muted-foreground font-black uppercase">Notify 15m before meal time.</p>
                     </div>
                     <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
                   </div>
@@ -270,7 +270,7 @@ export default function MealPlannerPage() {
       </header>
 
       <section className="space-y-6">
-        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">Your Schedule</h2>
+        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left text-foreground">Your Schedule</h2>
         <div className="space-y-4">
           {isLoadingMeals ? (
             <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
@@ -287,7 +287,7 @@ export default function MealPlannerPage() {
                             <div className="flex items-center gap-4">
                               <div className="space-y-1 text-left">
                                 <div className="flex items-center gap-2.5">
-                                  <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
+                                  <h3 className="text-xl font-black tracking-tight uppercase leading-tight text-foreground">{meal.name}</h3>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
@@ -306,7 +306,7 @@ export default function MealPlannerPage() {
                            <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-xl h-10 w-10 border border-primary/10 shadow-sm"><ChefHat className="w-5 h-5" /></Button>
                          )}
                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-xl h-10 w-10 border border-border/50"><Edit2 className="w-4 h-4" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(mealId, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   </CardContent>
@@ -316,7 +316,7 @@ export default function MealPlannerPage() {
               <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-8">
                 <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
                 <p className="text-muted-foreground font-black text-lg uppercase tracking-tight">Your timeline is clear.</p>
-                <p className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-1">Plan a meal below.</p>
+                <p className="text-[9px] text-muted-foreground/50 font-black uppercase tracking-widest mt-1">Plan a meal below.</p>
               </div>
             )}
         </div>
@@ -332,8 +332,8 @@ export default function MealPlannerPage() {
                 </div>
                 <div className="space-y-1 text-left">
                   <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5">Feeling Indecisive?</p>
-                  <h3 className="text-2xl font-black uppercase leading-tight">AI Decision Hub</h3>
-                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm">
+                  <h3 className="text-2xl font-black uppercase leading-tight text-foreground">AI Decision Hub</h3>
+                  <p className="text-muted-foreground font-black text-xs uppercase tracking-widest leading-relaxed max-w-sm">
                     Let AI analyze delivery deals or curate a menu instantly.
                   </p>
                 </div>
@@ -367,7 +367,7 @@ export default function MealPlannerPage() {
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                         <Sparkles className="w-4 h-4" /> Expert Insight
                       </div>
-                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
+                      <p className="text-xs font-black leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
                         {activeRecipe.insight}
                       </p>
                     </section>
@@ -377,7 +377,7 @@ export default function MealPlannerPage() {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         {activeRecipe.ingredients.map((ing, i) => (
-                          <div key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
+                          <div key={i} className="flex items-center gap-3 text-xs font-black text-muted-foreground">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
                             {ing}
                           </div>
@@ -394,7 +394,7 @@ export default function MealPlannerPage() {
                             <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-black text-primary shrink-0">
                               {i + 1}
                             </div>
-                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-1">
+                            <p className="text-xs font-black text-muted-foreground leading-relaxed pt-1">
                               {step}
                             </p>
                           </div>

@@ -68,22 +68,22 @@ const chartConfig = {
 
 const MacroInfoContent = () => (
   <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest text-left">
+    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
       <Sparkles className="w-3.5 h-3.5" /> Macro Balance Guide
     </div>
-    <p className="text-[12px] font-medium leading-relaxed text-muted-foreground text-left">
+    <p className="text-[12px] font-bold leading-relaxed text-muted-foreground text-left">
       Your daily energy distribution. We prioritize protein for recovery and carbs for activity.
     </p>
     <div className="space-y-2.5 pt-1">
-      <div className="flex items-center justify-between text-[11px] font-bold uppercase">
+      <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: "#7FB79A" }}>Protein</span>
         <span className="text-muted-foreground">30%</span>
       </div>
-      <div className="flex items-center justify-between text-[11px] font-bold uppercase">
+      <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: "#E6B800" }}>Carbs</span>
         <span className="text-muted-foreground">40%</span>
       </div>
-      <div className="flex items-center justify-between text-[11px] font-bold uppercase">
+      <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: "#DCE96A" }}>Fat</span>
         <span className="text-muted-foreground">30%</span>
       </div>
@@ -142,8 +142,11 @@ export default function Dashboard() {
       const tA = a.time || "00:00 AM";
       const tB = b.time || "00:00 AM";
       const getMinutes = (t: string) => {
-        const [time, modifier] = t.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
+        const parts = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!parts) return 0;
+        let hours = parseInt(parts[1], 10);
+        const minutes = parseInt(parts[2], 10);
+        const modifier = parts[3].toUpperCase();
         if (modifier === 'PM' && hours < 12) hours += 12;
         if (modifier === 'AM' && hours === 12) hours = 0;
         return hours * 60 + minutes;
@@ -206,7 +209,7 @@ export default function Dashboard() {
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
                 <div className="flex items-baseline gap-2">
                   <h2 className={cn("text-5xl font-black tracking-tight transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-lg font-bold text-muted-foreground/30 tracking-tight">/ {calorieTarget} kcal</span>
+                  <span className="text-lg font-black text-muted-foreground/30 tracking-tight">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
@@ -266,7 +269,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-1">
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Active Burn</p>
-              <p className="text-3xl font-black tracking-tight">{dailyLog?.caloriesBurned || 450} <span className="text-[12px] font-bold text-muted-foreground/60">kcal</span></p>
+              <p className="text-3xl font-black tracking-tight text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-[12px] font-black text-muted-foreground/60">kcal</span></p>
             </div>
           </Card>
 
@@ -280,7 +283,7 @@ export default function Dashboard() {
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-10 w-10 rounded-full bg-secondary/50 hover:bg-secondary">
                   <Minus className="w-4 h-4" />
                 </Button>
-                <span className="text-3xl font-black tracking-tight">{water}L</span>
+                <span className="text-3xl font-black tracking-tight text-foreground">{water}L</span>
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-10 w-10 rounded-full bg-primary shadow-sm hover:opacity-90">
                   <Plus className="w-4 h-4" />
                 </Button>
@@ -291,7 +294,7 @@ export default function Dashboard() {
       </div>
 
       <section className="space-y-8">
-        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left">
+        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left text-foreground">
           <BarChart3 className="w-6 h-6 text-primary" />
           Weekly Macro Trend
         </h2>
@@ -305,12 +308,12 @@ export default function Dashboard() {
                     dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--foreground))", fontSize: 11, fontWeight: 700 }} 
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 11, fontWeight: 900 }} 
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 600 }}
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 900 }}
                     unit="kcal"
                   />
                   <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
@@ -326,7 +329,7 @@ export default function Dashboard() {
       </section>
 
       <section className="space-y-8">
-        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left">
+        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left text-foreground">
           <Utensils className="w-6 h-6 text-primary" />
           Daily Food Record
         </h2>
@@ -350,7 +353,7 @@ export default function Dashboard() {
                           )}
                         </div>
                         <div className="min-w-0 text-left space-y-1">
-                          <h4 className="text-lg font-black truncate group-hover:text-primary transition-colors uppercase">{meal.name}</h4>
+                          <h4 className="text-lg font-black truncate group-hover:text-primary transition-colors uppercase text-foreground">{meal.name}</h4>
                           <div className="flex items-center gap-3">
                             <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
                             <Badge className="h-5 px-2 py-0 text-[8px] font-black uppercase bg-accent/20 text-accent-foreground border-none">Score: {meal.healthScore || 85}</Badge>
@@ -397,7 +400,7 @@ export default function Dashboard() {
                             <Badge key={i} variant="outline" className="rounded-xl border-muted/50 text-muted-foreground px-4 py-1 font-black text-[10px] uppercase">
                               {ing}
                             </Badge>
-                          )) || <span className="text-[11px] text-muted-foreground/60 italic font-bold">Natural ingredients identified.</span>}
+                          )) || <span className="text-[11px] text-muted-foreground/60 italic font-black">Natural ingredients identified.</span>}
                         </div>
                       </div>
                     </div>

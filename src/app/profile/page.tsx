@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -115,22 +114,22 @@ export default function ProfilePage() {
               </DialogTrigger>
               <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none bg-background w-[92vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
                 <DialogHeader className="p-8 pb-4 shrink-0">
-                  <DialogTitle className="text-xl font-black uppercase tracking-tight text-center">Update Metrics</DialogTitle>
+                  <DialogTitle className="text-xl font-black uppercase tracking-tight text-center text-foreground">Update Metrics</DialogTitle>
                 </DialogHeader>
                 <div className="p-8 pt-0 space-y-6 overflow-y-auto flex-1">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5 text-left">
                       <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
-                      <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-11 rounded-xl border-primary/10 font-bold" />
+                      <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-11 rounded-xl border-primary/10 font-black text-foreground" />
                     </div>
                     <div className="space-y-1.5 text-left">
                       <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Height (cm)</Label>
-                      <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-11 rounded-xl border-primary/10 font-bold" />
+                      <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-11 rounded-xl border-primary/10 font-black text-foreground" />
                     </div>
                   </div>
                   <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age</Label>
-                    <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-11 rounded-xl border-primary/10 font-bold" />
+                    <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-11 rounded-xl border-primary/10 font-black text-foreground" />
                   </div>
                 </div>
                 <DialogFooter className="p-8 pt-0 shrink-0">
@@ -143,7 +142,7 @@ export default function ProfilePage() {
           </div>
           
           <div className="space-y-2 px-4">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight">{user.displayName || "Demo User"}</h2>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight text-foreground">{user.displayName || "Demo User"}</h2>
             <div className="flex flex-wrap justify-center gap-2">
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-4 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest border-none shrink-0">
                 Pro Member
@@ -159,7 +158,7 @@ export default function ProfilePage() {
             </div>
             <div className="text-left">
               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
-              <p className="text-xl font-black tracking-tight uppercase">{profile?.weight || "--"} <span className="text-[10px] font-bold text-muted-foreground">kg</span></p>
+              <p className="text-xl font-black tracking-tight uppercase text-foreground">{profile?.weight || "--"} <span className="text-[10px] font-black text-muted-foreground">kg</span></p>
             </div>
           </Card>
           <Card className="border-none shadow-premium bg-white rounded-[2rem] p-6 flex items-center gap-5 group hover:shadow-premium-lg transition-all">
@@ -168,7 +167,7 @@ export default function ProfilePage() {
             </div>
             <div className="text-left">
               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Status</p>
-              <p className="text-xl font-black tracking-tight uppercase">{profile?.bmiCategory || "Healthy"}</p>
+              <p className="text-xl font-black tracking-tight uppercase text-foreground">{profile?.bmiCategory || "Healthy"}</p>
             </div>
           </Card>
         </div>
@@ -186,8 +185,8 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-4">
                     <div className="bg-secondary/50 p-3 rounded-xl shrink-0">{item.icon}</div>
                     <div className="text-left">
-                      <p className="text-xs font-black tracking-tight uppercase">{item.label}</p>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{item.sub}</p>
+                      <p className="text-xs font-black tracking-tight uppercase text-foreground">{item.label}</p>
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-tighter mt-0.5">{item.sub}</p>
                     </div>
                   </div>
                   {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={setNotifs} className="shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground/30 shrink-0" />}

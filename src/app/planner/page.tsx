@@ -228,7 +228,7 @@ export default function ExplorePage() {
                  <Bike className="w-12 h-12 text-primary" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-black tracking-tight uppercase">Delivery Hub</h3>
+                <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Delivery Hub</h3>
                 <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight">
                   Real-time curation from GrabFood & GoFood based on your profile.
                 </p>
@@ -243,7 +243,7 @@ export default function ExplorePage() {
             <div className="p-8 overflow-y-auto flex-1">
               <div className="space-y-10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
-                  <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase">Top Matches</h2>
+                  <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase text-foreground">Top Matches</h2>
                   <div className="flex items-center gap-4 bg-secondary rounded-full px-6 h-12 border border-muted shadow-inner">
                     <div className="flex items-center gap-2.5 border-r border-muted/50 pr-4">
                       <CalendarIcon className="w-4 h-4 text-primary" />
@@ -251,7 +251,7 @@ export default function ExplorePage() {
                         type="date" 
                         value={targetDate} 
                         onChange={e => setTargetDate(e.target.value)} 
-                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-28" 
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-28 text-foreground" 
                       />
                     </div>
                     <div className="flex items-center gap-2.5 pl-2">
@@ -260,7 +260,7 @@ export default function ExplorePage() {
                         type="time" 
                         value={targetTime} 
                         onChange={e => setTargetTime(e.target.value)} 
-                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-16 text-foreground" 
                       />
                     </div>
                   </div>
@@ -280,7 +280,7 @@ export default function ExplorePage() {
                             <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
                               <TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Rank
                             </div>
-                            <h3 className="text-xl font-black tracking-tight leading-tight uppercase">{item.name}</h3>
+                            <h3 className="text-xl font-black tracking-tight leading-tight uppercase text-foreground">{item.name}</h3>
                             <p className="text-[11px] font-black text-muted-foreground/60 uppercase tracking-widest">{item.restaurant}</p>
                           </div>
                           
@@ -317,7 +317,7 @@ export default function ExplorePage() {
                               {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
                               {item.platform}
                             </div>
-                            <p className="text-2xl font-black tracking-tight">{item.price}</p>
+                            <p className="text-2xl font-black tracking-tight text-foreground">{item.price}</p>
                           </div>
 
                           <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
@@ -338,7 +338,7 @@ export default function ExplorePage() {
                  <Sparkles className="w-12 h-12 text-accent" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-black tracking-tight uppercase">Smart Menu</h3>
+                <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Smart Menu</h3>
                 <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight">
                   Generate a randomized daily plan with seamless platform integration.
                 </p>
@@ -357,7 +357,7 @@ export default function ExplorePage() {
             </DialogHeader>
             <div className="p-8 flex-1 flex flex-col overflow-hidden">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2 mb-8 shrink-0">
-                <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase">Plan Your Day</h2>
+                <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase text-foreground">Plan Your Day</h2>
                 <div className="flex items-center gap-4 bg-secondary rounded-full px-7 h-12 border border-muted shadow-inner">
                   <div className="flex items-center gap-2.5">
                     <CalendarIcon className="w-4 h-4 text-primary" />
@@ -365,7 +365,7 @@ export default function ExplorePage() {
                       type="date" 
                       value={targetDate} 
                       onChange={e => setTargetDate(e.target.value)} 
-                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-32" 
+                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-32 text-foreground" 
                     />
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export default function ExplorePage() {
                           </div>
                           
                           <div className="space-y-1.5">
-                            <h3 className="text-sm font-black tracking-tight leading-tight line-clamp-1 uppercase">{meal.name}</h3>
+                            <h3 className="text-sm font-black tracking-tight leading-tight line-clamp-1 uppercase text-foreground">{meal.name}</h3>
                             <p className="text-[10px] font-black leading-relaxed text-muted-foreground line-clamp-2 uppercase opacity-60 tracking-tight">{meal.description}</p>
                           </div>
 
@@ -414,7 +414,7 @@ export default function ExplorePage() {
 
                           <div className="bg-secondary/50 py-3 rounded-2xl text-center border border-muted/20">
                             <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Energy Target</p>
-                            <p className="text-lg font-black tracking-tight">+{meal.calories} kcal</p>
+                            <p className="text-lg font-black tracking-tight text-foreground">+{meal.calories} kcal</p>
                           </div>
                         </div>
 

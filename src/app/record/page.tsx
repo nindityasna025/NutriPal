@@ -225,7 +225,7 @@ export default function RecordPage() {
               </div>
               <div className="text-center space-y-0.5">
                 <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Live Camera</h3>
-                <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
+                <p className="text-[8px] text-muted-foreground font-black uppercase tracking-[0.2em]">Capture Now</p>
               </div>
             </CardContent>
           </Card>
@@ -237,7 +237,7 @@ export default function RecordPage() {
               </div>
               <div className="text-center space-y-0.5">
                 <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Gallery</h3>
-                <p className="text-[8px] text-muted-foreground/40 font-bold uppercase tracking-[0.2em]">Upload File</p>
+                <p className="text-[8px] text-muted-foreground/40 font-black uppercase tracking-[0.2em]">Upload File</p>
               </div>
             </CardContent>
           </Card>
@@ -262,7 +262,7 @@ export default function RecordPage() {
                         type="date" 
                         value={logDate} 
                         onChange={e => setLogDate(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24" 
+                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24 text-foreground" 
                       />
                     </div>
                     <div className="flex items-center gap-2 pl-1">
@@ -271,7 +271,7 @@ export default function RecordPage() {
                         type="time" 
                         value={logTime} 
                         onChange={e => setLogTime(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16 text-foreground" 
                       />
                     </div>
                   </div>
@@ -303,7 +303,7 @@ export default function RecordPage() {
                   <div className="flex justify-between items-start border-b border-muted/20 pb-6">
                     <div className="space-y-1 text-left">
                       <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60">Analysis Result</span>
-                      <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight uppercase">{result.name}</h2>
+                      <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight uppercase text-foreground">{result.name}</h2>
                     </div>
                     <div className="text-right">
                       <p className="text-3xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
@@ -311,18 +311,18 @@ export default function RecordPage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Protein</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
-                    <div className="p-4 bg-orange-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-orange-500 uppercase mb-1">Carbs</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-4 bg-accent/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
+                    <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Protein</p><p className="text-lg font-black text-foreground">{result.macros.protein}g</p></div>
+                    <div className="p-4 bg-orange-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-orange-500 uppercase mb-1">Carbs</p><p className="text-lg font-black text-foreground">{result.macros.carbs}g</p></div>
+                    <div className="p-4 bg-accent/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent uppercase mb-1">Fat</p><p className="text-lg font-black text-foreground">{result.macros.fat}g</p></div>
                   </div>
 
                   <div className="p-5 bg-secondary/20 rounded-[1.5rem] text-left">
-                    <p className="text-[12px] font-bold leading-relaxed italic text-foreground/80">"{result.description}"</p>
+                    <p className="text-[12px] font-black leading-relaxed italic text-foreground/80">"{result.description}"</p>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-black uppercase tracking-tight">Health Score</span>
+                      <span className="text-sm font-black uppercase tracking-tight text-foreground">Health Score</span>
                       <span className="text-2xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
                     </div>
                     <Progress value={result.healthScore} className="h-3 rounded-full" />
@@ -333,7 +333,7 @@ export default function RecordPage() {
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                         <Sparkles className="w-4 h-4" /> AI Expert Insight
                       </div>
-                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10 text-left">
+                      <p className="text-xs font-black leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10 text-left">
                         {result.expertInsight}
                       </p>
                     </section>
@@ -343,7 +343,7 @@ export default function RecordPage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {result.ingredients.map((ing, i) => (
-                          <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-bold text-[9px] uppercase">
+                          <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-black text-[9px] uppercase">
                             {ing}
                           </Badge>
                         ))}
