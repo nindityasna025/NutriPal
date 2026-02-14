@@ -225,7 +225,11 @@ export default function MealPlannerPage() {
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2.5rem]">
-              <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">{editingMealId ? "Edit Meal" : "Schedule Meal"}</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">
+                  {editingMealId ? "Edit Meal" : "Schedule Meal"}
+                </DialogTitle>
+              </DialogHeader>
               <div className="grid gap-6 py-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
@@ -308,35 +312,6 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      {/* AI Recipe Dialog */}
-      <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-2xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg">
-          <div className="bg-primary p-8 text-primary-foreground">
-            <h3 className="text-xs font-black uppercase tracking-[0.3em] opacity-80 mb-2">AI Nutritionist Masterclass</h3>
-            <h2 className="text-3xl font-black uppercase tracking-tight leading-tight">{activeRecipeName}</h2>
-          </div>
-          <div className="p-8">
-            <ScrollArea className="h-[400px] pr-4">
-              {generatingRecipe ? (
-                <div className="flex flex-col items-center justify-center h-full space-y-4">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Crafting your perfect recipe...</p>
-                </div>
-              ) : activeRecipe ? (
-                <div className="prose prose-sm prose-green max-w-none">
-                  <div className="whitespace-pre-wrap leading-relaxed font-medium text-foreground/80">
-                    {activeRecipe}
-                  </div>
-                </div>
-              ) : null}
-            </ScrollArea>
-          </div>
-          <DialogFooter className="p-8 pt-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs">Close Recipe</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Feeling Indecisive? Section */}
       <section className="space-y-8">
         <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
@@ -416,6 +391,37 @@ export default function MealPlannerPage() {
           </Card>
         )}
       </section>
+
+      {/* AI Recipe Dialog */}
+      <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
+        <DialogContent className="max-w-2xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg">
+          <DialogHeader className="bg-primary p-8 text-primary-foreground">
+            <h3 className="text-xs font-black uppercase tracking-[0.3em] opacity-80 mb-2">AI Nutritionist Masterclass</h3>
+            <DialogTitle className="text-3xl font-black uppercase tracking-tight leading-tight">
+              {activeRecipeName}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-8">
+            <ScrollArea className="h-[400px] pr-4">
+              {generatingRecipe ? (
+                <div className="flex flex-col items-center justify-center h-full space-y-4">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Crafting your perfect recipe...</p>
+                </div>
+              ) : activeRecipe ? (
+                <div className="prose prose-sm prose-green max-w-none">
+                  <div className="whitespace-pre-wrap leading-relaxed font-medium text-foreground/80">
+                    {activeRecipe}
+                  </div>
+                </div>
+              ) : null}
+            </ScrollArea>
+          </div>
+          <DialogFooter className="p-8 pt-0">
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs">Close Recipe</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
