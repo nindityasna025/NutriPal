@@ -23,7 +23,7 @@ import {
   Activity,
   Leaf
 } from "lucide-react"
-import { format, startOfToday, subDays, parseISO } from "date-fns"
+import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -453,13 +453,13 @@ export default function Dashboard() {
         </Button>
         <Button 
           variant="secondary"
-          onClick={() => router.push("/planner")}
+          onClick={() => router.push("/meal-planner")}
           className="h-32 rounded-[2.5rem] flex flex-col gap-3 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all group"
         >
           <div className="p-3 bg-accent/20 rounded-2xl group-hover:scale-110 transition-transform">
             <Sparkles className="w-6 h-6 text-foreground opacity-60" strokeWidth={2.5} />
           </div>
-          <span className="font-black text-[10px] uppercase tracking-[0.3em] text-foreground text-center">Explore Picks</span>
+          <span className="font-black text-[10px] uppercase tracking-[0.3em] text-foreground text-center">Meal Planner</span>
         </Button>
       </div>
     </div>
