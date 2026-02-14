@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -387,7 +388,7 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
+        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
           <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground">
             <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight">
               {activeRecipeName}
@@ -404,7 +405,7 @@ export default function MealPlannerPage() {
                 <div className="space-y-6">
                   {/* AI Insight Card */}
                   <Card className="border-none bg-primary/5 rounded-[1.5rem] shadow-sm">
-                    <CardContent className="p-6 space-y-3">
+                    <CardContent className="p-6 space-y-3 text-left">
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                         <Sparkles className="w-4 h-4" /> AI Expert Insight
                       </div>
@@ -416,7 +417,7 @@ export default function MealPlannerPage() {
 
                   {/* Ingredients Card */}
                   <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
-                    <CardContent className="p-6 space-y-4">
+                    <CardContent className="p-6 space-y-4 text-left">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
                         <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
                       </div>
@@ -433,7 +434,7 @@ export default function MealPlannerPage() {
 
                   {/* Instructions Card */}
                   <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
-                    <CardContent className="p-6 space-y-4">
+                    <CardContent className="p-6 space-y-4 text-left">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
                         <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path
                       </div>

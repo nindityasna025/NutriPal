@@ -350,7 +350,7 @@ export default function Dashboard() {
                           <Sparkles className="w-3.5 h-3.5" /> AI Health Insight
                         </div>
                         <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10 text-left">
-                          {meal.expertInsight || meal.healthBenefit || meal.description || "Balanced nutritional profile optimized for energy and clean recovery."}
+                          {meal.expertInsight || meal.description || "Balanced nutritional profile optimized for energy and clean recovery."}
                         </p>
                       </div>
                       
