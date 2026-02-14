@@ -215,7 +215,7 @@ export default function ExplorePage() {
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Decision Hub</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4">
+      <div className="grid grid-cols-2 gap-10 pt-4 max-w-4xl mx-auto">
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">

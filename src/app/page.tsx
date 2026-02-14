@@ -404,19 +404,18 @@ export default function Dashboard() {
                 >
                   <CardContent className="p-0">
                     <div className="p-6 sm:p-8 flex items-center justify-between gap-6">
-                      <div className="flex items-center gap-6 flex-1 w-full">
-                        <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
+                      <div className="flex items-center gap-6 flex-1 w-full text-left">
+                        <div className="min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                         </div>
                         
-                        {/* MEAL PHOTO PREVIEW */}
                         {meal.imageUrl && (
                           <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-sm shrink-0 border-2 border-border/50">
                             <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
                           </div>
                         )}
 
-                        <div className="space-y-2 flex-1 text-left">
+                        <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-3">
                             <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                               {meal.name}
@@ -430,42 +429,9 @@ export default function Dashboard() {
                               <Bell className="w-4 h-4 text-primary fill-primary/20" />
                             )}
                             {meal.allergenWarning && (
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button 
-                                    variant="destructive" 
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="h-5 px-2 text-[8px] font-black uppercase animate-pulse shrink-0"
-                                  >
-                                    <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white z-[200]">
-                                  <div className="space-y-4">
-                                    <div className="flex items-center gap-2 text-destructive font-black text-[10px] uppercase">
-                                      <AlertTriangle className="w-4 h-4" /> Safety Warning
-                                    </div>
-                                    <p className="text-[11px] font-bold text-foreground opacity-80">{meal.allergenWarning}</p>
-                                    <div className="grid grid-cols-2 gap-2 pt-2">
-                                      <Button 
-                                        size="sm" 
-                                        onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }}
-                                        className="bg-primary text-foreground font-black text-[8px] uppercase tracking-widest h-8"
-                                      >
-                                        EAT NOW
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost" 
-                                        onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }}
-                                        className="border border-border font-black text-[8px] uppercase tracking-widest hover:text-destructive h-8"
-                                      >
-                                        DROP
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
+                              <Badge variant="destructive" className="h-5 px-2 text-[8px] font-black uppercase animate-pulse">
+                                <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
+                              </Badge>
                             )}
                           </div>
                           <div className="flex flex-row items-center gap-6">
@@ -520,11 +486,17 @@ export default function Dashboard() {
                     {isExpanded && (
                       <div className="px-8 pb-8 pt-2 space-y-10 animate-in slide-in-from-top-4 duration-300">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t-2 border-border/30 pt-8">
-                          <div className="space-y-6">
+                          <div className="space-y-6 text-left">
                              {meal.allergenWarning && (
-                               <div className="bg-destructive/10 border-2 border-destructive/20 p-6 rounded-[1.5rem] flex items-start gap-4 mb-4">
-                                  <AlertTriangle className="w-6 h-6 text-destructive shrink-0 mt-1" />
-                                  <p className="text-[12px] font-bold text-foreground leading-tight">{meal.allergenWarning}</p>
+                               <div className="bg-destructive/10 border-2 border-destructive/20 p-6 rounded-[1.5rem] flex flex-col gap-4 mb-4">
+                                  <div className="flex items-start gap-4">
+                                    <AlertTriangle className="w-6 h-6 text-destructive shrink-0 mt-1" />
+                                    <p className="text-[12px] font-bold text-foreground leading-tight">{meal.allergenWarning}</p>
+                                  </div>
+                                  <div className="flex gap-2 justify-end">
+                                    <Button size="sm" onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }} className="bg-primary text-foreground text-[8px] font-black uppercase tracking-widest h-8">EAT NOW</Button>
+                                    <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="border border-border text-[8px] font-black uppercase tracking-widest h-8 hover:text-destructive">DROP</Button>
+                                  </div>
                                </div>
                              )}
 
@@ -546,7 +518,7 @@ export default function Dashboard() {
                              </section>
                           </div>
 
-                          <section className="space-y-4">
+                          <section className="space-y-4 text-left">
                              <div className="flex items-center gap-3 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
                                 <ShoppingBag className="w-5 h-5 text-primary" /> Ingredients
                              </div>

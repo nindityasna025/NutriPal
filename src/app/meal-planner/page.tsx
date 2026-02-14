@@ -44,12 +44,26 @@ import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
   carbs: "hsl(38 92% 50%)",
   fat: "hsl(var(--accent))",
 }
+
+const TIMING_OPTIONS = [
+  { value: "Breakfast", label: "Breakfast", defaultTime: "08:00 AM" },
+  { value: "Lunch", label: "Lunch", defaultTime: "12:30 PM" },
+  { value: "Dinner", label: "Dinner", defaultTime: "07:00 PM" },
+  { value: "Snack", label: "Snack", defaultTime: "04:00 PM" },
+]
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -60,6 +74,7 @@ export default function MealPlannerPage() {
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   
   const [mealName, setMealName] = useState("")
+  const [mealTiming, setMealTiming] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
   const [calories, setCalories] = useState<string>("0")
   const [protein, setProtein] = useState<string>("0")
@@ -153,7 +168,7 @@ export default function MealPlannerPage() {
         else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
 
         const aiResult = await analyzeTextMeal({ 
-          mealName, 
+          mealName: `${mealTiming}: ${mealName}`, 
           userGoal,
           userAllergies: profile?.allergies,
           userRestrictions: profile?.dietaryRestrictions
@@ -179,14 +194,14 @@ export default function MealPlannerPage() {
         }
       }
 
-      // Default time for new meals
       const finalTime = editingMealId 
         ? (scheduledMeals?.find(m => m.id === editingMealId)?.time || format(new Date(), "hh:mm a").toUpperCase())
-        : format(new Date(), "hh:mm a").toUpperCase();
+        : (TIMING_OPTIONS.find(t => t.value === mealTiming)?.defaultTime || format(new Date(), "hh:mm a").toUpperCase());
 
       const mealData: any = {
         name: mealName,
         time: finalTime,
+        timing: mealTiming,
         calories: finalCalories,
         macros: {
           protein: finalProtein,
@@ -261,6 +276,7 @@ export default function MealPlannerPage() {
 
   const resetForm = () => {
     setMealName("")
+    setMealTiming("Breakfast")
     setCalories("0")
     setProtein("0")
     setCarbs("0")
@@ -274,6 +290,7 @@ export default function MealPlannerPage() {
   const openEditDialog = (meal: any) => {
     setEditingMealId(meal.id)
     setMealName(meal.name)
+    setMealTiming(meal.timing || "Breakfast")
     setReminderEnabled(!!meal.reminderEnabled)
     setCalories(meal.calories?.toString() || "0")
     setProtein(meal.macros?.protein?.toString() || "0")
@@ -358,6 +375,22 @@ export default function MealPlannerPage() {
             </DialogHeader>
             <div className="p-6 space-y-6 overflow-y-auto flex-1 no-scrollbar text-left">
               <div className="grid gap-4">
+                {!editingMealId && (
+                  <div className="space-y-1">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing Category</Label>
+                    <Select value={mealTiming} onValueChange={setMealTiming}>
+                      <SelectTrigger className="h-12 rounded-2xl font-black border-2 border-border">
+                        <SelectValue placeholder="Select Timing" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-2 border-border z-[200]">
+                        {TIMING_OPTIONS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value} className="font-black uppercase text-[10px] tracking-widest">{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div className="space-y-1">
                   <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
                   <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />

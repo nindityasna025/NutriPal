@@ -166,7 +166,6 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!user || !result || !mounted || !preview) return
     
-    // RECORD ACTUAL TIME NOW
     const now = new Date()
     const dateId = format(now, "yyyy-MM-dd")
     const timeStr = format(now, "hh:mm a").toUpperCase()
