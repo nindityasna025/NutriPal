@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -244,7 +243,7 @@ export default function MealPlannerPage() {
             </DialogTrigger>
             <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-w-lg md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
               <DialogHeader className="bg-primary p-8 text-primary-foreground text-center shrink-0">
-                <DialogTitle className="text-2xl font-black uppercase tracking-tight">
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight text-center">
                   {editingMealId ? "Refine Meal" : "New Schedule"}
                 </DialogTitle>
               </DialogHeader>
@@ -408,58 +407,57 @@ export default function MealPlannerPage() {
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Formulating instructions...</p>
                 </div>
               ) : activeRecipe ? (
-                <div className="space-y-6">
-                  <Card className="border-none bg-primary/5 rounded-[1.5rem] shadow-sm">
-                    <CardContent className="p-6 space-y-3 text-left">
+                <Card className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white">
+                  <CardContent className="p-8 space-y-8 text-left">
+                    {/* Insight Section */}
+                    <section className="space-y-3">
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                         <Sparkles className="w-4 h-4" /> AI Expert Insight
                       </div>
-                      <p className="text-xs font-medium leading-relaxed text-muted-foreground">
+                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
                         {activeRecipe.insight}
                       </p>
-                    </CardContent>
-                  </Card>
+                    </section>
 
-                  <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
-                    <CardContent className="p-6 space-y-4 text-left">
+                    {/* Ingredients Section */}
+                    <section className="space-y-4">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
                         <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
                       </div>
-                      <ul className="space-y-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         {activeRecipe.ingredients.map((ing, i) => (
-                          <li key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
+                          <div key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
                             {ing}
-                          </li>
+                          </div>
                         ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                      </div>
+                    </section>
 
-                  <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
-                    <CardContent className="p-6 space-y-4 text-left">
+                    {/* Path Section */}
+                    <section className="space-y-4">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
                         <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-5">
                         {activeRecipe.instructions.map((step, i) => (
                           <div key={i} className="flex gap-4 items-start">
-                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-black text-primary shrink-0">
                               {i + 1}
                             </div>
-                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-0.5">
+                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-1">
                               {step}
                             </p>
                           </div>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                    </section>
+                  </CardContent>
+                </Card>
               ) : null}
             </ScrollArea>
           </div>
-          <DialogFooter className="p-6 pt-0 shrink-0">
+          <DialogFooter className="p-8 pt-0 shrink-0">
              <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium">Return to Schedule</Button>
           </DialogFooter>
         </DialogContent>
