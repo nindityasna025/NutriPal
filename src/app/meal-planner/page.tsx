@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { 
   Plus, 
   Utensils, 
@@ -293,11 +292,6 @@ export default function MealPlannerPage() {
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2.5">
                                   <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
-                                  {meal.source === 'planner' && (
-                                    <Badge className="rounded-xl font-black text-[8px] uppercase tracking-widest border-none px-2.5 py-0.5 bg-primary/10 text-primary">
-                                      COOK
-                                    </Badge>
-                                  )}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
