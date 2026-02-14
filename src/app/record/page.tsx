@@ -175,8 +175,8 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 space-y-10 pb-32 pt-safe min-h-screen">
-      <header className="text-center space-y-2">
+    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 pt-safe min-h-screen">
+      <header className="text-center space-y-2 mb-10">
         <h1 className="text-4xl font-black tracking-tighter uppercase text-foreground">Snap Meal</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Instant AI Expert Analysis</p>
       </header>
@@ -248,7 +248,7 @@ export default function RecordPage() {
 
               {mode === "camera" && !preview && (
                 <Button onClick={capturePhoto} className="w-full h-18 rounded-[2.5rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
-                  CAPTURE MEAL
+                  CAPTURE PHOTO
                 </Button>
               )}
               
