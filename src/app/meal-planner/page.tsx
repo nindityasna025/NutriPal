@@ -39,13 +39,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -67,7 +60,6 @@ export default function MealPlannerPage() {
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   
   const [mealName, setMealName] = useState("")
-  const [mealType, setMealType] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
   const [calories, setCalories] = useState<string>("0")
   const [protein, setProtein] = useState<string>("0")
@@ -187,12 +179,13 @@ export default function MealPlannerPage() {
         }
       }
 
-      const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
-      const finalTime = timeMap[mealType] || "12:00 PM";
+      // Default time for new meals
+      const finalTime = editingMealId 
+        ? (scheduledMeals?.find(m => m.id === editingMealId)?.time || format(new Date(), "hh:mm a").toUpperCase())
+        : format(new Date(), "hh:mm a").toUpperCase();
 
       const mealData: any = {
         name: mealName,
-        type: mealType,
         time: finalTime,
         calories: finalCalories,
         macros: {
@@ -268,7 +261,6 @@ export default function MealPlannerPage() {
 
   const resetForm = () => {
     setMealName("")
-    setMealType("Breakfast")
     setCalories("0")
     setProtein("0")
     setCarbs("0")
@@ -282,7 +274,6 @@ export default function MealPlannerPage() {
   const openEditDialog = (meal: any) => {
     setEditingMealId(meal.id)
     setMealName(meal.name)
-    setMealType(meal.type || "Breakfast")
     setReminderEnabled(!!meal.reminderEnabled)
     setCalories(meal.calories?.toString() || "0")
     setProtein(meal.macros?.protein?.toString() || "0")
@@ -367,21 +358,6 @@ export default function MealPlannerPage() {
             </DialogHeader>
             <div className="p-6 space-y-6 overflow-y-auto flex-1 no-scrollbar text-left">
               <div className="grid gap-4">
-                <div className="space-y-1">
-                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing</Label>
-                  <Select value={mealType} onValueChange={setMealType}>
-                    <SelectTrigger className="h-12 rounded-2xl font-black border-2 border-border text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="Breakfast">Breakfast</SelectItem>
-                      <SelectItem value="Lunch">Lunch</SelectItem>
-                      <SelectItem value="Snack">Snack</SelectItem>
-                      <SelectItem value="Dinner">Dinner</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
                 <div className="space-y-1">
                   <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
                   <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
