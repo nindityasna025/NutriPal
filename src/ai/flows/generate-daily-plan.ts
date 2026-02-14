@@ -1,8 +1,7 @@
 'use server';
 
 /**
- * @fileOverview AI flow for generating a full day's meal plan based on user metrics, 
- * including potential delivery matches from simulated ecosystem data.
+ * @fileOverview Predictive Menu Synthesis Model for daily planning.
  */
 
 import { ai } from '@/ai/genkit';
@@ -20,14 +19,14 @@ const MealRecommendationSchema = z.object({
   time: z.string(),
   macros: MacroSchema,
   description: z.string(),
-  swapSuggestion: z.string().describe('An alternative meal if the user doesn\'t like this one'),
+  swapSuggestion: z.string().describe('An alternative meal'),
   ingredients: z.array(z.string()),
   deliveryMatch: z.object({
     isAvailable: z.boolean(),
     platform: z.enum(['GrabFood', 'GoFood']).optional(),
     price: z.string().optional(),
     restaurant: z.string().optional(),
-  }).optional().describe('Simulated delivery app match for this specific meal recommendation'),
+  }).optional(),
 });
 
 const GenerateDailyPlanInputSchema = z.object({
@@ -55,19 +54,22 @@ const prompt = ai.definePrompt({
   name: 'generateDailyPlanPrompt',
   input: { schema: GenerateDailyPlanInputSchema },
   output: { schema: GenerateDailyPlanOutputSchema },
-  prompt: `You are an expert AI Nutritionist with access to a simulated delivery ecosystem (GrabFood, GoFood). 
-Generate a balanced daily meal plan (Breakfast, Lunch, Dinner) for a user with the following targets:
+  prompt: `You are the NutriPal Predictive Menu Synthesis Model. 
+Your task is to synthesize a 3-meal plan that optimizes for the following biophysical targets:
 
-Total Calorie Target: {{{calorieTarget}}} kcal
-Macro Distribution Goal: {{{proteinPercent}}}% Protein, {{{carbsPercent}}}% Carbs, {{{fatPercent}}}% Fat.
-Diet Type: {{#if dietType}}{{{dietType}}}{{else}}Standard Balanced{{/if}}
-Allergies: {{#if allergies}}{{{allergies}}}{{else}}None{{/if}}
+TARGETS:
+- Total Daily Energy: {{{calorieTarget}}} kcal
+- Macro Ratios: {{{proteinPercent}}}% P, {{{carbsPercent}}}% C, {{{fatPercent}}}% F
+- Diet Constraint: {{#if dietType}}{{{dietType}}}{{else}}Standard{{/if}}
+- Exclusion List: {{#if allergies}}{{{allergies}}}{{else}}None{{/if}}
 
-Requirements:
-1. The sum of calories across all 3 meals must be close to the calorie target.
-2. For each meal, check if it's commonly available on delivery apps in a city like Jakarta. If so, populate the deliveryMatch field with a simulated restaurant and price.
-3. Provide a "swapSuggestion" which is a healthier or similar alternative.
-4. Keep ingredients simple and accessible for the "Cook Yourself" path.`,
+SYNTHESIS RULES:
+1. SUM(Calories) must deviate by <5% from Target.
+2. Ensure meals are accessible on major delivery platforms (Grab/Gojek).
+3. "description" must be CONCISE (MAX 180 chars).
+4. Predict 1 "swapSuggestion" for each meal that maintains similar macro profiles.
+
+Synthesize the optimal 24-hour nutritional path.`,
 });
 
 const generateDailyPlanFlow = ai.defineFlow(

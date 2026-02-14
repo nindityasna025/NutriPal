@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -23,21 +22,14 @@ import {
   Clock,
   X,
   Plus,
-  CheckCircle2
+  CheckCircle2,
+  Cpu
 } from "lucide-react"
-import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
-import { cn } from "@/lib/utils"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 
@@ -93,10 +85,10 @@ export default function ExplorePage() {
       console.error(err);
       toast({ 
         variant: "destructive", 
-        title: err.message?.includes("429") ? "AI Taking a Break" : "AI Hub Unavailable", 
+        title: err.message?.includes("429") ? "Model Engine Busy" : "ML Hub Error", 
         description: err.message?.includes("429") 
-          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
-          : "Could not analyze delivery ecosystem." 
+          ? "The recommendation engine is processing too many requests. Retry in 30 seconds." 
+          : "Could not calculate optimal delivery matches." 
       });
     } finally {
       setLoading(false);
@@ -121,10 +113,10 @@ export default function ExplorePage() {
       console.error(err);
       toast({ 
         variant: "destructive", 
-        title: err.message?.includes("429") ? "AI Taking a Break" : "AI Hub Unavailable", 
+        title: err.message?.includes("429") ? "Synthesis Engine Busy" : "Synthesis Error", 
         description: err.message?.includes("429") 
-          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
-          : "Could not design your daily menu." 
+          ? "The synthesis engine is at capacity. Retry in 30 seconds." 
+          : "Could not synthesize daily menu." 
       });
     } finally {
       setLoading(false);
@@ -159,8 +151,8 @@ export default function ExplorePage() {
       source: item.platform || "planner",
       macros: item.macros,
       healthScore: item.healthScore || 90,
-      description: item.description || item.reasoning || "Balanced choice curated for your profile.",
-      expertInsight: item.reasoning || "Matched to your profile goals.",
+      description: item.description || item.reasoning || "ML-vetted selection.",
+      expertInsight: item.reasoning || "Optimized for your biometrics.",
       status: "planned",
       createdAt: serverTimestamp()
     })
@@ -170,7 +162,7 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Schedule Synced", description: `${item.name} added as planned.` })
+    toast({ title: "Model Output Saved", description: `${item.name} synced to schedule.` })
     setIsDeliveryOpen(false)
     setIsMenuOpen(false)
     router.push("/")
@@ -196,14 +188,14 @@ export default function ExplorePage() {
         source: "planner",
         macros: item.macros,
         healthScore: 90,
-        description: item.description || "Part of your daily curated plan.",
-        expertInsight: "Daily systematic recommendation.",
+        description: item.description || "Synthesized path component.",
+        expertInsight: "Daily predictive recommendation.",
         status: "planned",
         createdAt: serverTimestamp()
       })
     });
 
-    toast({ title: "Full Day Planned", description: `All meals added as planned for ${dateId}.` })
+    toast({ title: "Synthesis Complete", description: `Full path predicted and saved for ${dateId}.` })
     setIsMenuOpen(false)
     router.push("/")
   }
@@ -220,15 +212,15 @@ export default function ExplorePage() {
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
               <div className="w-24 h-24 bg-primary/20 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-primary/10">
-                 <Bike className="w-12 h-12 text-foreground" />
+                 <Cpu className="w-12 h-12 text-foreground" />
               </div>
               <div className="space-y-4 text-center">
-                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Delivery Hub</h3>
+                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">ML Curation</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Real-time curation from GrabFood & GoFood based on your profile.
+                  Neural recommendation engine for GrabFood & GoFood ecosystem.
                 </p>
               </div>
-              <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Analyze Ecosystem</Button>
+              <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Execute Scorer</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
@@ -241,7 +233,7 @@ export default function ExplorePage() {
                 <ChevronLeft className="w-4 h-4 mr-2" /> Back
               </Button>
               <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">
-                AI CURATION: DELIVERY HUB
+                NUTRIPAL V1: ML DELIVERY HUB
               </DialogTitle>
               <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
                 <div className="flex items-center gap-2 border-r border-foreground/10 pr-3">
@@ -269,7 +261,7 @@ export default function ExplorePage() {
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Scanning Platforms...</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Calculating Scores...</p>
                   </div>
                 ) : deliveryResult?.map((item) => (
                   <Card key={item.id} className="rounded-[2.5rem] border-2 border-border shadow-premium bg-white group transition-all ring-primary/10 hover:ring-8 overflow-hidden flex flex-col">
@@ -277,7 +269,7 @@ export default function ExplorePage() {
                       <div className="space-y-4 flex-1">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 text-accent font-black text-[9px] uppercase tracking-[0.1em]">
-                            <TrendingUp className="w-4 h-4" /> {item.healthScore}% Rank
+                            <TrendingUp className="w-4 h-4" /> {item.healthScore}% Model Match
                           </div>
                           <h3 className="text-xl font-black tracking-tighter uppercase text-foreground">{item.name}</h3>
                           <p className="text-[9px] font-black text-foreground opacity-30 uppercase tracking-[0.1em]">{item.restaurant}</p>
@@ -308,7 +300,7 @@ export default function ExplorePage() {
                           </div>
                           <p className="text-2xl font-black tracking-tighter text-foreground">{item.price}</p>
                         </div>
-                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Schedule & Order</Button>
+                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Sync to Path</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -325,12 +317,12 @@ export default function ExplorePage() {
                  <Sparkles className="w-12 h-12 text-foreground opacity-60" />
               </div>
               <div className="space-y-4 text-center">
-                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Smart Menu</h3>
+                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Predictive Menu</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Generate daily plan with automated delivery platform integration.
+                  Synthesize daily nutritional path using predictive synthesis models.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-accent text-foreground hover:opacity-90 border-none">Generate Plan</Button>
+              <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-accent text-foreground hover:opacity-90 border-none">Synthesize Path</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
@@ -343,7 +335,7 @@ export default function ExplorePage() {
                 <ChevronLeft className="w-4 h-4 mr-2" /> Back
               </Button>
               <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">
-                AI CURATION: SMART MENU
+                NUTRIPAL V1: PREDICTIVE SYNTHESIS
               </DialogTitle>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
@@ -357,7 +349,7 @@ export default function ExplorePage() {
                 </div>
                 {menuPlan && !loading && (
                   <Button onClick={handleAddAll} className="h-10 px-5 rounded-[0.75rem] bg-white text-foreground hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
-                     <Plus className="w-4 h-4 mr-2" /> Add All
+                     <Plus className="w-4 h-4 mr-2" /> Accept All
                   </Button>
                 )}
               </div>
@@ -367,7 +359,7 @@ export default function ExplorePage() {
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-accent" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Designing Menu...</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Synthesizing Path...</p>
                   </div>
                 ) : menuPlan && (["breakfast", "lunch", "dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
@@ -399,25 +391,14 @@ export default function ExplorePage() {
                             </div>
                           </div>
                           <div className="bg-secondary/50 py-3 rounded-[1rem] text-center border-border">
-                            <p className="text-[7px] font-black text-foreground opacity-30 uppercase tracking-[0.1em] mb-1">Energy Target</p>
+                            <p className="text-[7px] font-black text-foreground opacity-30 uppercase tracking-[0.1em] mb-1">Vector Energy</p>
                             <p className="text-xl font-black tracking-tighter text-foreground">+{meal.calories} kcal</p>
                           </div>
                         </div>
                         <div className="pt-2 space-y-2">
-                          {meal.deliveryMatch?.isAvailable ? (
-                            <div className="grid grid-cols-2 gap-2">
-                              <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border-none">
-                                GrabFood
-                              </Button>
-                              <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border-none">
-                                GoFood
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border border-border text-foreground opacity-60 hover:bg-secondary shadow-sm">
-                              <Plus className="w-4 h-4 mr-2" /> Plan to Cook
-                            </Button>
-                          )}
+                          <Button onClick={() => handleOrderNow(meal, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
+                            <Plus className="w-4 h-4 mr-2" /> Accept Prediction
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>

@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview AI flow for curating meal suggestions from a database of scraped delivery data.
+ * @fileOverview Machine Learning Recommendation Model for delivery curation.
  * 
- * - curateMealSuggestions - Filters a database of food items based on user profile metrics.
+ * - curateMealSuggestions - Acts as a scoring engine to rank delivery items.
  */
 
 import { ai } from '@/ai/genkit';
@@ -37,7 +37,7 @@ const CurateMealSuggestionsInputSchema = z.object({
 export type CurateMealSuggestionsInput = z.infer<typeof CurateMealSuggestionsInputSchema>;
 
 const SuggestionSchema = DeliveryItemSchema.extend({
-  reasoning: z.string().max(200).describe("Why this meal was chosen for the user's specific profile."),
+  reasoning: z.string().max(200).describe("ML-based reasoning for the recommendation. MAX 200 chars."),
 });
 
 const CurateMealSuggestionsOutputSchema = z.object({
@@ -53,31 +53,31 @@ const prompt = ai.definePrompt({
   name: 'curateMealSuggestionsPrompt',
   input: { schema: CurateMealSuggestionsInputSchema },
   output: { schema: CurateMealSuggestionsOutputSchema },
-  prompt: `You are a Smart Delivery Decision Maker. 
-Your goal is to filter the provided database of scraped food items to find the TOP 3 best matches for the user.
+  prompt: `You are the NutriPal V1 Machine Learning Recommendation Engine. 
+Your objective is to execute a multi-variable scoring algorithm to rank food items from the provided database.
 
-User Profile:
-- Category: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
-- Restrictions: {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
-- Allergies: {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
-- Daily Calorie Goal: {{{userProfile.calorieTarget}}} kcal
+User Input Vector:
+- BMI Category Weight: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
+- Filter Constraints (Hard): {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
+- Exclusion Vector (Allergies): {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
+- Target Scalar (Calories): {{{userProfile.calorieTarget}}} kcal
 
-DATABASE OF SCRAPED ITEMS:
+DATABASE OF ITEMS:
 {{#each scrapedDatabase}}
 - ID: {{id}}, Name: {{name}}, Restaurant: {{restaurant}}, Price: {{price}}, Platform: {{platform}}, Kcal: {{calories}}, Health: {{healthScore}}, Tags: {{tags}}
 {{/each}}
 
-CRITICAL RULES:
-1. Filter out items that contain the user's allergies.
-2. Prioritize items that match dietary restrictions (e.g., if Vegetarian, only pick Vegetarian).
-3. If the user is "Overweight" or "Obese", prioritize items with <500kcal and higher Health Scores.
-4. If the user is "Underweight", prioritize items with higher protein and moderate calories.
-5. Provide a "reasoning" for each pick that explains how it aligns with their BMI category or goal. 
-   - TARGET LENGTH: 150 characters.
-   - ABSOLUTE LIMIT: 200 characters. 
-   - DO NOT EXCEED 200 characters.
+MODEL LOGIC:
+1. PENALTY: Assign -1000 score to any item containing "Exclusion Vector" ingredients.
+2. REWARD: Assign +50 to items matching "Filter Constraints".
+3. OPTIMIZATION: If BMI is "Overweight/Obese", rank <500kcal items higher. If "Underweight", rank High Protein higher.
+4. TARGETING: Prioritize items where Kcal is within 20% of (Target Scalar / 3).
 
-Provide the top 3 matches in the specified JSON format.`,
+CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (Target 150 chars). 
+- Explain the algorithmic match (e.g., "Matched for high protein-to-calorie ratio").
+- ABSOLUTE LIMIT: 200 characters.
+
+Provide the top 3 items with highest calculated scores.`,
 });
 
 const curateMealSuggestionsFlow = ai.defineFlow(
