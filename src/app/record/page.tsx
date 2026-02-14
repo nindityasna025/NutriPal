@@ -18,8 +18,7 @@ import {
   Calendar as CalendarIcon,
   Heart,
   Scale,
-  Leaf,
-  CheckCircle2
+  Leaf
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"

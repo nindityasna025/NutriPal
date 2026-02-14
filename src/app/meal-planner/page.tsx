@@ -171,8 +171,8 @@ export default function MealPlannerPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
-      <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-4 animate-in fade-in duration-700">
-        <div className="space-y-1 w-full lg:w-auto text-center lg:text-left">
+      <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
+        <div className="space-y-1 w-full lg:w-auto">
           <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Plan</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Strategic Daily Menu</p>
         </div>

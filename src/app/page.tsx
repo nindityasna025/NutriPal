@@ -55,7 +55,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 const chartConfig = {
   protein: { label: "Protein", color: "hsl(var(--primary))" },
