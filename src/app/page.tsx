@@ -136,7 +136,6 @@ export default function Dashboard() {
     for (let i = 6; i >= 0; i--) {
       const d = subDays(today, i);
       const dStr = format(d, "yyyy-MM-dd");
-      // Cek dokumen dailyLog yang memiliki ID atau field 'date' yang cocok
       const foundLog = logsData?.find(l => l.date === dStr || l.id === dStr);
       
       if (foundLog) {
@@ -215,7 +214,7 @@ export default function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8 space-y-8 pb-24 min-h-screen">
       <header className="space-y-1 pt-safe text-center animate-in fade-in duration-500">
-        <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Today</h1>
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Today</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.5em] opacity-40">
           {format(today, "EEEE, MMMM do")}
         </p>

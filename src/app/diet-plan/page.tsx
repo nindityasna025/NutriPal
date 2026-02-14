@@ -46,11 +46,11 @@ export default function DietPlanPage() {
     <div className="min-h-screen bg-background font-body">
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section className="space-y-2 text-center">
-          <h1 className="text-3xl font-headline font-bold text-foreground flex items-center justify-center gap-2">
-            <Apple className="text-primary w-8 h-8" />
-            Personalized Diet Planner
+          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase flex items-center justify-center gap-2">
+            <Apple className="text-primary w-12 h-12" />
+            DIET PLANNER
           </h1>
-          <p className="text-muted-foreground">Tailor your nutrition to your specific needs and what&apos;s in your pantry.</p>
+          <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Tailored Nutrition</p>
         </section>
 
         <Card className="border-none shadow-xl">

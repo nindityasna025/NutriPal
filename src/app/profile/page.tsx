@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -93,8 +94,8 @@ export default function ProfilePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
-        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Profile</h1>
-        <p className="text-[10px] font-black text-foreground uppercase tracking-[0.25em] opacity-40">Manage Your Health Metrics</p>
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.25em] opacity-40">Manage Your Health Metrics</p>
       </header>
 
       <section className="space-y-10">

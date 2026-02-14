@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -35,19 +36,19 @@ export default function FitnessPage() {
   return (
     <div className="min-h-screen bg-background font-body">
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <section className="space-y-2">
-            <h1 className="text-3xl font-headline font-bold text-foreground flex items-center gap-2">
-              <Activity className="text-primary w-8 h-8" />
-              Fitness Tracker Sync
-            </h1>
-            <p className="text-muted-foreground">Automagically adjust your caloric needs based on activity.</p>
-          </section>
-          
+        <header className="space-y-1 pt-safe text-center animate-in fade-in duration-500">
+          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase flex items-center justify-center gap-2">
+            <Activity className="text-primary w-12 h-12" />
+            FITNESS SYNC
+          </h1>
+          <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Activity Integration</p>
+        </header>
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-center gap-4">
           <button 
             onClick={handleSync} 
             disabled={syncing}
-            className="rounded-full bg-white border border-border text-foreground hover:bg-muted font-semibold shadow-sm px-6 h-12 flex items-center gap-2 transition-all disabled:opacity-50"
+            className="rounded-full bg-white border border-border text-foreground hover:bg-muted font-semibold shadow-sm px-10 h-12 flex items-center gap-2 transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? "Syncing..." : "Sync Devices"}
