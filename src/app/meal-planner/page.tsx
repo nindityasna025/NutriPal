@@ -242,15 +242,15 @@ export default function MealPlannerPage() {
                 <Plus className="w-4 h-4 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-w-lg">
-              <DialogHeader className="bg-primary p-8 text-primary-foreground text-center">
+            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-w-lg md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+              <DialogHeader className="bg-primary p-8 text-primary-foreground text-center shrink-0">
                 <DialogTitle className="text-2xl font-black uppercase tracking-tight">
                   {editingMealId ? "Refine Meal" : "New Schedule"}
                 </DialogTitle>
               </DialogHeader>
-              <div className="p-8 space-y-6 overflow-y-auto max-h-[60vh]">
+              <div className="p-8 space-y-6 overflow-y-auto flex-1">
                 <div className="grid gap-5">
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
                     <Select value={mealType} onValueChange={setMealType}>
                       <SelectTrigger className="h-12 rounded-[1.25rem] font-bold border-muted-foreground/10">
@@ -264,12 +264,12 @@ export default function MealPlannerPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Description</Label>
                     <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-[1.25rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
                   
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Image (Optional)</Label>
                     <div 
                       onClick={() => fileInputRef.current?.click()}
@@ -298,7 +298,7 @@ export default function MealPlannerPage() {
                   </div>
 
                   <div className="flex items-center justify-between p-5 bg-secondary/30 rounded-[1.5rem]">
-                    <div className="space-y-0.5">
+                    <div className="space-y-0.5 text-left">
                       <Label className="text-[10px] font-black uppercase tracking-widest">Smart Alerts</Label>
                       <p className="text-[9px] text-muted-foreground font-medium uppercase">Notify 15m before meal time.</p>
                     </div>
@@ -306,7 +306,7 @@ export default function MealPlannerPage() {
                   </div>
                 </div>
               </div>
-              <DialogFooter className="p-8 pt-0">
+              <DialogFooter className="p-8 pt-0 shrink-0">
                 <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-[1.5rem] font-black uppercase tracking-widest text-xs shadow-premium">
                   {isSaving ? <Loader2 className="animate-spin" /> : editingMealId ? "Sync Changes" : "Confirm Schedule"}
                 </Button>
@@ -394,14 +394,14 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
-          <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight">
+        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+          <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground shrink-0">
+            <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight text-center">
               {activeRecipeName}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-6">
-            <ScrollArea className="h-[500px] pr-4">
+          <div className="p-6 overflow-y-auto flex-1">
+            <ScrollArea className="h-full pr-4">
               {generatingRecipe ? (
                 <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
                   <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -459,7 +459,7 @@ export default function MealPlannerPage() {
               ) : null}
             </ScrollArea>
           </div>
-          <DialogFooter className="p-6 pt-0">
+          <DialogFooter className="p-6 pt-0 shrink-0">
              <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium">Return to Schedule</Button>
           </DialogFooter>
         </DialogContent>

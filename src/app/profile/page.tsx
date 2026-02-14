@@ -113,27 +113,27 @@ export default function ProfilePage() {
                   <Edit2 className="w-4 h-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none bg-background w-[92vw]">
-                <DialogHeader className="p-8 pb-4">
+              <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none bg-background w-[92vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+                <DialogHeader className="p-8 pb-4 shrink-0">
                   <DialogTitle className="text-xl font-black uppercase tracking-tight text-center">Update Metrics</DialogTitle>
                 </DialogHeader>
-                <div className="p-8 pt-0 space-y-6">
+                <div className="p-8 pt-0 space-y-6 overflow-y-auto flex-1">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 text-left">
                       <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
                       <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-11 rounded-xl border-primary/10 font-bold" />
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 text-left">
                       <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Height (cm)</Label>
                       <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-11 rounded-xl border-primary/10 font-bold" />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 text-left">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age</Label>
                     <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-11 rounded-xl border-primary/10 font-bold" />
                   </div>
                 </div>
-                <DialogFooter className="p-8 pt-0">
+                <DialogFooter className="p-8 pt-0 shrink-0">
                   <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-14 rounded-2xl font-black text-sm shadow-xl uppercase tracking-widest">
                     {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "Sync Changes"}
                   </Button>
@@ -157,7 +157,7 @@ export default function ProfilePage() {
             <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:rotate-3 transition-transform shrink-0">
               <Scale className="w-6 h-6 text-primary" />
             </div>
-            <div>
+            <div className="text-left">
               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
               <p className="text-xl font-black tracking-tight uppercase">{profile?.weight || "--"} <span className="text-[10px] font-bold text-muted-foreground">kg</span></p>
             </div>
@@ -166,7 +166,7 @@ export default function ProfilePage() {
             <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:rotate-3 transition-transform shrink-0">
               <Activity className="w-6 h-6 text-blue-500" />
             </div>
-            <div>
+            <div className="text-left">
               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Status</p>
               <p className="text-xl font-black tracking-tight uppercase">{profile?.bmiCategory || "Healthy"}</p>
             </div>
