@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -152,7 +153,14 @@ export default function ExplorePage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
-    setDocumentNonBlocking(dailyLogRef, { date: dateId, caloriesConsumed: increment(item.calories) }, { merge: true })
+    setDocumentNonBlocking(dailyLogRef, { 
+      date: dateId, 
+      caloriesConsumed: increment(item.calories),
+      proteinTotal: increment(item.macros?.protein || 0),
+      carbsTotal: increment(item.macros?.carbs || 0),
+      fatTotal: increment(item.macros?.fat || 0)
+    }, { merge: true })
+
     addDocumentNonBlocking(mealsColRef, {
       name: item.name,
       calories: item.calories,
@@ -185,10 +193,25 @@ export default function ExplorePage() {
     const totalCals = (menuPlan.Breakfast?.calories || 0) + 
                       (menuPlan.Lunch?.calories || 0) + 
                       (menuPlan.Dinner?.calories || 0);
+    
+    const totalProtein = (menuPlan.Breakfast?.macros?.protein || 0) + 
+                         (menuPlan.Lunch?.macros?.protein || 0) + 
+                         (menuPlan.Dinner?.macros?.protein || 0);
+
+    const totalCarbs = (menuPlan.Breakfast?.macros?.carbs || 0) + 
+                       (menuPlan.Lunch?.macros?.carbs || 0) + 
+                       (menuPlan.Dinner?.macros?.carbs || 0);
+
+    const totalFat = (menuPlan.Breakfast?.macros?.fat || 0) + 
+                     (menuPlan.Lunch?.macros?.fat || 0) + 
+                     (menuPlan.Dinner?.macros?.fat || 0);
 
     setDocumentNonBlocking(dailyLogRef, { 
       date: dateId, 
-      caloriesConsumed: increment(totalCals) 
+      caloriesConsumed: increment(totalCals),
+      proteinTotal: increment(totalProtein),
+      carbsTotal: increment(totalCarbs),
+      fatTotal: increment(totalFat)
     }, { merge: true })
 
     const types = ["Breakfast", "Lunch", "Dinner"] as const;

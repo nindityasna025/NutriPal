@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -188,7 +189,14 @@ export default function RecordPage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealRef = doc(collection(dailyLogRef, "meals"))
     
-    setDoc(dailyLogRef, { date: dateId, caloriesConsumed: increment(result.calories) }, { merge: true });
+    setDoc(dailyLogRef, { 
+      date: dateId, 
+      caloriesConsumed: increment(result.calories),
+      proteinTotal: increment(result.macros.protein),
+      carbsTotal: increment(result.macros.carbs),
+      fatTotal: increment(result.macros.fat)
+    }, { merge: true });
+
     setDoc(mealRef, {
       name: result.name,
       calories: result.calories,

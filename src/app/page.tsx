@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -22,8 +23,8 @@ import {
   Activity,
   Leaf
 } from "lucide-react"
-import { format, startOfToday, subDays } from "date-fns"
-import { collection, doc } from "firebase/firestore"
+import { format, startOfToday, subDays, parseISO, isSameDay } from "date-fns"
+import { collection, doc, query, orderBy, limit } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
@@ -97,27 +98,11 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [mounted, setMounted] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
-  const [weeklyData, setWeeklyData] = useState<any[]>([])
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
 
   useEffect(() => {
     setToday(startOfToday())
     setMounted(true)
-    const data = []
-    for (let i = 6; i >= 0; i--) {
-      const d = subDays(new Date(), i)
-      const p = 30 + Math.floor(Math.random() * 20)
-      const c = 60 + Math.floor(Math.random() * 40)
-      const f = 20 + Math.floor(Math.random() * 15)
-      
-      data.push({
-        date: format(d, "MMM d"),
-        protein: p * 4,
-        carbs: c * 4,
-        fat: f * 9,
-      })
-    }
-    setWeeklyData(data)
   }, [])
 
   useEffect(() => {
@@ -131,10 +116,47 @@ export default function Dashboard() {
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const dailyLogRef = useMemoFirebase(() => (user && dateId) ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, firestore, dateId])
   const mealsColRef = useMemoFirebase(() => (user && dateId) ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, firestore, dateId])
+  
+  // Query for the last 7 daily logs
+  const logsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+      collection(firestore, "users", user.uid, "dailyLogs"),
+      orderBy("date", "desc"),
+      limit(7)
+    );
+  }, [user, firestore]);
 
   const { data: profile } = useDoc(profileRef)
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
+  const { data: logsData } = useCollection(logsQuery)
+
+  const weeklyData = useMemo(() => {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = subDays(new Date(), i);
+      const dStr = format(d, "yyyy-MM-dd");
+      const foundLog = logsData?.find(l => l.date === dStr);
+      
+      if (foundLog) {
+        days.push({
+          date: format(d, "MMM d"),
+          protein: (foundLog.proteinTotal || 0) * 4,
+          carbs: (foundLog.carbsTotal || 0) * 4,
+          fat: (foundLog.fatTotal || 0) * 9,
+        });
+      } else {
+        days.push({
+          date: format(d, "MMM d"),
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+        });
+      }
+    }
+    return days;
+  }, [logsData]);
 
   const sortedMeals = useMemo(() => {
     if (!meals) return null;

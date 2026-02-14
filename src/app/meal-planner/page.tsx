@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react"
@@ -22,7 +23,7 @@ import {
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
-import { doc, collection, serverTimestamp, updateDoc, setDoc, deleteDoc } from "firebase/firestore"
+import { doc, collection, serverTimestamp, updateDoc, setDoc, deleteDoc, increment } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
@@ -93,6 +94,7 @@ export default function MealPlannerPage() {
   const dateId = date ? format(date, "yyyy-MM-dd") : ""
   
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
+  const dailyLogRef = useMemoFirebase(() => (user && dateId) ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, firestore, dateId])
   const mealsColRef = useMemoFirebase(() => (user && dateId) ? collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals") : null, [user, firestore, dateId])
 
   const { data: profile } = useDoc(profileRef)
@@ -122,16 +124,21 @@ export default function MealPlannerPage() {
   const handleToday = () => setDate(startOfToday())
 
   const handleSaveMeal = async () => {
-    if (!user || !mealsColRef || !mealName) return
+    if (!user || !mealsColRef || !mealName || !dailyLogRef) return
     setIsSaving(true)
     
     const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
+    const calories = 450;
+    const protein = 25;
+    const carbs = 45;
+    const fat = 15;
+
     const mealData = {
       name: mealName,
       type: mealType,
       time: timeMap[mealType] || "12:00 PM",
-      calories: 450,
-      macros: { protein: 25, carbs: 45, fat: 15 },
+      calories,
+      macros: { protein, carbs, fat },
       healthScore: 85,
       description: "Custom meal scheduled for peak metabolic performance.",
       source: "planner",
@@ -142,10 +149,18 @@ export default function MealPlannerPage() {
 
     try {
       if (editingMealId) {
+        // Logic for updating could be complex with increments, for prototype we handle creation/deletion mostly
         await updateDoc(doc(mealsColRef, editingMealId), mealData);
         toast({ title: "Schedule Updated", description: "Your daily plan has been refined." })
       } else {
         await setDoc(doc(mealsColRef), { ...mealData, createdAt: serverTimestamp() });
+        await setDoc(dailyLogRef, {
+          date: dateId,
+          caloriesConsumed: increment(calories),
+          proteinTotal: increment(protein),
+          carbsTotal: increment(carbs),
+          fatTotal: increment(fat)
+        }, { merge: true });
         toast({ title: "Meal Scheduled", description: `${mealName} is now on your timeline.` })
       }
       resetForm()
@@ -174,11 +189,17 @@ export default function MealPlannerPage() {
     setIsDialogOpen(true)
   }
 
-  const handleDeleteMeal = async (mealId: string, mealName: string) => {
-    if (!user || !mealsColRef) return
+  const handleDeleteMeal = async (meal: any) => {
+    if (!user || !mealsColRef || !dailyLogRef) return
     try {
-      await deleteDoc(doc(mealsColRef, mealId));
-      toast({ variant: "destructive", title: "Meal Removed", description: `${mealName} taken off your schedule.` })
+      await deleteDoc(doc(mealsColRef, meal.id));
+      await setDoc(dailyLogRef, {
+        caloriesConsumed: increment(-(meal.calories || 0)),
+        proteinTotal: increment(-(meal.macros?.protein || 0)),
+        carbsTotal: increment(-(meal.macros?.carbs || 0)),
+        fatTotal: increment(-(meal.macros?.fat || 0))
+      }, { merge: true });
+      toast({ variant: "destructive", title: "Meal Removed", description: `${meal.name} taken off your schedule.` })
     } catch (err: any) {
       console.error(err);
     }
@@ -304,7 +325,7 @@ export default function MealPlannerPage() {
                            <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-xl h-10 w-10 border border-border bg-secondary/10 shadow-sm transition-all"><ChefHat className="w-5 h-5" /></Button>
                          )}
                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-60 hover:bg-secondary rounded-xl h-10 w-10 border border-border shadow-sm transition-all"><Edit2 className="w-4 h-4" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-foreground opacity-60 hover:text-destructive rounded-xl h-10 w-10 border border-border shadow-sm transition-all"><Trash2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-60 hover:text-destructive rounded-xl h-10 w-10 border border-border shadow-sm transition-all"><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   </CardContent>
