@@ -14,25 +14,16 @@ import {
   ChevronLeft,
   ScanSearch,
   ImageIcon,
-  Calendar as CalendarIcon,
-  Clock,
-  Leaf,
-  Activity
+  Sparkle
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format, parseISO } from "date-fns"
+import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-
-const MACRO_COLORS = {
-  protein: "hsl(var(--primary))",
-  carbs: "hsl(38 92% 50%)",
-  fat: "hsl(var(--accent))",
-}
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -40,9 +31,6 @@ export default function RecordPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
-  
-  const [logDate, setLogDate] = useState<string>("")
-  const [logTime, setLogTime] = useState<string>("")
   
   const { toast } = useToast()
   
@@ -57,9 +45,6 @@ export default function RecordPage() {
 
   useEffect(() => {
     setMounted(true)
-    const now = new Date()
-    setLogDate(format(now, "yyyy-MM-dd"))
-    setLogTime(format(now, "HH:mm"))
   }, [])
 
   const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
@@ -181,17 +166,12 @@ export default function RecordPage() {
   }
 
   const handleSave = async () => {
-    if (!user || !result || !mounted || !preview || !logDate) return
-    const selectedDate = parseISO(logDate)
-    const dateId = format(selectedDate, "yyyy-MM-dd")
+    if (!user || !result || !mounted || !preview) return
     
-    let timeStr = format(new Date(), "hh:mm a").toUpperCase()
-    if (logTime) {
-      const [hours, mins] = logTime.split(':')
-      const d = new Date(selectedDate)
-      d.setHours(parseInt(hours), parseInt(mins))
-      timeStr = format(d, "hh:mm a").toUpperCase()
-    }
+    // Always use current time for Snap Meal recordings
+    const now = new Date()
+    const dateId = format(now, "yyyy-MM-dd")
+    const timeStr = format(now, "hh:mm a").toUpperCase()
     
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealRef = doc(collection(dailyLogRef, "meals"))
@@ -266,27 +246,10 @@ export default function RecordPage() {
                   <ChevronLeft className="w-5 h-5 mr-2" /> Back
                 </Button>
                 
-                {(mode === "gallery" || mode === "camera") && !result && (
-                  <div className="flex flex-wrap items-center gap-4 bg-secondary/50 rounded-[1.5rem] px-6 py-3 border-2 border-border shadow-inner">
-                    <div className="flex items-center gap-3 border-r-2 border-border pr-5">
-                      <CalendarIcon className="w-4 h-4 text-primary" />
-                      <input 
-                        type="date" 
-                        value={logDate} 
-                        onChange={e => setLogDate(e.target.value)} 
-                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-28 text-foreground" 
-                      />
-                    </div>
-                    <div className="flex items-center gap-3 pl-1">
-                      <Clock className="w-4 h-4 text-primary" />
-                      <input 
-                        type="time" 
-                        value={logTime} 
-                        onChange={e => setLogTime(e.target.value)} 
-                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-16 text-foreground" 
-                      />
-                    </div>
-                  </div>
+                {!result && (
+                  <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[9px] tracking-[0.2em] px-5 py-2 rounded-full border-none">
+                    Recording Live Session
+                  </Badge>
                 )}
               </div>
 
