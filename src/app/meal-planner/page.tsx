@@ -150,9 +150,16 @@ export default function MealPlannerPage() {
         dietaryRestrictions: profile?.dietaryRestrictions || []
       })
       setActiveRecipe(result.recipe)
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "Chef is Busy", description: "Could not generate recipe at this time." })
+      const isKeyError = error.message?.includes("403") || error.message?.includes("key");
+      toast({ 
+        variant: "destructive", 
+        title: isKeyError ? "API Key Issue" : "Chef is Busy", 
+        description: isKeyError 
+          ? "Your AI API key has been revoked or leaked. Please update it in the settings." 
+          : "Could not generate recipe at this time." 
+      })
       setIsRecipeDialogOpen(false)
     } finally {
       setGeneratingRecipe(false)
@@ -175,7 +182,14 @@ export default function MealPlannerPage() {
       toast({ title: "AI Plan Ready", description: "Custom daily recommendations generated." })
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Unavailable", description: "NutriPal AI is over capacity." })
+      const isKeyError = error.message?.includes("403") || error.message?.includes("key");
+      toast({ 
+        variant: "destructive", 
+        title: isKeyError ? "API Key Issue" : "AI Unavailable", 
+        description: isKeyError 
+          ? "Your AI API key is leaked or invalid. Please check your .env configuration." 
+          : "NutriPal AI is currently over capacity." 
+      })
     } finally {
       setGeneratingPlan(false)
     }
