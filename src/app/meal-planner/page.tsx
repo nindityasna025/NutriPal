@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -45,12 +44,13 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
 
 // Standardized Macro Colors
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Forest Green
-  carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Teal/Lime
+  protein: "hsl(var(--primary))",
+  carbs: "hsl(38 92% 50%)",
+  fat: "hsl(var(--accent))",
 }
 
 // Dummy Recipe Database
@@ -123,44 +123,49 @@ export default function MealPlannerPage() {
     if (!user || !mealsColRef || !mealName || !dailyLogRef) return
     setIsSaving(true)
     
-    const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
-    const calories = 450;
-    const protein = 25;
-    const carbs = 45;
-    const fat = 15;
-
-    const mealData = {
-      name: mealName,
-      type: mealType,
-      time: timeMap[mealType] || "12:00 PM",
-      calories,
-      macros: { protein, carbs, fat },
-      healthScore: 85,
-      description: "Custom meal scheduled for peak metabolic performance.",
-      source: "planner",
-      reminderEnabled,
-      updatedAt: serverTimestamp()
-    }
-
     try {
+      // Trigger AI Analysis
+      let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
+      if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
+      else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
+
+      const aiResult = await analyzeTextMeal({ mealName, userGoal });
+
+      const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
+      const finalTime = timeMap[mealType] || "12:00 PM";
+
+      const mealData = {
+        name: mealName,
+        type: mealType,
+        time: finalTime,
+        calories: aiResult.calories,
+        macros: aiResult.macros,
+        healthScore: aiResult.healthScore,
+        description: aiResult.description,
+        expertInsight: aiResult.expertInsight,
+        source: "planner",
+        reminderEnabled,
+        updatedAt: serverTimestamp()
+      }
+
       if (editingMealId) {
         updateDocumentNonBlocking(doc(mealsColRef, editingMealId), mealData);
-        toast({ title: "Schedule Updated", description: "Your daily plan has been refined." })
+        toast({ title: "Schedule Updated", description: "AI analysis has refined your menu." })
       } else {
         addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
         setDocumentNonBlocking(dailyLogRef, {
           date: dateId,
-          caloriesConsumed: increment(calories),
-          proteinTotal: increment(protein),
-          carbsTotal: increment(carbs),
-          fatTotal: increment(fat)
+          caloriesConsumed: increment(aiResult.calories),
+          proteinTotal: increment(aiResult.macros.protein),
+          carbsTotal: increment(aiResult.macros.carbs),
+          fatTotal: increment(aiResult.macros.fat)
         }, { merge: true });
-        toast({ title: "Meal Scheduled", description: `${mealName} is now on your timeline.` })
+        toast({ title: "Meal Scheduled", description: `${mealName} analyzed and synced.` })
       }
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Save Error", description: err.message });
+      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try again." });
     } finally {
       setIsSaving(false);
     }
@@ -261,7 +266,7 @@ export default function MealPlannerPage() {
                 </div>
                 <div className="space-y-2 text-left">
                   <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
-                  <Input placeholder="e.g. Grilled Salmon" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                  <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                 </div>
                 
                 <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem] border-2 border-transparent hover:border-border transition-all">
@@ -275,7 +280,12 @@ export default function MealPlannerPage() {
             </div>
             <DialogFooter className="p-10 pt-0 shrink-0">
               <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-xs shadow-premium text-foreground border-none">
-                {isSaving ? <Loader2 className="animate-spin" /> : editingMealId ? "Sync Changes" : "Confirm Schedule"}
+                {isSaving ? (
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="animate-spin w-5 h-5" />
+                    AI ANALYSIS...
+                  </div>
+                ) : editingMealId ? "Sync Changes" : "Confirm Schedule"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -314,9 +324,7 @@ export default function MealPlannerPage() {
                          </div>
                       </div>
                       <div className="flex items-center gap-4 shrink-0">
-                         {meal.source === 'planner' && (
-                           <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-2xl h-12 w-12 border-2 border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-6 h-6" /></Button>
-                         )}
+                         <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-2xl h-12 w-12 border-2 border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-6 h-6" /></Button>
                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-2xl h-12 w-12 border-2 border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-5 h-5" /></Button>
                          <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-2xl h-12 w-12 border-2 border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-5 h-5" /></Button>
                       </div>
