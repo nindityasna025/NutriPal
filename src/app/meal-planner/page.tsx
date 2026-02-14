@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -71,6 +72,7 @@ export default function MealPlannerPage() {
   const [protein, setProtein] = useState<string>("0")
   const [carbs, setCarbs] = useState<string>("0")
   const [fat, setFat] = useState<string>("0")
+  const [ingredients, setIngredients] = useState("")
   const [isSaving, setIsSaving] = useState(false)
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
@@ -130,9 +132,9 @@ export default function MealPlannerPage() {
       let expertInsight = ""
       let description = ""
       let healthScore = 85
-      let ingredients: string[] = []
+      let finalIngredients: string[] = ingredients.split(",").map(i => i.trim()).filter(i => i !== "")
 
-      // AI Analysis for NEW meals or if values are defaults
+      // AI Analysis for NEW meals
       if (!editingMealId) {
         let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
         if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
@@ -146,7 +148,7 @@ export default function MealPlannerPage() {
         expertInsight = aiResult.expertInsight
         description = aiResult.description
         healthScore = aiResult.healthScore
-        ingredients = aiResult.ingredients
+        finalIngredients = aiResult.ingredients
       }
 
       const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
@@ -165,7 +167,7 @@ export default function MealPlannerPage() {
         healthScore,
         description,
         expertInsight,
-        ingredients,
+        ingredients: finalIngredients,
         source: "planner",
         reminderEnabled,
         updatedAt: serverTimestamp()
@@ -209,6 +211,7 @@ export default function MealPlannerPage() {
     setProtein("0")
     setCarbs("0")
     setFat("0")
+    setIngredients("")
     setEditingMealId(null)
     setIsDialogOpen(false)
     setIsSaving(false)
@@ -223,6 +226,7 @@ export default function MealPlannerPage() {
     setProtein(meal.macros?.protein?.toString() || "0")
     setCarbs(meal.macros?.carbs?.toString() || "0")
     setFat(meal.macros?.fat?.toString() || "0")
+    setIngredients(meal.ingredients?.join(", ") || "")
     setIsDialogOpen(true)
   }
 
@@ -338,6 +342,15 @@ export default function MealPlannerPage() {
                         <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
                         <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
                       </div>
+                    </div>
+                    <div className="space-y-2 text-left">
+                      <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Ingredients (comma separated)</Label>
+                      <Textarea 
+                        placeholder="e.g. Salmon, Asparagus, Lemon" 
+                        className="rounded-2xl border-2 border-border font-black min-h-[100px]" 
+                        value={ingredients} 
+                        onChange={(e) => setIngredients(e.target.value)} 
+                      />
                     </div>
                   </div>
                 )}
