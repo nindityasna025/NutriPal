@@ -93,7 +93,6 @@ export default function OnboardingPage() {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
 
       // Starter Meals Adjusted to exactly 450kcal total
-      // 24% Protein = 27g, 43% Carbs = 48.4g, 33% Fat = 16.5g
       const starterMeals = [
         {
           name: "Avocado & Poached Egg Toast",

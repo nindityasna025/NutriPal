@@ -121,7 +121,7 @@ export default function Dashboard() {
     return query(
       collection(firestore, "users", user.uid, "dailyLogs"),
       orderBy("date", "desc"),
-      limit(10)
+      limit(14)
     );
   }, [user, firestore]);
 
@@ -130,14 +130,14 @@ export default function Dashboard() {
   const { data: meals } = useCollection(mealsColRef)
   const { data: logsData } = useCollection(logsQuery)
 
-  // Rentang Waktu: H-7 hingga H-1 (e.g. jika tgl 14, maka tampilkan tgl 7-13)
+  // Range: H-7 to H-1
   const weeklyData = useMemo(() => {
     if (!today) return [];
     const days = [];
     for (let i = 7; i >= 1; i--) {
       const d = subDays(today, i);
       const dStr = format(d, "yyyy-MM-dd");
-      const foundLog = logsData?.find(l => l.date === dStr || l.id === dStr);
+      const foundLog = logsData?.find(l => (l.date === dStr || l.id === dStr));
       
       if (foundLog) {
         days.push({
@@ -375,7 +375,7 @@ export default function Dashboard() {
                     <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6 cursor-pointer">
                       <div className="flex items-center gap-6 flex-1 w-full">
                          <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
-                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter">{meal.time}</p>
+                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                          </div>
                          <div className="space-y-2 flex-1 text-left">
                             <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">

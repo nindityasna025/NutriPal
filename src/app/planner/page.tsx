@@ -148,7 +148,7 @@ export default function ExplorePage() {
       const h = parseInt(hours)
       const ampm = h >= 12 ? 'PM' : 'AM'
       const h12 = h % 12 || 12
-      finalTime = `${h12}:${mins} ${ampm}`
+      finalTime = `${String(h12).padStart(2, '0')}:${mins} ${ampm}`
     }
 
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -259,7 +259,7 @@ export default function ExplorePage() {
               <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
+          <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
             <DialogHeader className="bg-primary p-4 sm:p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               <Button 
                 variant="ghost" 
@@ -361,7 +361,7 @@ export default function ExplorePage() {
               <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-accent text-foreground hover:opacity-90 border-none">Generate Plan</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
+          <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
             <DialogHeader className="bg-accent p-4 sm:p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               <Button 
                 variant="ghost" 

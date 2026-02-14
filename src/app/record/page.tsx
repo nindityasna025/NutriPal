@@ -180,12 +180,12 @@ export default function RecordPage() {
     const selectedDate = parseISO(logDate)
     const dateId = format(selectedDate, "yyyy-MM-dd")
     
-    let timeStr = format(new Date(), "hh:mm a")
+    let timeStr = format(new Date(), "hh:mm a").toUpperCase()
     if (logTime) {
       const [hours, mins] = logTime.split(':')
       const d = new Date(selectedDate)
       d.setHours(parseInt(hours), parseInt(mins))
-      timeStr = format(d, "hh:mm a")
+      timeStr = format(d, "hh:mm a").toUpperCase()
     }
     
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)

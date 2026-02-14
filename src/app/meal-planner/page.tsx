@@ -297,7 +297,7 @@ export default function MealPlannerPage() {
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-10">
                       <div className="flex items-center gap-12 flex-1 w-full">
                          <div className="text-left min-w-[140px] border-r-2 border-border/50 pr-12 hidden sm:block">
-                           <p className="text-3xl font-black text-foreground opacity-40 tracking-tighter">{meal.time}</p>
+                           <p className="text-3xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                          </div>
                          <div className="space-y-4 flex-1 text-left">
                             <h3 className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
