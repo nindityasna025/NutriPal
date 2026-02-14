@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -21,7 +22,6 @@ import {
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
-import { generateRecipe, type GenerateRecipeOutput } from "@/ai/flows/generate-recipe"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, updateDoc, setDoc, deleteDoc } from "firebase/firestore"
 import { cn } from "@/lib/utils"
@@ -47,6 +47,15 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+// Dummy Recipe Database
+const DUMMY_RECIPES: Record<string, { insight: string, ingredients: string[], instructions: string[] }> = {
+  "default": {
+    insight: "This balanced meal is optimized for your health goals. It provides a high-quality protein profile that supports muscle recovery while maintaining a stable glycemic response. Perfect for sustained energy and metabolic health throughout your busy day.",
+    ingredients: ["Fresh seasonal protein", "Complex carbohydrates", "Healthy fats", "Fiber-rich greens", "House seasoning"],
+    instructions: ["Prepare the main protein source with light seasoning.", "Steam or lightly sauté the greens to preserve nutrients.", "Assemble the base with complex grains.", "Combine all elements and garnish for serving."]
+  }
+}
+
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [mounted, setMounted] = useState(false)
@@ -63,7 +72,7 @@ export default function MealPlannerPage() {
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
   const [generatingRecipe, setGeneratingRecipe] = useState(false)
-  const [activeRecipe, setActiveRecipe] = useState<GenerateRecipeOutput | null>(null)
+  const [activeRecipe, setActiveRecipe] = useState<{ insight: string, ingredients: string[], instructions: string[] } | null>(null)
   const [activeRecipeName, setActiveRecipeName] = useState("")
 
   const { user } = useUser()
@@ -195,23 +204,13 @@ export default function MealPlannerPage() {
     setActiveRecipeName(mealName)
     setGeneratingRecipe(true)
     setIsRecipeDialogOpen(true)
-    try {
-      const result = await generateRecipe({ mealName, dietaryRestrictions: profile?.dietaryRestrictions || [] })
-      setActiveRecipe(result)
-    } catch (error: any) {
-      console.error(error)
-      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
-      toast({ 
-        variant: "destructive", 
-        title: isQuotaError ? "AI Capacity Reached" : "AI Error", 
-        description: isQuotaError 
-          ? "Our recipe chef is busy serving others. Please try again in 20 seconds." 
-          : "Could not fetch recipe instructions." 
-      })
-      setIsRecipeDialogOpen(false)
-    } finally {
+    
+    // Using dummy data instead of AI
+    setTimeout(() => {
+      const recipe = DUMMY_RECIPES[mealName] || DUMMY_RECIPES["default"]
+      setActiveRecipe(recipe)
       setGeneratingRecipe(false)
-    }
+    }, 800)
   }
 
   if (!mounted || !date) return null
@@ -220,8 +219,8 @@ export default function MealPlannerPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
         <div className="space-y-1 w-full lg:w-auto">
-          <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Plan</h1>
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Strategic Daily Menu</p>
+          <h1 className="text-3xl font-black tracking-tight text-foreground uppercase lg:text-left text-center">Plan</h1>
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60 lg:text-left text-center">Strategic Daily Menu</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-center lg:justify-end">
@@ -377,9 +376,9 @@ export default function MealPlannerPage() {
                   <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <div className="space-y-1 text-left">
-                  <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5">Feeling Indecisive?</p>
-                  <h3 className="text-2xl font-black uppercase leading-tight">AI Decision Hub</h3>
-                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm">
+                  <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5 text-left">Feeling Indecisive?</p>
+                  <h3 className="text-2xl font-black uppercase leading-tight text-left">AI Decision Hub</h3>
+                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm text-left">
                     Let AI analyze delivery deals or curate a BMR-matched menu instantly.
                   </p>
                 </div>
@@ -404,29 +403,29 @@ export default function MealPlannerPage() {
               {generatingRecipe ? (
                 <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
                   <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Formulating instructions...</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Retrieving Recipe...</p>
                 </div>
               ) : activeRecipe ? (
                 <Card className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white">
                   <CardContent className="p-8 space-y-8 text-left">
                     {/* Insight Section */}
                     <section className="space-y-3">
-                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                        <Sparkles className="w-4 h-4" /> AI Expert Insight
+                      <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
+                        <Sparkles className="w-4 h-4" /> Expert Insight
                       </div>
-                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10">
+                      <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10 text-left">
                         {activeRecipe.insight}
                       </p>
                     </section>
 
                     {/* Ingredients Section */}
                     <section className="space-y-4">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
                         <ShoppingBag className="w-4 h-4 text-primary" /> Ingredients
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         {activeRecipe.ingredients.map((ing, i) => (
-                          <div key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
+                          <div key={i} className="flex items-center gap-3 text-xs font-bold text-muted-foreground text-left">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
                             {ing}
                           </div>
@@ -436,16 +435,16 @@ export default function MealPlannerPage() {
 
                     {/* Path Section */}
                     <section className="space-y-4">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                      <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
                         <ListOrdered className="w-4 h-4 text-primary" /> Cooking Path
                       </div>
                       <div className="space-y-5">
                         {activeRecipe.instructions.map((step, i) => (
-                          <div key={i} className="flex gap-4 items-start">
+                          <div key={i} className="flex gap-4 items-start text-left">
                             <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-black text-primary shrink-0">
                               {i + 1}
                             </div>
-                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-1">
+                            <p className="text-xs font-medium text-muted-foreground leading-relaxed pt-1 text-left">
                               {step}
                             </p>
                           </div>
