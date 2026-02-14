@@ -13,18 +13,14 @@ import {
   ChevronLeft,
   Trophy,
   ScanSearch,
-  Calendar as CalendarIcon,
   Image as ImageIcon
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format } from "date-fns"
+import { format, startOfToday } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -33,7 +29,6 @@ export default function RecordPage() {
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -48,7 +43,6 @@ export default function RecordPage() {
 
   const startCamera = async () => {
     setMode("camera")
-    setSelectedDate(new Date())
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } } 
@@ -109,7 +103,6 @@ export default function RecordPage() {
     setMode("choice")
     setFilePreview(null)
     setResult(null)
-    setSelectedDate(new Date())
   }
 
   const handleAnalyze = async () => {
@@ -134,8 +127,9 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    const dateId = format(selectedDate, "yyyy-MM-dd")
-    const timeStr = format(selectedDate, "hh:mm a")
+    const today = startOfToday()
+    const dateId = format(today, "yyyy-MM-dd")
+    const timeStr = format(new Date(), "hh:mm a")
     
     try {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -158,7 +152,7 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${format(selectedDate, "MMM d, yyyy")}.` })
+      toast({ title: "Logged Successfully", description: `${result.name} recorded for today.` })
       resetAll()
     } catch (e) {
       console.error(e)
@@ -225,25 +219,6 @@ export default function RecordPage() {
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
-
-                {mode === "gallery" && preview && !result && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest border-primary/20 text-primary hover:bg-primary/5">
-                        <CalendarIcon className="w-4 h-4 mr-2" />
-                        {format(selectedDate, "MMM d, yyyy")}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 rounded-[1.5rem]" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(date) => date && setSelectedDate(date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
               </div>
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
