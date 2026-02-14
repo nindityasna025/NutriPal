@@ -22,7 +22,8 @@ import {
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
-import { doc, collection, serverTimestamp, updateDoc, setDoc, deleteDoc, increment } from "firebase/firestore"
+import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
+import { setDocumentNonBlocking, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import {
   Dialog,
@@ -143,11 +144,11 @@ export default function MealPlannerPage() {
 
     try {
       if (editingMealId) {
-        await updateDoc(doc(mealsColRef, editingMealId), mealData);
+        updateDocumentNonBlocking(doc(mealsColRef, editingMealId), mealData);
         toast({ title: "Schedule Updated", description: "Your daily plan has been refined." })
       } else {
-        await setDoc(doc(mealsColRef), { ...mealData, createdAt: serverTimestamp() });
-        await setDoc(dailyLogRef, {
+        addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
+        setDocumentNonBlocking(dailyLogRef, {
           date: dateId,
           caloriesConsumed: increment(calories),
           proteinTotal: increment(protein),
@@ -183,8 +184,8 @@ export default function MealPlannerPage() {
   const handleDeleteMeal = async (meal: any) => {
     if (!user || !mealsColRef || !dailyLogRef) return
     try {
-      await deleteDoc(doc(mealsColRef, meal.id));
-      await setDoc(dailyLogRef, {
+      deleteDocumentNonBlocking(doc(mealsColRef, meal.id));
+      setDocumentNonBlocking(dailyLogRef, {
         caloriesConsumed: increment(-(meal.calories || 0)),
         proteinTotal: increment(-(meal.macros?.protein || 0)),
         carbsTotal: increment(-(meal.macros?.carbs || 0)),
