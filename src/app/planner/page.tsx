@@ -216,7 +216,7 @@ export default function ExplorePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
-        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40">Decision Hub</p>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.2em] opacity-40">Decision Hub</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4">
@@ -225,19 +225,19 @@ export default function ExplorePage() {
           <DialogTrigger asChild>
             <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
               <div className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
-                 <Bike className="w-10 h-10 text-primary" />
+                 <Bike className="w-10 h-10 text-foreground" />
               </div>
               <div className="space-y-3 text-center">
                 <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Delivery Hub</h3>
-                <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight opacity-60">
+                <p className="text-foreground opacity-60 font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight opacity-40">
                   Real-time curation from GrabFood & GoFood based on your profile.
                 </p>
               </div>
-              <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-primary text-primary-foreground">Analyze Ecosystem</Button>
+              <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-primary text-foreground">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-primary p-8 text-primary-foreground shrink-0 text-center rounded-t-[3rem]">
+            <DialogHeader className="bg-primary p-8 text-foreground shrink-0 text-center rounded-t-[3rem]">
               <DialogTitle className="text-lg font-black uppercase tracking-widest text-center">AI Curation: Delivery Hub</DialogTitle>
             </DialogHeader>
             <div className="p-10 overflow-y-auto flex-1 no-scrollbar">
@@ -270,7 +270,7 @@ export default function ExplorePage() {
                   {loading ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
                       <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                      <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">Scanning Platforms...</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60">Scanning Platforms...</p>
                     </div>
                   ) : deliveryResult?.map((item) => (
                     <Card key={item.id} className="rounded-[2.5rem] border border-border shadow-premium bg-white group transition-all ring-primary/10 hover:ring-8 overflow-hidden flex flex-col">
@@ -281,46 +281,46 @@ export default function ExplorePage() {
                               <TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Rank
                             </div>
                             <h3 className="text-xl font-black tracking-tight leading-tight uppercase text-foreground">{item.name}</h3>
-                            <p className="text-[11px] font-black text-muted-foreground opacity-50 uppercase tracking-widest">{item.restaurant}</p>
+                            <p className="text-[11px] font-black text-foreground opacity-40 uppercase tracking-widest">{item.restaurant}</p>
                           </div>
                           
                           <div className="flex gap-2 flex-wrap">
-                            <Badge className="rounded-xl px-4 py-1.5 bg-primary text-primary-foreground border-none font-black text-[9px] uppercase">+{item.calories} kcal</Badge>
+                            <Badge className="rounded-xl px-4 py-1.5 bg-primary text-foreground border-none font-black text-[9px] uppercase">+{item.calories} kcal</Badge>
                             {item.tags.map((tag: string, i: number) => (
-                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1.5 border-border text-muted-foreground font-black text-[9px] uppercase">{tag}</Badge>
+                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1.5 border-border text-foreground opacity-60 font-black text-[9px] uppercase">{tag}</Badge>
                             ))}
                           </div>
 
                           <div className="bg-primary/10 p-5 rounded-[1.5rem] border border-primary/20">
-                            <p className="text-[12px] font-black leading-relaxed italic text-foreground/80">"{item.reasoning}"</p>
+                            <p className="text-[12px] font-black leading-relaxed italic text-foreground opacity-80">"{item.reasoning}"</p>
                           </div>
                         </div>
 
                         <div className="pt-6 border-t border-border space-y-6">
                           <div className="grid grid-cols-3 gap-3">
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Protein</p>
+                               <p className="text-[9px] font-black text-foreground opacity-40 uppercase">Protein</p>
                                <p className="text-lg font-black" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
                              </div>
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Carbs</p>
+                               <p className="text-[9px] font-black text-foreground opacity-40 uppercase">Carbs</p>
                                <p className="text-lg font-black" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
                              </div>
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Fat</p>
+                               <p className="text-[9px] font-black text-foreground opacity-40 uppercase">Fat</p>
                                <p className="text-lg font-black" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
                              </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-[11px] font-black text-muted-foreground uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">
                               {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
                               {item.platform}
                             </div>
                             <p className="text-2xl font-black tracking-tight text-foreground">{item.price}</p>
                           </div>
 
-                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
+                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm text-foreground">Order & Sync</Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -336,22 +336,22 @@ export default function ExplorePage() {
           <DialogTrigger asChild>
             <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
               <div className="w-20 h-20 bg-accent/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
-                 <Sparkles className="w-10 h-10 text-accent" />
+                 <Sparkles className="w-10 h-10 text-foreground opacity-60" />
               </div>
               <div className="space-y-3 text-center">
                 <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Smart Menu</h3>
-                <p className="text-muted-foreground font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight opacity-60">
+                <p className="text-foreground opacity-60 font-black text-xs leading-relaxed max-w-xs uppercase tracking-tight opacity-40">
                   Generate a randomized daily plan with seamless platform integration.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-sm bg-accent text-accent-foreground hover:opacity-90">Generate Plan</Button>
+              <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-sm bg-accent text-foreground hover:opacity-90">Generate Plan</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-accent p-8 text-accent-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+            <DialogHeader className="bg-accent p-8 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               <DialogTitle className="text-lg font-black uppercase tracking-widest text-left">Daily Smart Menu</DialogTitle>
               {menuPlan && !loading && (
-                <Button onClick={handleAddAll} className="h-12 px-8 rounded-2xl bg-white text-accent hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
+                <Button onClick={handleAddAll} className="h-12 px-8 rounded-2xl bg-white text-foreground hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
                    <Plus className="w-4 h-4 mr-2" /> Add All to Planner
                 </Button>
               )}
@@ -376,7 +376,7 @@ export default function ExplorePage() {
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-accent" />
-                    <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">Designing Menu...</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60">Designing Menu...</p>
                   </div>
                 ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
@@ -385,36 +385,36 @@ export default function ExplorePage() {
                       <CardContent className="p-8 flex flex-col h-full space-y-6">
                         <div className="flex-1 space-y-6 text-left">
                           <div className="flex items-center justify-between">
-                            <Badge variant="secondary" className="bg-accent/20 text-accent-foreground uppercase text-[9px] font-black tracking-widest px-4 py-1.5 rounded-xl border-none">
+                            <Badge variant="secondary" className="bg-accent/20 text-foreground uppercase text-[9px] font-black tracking-widest px-4 py-1.5 rounded-xl border-none">
                               {type}
                             </Badge>
-                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-9 w-9">
+                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-foreground opacity-40 hover:bg-secondary rounded-full h-9 w-9">
                               <RefreshCw className="w-4 h-4" />
                             </Button>
                           </div>
                           
                           <div className="space-y-2">
                             <h3 className="text-base font-black tracking-tight leading-tight line-clamp-1 uppercase text-foreground">{meal.name}</h3>
-                            <p className="text-[10px] font-black leading-relaxed text-muted-foreground line-clamp-2 uppercase opacity-40 tracking-tight">{meal.description}</p>
+                            <p className="text-[10px] font-black leading-relaxed text-foreground opacity-40 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
                           </div>
 
                           <div className="grid grid-cols-3 gap-2 border-y border-border py-6">
                             <div className="space-y-1 text-left">
-                              <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Protein</p>
+                              <p className="text-[9px] font-black text-foreground opacity-40 uppercase">Protein</p>
                               <p className="text-sm font-black" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
                             </div>
                             <div className="space-y-1 text-left">
-                              <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Carbs</p>
+                              <p className="text-[9px] font-black text-foreground opacity-40 uppercase">Carbs</p>
                               <p className="text-sm font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
                             </div>
                             <div className="space-y-1 text-left">
-                              <p className="text-[9px] font-black text-muted-foreground uppercase opacity-60">Fat</p>
+                              <p className="text-[9px] font-black text-foreground opacity-40 uppercase">Fat</p>
                               <p className="text-sm font-black" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
                             </div>
                           </div>
 
                           <div className="bg-secondary/50 py-4 rounded-2xl text-center border border-border/50">
-                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1 opacity-60">Energy Target</p>
+                            <p className="text-[9px] font-black text-foreground opacity-40 uppercase tracking-widest mb-1">Energy Target</p>
                             <p className="text-xl font-black tracking-tight text-foreground">+{meal.calories} kcal</p>
                           </div>
                         </div>
@@ -428,7 +428,7 @@ export default function ExplorePage() {
                               GoFood
                             </Button>
                           </div>
-                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-border text-muted-foreground hover:bg-secondary">
+                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-11 text-[9px] font-black uppercase tracking-widest border-border text-foreground opacity-60 hover:bg-secondary">
                             <Plus className="w-4 h-4 mr-2" /> Cook Myself
                           </Button>
                         </div>

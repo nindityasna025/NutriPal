@@ -68,8 +68,8 @@ const chartConfig = {
 
 const MacroInfoContent = () => (
   <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
-      <Sparkles className="w-3.5 h-3.5" /> Macro Balance Guide
+    <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
+      <Sparkles className="w-3.5 h-3.5 text-primary" /> Macro Balance Guide
     </div>
     <p className="text-[12px] font-bold leading-relaxed text-muted-foreground text-left">
       Your daily energy distribution. We prioritize protein for recovery and carbs for activity.
@@ -77,15 +77,15 @@ const MacroInfoContent = () => (
     <div className="space-y-2.5 pt-1">
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
-        <span className="text-muted-foreground">30%</span>
+        <span className="text-foreground">30%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
-        <span className="text-muted-foreground">40%</span>
+        <span className="text-foreground">40%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
-        <span className="text-muted-foreground">30%</span>
+        <span className="text-foreground">30%</span>
       </div>
     </div>
   </div>
@@ -194,7 +194,7 @@ export default function Dashboard() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-700">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Today</h1>
-        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40">
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.2em] opacity-40">
           {format(today, "EEEE, MMMM do")}
         </p>
       </header>
@@ -204,16 +204,16 @@ export default function Dashboard() {
           <CardContent className="p-8 sm:p-12 space-y-10">
             <div className="flex justify-between items-start">
               <div className="space-y-1.5 text-left">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground opacity-60">Energy Balance</span>
                 <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-5xl font-black tracking-tight transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-lg font-black text-muted-foreground/20 tracking-tight">/ {calorieTarget} kcal</span>
+                  <h2 className={cn("text-5xl font-black tracking-tight transition-colors text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-lg font-black text-foreground opacity-20 tracking-tight">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="secondary" size="icon" className="rounded-full h-10 w-10 bg-secondary hover:bg-secondary/80 transition-all border border-border/50">
-                    <Info className="w-5 h-5 text-primary" />
+                    <Info className="w-5 h-5 text-foreground" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-6 rounded-[2rem] shadow-premium-lg border-none bg-white">
@@ -246,8 +246,8 @@ export default function Dashboard() {
 
             <div className="pt-2 text-left">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60">Goal Progress</span>
-                <span className={cn("text-xs font-black uppercase tracking-tighter", isOverLimit ? "text-destructive" : "text-primary")}>
+                <span className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-60">Goal Progress</span>
+                <span className={cn("text-xs font-black uppercase tracking-tighter", isOverLimit ? "text-destructive" : "text-foreground")}>
                   {actualPercent}% {isOverLimit ? "Surplus" : "Consumed"}
                 </span>
               </div>
@@ -263,27 +263,27 @@ export default function Dashboard() {
         <div className="md:col-span-4 grid grid-cols-1 gap-6">
           <Card className="border-none shadow-premium rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center bg-white group transition-all">
             <div className="p-5 bg-primary/20 rounded-2xl mb-5 group-hover:scale-105 transition-transform">
-              <Flame className="w-7 h-7 text-primary" />
+              <Flame className="w-7 h-7 text-foreground opacity-60" />
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-              <p className="text-3xl font-black tracking-tight text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-[12px] font-black text-muted-foreground/30">kcal</span></p>
+              <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+              <p className="text-3xl font-black tracking-tight text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-[12px] font-black text-foreground opacity-30">kcal</span></p>
             </div>
           </Card>
 
           <Card className="border-none shadow-premium rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center bg-white group transition-all">
             <div className="p-5 bg-accent/20 rounded-2xl mb-5 group-hover:scale-105 transition-transform">
-              <Droplets className="w-7 h-7 text-accent" />
+              <Droplets className="w-7 h-7 text-foreground opacity-60" />
             </div>
             <div className="space-y-6 w-full">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Hydration</p>
+              <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
               <div className="flex items-center justify-center gap-6">
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-11 w-11 rounded-full bg-secondary/80 hover:bg-secondary">
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-4 h-4 text-foreground" />
                 </Button>
                 <span className="text-3xl font-black tracking-tight text-foreground">{water}L</span>
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-11 w-11 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90">
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 text-foreground" />
                 </Button>
               </div>
             </div>
@@ -293,7 +293,7 @@ export default function Dashboard() {
 
       <section className="space-y-10">
         <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left text-foreground">
-          <BarChart3 className="w-6 h-6 text-primary" />
+          <BarChart3 className="w-6 h-6 text-foreground opacity-80" />
           Weekly Macro Trend
         </h2>
         <Card className="border-none shadow-premium rounded-[3rem] overflow-hidden bg-white">
@@ -328,7 +328,7 @@ export default function Dashboard() {
 
       <section className="space-y-10">
         <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left text-foreground">
-          <Utensils className="w-6 h-6 text-primary" />
+          <Utensils className="w-6 h-6 text-foreground opacity-80" />
           Daily Food Record
         </h2>
         <div className="space-y-6">
@@ -343,18 +343,18 @@ export default function Dashboard() {
                   <CollapsibleTrigger asChild>
                     <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6 cursor-pointer">
                       <div className="flex items-center gap-8 overflow-hidden">
-                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 relative overflow-hidden shadow-inner">
+                        <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center shrink-0 relative overflow-hidden shadow-inner">
                           {meal.imageUrl ? (
                             <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
                           ) : (
-                            <Utensils className="w-7 h-7 text-primary" />
+                            <Utensils className="w-7 h-7 text-foreground opacity-60" />
                           )}
                         </div>
                         <div className="min-w-0 text-left space-y-1.5">
                           <h4 className="text-lg font-black truncate group-hover:text-primary transition-colors uppercase text-foreground">{meal.name}</h4>
                           <div className="flex flex-wrap items-center gap-4">
-                            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest opacity-50">{meal.time} • {meal.calories} kcal</p>
-                            <Badge className="h-5 px-2.5 py-0 text-[8px] font-black uppercase bg-accent/20 text-accent-foreground border-none">Score: {meal.healthScore || 85}</Badge>
+                            <p className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-40">{meal.time} • {meal.calories} kcal</p>
+                            <Badge className="h-5 px-2.5 py-0 text-[8px] font-black uppercase bg-accent/30 text-foreground border-none">Score: {meal.healthScore || 85}</Badge>
                           </div>
                           <div className="flex items-center gap-4 mt-2">
                             <span className="text-[9px] font-black uppercase" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
@@ -365,7 +365,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <div className={cn("bg-secondary p-3 rounded-full transition-all", expandedMealId === meal.id ? "rotate-180" : "")}>
-                          <ChevronDown className="w-4 h-4 text-primary" />
+                          <ChevronDown className="w-4 h-4 text-foreground" />
                         </div>
                       </div>
                     </CardContent>
@@ -374,15 +374,15 @@ export default function Dashboard() {
                     <div className="px-10 pb-12 pt-6 space-y-10 border-t border-border/30">
                       <div className="space-y-8 text-left">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                            <Activity className="w-4 h-4" /> Health Score
+                          <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                            <Activity className="w-4 h-4 text-primary" /> Health Score
                           </div>
-                          <span className="text-2xl font-black text-primary tracking-tight">{meal.healthScore || 85}/100</span>
+                          <span className="text-2xl font-black text-foreground tracking-tight">{meal.healthScore || 85}/100</span>
                         </div>
                         <Progress value={meal.healthScore || 85} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-accent" />
 
-                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                          <Sparkles className="w-4 h-4" /> AI Health Insight
+                        <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                          <Sparkles className="w-4 h-4 text-primary" /> AI Health Insight
                         </div>
                         <p className="text-[13px] font-bold leading-relaxed text-foreground bg-primary/10 p-7 rounded-[2rem] border border-primary/20">
                           {meal.expertInsight || meal.description || "A nutritionally dense meal that aligns with your specific health targets."}
@@ -390,15 +390,15 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="space-y-4 text-left">
-                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                          <Leaf className="w-4 h-4" /> Key Ingredients
+                        <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
+                          <Leaf className="w-4 h-4 text-primary" /> Key Ingredients
                         </div>
                         <div className="flex flex-wrap gap-3">
                           {meal.ingredients?.map((ing: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-xl border-border text-muted-foreground px-5 py-1.5 font-black text-[10px] uppercase">
+                            <Badge key={i} variant="outline" className="rounded-xl border-border text-foreground opacity-80 px-5 py-1.5 font-black text-[10px] uppercase">
                               {ing}
                             </Badge>
-                          )) || <span className="text-[11px] text-muted-foreground opacity-30 italic font-black uppercase">Natural ingredients identified.</span>}
+                          )) || <span className="text-[11px] text-foreground opacity-30 italic font-black uppercase">Natural ingredients identified.</span>}
                         </div>
                       </div>
                     </div>
@@ -408,7 +408,7 @@ export default function Dashboard() {
             ))
           ) : (
             <div className="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-border/50 flex flex-col items-center justify-center shadow-premium">
-              <p className="text-muted-foreground font-black text-sm uppercase tracking-widest opacity-30">No records found for today</p>
+              <p className="text-foreground font-black text-sm uppercase tracking-widest opacity-30">No records found for today</p>
             </div>
           )}
         </div>
@@ -420,19 +420,19 @@ export default function Dashboard() {
           className="h-44 sm:h-52 rounded-[3rem] flex flex-col gap-5 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-90 transition-all active:scale-[0.98] group border-none"
         >
           <div className="p-6 bg-white/20 rounded-2xl group-hover:scale-105 transition-transform">
-            <Camera className="w-8 h-8" />
+            <Camera className="w-8 h-8 text-foreground" />
           </div>
-          <span className="font-black text-sm uppercase tracking-[0.3em]">Snap Analysis</span>
+          <span className="font-black text-sm uppercase tracking-[0.3em] text-foreground">Snap Analysis</span>
         </Button>
         <Button 
           variant="secondary"
           onClick={() => router.push("/planner")}
-          className="h-44 sm:h-52 rounded-[3rem] flex flex-col gap-5 bg-white text-primary border border-border shadow-premium hover:shadow-premium-lg transition-all active:scale-[0.98] group"
+          className="h-44 sm:h-52 rounded-[3rem] flex flex-col gap-5 bg-white text-foreground border border-border shadow-premium hover:shadow-premium-lg transition-all active:scale-[0.98] group"
         >
           <div className="p-6 bg-accent/20 rounded-2xl group-hover:scale-105 transition-transform">
-            <Sparkles className="w-8 h-8 text-accent" />
+            <Sparkles className="w-8 h-8 text-foreground opacity-60" />
           </div>
-          <span className="font-black text-sm uppercase tracking-[0.3em]">Explore Picks</span>
+          <span className="font-black text-sm uppercase tracking-[0.3em] text-foreground">Explore Picks</span>
         </Button>
       </div>
     </div>

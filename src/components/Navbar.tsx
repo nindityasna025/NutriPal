@@ -32,7 +32,7 @@ export function Navbar() {
 
   return (
     <>
-      {/* Sidebar - Desktop (Sharp Pure White) */}
+      {/* Sidebar - Desktop (Pure White with Sharp Text) */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border h-screen fixed left-0 top-0 z-[100] shadow-premium">
         <div className="p-10 mb-6 text-center">
           <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase">NutriPal</h1>
@@ -49,8 +49,8 @@ export function Navbar() {
                 className={cn(
                   "flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-200 group",
                   isActive 
-                    ? "bg-primary text-primary-foreground shadow-sm" 
-                    : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                    ? "bg-primary text-foreground shadow-sm" 
+                    : "text-foreground opacity-60 hover:bg-secondary/50 hover:opacity-100"
                 )}
               >
                 <Icon className={cn("w-5 h-5 transition-transform", isActive ? "scale-110" : "group-hover:scale-105")} />
@@ -71,13 +71,13 @@ export function Navbar() {
             >
               <Avatar className="h-10 w-10 border-2 border-white shadow-premium">
                 <AvatarImage src={user.photoURL || ""} />
-                <AvatarFallback className="bg-primary text-primary-foreground font-black">
+                <AvatarFallback className="bg-primary text-foreground font-black">
                   {user.displayName?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 overflow-hidden text-left">
                 <p className="text-[10px] font-black truncate uppercase tracking-tight text-foreground">{user.displayName || "User"}</p>
-                <p className="text-[8px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40">Pro Member</p>
+                <p className="text-[8px] text-foreground font-black uppercase tracking-[0.2em] opacity-40">Pro Member</p>
               </div>
             </Link>
           )}
@@ -95,7 +95,7 @@ export function Navbar() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center gap-1.5 flex-1 transition-all",
-                isActive ? "text-primary scale-110" : "text-muted-foreground"
+                isActive ? "text-primary scale-110" : "text-foreground opacity-60"
               )}
             >
               <Icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />
