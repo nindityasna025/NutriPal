@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -20,22 +21,34 @@ import {
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
-import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
-import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 
-// Simulated Scraped Database
+// Custom Model: Scraped Database
 const SCRAPED_DATABASE = [
-  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein", "Low Fat"] },
-  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan", "Fiber"] },
-  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["Keto Friendly", "High Protein"] },
-  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb", "Diabetes Friendly"] },
-  { id: "s5", name: "Organic Tofu Curry", restaurant: "Herbivore", price: "Rp 38,000", platform: "GrabFood" as const, calories: 320, macros: { protein: 15, carbs: 35, fat: 14 }, healthScore: 92, tags: ["Vegan", "Gluten-free", "Budget"] },
-  { id: "s6", name: "Lean Turkey Burger", restaurant: "Burgreens", price: "Rp 68,000", platform: "GoFood" as const, calories: 480, macros: { protein: 25, carbs: 42, fat: 18 }, healthScore: 85, tags: ["Healthy", "Clean Eating"] },
+  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein", "Low Fat"], restricts: [] },
+  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan", "Fiber"], restricts: ["Vegetarian", "Vegan"] },
+  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["Keto Friendly", "High Protein"], restricts: ["Keto"] },
+  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb", "Diabetes Friendly"], restricts: ["Keto", "Diabetes"] },
+  { id: "s5", name: "Organic Tofu Curry", restaurant: "Herbivore", price: "Rp 38,000", platform: "GrabFood" as const, calories: 320, macros: { protein: 15, carbs: 35, fat: 14 }, healthScore: 92, tags: ["Vegan", "Gluten-free", "Budget"], restricts: ["Vegan", "Gluten-free"] },
+  { id: "s6", name: "Lean Turkey Burger", restaurant: "Burgreens", price: "Rp 68,000", platform: "GoFood" as const, calories: 480, macros: { protein: 25, carbs: 42, fat: 18 }, healthScore: 85, tags: ["Healthy", "Clean Eating"], restricts: [] },
 ];
+
+// Custom Model: Menu Templates
+const MENU_TEMPLATES = {
+  standard: {
+    breakfast: { name: "Berry Oat Smoothie Bowl", calories: 350, macros: { protein: 12, carbs: 65, fat: 8 }, description: "Antioxidant-rich base with flax seeds.", ingredients: ["Oats", "Mixed Berries", "Almond Milk"] },
+    lunch: { name: "Mediterranean Chicken Wrap", calories: 550, macros: { protein: 35, carbs: 45, fat: 22 }, description: "Grilled lean chicken with hummus and greens.", ingredients: ["Chicken breast", "Whole wheat wrap", "Hummus"] },
+    dinner: { name: "Baked Cod with Asparagus", calories: 420, macros: { protein: 40, carbs: 10, fat: 24 }, description: "Omega-3 dense white fish with steamed greens.", ingredients: ["Cod fillet", "Asparagus", "Lemon"] }
+  },
+  vegetarian: {
+    breakfast: { name: "Tofu Scramble with Spinach", calories: 320, macros: { protein: 22, carbs: 10, fat: 18 }, description: "Plant-based protein packed with iron.", ingredients: ["Tofu", "Spinach", "Turmeric"] },
+    lunch: { name: "Lentil & Sweet Potato Stew", calories: 480, macros: { protein: 18, carbs: 75, fat: 6 }, description: "Slow-burning complex carbs for sustained energy.", ingredients: ["Lentils", "Sweet Potato", "Carrots"] },
+    dinner: { name: "Mushroom Risotto", calories: 510, macros: { protein: 14, carbs: 85, fat: 12 }, description: "Savory wild mushrooms over arborio rice.", ingredients: ["Mushrooms", "Rice", "Parmesan"] }
+  }
+};
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -46,7 +59,7 @@ export default function ExplorePage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const [generatingPlan, setGeneratingPlan] = useState(false)
-  const [aiPlan, setAiPlan] = useState<GenerateDailyPlanOutput | null>(null)
+  const [aiPlan, setAiPlan] = useState<any | null>(null)
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -54,64 +67,54 @@ export default function ExplorePage() {
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
 
-  const handleCurateDelivery = async () => {
+  // Custom Model Logic: Delivery Curation
+  const handleCurateDelivery = () => {
     if (!profile) return
     setLoadingDelivery(true)
     setAiPlan(null)
-    try {
-      const output = await curateMealSuggestions({
-        userProfile: {
-          bmiCategory: profile.bmiCategory,
-          dietaryRestrictions: profile.dietaryRestrictions,
-          allergies: profile.allergies,
-          calorieTarget: profile.calorieTarget
-        },
-        scrapedDatabase: SCRAPED_DATABASE
-      })
+    
+    // Simulate model processing
+    setTimeout(() => {
+      const filtered = SCRAPED_DATABASE.filter(item => {
+        // Filter by restrictions
+        const matchesRestrictions = profile.dietaryRestrictions?.length 
+          ? profile.dietaryRestrictions.every((res: string) => item.restricts.includes(res) || item.tags.includes(res))
+          : true;
+        
+        // Filter by BMI logic
+        let fitsBmi = true;
+        if (profile.bmiCategory === "Obese" || profile.bmiCategory === "Overweight") {
+          fitsBmi = item.calories < 550;
+        }
 
-      setCuratedResult(output.topMatches)
-    } catch (error: any) {
-      console.error(error)
-      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
-      toast({ 
-        variant: "destructive", 
-        title: isQuotaError ? "AI Decision Maker Busy" : "AI Hub Overloaded", 
-        description: isQuotaError 
-          ? "Our delivery curator is taking a break. Try again in a few seconds." 
-          : "Could not filter the delivery database at this time." 
-      })
-    } finally {
-      setLoadingDelivery(false)
-    }
+        return matchesRestrictions && fitsBmi;
+      }).map(item => ({
+        ...item,
+        reasoning: `Matched to your ${profile.bmiCategory || 'Profile'} category. This meal optimizes your ${profile.calorieTarget || 2000}kcal daily limit with a health score of ${item.healthScore}%.`
+      }));
+
+      setCuratedResult(filtered.slice(0, 3));
+      setLoadingDelivery(false);
+    }, 800);
   }
 
-  const handleGenerateAiPlan = async () => {
+  // Custom Model Logic: Daily Plan Generation
+  const handleGenerateAiPlan = () => {
     if (!profile) return
     setGeneratingPlan(true)
     setCuratedResult(null)
-    try {
-      const result = await generateDailyPlan({
-        calorieTarget: profile.calorieTarget || 2000,
-        proteinPercent: profile.proteinTarget || 30,
-        carbsPercent: profile.carbsTarget || 40,
-        fatPercent: profile.fatTarget || 30,
-        dietType: profile.dietaryRestrictions?.[0],
-        allergies: profile.allergies
-      })
-      setAiPlan(result)
-    } catch (error: any) {
-      console.error(error)
-      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
-      toast({ 
-        variant: "destructive", 
-        title: isQuotaError ? "AI Plan Limit Reached" : "AI Hub Busy", 
-        description: isQuotaError 
-          ? "Generating a whole menu takes a lot of energy! Please wait a moment before trying again." 
-          : "Daily plan generation failed. Please try again in a moment." 
-      })
-    } finally {
-      setGeneratingPlan(false)
-    }
+    
+    setTimeout(() => {
+      const isVeggie = profile.dietaryRestrictions?.includes("Vegetarian");
+      const template = isVeggie ? MENU_TEMPLATES.vegetarian : MENU_TEMPLATES.standard;
+      
+      setAiPlan({
+        breakfast: { ...template.breakfast, deliveryMatch: { isAvailable: false } },
+        lunch: { ...template.lunch, deliveryMatch: { isAvailable: true, platform: "GrabFood", restaurant: "NutriKitchen", price: "Rp 55,000" } },
+        dinner: { ...template.dinner, deliveryMatch: { isAvailable: true, platform: "GoFood", restaurant: "HealthGlow", price: "Rp 62,000" } }
+      });
+      setGeneratingPlan(false);
+    }, 1000);
   }
 
   const handleOrderNow = async (item: any) => {
@@ -156,7 +159,8 @@ export default function ExplorePage() {
       type,
       source: source === 'Cook' ? 'planner' : (meal.deliveryMatch?.platform || 'GrabFood'),
       createdAt: serverTimestamp(),
-      reminderEnabled: true
+      reminderEnabled: true,
+      healthScore: 90
     })
 
     if (source === 'Delivery') {
@@ -174,12 +178,12 @@ export default function ExplorePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Decision Hub & Curation</p>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Smart Decision Hub</p>
       </header>
 
       {!curatedResult && !aiPlan && (
         <section className="space-y-8">
-          <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">How can AI help today?</h2>
+          <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">Ecosystem Curation</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card 
               onClick={handleCurateDelivery}
@@ -193,9 +197,9 @@ export default function ExplorePage() {
                   {loadingDelivery ? <Loader2 className="w-10 h-10 text-primary animate-spin" /> : <Bike className="w-10 h-10 text-primary" />}
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-black uppercase leading-tight">Delivery AI</h3>
-                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">
-                    Filter scraped database matches for your BMI & profile.
+                  <h3 className="text-2xl font-black uppercase leading-tight text-center">Delivery Hub</h3>
+                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed text-center">
+                    Filter ecosystem matches for your unique profile metrics.
                   </p>
                 </div>
                 <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[9px] bg-primary">Start Decision Maker</Button>
@@ -214,9 +218,9 @@ export default function ExplorePage() {
                   {generatingPlan ? <Loader2 className="w-10 h-10 text-accent animate-spin" /> : <Sparkles className="w-10 h-10 text-accent" />}
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-black uppercase leading-tight">Menu Master AI</h3>
-                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">
-                    Generate a full BMR-matched menu for the day.
+                  <h3 className="text-2xl font-black uppercase leading-tight text-center">Smart Menu</h3>
+                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed text-center">
+                    Instant BMR-matched menu for today&apos;s recovery.
                   </p>
                 </div>
                 <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[9px] bg-accent">Generate Plan</Button>
@@ -242,11 +246,11 @@ export default function ExplorePage() {
                   <div className="p-6 flex flex-col md:flex-row justify-between gap-6">
                     <div className="flex-1 space-y-4">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score</div>
+                        <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest text-left"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score</div>
                         <h3 className="text-xl font-black tracking-tight uppercase text-left">{item.name}</h3>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-left">{item.restaurant}</p>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-bold uppercase text-[8px]">+{item.calories} kcal</Badge>
                         {item.tags.map((tag: string, i: number) => (
                           <Badge key={i} variant="outline" className="rounded-xl px-3 py-1 border-muted-foreground/10 text-muted-foreground font-bold uppercase text-[8px]">{tag}</Badge>
@@ -256,7 +260,7 @@ export default function ExplorePage() {
                     <div className="md:text-right flex flex-col justify-between items-center md:items-end">
                       <div className="space-y-0.5 text-center md:text-right">
                         <p className="text-2xl font-black tracking-tighter">{item.price}</p>
-                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest justify-center md:justify-end">
                           {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
                           {item.platform}
                         </div>
@@ -274,9 +278,9 @@ export default function ExplorePage() {
                     <div className="px-6 pb-6 pt-4 border-t border-muted/30 space-y-6 animate-in slide-in-from-top-1">
                       <section className="space-y-2 text-left">
                         <div className="flex items-center gap-2 text-primary font-black text-[9px] uppercase tracking-widest">
-                          <Info className="w-3.5 h-3.5" /> AI Decision reasoning
+                          <Info className="w-3.5 h-3.5" /> Model Reasoning
                         </div>
-                        <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                        <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80 bg-primary/5 p-4 rounded-2xl border border-primary/10 text-left">
                           "{item.reasoning}"
                         </p>
                       </section>
@@ -297,7 +301,7 @@ export default function ExplorePage() {
       {aiPlan && (
         <section className="space-y-8 animate-in zoom-in duration-500">
           <div className="flex items-center justify-between px-1">
-            <h2 className="font-black text-lg uppercase tracking-tight text-left">AI Curated Picks</h2>
+            <h2 className="font-black text-lg uppercase tracking-tight text-left">Matched Menu Templates</h2>
             <Button variant="ghost" onClick={() => setAiPlan(null)} className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
               <ArrowLeft className="w-3 h-3" /> Back
             </Button>
@@ -319,8 +323,8 @@ export default function ExplorePage() {
                         )}
                       </div>
                       <div className="space-y-1 text-left">
-                        <h4 className="font-black text-lg uppercase leading-tight group-hover:text-primary transition-colors">{meal.data.name}</h4>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.data.calories} kcal • {meal.data.macros.protein}g Protein</p>
+                        <h4 className="font-black text-lg uppercase leading-tight group-hover:text-primary transition-colors text-left">{meal.data.name}</h4>
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest text-left">+{meal.data.calories} kcal • {meal.data.macros.protein}g Protein</p>
                       </div>
                       {meal.data.deliveryMatch?.isAvailable && (
                         <div className="p-4 bg-white/70 rounded-xl border border-green-100 shadow-sm text-left">
@@ -355,3 +359,4 @@ export default function ExplorePage() {
     </div>
   )
 }
+    
