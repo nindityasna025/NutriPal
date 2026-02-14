@@ -54,7 +54,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-// Consistent Macro Colors - Themed
+// Standardized Macro Colors - Consistent across app
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", // Deep Forest Green
   carbs: "hsl(38 92% 50%)",      // Warm Amber
@@ -111,7 +111,7 @@ export default function Dashboard() {
       const gramsCarbs = 60 + Math.floor(Math.random() * 40)
       const gramsFat = 20 + Math.floor(Math.random() * 15)
       
-      // kcal = (protein × 4) + (carbs × 4) + (fat × 9)
+      // kcal = (protein × 4) + (carbohydrates × 4) + (fat × 9)
       data.push({
         date: format(d, "MMM d"),
         protein: gramsProtein * 4,
@@ -138,6 +138,7 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
+  // Sort meals from pagi (morning) to malam (night)
   const sortedMeals = useMemo(() => {
     if (!meals) return null;
     return [...meals].sort((a, b) => {
@@ -317,12 +318,13 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9, fontWeight: 600 }}
                     unit="kcal"
+                    label={{ value: 'Kcal', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontWeight: 700, fill: 'hsl(var(--muted-foreground))', fontSize: 10 } }}
                   />
                   <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
                   <ChartLegend content={<ChartLegendContent />} className="pt-6" />
-                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={24} />
-                  <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" />
-                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={24} name="Protein" />
+                  <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" name="Carbs" />
+                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[4, 4, 0, 0]} name="Fat" />
                 </BarChart>
               </ChartContainer>
             </div>

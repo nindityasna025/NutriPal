@@ -47,7 +47,7 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-// Consistent Macro Colors - Themed
+// Standardized Macro Colors
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
   carbs: "hsl(38 92% 50%)",
@@ -121,47 +121,6 @@ export default function MealPlannerPage() {
   const handlePrevDay = () => date && setDate(subDays(date, 1))
   const handleNextDay = () => date && setDate(addDays(date, 1))
   const handleToday = () => setDate(startOfToday())
-
-  const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
-    return new Promise((resolve) => {
-      const img = new (window as any).Image();
-      img.src = base64Str;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        if (width > height) {
-          if (width > maxWidth) {
-            height *= maxWidth / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width *= maxHeight / height;
-            height = maxHeight;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
-      };
-    });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = async () => {
-        const rawPhoto = reader.result as string;
-        const compressed = await compressImage(rawPhoto);
-        setMealImageUrl(compressed);
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   const handleSaveMeal = async () => {
     if (!user || !mealsColRef || !mealName) return
@@ -292,34 +251,6 @@ export default function MealPlannerPage() {
                     <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-[1.25rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
                   
-                  <div className="space-y-1.5 text-left">
-                    <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Image (Optional)</Label>
-                    <div 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-primary/10 rounded-[1.5rem] p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-all aspect-video relative overflow-hidden"
-                    >
-                      {mealImageUrl ? (
-                        <>
-                          <Image src={mealImageUrl} alt="Meal Preview" fill className="object-cover" />
-                          <Button 
-                            variant="destructive" 
-                            size="icon" 
-                            className="absolute top-2 right-2 rounded-full h-8 w-8"
-                            onClick={(e) => { e.stopPropagation(); setMealImageUrl(null); }}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Camera className="w-8 h-8 text-primary/20 mb-2" />
-                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Click to upload photo</p>
-                        </>
-                      )}
-                    </div>
-                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
-                  </div>
-
                   <div className="flex items-center justify-between p-5 bg-secondary/30 rounded-[1.5rem]">
                     <div className="space-y-0.5 text-left">
                       <Label className="text-[10px] font-black uppercase tracking-widest">Smart Alerts</Label>

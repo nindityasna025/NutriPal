@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,22 +15,25 @@ import {
   ChefHat,
   ArrowLeft,
   RefreshCw,
-  Utensils
+  Utensils,
+  ChevronRight,
+  Target
 } from "lucide-react"
-import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
-// Consistent Macro Colors - Themed
+// Standardized Macro Colors
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))",
-  carbs: "hsl(38 92% 50%)",
-  fat: "hsl(var(--accent))",
+  protein: "hsl(var(--primary))", // Forest Green
+  carbs: "hsl(38 92% 50%)",      // Amber
+  fat: "hsl(var(--accent))",     // Teal
 }
 
-// Scraped Delivery Database
+// Scraped Delivery Database (Mocked for Demo)
 const SCRAPED_DATABASE = [
   { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein"], restricts: [] },
   { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan"], restricts: ["Vegetarian", "Vegan"] },
@@ -69,6 +72,7 @@ export default function ExplorePage() {
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
 
+  // Curate precisely 2 matches: 1 Grab, 1 Gojek
   const handleCurateDelivery = () => {
     setLoading(true)
     setView("delivery")
@@ -81,17 +85,18 @@ export default function ExplorePage() {
         return matchesRestrictions;
       });
 
-      const grabMatch = filtered.find(item => item.platform === "GrabFood") || SCRAPED_DATABASE[0];
-      const goMatch = filtered.find(item => item.platform === "GoFood") || SCRAPED_DATABASE[1];
+      const grabMatch = filtered.find(item => item.platform === "GrabFood") || SCRAPED_DATABASE.find(item => item.platform === "GrabFood");
+      const goMatch = filtered.find(item => item.platform === "GoFood") || SCRAPED_DATABASE.find(item => item.platform === "GoFood");
 
       setDeliveryResult([
-        { ...grabMatch, reasoning: "Optimized match for your profile metrics." },
-        { ...goMatch, reasoning: "High health score match from local ecosystem." }
-      ]);
+        { ...grabMatch, reasoning: "Top GrabFood match for your caloric target." },
+        { ...goMatch, reasoning: "Optimal healthy choice available via GoFood." }
+      ].filter(Boolean));
       setLoading(false);
     }, 800);
   }
 
+  // Randomized Smart Menu generation
   const handleGenerateMenu = () => {
     setLoading(true)
     setView("menu")
@@ -114,14 +119,14 @@ export default function ExplorePage() {
     } while (nextMeal.name === menuPlan[type].name && pool.length > 1);
     
     setMenuPlan({ ...menuPlan, [type]: nextMeal });
-    toast({ title: `${type} Swapped`, description: "A fresh option has been curated." });
+    toast({ title: `${type} Swapped`, description: "A new systematic choice has been generated." });
   }
 
   const handleOrderNow = async (item: any) => {
     if (!user || !firestore) return
     const today = new Date()
     const dateId = format(today, "yyyy-MM-dd")
-    const timeStr = format(today, "hh:mm a")
+    const timeStr = item.time || format(today, "hh:mm a")
 
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
@@ -130,11 +135,11 @@ export default function ExplorePage() {
     addDocumentNonBlocking(mealsColRef, {
       name: item.name,
       calories: item.calories,
-      time: item.time || timeStr,
+      time: timeStr,
       source: item.platform || "planner",
       macros: item.macros,
       healthScore: item.healthScore || 90,
-      description: item.description || item.reasoning || "Balanced meal curated for your profile.",
+      description: item.description || item.reasoning || "Balanced choice curated for your metabolic profile.",
       expertInsight: item.reasoning || "Matched to your profile goals.",
       createdAt: serverTimestamp()
     })
@@ -144,13 +149,13 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Order Processed", description: `${item.name} recorded in schedule.` })
+    toast({ title: "Schedule Synced", description: `${item.name} added to your daily timeline.` })
     router.push("/")
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
+      <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Smart Decision Hub</p>
       </header>
@@ -164,7 +169,7 @@ export default function ExplorePage() {
             <div className="space-y-2">
               <h3 className="text-2xl font-black uppercase leading-tight">Delivery Hub</h3>
               <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">
-                Compare GrabFood & GoFood matches for your profile.
+                Compare GrabFood & GoFood matches for your profile metrics.
               </p>
             </div>
             <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[9px] bg-primary">Analyze Ecosystem</Button>
@@ -177,7 +182,7 @@ export default function ExplorePage() {
             <div className="space-y-2">
               <h3 className="text-2xl font-black uppercase leading-tight">Smart Menu</h3>
               <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">
-                Generate a randomized daily plan with delivery sync.
+                Generate a randomized daily plan with platform sync.
               </p>
             </div>
             <Button variant="secondary" className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[9px]">Generate Plan</Button>
@@ -198,11 +203,13 @@ export default function ExplorePage() {
             {loading ? (
               <div className="col-span-full flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
             ) : deliveryResult?.map((item) => (
-              <Card key={item.id} className="rounded-[2rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2 overflow-hidden flex flex-col">
+              <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2 overflow-hidden flex flex-col">
                 <CardContent className="p-8 flex flex-col h-full space-y-6">
-                  <div className="space-y-4 flex-1">
-                    <div className="space-y-1 text-left">
-                      <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score</div>
+                  <div className="space-y-6 flex-1 text-left">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest">
+                        <TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score
+                      </div>
                       <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{item.name}</h3>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
                     </div>
@@ -214,14 +221,23 @@ export default function ExplorePage() {
                       ))}
                     </div>
 
-                    <p className="text-[11px] font-medium leading-relaxed italic text-muted-foreground bg-primary/5 p-4 rounded-xl border border-primary/10 text-left">"{item.reasoning}"</p>
+                    <p className="text-[11px] font-medium leading-relaxed italic text-muted-foreground bg-primary/5 p-4 rounded-xl border border-primary/10">"{item.reasoning}"</p>
                   </div>
 
                   <div className="pt-6 border-t border-muted/20 space-y-4">
                     <div className="grid grid-cols-3 gap-3">
-                       <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p><p className="font-black text-primary">{item.macros.protein}g</p></div>
-                       <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p><p className="font-black text-orange-500">{item.macros.carbs}g</p></div>
-                       <div className="space-y-0.5 text-left"><p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p><p className="font-black text-accent">{item.macros.fat}g</p></div>
+                       <div className="space-y-0.5 text-left">
+                         <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                         <p className="font-black text-primary">{item.macros.protein}g</p>
+                       </div>
+                       <div className="space-y-0.5 text-left">
+                         <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                         <p className="font-black text-orange-500">{item.macros.carbs}g</p>
+                       </div>
+                       <div className="space-y-0.5 text-left">
+                         <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                         <p className="font-black text-accent">{item.macros.fat}g</p>
+                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -256,7 +272,7 @@ export default function ExplorePage() {
               return (
                 <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2 overflow-hidden flex flex-col">
                   <CardContent className="p-8 flex flex-col h-full space-y-6">
-                    <div className="flex-1 space-y-6">
+                    <div className="flex-1 space-y-6 text-left">
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary" className="bg-primary/10 text-primary uppercase text-[9px] font-black tracking-[0.2em] px-3 py-1 rounded-lg">
                           {type}
@@ -266,7 +282,7 @@ export default function ExplorePage() {
                         </Button>
                       </div>
                       
-                      <div className="space-y-2 text-left">
+                      <div className="space-y-2">
                         <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
                         <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">{meal.description}</p>
                       </div>
