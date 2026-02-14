@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react"
@@ -31,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 
 const MacroInfoContent = () => (
   <div className="space-y-4">
@@ -61,7 +61,7 @@ export default function RecordPage() {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setFilePreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
-  const [result, setResult] = useState<any | null>(null)
+  const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   const [recordDate, setRecordDate] = useState<Date>(startOfToday())
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
@@ -107,9 +107,12 @@ export default function RecordPage() {
     const selected = e.target.files?.[0]
     if (selected) {
       setFile(selected)
-      setFilePreview(URL.createObjectURL(selected))
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(selected);
       setResult(null)
-      // Stop camera if file is uploaded
       if (videoRef.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
@@ -128,15 +131,12 @@ export default function RecordPage() {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL('image/jpeg');
         setFilePreview(dataUrl);
-        // Convert dataUrl to File object for simulation
         fetch(dataUrl)
           .then(res => res.blob())
           .then(blob => {
             const capturedFile = new File([blob], "capture.jpg", { type: "image/jpeg" });
             setFile(capturedFile);
           });
-        
-        // Stop stream after capture
         if (video.srcObject) {
           const stream = video.srcObject as MediaStream;
           stream.getTracks().forEach(track => track.stop());
@@ -160,20 +160,26 @@ export default function RecordPage() {
     }
   }
 
-  const handleAnalyze = () => {
-    if (!file) return
+  const handleAnalyze = async () => {
+    if (!preview) return
     setAnalyzing(true)
-    setTimeout(() => {
-      setResult({
-        name: "Kuetiau Goreng",
-        calories: 438,
-        macros: { protein: 17, carbs: 74, fat: 19 },
-        healthScore: 62,
-        description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats.",
-        ingredients: ["Stir fried noodles", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
+    try {
+      const output = await analyzeMeal({
+        photoDataUri: preview,
       })
+      setResult(output)
+    } catch (error: any) {
+      console.error("Analysis failed", error)
+      toast({
+        variant: "destructive",
+        title: "Expert Unavailable",
+        description: error.message?.includes("429") 
+          ? "Our AI Nutritionist is over capacity. Please wait a few seconds." 
+          : "Could not analyze meal. Please try again.",
+      })
+    } finally {
       setAnalyzing(false)
-    }, 2000)
+    }
   }
 
   const handleSave = async () => {
@@ -254,7 +260,7 @@ export default function RecordPage() {
     <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500 pb-24">
       <header className="text-center space-y-2">
         <h1 className="text-4xl font-black tracking-tight uppercase">Record & Recap</h1>
-        <p className="text-muted-foreground font-medium text-sm">Snap your food for instant nutritional analysis.</p>
+        <p className="text-muted-foreground font-medium text-sm">Snap your food for instant AI Expert nutritional analysis.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
