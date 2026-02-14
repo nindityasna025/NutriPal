@@ -16,8 +16,7 @@ import {
   Image as ImageIcon,
   RefreshCw,
   ChevronLeft,
-  X,
-  ArrowDown
+  Calendar as CalendarIcon
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -25,7 +24,13 @@ import { format, startOfToday } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "upload">("choice")
@@ -35,6 +40,7 @@ export default function RecordPage() {
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -119,6 +125,7 @@ export default function RecordPage() {
     setFile(null)
     setFilePreview(null)
     setResult(null)
+    setSelectedDate(new Date())
   }
 
   const handleAnalyze = async () => {
@@ -143,8 +150,7 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    const today = startOfToday()
-    const dateId = format(today, "yyyy-MM-dd")
+    const dateId = format(selectedDate, "yyyy-MM-dd")
     const timeStr = format(new Date(), "hh:mm a")
     
     try {
@@ -168,7 +174,7 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
+      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${format(selectedDate, 'MMM d')}.` })
       resetAll()
     } catch (e) {
       console.error(e)
@@ -179,7 +185,7 @@ export default function RecordPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-0 animate-in fade-in duration-700">
+      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           Instant AI Expert Analysis
@@ -258,10 +264,31 @@ export default function RecordPage() {
               )}
               
               {preview && !result && (
-                <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
-                  {analyzing ? <Loader2 className="animate-spin mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
-                  {analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}
-                </Button>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Meal Date</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30")}>
+                          <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
+                          {format(selectedDate, "PPP")}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => date && setSelectedDate(date)}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
+                    {analyzing ? <Loader2 className="animate-spin mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
+                    {analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}
+                  </Button>
+                </div>
               )}
             </Card>
           </section>
@@ -297,14 +324,36 @@ export default function RecordPage() {
                     <Progress value={result.healthScore} className="h-4 rounded-full" />
                   </div>
 
-                  <div className="space-y-3 p-6 bg-secondary/20 rounded-[2rem]">
-                    <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Dietary Insight</p>
-                    <p className="text-sm font-bold leading-relaxed italic text-foreground/80 opacity-90">"{result.description}"</p>
-                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-secondary/10 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <CalendarIcon className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-black uppercase tracking-widest">Log for: {format(selectedDate, "PPP")}</span>
+                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-[10px] font-black text-primary uppercase underline">Change</Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => date && setSelectedDate(date)}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
 
-                  <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
-                    LOG TO DASHBOARD <ChevronRight className="w-6 h-6 ml-3" />
-                  </Button>
+                    <div className="space-y-3 p-6 bg-secondary/20 rounded-[2rem]">
+                      <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Dietary Insight</p>
+                      <p className="text-sm font-bold leading-relaxed italic text-foreground/80 opacity-90">"{result.description}"</p>
+                    </div>
+
+                    <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
+                      LOG TO DASHBOARD <ChevronRight className="w-6 h-6 ml-3" />
+                    </Button>
+                  </div>
                 </Card>
               </div>
             ) : (
