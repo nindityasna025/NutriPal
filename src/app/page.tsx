@@ -77,15 +77,15 @@ const MacroInfoContent = () => (
     <div className="space-y-3 pt-2">
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
-        <span className="text-foreground">30%</span>
+        <span className="text-foreground">24%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
-        <span className="text-foreground">40%</span>
+        <span className="text-foreground">43%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
-        <span className="text-foreground">30%</span>
+        <span className="text-foreground">33%</span>
       </div>
     </div>
   </div>
@@ -168,7 +168,7 @@ export default function Dashboard() {
   }, [meals]);
 
   const calorieTarget = profile?.calorieTarget || 2000
-  const consumed = Math.max(0, totals.calories)
+  const consumed = Math.max(0, Math.round(totals.calories))
   const water = dailyLog?.waterIntake || 0
   
   const actualPercent = Math.round((consumed / calorieTarget) * 100)
@@ -381,7 +381,7 @@ export default function Dashboard() {
                               {meal.name}
                             </h3>
                             <div className="flex flex-row items-center gap-6">
-                               <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{meal.calories} KCAL</p>
+                               <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
                                <div className="flex flex-wrap items-center gap-4">
                                   <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>P {meal.macros?.protein}G</span></div>
                                   <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>C {meal.macros?.carbs}G</span></div>

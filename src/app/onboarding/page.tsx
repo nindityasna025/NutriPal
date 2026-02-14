@@ -14,7 +14,7 @@ import { Loader2, Calculator, Scale, Ruler, Heart, User, Calendar } from "lucide
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import { format, startOfToday } from "date-fns"
 
 export default function OnboardingPage() {
   const firestore = useFirestore()
@@ -88,17 +88,19 @@ export default function OnboardingPage() {
       
       await setDoc(doc(firestore, "users", user.uid, "profile", "main"), profileData)
 
-      const today = new Date()
+      const today = startOfToday()
       const dateId = format(today, "yyyy-MM-dd")
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
 
+      // Starter Meals Adjusted to exactly 450kcal total
+      // 24% Protein = 27g, 43% Carbs = 48.4g, 33% Fat = 16.5g
       const starterMeals = [
         {
           name: "Avocado & Poached Egg Toast",
-          calories: 385,
+          calories: 150,
           time: "08:30 AM",
           source: "planner",
-          macros: { protein: 14, carbs: 28, fat: 24 },
+          macros: { protein: 9, carbs: 16.1, fat: 5.5 },
           healthScore: 92,
           description: "Whole grain toast topped with fresh avocado and perfectly poached eggs.",
           ingredients: ["Whole grain bread", "Avocado", "Eggs"],
@@ -107,10 +109,10 @@ export default function OnboardingPage() {
         },
         {
           name: "Mediterranean Quinoa Salad",
-          calories: 420,
+          calories: 150,
           time: "01:00 PM",
           source: "planner",
-          macros: { protein: 12, carbs: 55, fat: 18 },
+          macros: { protein: 9, carbs: 16.2, fat: 5.5 },
           healthScore: 95,
           description: "Fresh and light quinoa bowl with cucumber, olives, and feta.",
           ingredients: ["Quinoa", "Cucumber", "Feta cheese"],
@@ -119,10 +121,10 @@ export default function OnboardingPage() {
         },
         {
           name: "Lemon Herb Grilled Salmon",
-          calories: 510,
+          calories: 150,
           time: "07:30 PM",
           source: "planner",
-          macros: { protein: 34, carbs: 12, fat: 28 },
+          macros: { protein: 9, carbs: 16.1, fat: 5.5 },
           healthScore: 98,
           description: "Grilled Atlantic salmon seasoned with fresh herbs and lemon.",
           ingredients: ["Salmon fillet", "Lemon", "Asparagus"],
@@ -164,8 +166,8 @@ export default function OnboardingPage() {
   return (
     <div className="max-w-xl mx-auto p-4 md:py-12 space-y-8 animate-in fade-in duration-700">
       <header className="text-center space-y-2">
-        <h1 className="text-3xl font-headline font-bold">Personalize Your Journey</h1>
-        <p className="text-muted-foreground">Let NutriPal tailor your nutrition plan to your unique needs.</p>
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Personalize</h1>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Bio-Metric Integration</p>
       </header>
 
       <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
