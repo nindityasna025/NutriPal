@@ -25,10 +25,9 @@ const AnalyzeMealOutputSchema = z.object({
     fat: z.number().describe("Estimated fat in grams."),
   }),
   healthScore: z.number().min(0).max(100).describe("A score from 0-100 based on nutritional quality."),
-  description: z.string().describe("A brief nutritionist's summary of the meal."),
+  description: z.string().describe("A brief summary of the meal."),
   ingredients: z.array(z.string()).describe("List of main ingredients identified."),
-  healthBenefit: z.string().describe("Specific health benefits of this meal."),
-  weightGoalAdvice: z.string().describe("Specific analysis of how this meal fits the user's specific goal (Maintenance, Weight Loss, or Weight Gain)."),
+  expertInsight: z.string().max(400).describe("A combined nutritionist insight covering health benefits and how it aligns with the user's specific goal. Max 400 characters."),
 });
 export type AnalyzeMealOutput = z.infer<typeof AnalyzeMealOutputSchema>;
 
@@ -46,15 +45,15 @@ Estimate the portion sizes and calculate the kcal, protein, carbs, and fat as ac
 
 User's Specific Health Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maintenance{{/if}}
 
-Include the following sections in your output:
-1. "healthBenefit": A clear summary of the nutritional strengths of this meal (e.g., high in antioxidants, heart-healthy fats, etc.).
-2. "weightGoalAdvice": A tailored breakdown of how this meal performs specifically for the user's goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Health{{/if}}. 
+For the "expertInsight" field, provide a single, professional, and encouraging summary that combines the key health benefits of this meal AND how it specifically supports the user's goal ({{{userGoal}}}). 
+
+CRITICAL: The "expertInsight" MUST NOT EXCEED 400 characters.
 
 If a description is provided, use it to refine your analysis: "{{{description}}}"
 
 Meal Photo: {{media url=photoDataUri}}
 
-Provide the output in the specified JSON format. Be encouraging but professional.`,
+Provide the output in the specified JSON format.`,
 });
 
 const analyzeMealFlow = ai.defineFlow(

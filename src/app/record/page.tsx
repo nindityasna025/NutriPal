@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -15,8 +14,6 @@ import {
   ScanSearch,
   ImageIcon,
   Calendar as CalendarIcon,
-  Heart,
-  Scale,
   Leaf
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
@@ -194,8 +191,7 @@ export default function RecordPage() {
       healthScore: result.healthScore,
       description: result.description,
       ingredients: result.ingredients,
-      healthBenefit: result.healthBenefit,
-      weightGoalAdvice: result.weightGoalAdvice,
+      expertInsight: result.expertInsight,
       imageUrl: preview, 
       createdAt: serverTimestamp()
     });
@@ -312,22 +308,11 @@ export default function RecordPage() {
                   <div className="grid grid-cols-1 gap-6">
                     <section className="space-y-3">
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
-                        <Heart className="w-4 h-4" /> Health Benefit
+                        <Sparkles className="w-4 h-4" /> AI Expert Insight
                       </div>
                       <p className="text-xs font-medium leading-relaxed text-muted-foreground bg-primary/5 p-5 rounded-2xl border border-primary/10 text-left">
-                        {result.healthBenefit}
+                        {result.expertInsight}
                       </p>
-                    </section>
-
-                    <section className="space-y-3">
-                      <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest text-left">
-                        <Scale className="w-4 h-4" /> Goal Alignment
-                      </div>
-                      <div className="p-5 bg-secondary/30 rounded-2xl border border-transparent text-left">
-                        <p className="text-[11px] font-bold leading-relaxed text-foreground/90">
-                          {result.weightGoalAdvice}
-                        </p>
-                      </div>
                     </section>
 
                     <section className="space-y-3 text-left">

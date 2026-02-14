@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -19,10 +18,8 @@ import {
   Camera,
   BarChart3,
   Info,
-  ChevronRight,
   ChevronDown,
   Heart,
-  Scale,
   Leaf
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
@@ -335,26 +332,15 @@ export default function Dashboard() {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
                     <div className="px-8 pb-8 pt-2 space-y-6 border-t border-muted/20">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
-                            <Heart className="w-3.5 h-3.5" /> Health Benefit
-                          </div>
-                          <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10 text-left">
-                            {meal.healthBenefit || meal.description || "Balanced nutritional profile optimized for energy and clean recovery."}
-                          </p>
+                      <div className="space-y-4 text-left">
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
+                          <Sparkles className="w-3.5 h-3.5" /> AI Health Insight
                         </div>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest text-left">
-                            <Scale className="w-3.5 h-3.5" /> Goal Alignment
-                          </div>
-                          <div className="p-4 bg-secondary/30 rounded-2xl border border-transparent text-left">
-                            <p className="text-[11px] font-bold leading-relaxed text-foreground/80">
-                              {meal.weightGoalAdvice || "Suitable for consistent weight maintenance and metabolic support."}
-                            </p>
-                          </div>
-                        </div>
+                        <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10 text-left">
+                          {meal.expertInsight || meal.healthBenefit || meal.description || "Balanced nutritional profile optimized for energy and clean recovery."}
+                        </p>
                       </div>
+                      
                       <div className="space-y-2 text-left">
                         <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
                           <Leaf className="w-3.5 h-3.5" /> Key Ingredients
