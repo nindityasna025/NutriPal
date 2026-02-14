@@ -5,6 +5,7 @@
 @layer base {
   :root {
     /* NutriPal Design Philosophy: Health, Fresh, Trust */
+    /* Hybrid: Apple Cleanliness + Google Structure */
     --background: 33 30% 97%; /* Warm White Cream */
     --foreground: 142 76% 10%; /* Deep Green for maximum readability */
     
@@ -49,7 +50,7 @@
   }
 }
 
-/* Premium Tactile Depth */
+/* Premium Tactile Depth - Apple Style */
 .shadow-premium {
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
 }

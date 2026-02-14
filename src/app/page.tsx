@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -167,7 +166,7 @@ export default function Dashboard() {
         </p>
       </header>
 
-      {/* Hero Glance Card */}
+      {/* Hero Glance Card - Decision Hub */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         <Card className="md:col-span-8 border-none shadow-premium bg-white rounded-[3rem] overflow-hidden">
           <CardContent className="p-8 sm:p-12 space-y-10">
@@ -232,7 +231,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Sync Status Cards */}
+        {/* Action Widgets */}
         <div className="md:col-span-4 grid grid-cols-1 gap-6">
           <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-premium-lg transition-all">
             <div className="p-5 bg-primary/10 rounded-3xl mb-4 group-hover:scale-110 transition-transform">
@@ -264,7 +263,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Weekly Trends */}
+      {/* Weekly Visual Trends */}
       <section className="space-y-8">
         <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-2 text-center lg:text-left justify-center lg:justify-start">
           <BarChart3 className="w-6 h-6 text-primary" />
@@ -290,7 +289,7 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Activity Timeline */}
+      {/* Activity Log - Structured Hierarchy */}
       <section className="space-y-8">
         <h2 className="text-xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Daily Activity</h2>
         <div className="space-y-5">
@@ -380,7 +379,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Action Hub - Priority Interactive Controls */}
+      {/* Primary CTA Hub - Optimized for Thumb-Reach */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-8">
         <Button 
           onClick={() => router.push("/record")}
@@ -403,7 +402,7 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Wellness Insight */}
+      {/* AI Health Whisper */}
       <Card className="rounded-[4rem] border-none shadow-premium-lg bg-primary text-primary-foreground p-10 sm:p-16 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-16 opacity-10 group-hover:rotate-12 transition-transform duration-1000 hidden lg:block">
           <Sparkles className="w-64 h-64" />

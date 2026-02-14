@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -170,7 +169,7 @@ export default function MealPlannerPage() {
                 <Plus className="w-5 h-5 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg">
+            <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background">
               <DialogHeader className="bg-primary p-10 text-primary-foreground text-center">
                 <DialogTitle className="text-3xl font-black uppercase tracking-tight">
                   {editingMealId ? "Refine Meal" : "New Schedule"}
@@ -181,7 +180,7 @@ export default function MealPlannerPage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
                     <Select value={mealType} onValueChange={setMealType}>
-                      <SelectTrigger className="h-14 rounded-[1.5rem] font-bold border-muted-foreground/10"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-14 rounded-[1.5rem] font-bold border-muted-foreground/10"><SelectValue /></SelectValue>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="Breakfast">Breakfast</SelectItem>
                         <SelectItem value="Lunch">Lunch</SelectItem>
@@ -192,7 +191,7 @@ export default function MealPlannerPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Description</Label>
-                    <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-[1.5rem] font-bold border-muted-foreground/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                    <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-[1.5rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
                   <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem]">
                     <div className="space-y-1">
@@ -213,9 +212,9 @@ export default function MealPlannerPage() {
         </div>
       </header>
 
-      {/* Your Daily Agenda */}
+      {/* Your Daily Agenda - Structured List */}
       <section className="space-y-10">
-        <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Agenda</h2>
+        <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Agenda</h2>
         <div className="space-y-6">
           {isLoadingMeals ? (
             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
@@ -264,15 +263,15 @@ export default function MealPlannerPage() {
               <div className="text-center py-32 bg-white/40 rounded-[4rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-10">
                 <Utensils className="w-20 h-20 mb-6 text-muted-foreground/10" />
                 <p className="text-muted-foreground font-black text-xl uppercase tracking-tighter">Your timeline is clear.</p>
-                <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-2">Plan a meal or ask the AI for a decision relief.</p>
+                <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-2">Plan a meal or ask the AI for a decision relief below.</p>
               </div>
             )}
         </div>
       </section>
 
-      {/* Decision Fatigue Relief Section */}
+      {/* Decision Fatigue Relief Hub - Routing to Explore */}
       <section className="space-y-10">
-        <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
+        <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
         <Link href="/planner">
           <Card className="rounded-[4rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
             <CardContent className="p-12 sm:p-16 flex flex-col sm:flex-row items-center justify-between gap-8">
@@ -295,11 +294,11 @@ export default function MealPlannerPage() {
         </Link>
       </section>
 
-      {/* AI Recipe Dialog */}
+      {/* AI Recipe Dialog - Standardized Component */}
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
         <DialogContent className="max-w-3xl rounded-[4rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[95vw]">
           <DialogHeader className="bg-primary p-12 text-primary-foreground">
-            <h3 className="text-xs font-black uppercase tracking-[0.4em] opacity-80 mb-3">Professional Kitchen Guide</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80 mb-3">Professional Kitchen Guide</h3>
             <DialogTitle className="text-4xl font-black uppercase tracking-tight leading-tight">
               {activeRecipeName}
             </DialogTitle>
@@ -309,7 +308,7 @@ export default function MealPlannerPage() {
               {generatingRecipe ? (
                 <div className="flex flex-col items-center justify-center h-full space-y-6">
                   <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Formulating precise instructions...</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Formulating precise instructions...</p>
                 </div>
               ) : activeRecipe ? (
                 <div className="prose prose-sm prose-green max-w-none">

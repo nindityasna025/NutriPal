@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -6,20 +5,17 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { 
   Sparkles, 
-  MapPin, 
   TrendingUp, 
   Smartphone, 
   Loader2,
   Bike,
-  Trophy,
-  Info,
   ChevronDown,
   ChevronUp,
   ChefHat,
-  ShoppingBag
+  ShoppingBag,
+  ArrowLeft
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
@@ -51,7 +47,7 @@ export default function ExplorePage() {
 
   const handleCurateDelivery = async () => {
     setLoadingDelivery(true)
-    setAiPlan(null) // Reset other view
+    setAiPlan(null)
     try {
       const dietary = profile?.dietaryRestrictions?.join(", ") || "No specific restrictions"
       const mockDeals = "GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
@@ -107,7 +103,7 @@ export default function ExplorePage() {
   const handleGenerateAiPlan = async () => {
     if (!profile) return
     setGeneratingPlan(true)
-    setCuratedResult(null) // Reset other view
+    setCuratedResult(null)
     try {
       const result = await generateDailyPlan({
         calorieTarget: profile.calorieTarget || 2000,
@@ -183,7 +179,7 @@ export default function ExplorePage() {
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Decision Hub & Curation</p>
       </header>
 
-      {/* Primary Selection Cards */}
+      {/* Decision Pathway - Clean Choice UI */}
       {!curatedResult && !aiPlan && (
         <section className="space-y-10">
           <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">How can AI help today?</h2>
@@ -233,12 +229,14 @@ export default function ExplorePage() {
         </section>
       )}
 
-      {/* Delivery Results */}
+      {/* Delivery Results - Structured List */}
       {curatedResult && (
         <section className="space-y-8 animate-in fade-in zoom-in duration-500">
           <div className="flex items-center justify-between px-2">
             <h2 className="font-black text-xl uppercase tracking-tight">Top Delivery Matches</h2>
-            <Button variant="ghost" onClick={() => setCuratedResult(null)} className="text-[10px] font-black uppercase tracking-widest">Back to Hub</Button>
+            <Button variant="ghost" onClick={() => setCuratedResult(null)} className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+              <ArrowLeft className="w-3 h-3" /> Back to Hub
+            </Button>
           </div>
           
           <div className="space-y-8">
@@ -287,12 +285,14 @@ export default function ExplorePage() {
         </section>
       )}
 
-      {/* AI Daily Plan Results */}
+      {/* AI Daily Plan Results - Hybrid Grid */}
       {aiPlan && (
         <section className="space-y-10 animate-in zoom-in duration-500">
           <div className="flex items-center justify-between px-2">
             <h2 className="font-black text-xl uppercase tracking-tight">AI Curated Picks</h2>
-            <Button variant="ghost" onClick={() => setAiPlan(null)} className="text-[10px] font-black uppercase tracking-widest">Back to Hub</Button>
+            <Button variant="ghost" onClick={() => setAiPlan(null)} className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+              <ArrowLeft className="w-3 h-3" /> Back to Hub
+            </Button>
           </div>
           <Card className="rounded-[4rem] border-none shadow-premium-lg bg-white overflow-hidden">
             <CardContent className="p-10 sm:p-16 space-y-12">
