@@ -273,8 +273,7 @@ export default function MealPlannerPage() {
       </section>
 
       {/* Decision Fatigue Relief Hub - Routing to Explore Hub */}
-      <section className="space-y-10">
-        <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
+      <section className="pt-8">
         <Link href="/planner">
           <Card className="rounded-[4rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
             <CardContent className="p-12 sm:p-16 flex flex-col sm:flex-row items-center justify-between gap-8">
@@ -282,7 +281,8 @@ export default function MealPlannerPage() {
                 <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
                   <Sparkles className="w-12 h-12 text-primary" />
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-1">Feeling Indecisive?</p>
                   <h3 className="text-3xl font-black uppercase leading-tight">AI Decision Hub</h3>
                   <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest leading-relaxed max-w-md">
                     Let our expert AI analyze delivery deals or curate a full BMR-matched menu instantly.
