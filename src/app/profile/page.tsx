@@ -57,6 +57,7 @@ export default function ProfilePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Edit States
   const [weight, setWeight] = useState("")
   const [height, setHeight] = useState("")
   const [age, setAge] = useState("")
@@ -78,7 +79,7 @@ export default function ProfilePage() {
       setRestrictions(profile.dietaryRestrictions || [])
       setAllergies(profile.allergies || "")
     }
-  }, [profile])
+  }, [profile, isEditDialogOpen])
 
   useEffect(() => {
     if (weight && height) {
@@ -132,7 +133,7 @@ export default function ProfilePage() {
         notificationsEnabled: notifs,
         updatedAt: serverTimestamp()
       })
-      toast({ title: "Profile Updated", description: "Body metrics have been synced." })
+      toast({ title: "Profile Updated", description: "Health metrics have been synced." })
       setIsEditDialogOpen(false)
     } finally {
       setLoading(false)
@@ -165,11 +166,11 @@ export default function ProfilePage() {
               </DialogTrigger>
               <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col">
                 <DialogHeader className="p-8 pb-4 shrink-0 bg-primary rounded-t-[3rem]">
-                  <DialogTitle className="text-xl font-black uppercase tracking-tight text-center text-foreground">Personalize Profile</DialogTitle>
+                  <DialogTitle className="text-xl font-black uppercase tracking-tight text-center text-foreground">Update Profile</DialogTitle>
                 </DialogHeader>
                 <ScrollArea className="flex-1">
                   <div className="p-8 space-y-6">
-                    {/* Biological Sex - Identical to Onboarding */}
+                    {/* Bio Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden flex flex-col justify-center bg-white min-h-[140px]">
                         <CardContent className="p-5 space-y-4">
@@ -182,24 +183,24 @@ export default function ProfilePage() {
                             className="flex gap-2"
                           >
                             <Label
-                              htmlFor="male"
+                              htmlFor="male-edit"
                               className={cn(
                                 "flex-1 flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-3 hover:bg-secondary cursor-pointer transition-all",
                                 gender === "male" ? "border-primary bg-primary/5" : ""
                               )}
                             >
-                              <RadioGroupItem value="male" id="male" className="sr-only" />
+                              <RadioGroupItem value="male" id="male-edit" className="sr-only" />
                               <span className="text-xl mb-1">👨</span>
                               <span className="font-black uppercase text-[8px] tracking-widest">Male</span>
                             </Label>
                             <Label
-                              htmlFor="female"
+                              htmlFor="female-edit"
                               className={cn(
                                 "flex-1 flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-3 hover:bg-secondary cursor-pointer transition-all",
                                 gender === "female" ? "border-primary bg-primary/5" : ""
                               )}
                             >
-                              <RadioGroupItem value="female" id="female" className="sr-only" />
+                              <RadioGroupItem value="female" id="female-edit" className="sr-only" />
                               <span className="text-xl mb-1">👩</span>
                               <span className="font-black uppercase text-[8px] tracking-widest">Female</span>
                             </Label>
@@ -259,7 +260,7 @@ export default function ProfilePage() {
                       </CardContent>
                     </Card>
 
-                    {/* Health Markers */}
+                    {/* Health Markers & Allergies */}
                     <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
                       <CardContent className="p-6 space-y-5">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
@@ -269,7 +270,7 @@ export default function ProfilePage() {
                           {["Diabetes", "Hypertension", "Vegetarian", "Gluten-free"].map(res => (
                             <div key={res} className="flex items-center space-x-2.5 p-3 bg-secondary/20 rounded-xl border border-transparent hover:border-border transition-all cursor-pointer">
                               <Checkbox 
-                                id={res} 
+                                id={`edit-${res}`} 
                                 checked={restrictions.includes(res)} 
                                 className="rounded-md h-4 w-4 border-2 border-primary/20 data-[state=checked]:bg-primary"
                                 onCheckedChange={(checked) => {
@@ -277,7 +278,7 @@ export default function ProfilePage() {
                                   else setRestrictions(restrictions.filter(r => r !== res))
                                 }}
                               />
-                              <Label htmlFor={res} className="cursor-pointer font-black text-[9px] uppercase tracking-tight opacity-70">{res}</Label>
+                              <Label htmlFor={`edit-${res}`} className="cursor-pointer font-black text-[9px] uppercase tracking-tight opacity-70">{res}</Label>
                             </div>
                           ))}
                         </div>
@@ -296,7 +297,7 @@ export default function ProfilePage() {
                 </ScrollArea>
                 <DialogFooter className="p-8 pt-4 shrink-0">
                   <Button onClick={handleUpdateProfile} disabled={loading || !gender || !age || !weight || !height} className="w-full h-14 rounded-2xl font-black text-sm shadow-xl uppercase tracking-widest text-foreground border-none">
-                    {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "Sync All Changes"}
+                    {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "Save Changes"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
