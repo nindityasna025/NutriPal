@@ -169,7 +169,7 @@ export default function MealPlannerPage() {
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
       <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-8 animate-in fade-in duration-700">
         <div className="space-y-1 w-full lg:w-auto text-left">
-          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
+          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Weekly Nutrition Organizer</p>
         </div>
         
@@ -238,85 +238,87 @@ export default function MealPlannerPage() {
         </div>
       </header>
 
-      <Link href="/planner">
-        <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01]">
-          <CardContent className="p-8 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
-                <Sparkles className="w-7 h-7 text-primary" />
+      <section className="space-y-12">
+        <Link href="/planner">
+          <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01]">
+            <CardContent className="p-8 flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
+                  <Sparkles className="w-7 h-7 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-xl font-black tracking-tight uppercase">Feeling Indecisive?</h2>
+                  <p className="text-muted-foreground font-medium text-sm">Let AI curate your meals from Grab & Gojek based on your profile.</p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <h2 className="text-xl font-black tracking-tight">Feeling Indecisive?</h2>
-                <p className="text-muted-foreground font-medium text-sm">Let AI curate your meals from Grab & Gojek based on your profile.</p>
-              </div>
-            </div>
-            <ChevronRightIcon className="w-6 h-6 opacity-20 text-primary" />
-          </CardContent>
-        </Card>
-      </Link>
+              <ChevronRightIcon className="w-6 h-6 opacity-20 text-primary" />
+            </CardContent>
+          </Card>
+        </Link>
 
-      <div className="space-y-8">
-        <h2 className="text-3xl font-black tracking-tight px-2 uppercase">Your Schedule</h2>
-        <div className="space-y-6">
-          {isLoadingMeals ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-          ) : scheduledMeals && scheduledMeals.length > 0 ? (
-              scheduledMeals.map((meal) => (
-                <div key={meal.id} className="space-y-0">
-                  <Card className={cn("group border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white relative", recipes[meal.id] && "rounded-b-none")}>
-                    <CardContent className="p-8">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                        <div className="flex items-center gap-8 flex-1">
-                           <div className="text-center min-w-[100px] border-r pr-8 border-border">
-                             <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
-                           </div>
-                           <div className="space-y-1.5">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-2xl font-black tracking-tight">{meal.name}</h3>
-                                {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30" />}
-                              </div>
-                              <div className="flex items-center gap-4">
-                                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories || 438} KCAL</p>
-                                 <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein || 12}G Protein</span>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 ml-1" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs || 33}G Carbs</span>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 ml-1" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat || 18}G Fat</span>
-                                 </div>
-                              </div>
-                           </div>
+        <div className="space-y-8">
+          <h2 className="text-3xl font-black tracking-tight px-2 uppercase">Your Schedule</h2>
+          <div className="space-y-6">
+            {isLoadingMeals ? (
+              <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+            ) : scheduledMeals && scheduledMeals.length > 0 ? (
+                scheduledMeals.map((meal) => (
+                  <div key={meal.id} className="space-y-0">
+                    <Card className={cn("group border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white relative", recipes[meal.id] && "rounded-b-none")}>
+                      <CardContent className="p-8">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                          <div className="flex items-center gap-8 flex-1">
+                             <div className="text-center min-w-[100px] border-r pr-8 border-border">
+                               <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
+                             </div>
+                             <div className="space-y-1.5">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-2xl font-black tracking-tight uppercase">{meal.name}</h3>
+                                  {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30" />}
+                                </div>
+                                <div className="flex items-center gap-4">
+                                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories || 438} KCAL</p>
+                                   <div className="flex items-center gap-2">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein || 12}G Protein</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 ml-1" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs || 33}G Carbs</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 ml-1" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat || 18}G Fat</span>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                             <Button variant="secondary" size="sm" onClick={() => handleGetRecipe(meal.id, meal.name)} disabled={loadingRecipe[meal.id]} className="rounded-full font-black text-[10px] uppercase tracking-widest h-10 px-6 bg-primary/10 text-primary hover:bg-primary/20">
+                                {loadingRecipe[meal.id] ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <CookingPot className="w-3 h-3 mr-2" />}
+                                AI Recipe
+                             </Button>
+                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full"><Edit2 className="w-4 h-4" /></Button>
+                             <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full"><Trash2 className="w-4 h-4" /></Button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                           <Button variant="secondary" size="sm" onClick={() => handleGetRecipe(meal.id, meal.name)} disabled={loadingRecipe[meal.id]} className="rounded-full font-black text-[10px] uppercase tracking-widest h-10 px-6 bg-primary/10 text-primary hover:bg-primary/20">
-                              {loadingRecipe[meal.id] ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <CookingPot className="w-3 h-3 mr-2" />}
-                              AI Recipe
-                           </Button>
-                           <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(meal)} className="text-muted-foreground hover:text-primary rounded-full"><Edit2 className="w-4 h-4" /></Button>
-                           <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full"><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  {recipes[meal.id] && (
-                    <Card className="border-none shadow-premium rounded-[2.5rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-4 duration-500">
-                      <CardContent className="p-8 pt-10 space-y-6">
-                        <div className="flex items-center justify-between border-b border-primary/10 pb-4">
-                           <div className="flex items-center gap-2"><Trophy className="text-primary w-4 h-4" /><span className="text-sm font-black uppercase tracking-widest text-primary">Health Score: {meal.healthScore || 78}/100</span></div>
-                           <Progress value={meal.healthScore || 78} className="w-32 h-1.5" />
-                        </div>
-                        <div className="space-y-4 text-foreground/90 font-medium whitespace-pre-wrap leading-relaxed text-sm">{recipes[meal.id]}</div>
                       </CardContent>
                     </Card>
-                  )}
+                    {recipes[meal.id] && (
+                      <Card className="border-none shadow-premium rounded-[2.5rem] rounded-t-none bg-primary/5 animate-in slide-in-from-top-4 duration-500">
+                        <CardContent className="p-8 pt-10 space-y-6">
+                          <div className="flex items-center justify-between border-b border-primary/10 pb-4">
+                             <div className="flex items-center gap-2"><Trophy className="text-primary w-4 h-4" /><span className="text-sm font-black uppercase tracking-widest text-primary">Health Score: {meal.healthScore || 78}/100</span></div>
+                             <Progress value={meal.healthScore || 78} className="w-32 h-1.5" />
+                          </div>
+                          <div className="space-y-4 text-foreground/90 font-medium whitespace-pre-wrap leading-relaxed text-sm">{recipes[meal.id]}</div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm">
+                  <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
+                  <p className="text-muted-foreground font-bold text-lg uppercase">No meals scheduled for this day.</p>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm">
-                <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
-                <p className="text-muted-foreground font-bold text-lg">No meals scheduled for this day.</p>
-              </div>
-            )}
+              )}
+          </div>
         </div>
-      </div>
+      </section>
 
       <Dialog open={!!editingMealId} onOpenChange={(open) => !open && setEditingMealId(null)}>
         <DialogContent className="rounded-[2.5rem]">
@@ -336,7 +338,7 @@ export default function MealPlannerPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
-              <Input className="h-12 rounded-2xl font-bold" value={editMealName} onChange={(e) => setEditMealName(e.target.value)} />
+              <Input className="h-12 rounded-2xl font-bold" value={editMealName} onChange={(e) => setMealName(e.target.value)} />
             </div>
             <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl">
               <div className="space-y-0.5">

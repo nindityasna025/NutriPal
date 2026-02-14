@@ -144,113 +144,115 @@ export default function ProfilePage() {
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
       </header>
 
-      <section className="flex flex-col items-center text-center space-y-8 pt-4 relative">
-        <div className="relative">
-          <Avatar className="w-40 h-40 border-[8px] border-white shadow-premium">
-            <AvatarImage src={user.photoURL || ""} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-5xl font-black uppercase">
-              {user.displayName?.charAt(0) || user.email?.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="absolute bottom-0 right-0 rounded-full h-12 w-12 p-0 border-white bg-primary text-white shadow-premium hover:bg-primary/90">
-                <Edit2 className="w-5 h-5" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-[3rem] p-0 border-none bg-background">
-              <DialogHeader className="p-8 pb-4">
-                <DialogTitle className="text-3xl font-black uppercase tracking-tight text-center">Update Metrics</DialogTitle>
-              </DialogHeader>
-              <div className="p-8 pt-0 space-y-8">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
-                    <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Height (cm)</Label>
-                    <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age</Label>
-                  <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
-                </div>
-              </div>
-              <DialogFooter className="p-8 pt-0">
-                <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-xl uppercase tracking-widest">
-                  {loading ? <Loader2 className="animate-spin" /> : "Sync Changes"}
+      <section className="space-y-12">
+        <div className="flex flex-col items-center text-center space-y-8 pt-4 relative">
+          <div className="relative">
+            <Avatar className="w-40 h-40 border-[8px] border-white shadow-premium">
+              <AvatarImage src={user.photoURL || ""} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-5xl font-black uppercase">
+                {user.displayName?.charAt(0) || user.email?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="absolute bottom-0 right-0 rounded-full h-12 w-12 p-0 border-white bg-primary text-white shadow-premium hover:bg-primary/90">
+                  <Edit2 className="w-5 h-5" />
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-        
-        <div className="space-y-3">
-          <h2 className="text-4xl font-black tracking-tight uppercase">{user.displayName || "Demo User"}</h2>
-          <div className="flex justify-center gap-3">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border-none">
-              Pro Member
-            </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border-none">
-              Verified AI
-            </Badge>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-[3rem] p-0 border-none bg-background">
+                <DialogHeader className="p-8 pb-4">
+                  <DialogTitle className="text-3xl font-black uppercase tracking-tight text-center">Update Metrics</DialogTitle>
+                </DialogHeader>
+                <div className="p-8 pt-0 space-y-8">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Weight (kg)</Label>
+                      <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Height (cm)</Label>
+                      <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Age</Label>
+                    <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
+                  </div>
+                </div>
+                <DialogFooter className="p-8 pt-0">
+                  <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-xl uppercase tracking-widest">
+                    {loading ? <Loader2 className="animate-spin" /> : "Sync Changes"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
+          
+          <div className="space-y-3">
+            <h2 className="text-4xl font-black tracking-tight uppercase">{user.displayName || "Demo User"}</h2>
+            <div className="flex justify-center gap-3">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border-none">
+                Pro Member
+              </Badge>
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border-none">
+                Verified AI
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex items-center gap-6 group hover:shadow-premium-lg transition-all">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
+              <Scale className="w-8 h-8 text-primary" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
+              <p className="text-3xl font-black tracking-tight uppercase">{profile?.weight || "--"} <span className="text-sm font-bold text-muted-foreground">kg</span></p>
+            </div>
+          </Card>
+          <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex items-center gap-6 group hover:shadow-premium-lg transition-all">
+            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
+              <Activity className="w-8 h-8 text-blue-500" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status</p>
+              <p className="text-3xl font-black tracking-tight uppercase">{profile?.bmiCategory || "Healthy"}</p>
+            </div>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] px-4">Ecosystem Settings</h2>
+          <Card className="border-none shadow-premium bg-white rounded-[3rem] overflow-hidden">
+            <CardContent className="p-0">
+              {[
+                { icon: <Bell className="text-orange-500 w-5 h-5" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
+                { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
+                { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Health Apps" },
+              ].map((item, i, arr) => (
+                <div key={i} className={cn("w-full flex items-center justify-between p-8 transition-all hover:bg-secondary/20", i !== arr.length - 1 && "border-b border-muted/30")}>
+                  <div className="flex items-center gap-6">
+                    <div className="bg-secondary/50 p-4 rounded-2xl">{item.icon}</div>
+                    <div className="text-left">
+                      <p className="text-sm font-black tracking-tight uppercase">{item.label}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-1">{item.sub}</p>
+                    </div>
+                  </div>
+                  {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={handleToggleNotifs} /> : <ChevronRight className="w-5 h-5 text-muted-foreground/30" />}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="pt-6">
+          <Button onClick={handleLogout} className="w-full h-20 rounded-[2.5rem] font-black text-xl bg-red-500 hover:bg-red-600 text-white shadow-premium flex gap-4 transition-all active:scale-[0.98]">
+            <LogOut className="w-7 h-7 rotate-180" />
+            Sign Out
+          </Button>
         </div>
       </section>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex items-center gap-6 group hover:shadow-premium-lg transition-all">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
-            <Scale className="w-8 h-8 text-primary" />
-          </div>
-          <div className="space-y-0.5">
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Weight</p>
-            <p className="text-3xl font-black tracking-tight">{profile?.weight || "--"} <span className="text-sm font-bold text-muted-foreground">kg</span></p>
-          </div>
-        </Card>
-        <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex items-center gap-6 group hover:shadow-premium-lg transition-all">
-          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
-            <Activity className="w-8 h-8 text-blue-500" />
-          </div>
-          <div className="space-y-0.5">
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status</p>
-            <p className="text-3xl font-black tracking-tight">{profile?.bmiCategory || "Healthy"}</p>
-          </div>
-        </Card>
-      </div>
-
-      <div className="space-y-6">
-        <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] px-4">Ecosystem Settings</h2>
-        <Card className="border-none shadow-premium bg-white rounded-[3rem] overflow-hidden">
-          <CardContent className="p-0">
-            {[
-              { icon: <Bell className="text-orange-500 w-5 h-5" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
-              { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
-              { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Health Apps" },
-            ].map((item, i, arr) => (
-              <div key={i} className={cn("w-full flex items-center justify-between p-8 transition-all hover:bg-secondary/20", i !== arr.length - 1 && "border-b border-muted/30")}>
-                <div className="flex items-center gap-6">
-                  <div className="bg-secondary/50 p-4 rounded-2xl">{item.icon}</div>
-                  <div className="text-left">
-                    <p className="text-sm font-black tracking-tight uppercase">{item.label}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-1">{item.sub}</p>
-                  </div>
-                </div>
-                {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={handleToggleNotifs} /> : <ChevronRight className="w-5 h-5 text-muted-foreground/30" />}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="pt-6">
-        <Button onClick={handleLogout} className="w-full h-20 rounded-[2.5rem] font-black text-xl bg-red-500 hover:bg-red-600 text-white shadow-premium flex gap-4 transition-all active:scale-[0.98]">
-          <LogOut className="w-7 h-7 rotate-180" />
-          Sign Out
-        </Button>
-      </div>
     </div>
   )
 }
