@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -23,7 +24,7 @@ import {
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
-import { cn } from "@/utils"
+import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { 
   Bar, 

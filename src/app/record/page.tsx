@@ -42,6 +42,36 @@ export default function RecordPage() {
     setMounted(true)
   }, [])
 
+  // Helper to compress image client-side to avoid payload issues
+  const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new (window as any).Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality
+      };
+    });
+  };
+
   const startCamera = async () => {
     setMode("camera")
     try {
@@ -110,7 +140,9 @@ export default function RecordPage() {
     if (!preview) return
     setAnalyzing(true)
     try {
-      const output = await analyzeMeal({ photoDataUri: preview })
+      // Compress before sending
+      const compressed = await compressImage(preview);
+      const output = await analyzeMeal({ photoDataUri: compressed })
       setResult(output)
     } catch (error: any) {
       console.error("Analysis failed", error)
@@ -119,7 +151,7 @@ export default function RecordPage() {
         title: "Expert Unavailable",
         description: error.message?.includes("429") 
           ? "AI Nutritionist is over capacity. Please try again." 
-          : "Could not analyze meal photo. Image might be too large.",
+          : "Could not analyze meal photo. Try a smaller image.",
       })
     } finally {
       setAnalyzing(false)
