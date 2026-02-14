@@ -19,7 +19,7 @@ import {
   ArrowLeft,
   Info
 } from "lucide-react"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
@@ -154,9 +154,19 @@ export default function ExplorePage() {
     const dateId = format(today, "yyyy-MM-dd")
     const mealsColRef = collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals")
     
+    // Carry over the jam (time) based on meal type
+    const timeMap: Record<string, string> = { 
+      "Breakfast": "08:30 AM", 
+      "Lunch": "01:00 PM", 
+      "Snack": "04:00 PM", 
+      "Dinner": "07:30 PM" 
+    };
+    const mealTime = timeMap[type] || "12:00 PM";
+
     await setDoc(doc(mealsColRef), {
       ...meal,
       type,
+      time: mealTime,
       source: source === 'Cook' ? 'planner' : (meal.deliveryMatch?.platform || 'GrabFood'),
       createdAt: serverTimestamp(),
       reminderEnabled: true,
@@ -171,7 +181,7 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Meal Synced", description: `${meal.name} added to your schedule.` })
+    toast({ title: "Meal Synced", description: `${meal.name} added to your schedule at ${mealTime}.` })
   }
 
   return (
@@ -359,4 +369,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-    
