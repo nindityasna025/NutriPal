@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { Input } from "@/components/ui/input"
 import { 
   Camera, 
   Sparkles, 
@@ -14,11 +15,12 @@ import {
   ChevronLeft,
   Trophy,
   ScanSearch,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Calendar as CalendarIcon
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format, startOfToday } from "date-fns"
+import { format, startOfToday, parseISO } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
@@ -30,6 +32,7 @@ export default function RecordPage() {
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
+  const [logDate, setLogDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -42,7 +45,6 @@ export default function RecordPage() {
     setMounted(true)
   }, [])
 
-  // Helper to compress image client-side to avoid payload issues
   const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
     return new Promise((resolve) => {
       const img = new (window as any).Image();
@@ -134,13 +136,13 @@ export default function RecordPage() {
     setMode("choice")
     setFilePreview(null)
     setResult(null)
+    setLogDate(format(new Date(), "yyyy-MM-dd"))
   }
 
   const handleAnalyze = async () => {
     if (!preview) return
     setAnalyzing(true)
     try {
-      // Compress before sending
       const compressed = await compressImage(preview);
       const output = await analyzeMeal({ photoDataUri: compressed })
       setResult(output)
@@ -151,7 +153,7 @@ export default function RecordPage() {
         title: "Expert Unavailable",
         description: error.message?.includes("429") 
           ? "AI Nutritionist is over capacity. Please try again." 
-          : "Could not analyze meal photo. Try a smaller image.",
+          : "Could not analyze meal photo. Image processing limit reached.",
       })
     } finally {
       setAnalyzing(false)
@@ -160,9 +162,11 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    const today = startOfToday()
-    const dateId = format(today, "yyyy-MM-dd")
-    const timeStr = format(new Date(), "hh:mm a")
+    
+    // Parse the selected date from the input
+    const selectedDate = parseISO(logDate)
+    const dateId = format(selectedDate, "yyyy-MM-dd")
+    const timeStr = format(new Date(), "hh:mm a") // We keep the current time of logging
     
     try {
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
@@ -185,7 +189,7 @@ export default function RecordPage() {
         createdAt: serverTimestamp()
       })
       
-      toast({ title: "Logged Successfully", description: `${result.name} recorded for today.` })
+      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${dateId}.` })
       resetAll()
     } catch (e) {
       console.error(e)
@@ -230,7 +234,7 @@ export default function RecordPage() {
               </div>
               <div className="text-center space-y-1">
                 <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Upload Photo</p>
+                <p className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-[0.2em]">Max 10MB</p>
               </div>
             </CardContent>
           </Card>
@@ -248,10 +252,22 @@ export default function RecordPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
           <section className="space-y-8">
             <Card className="rounded-[3rem] border-none shadow-premium bg-white p-8 space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
+                
+                {mode === "gallery" && !result && (
+                  <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-10">
+                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                    <input 
+                      type="date" 
+                      value={logDate}
+                      onChange={(e) => setLogDate(e.target.value)}
+                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
@@ -324,7 +340,7 @@ export default function RecordPage() {
                     </div>
 
                     <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
-                      LOG TO DASHBOARD <ChevronRight className="w-6 h-6 ml-3" />
+                      LOG TO {logDate === format(new Date(), "yyyy-MM-dd") ? 'TODAY' : logDate.toUpperCase()} <ChevronRight className="w-6 h-6 ml-3" />
                     </Button>
                   </div>
                 </Card>
