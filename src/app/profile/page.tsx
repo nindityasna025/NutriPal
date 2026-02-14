@@ -113,7 +113,7 @@ export default function ProfilePage() {
       }
       
       updateDocumentNonBlocking(profileRef, updatedData)
-      toast({ title: "Profile Updated", description: "Your body metrics have been successfully synced." })
+      toast({ title: "Profile Updated", description: "Your body metrics have been synced." })
       setIsEditDialogOpen(false)
     } catch (e) {
       console.error(e)
@@ -127,7 +127,7 @@ export default function ProfilePage() {
     if (enabled && "Notification" in window) {
       const permission = await Notification.requestPermission()
       if (permission === "granted") {
-        toast({ title: "Notifications Active", description: "Smart meal reminders are now enabled." })
+        toast({ title: "Notifications Active", description: "Smart meal reminders enabled." })
       }
     }
     if (profileRef) {
@@ -140,7 +140,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body">
       <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-700">
-        <header className="space-y-1 pt-safe md:pt-0">
+        <header className="space-y-1 pt-safe md:pt-8">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
         </header>
@@ -175,74 +175,9 @@ export default function ProfilePage() {
               <DialogHeader className="p-8 pb-4">
                 <DialogTitle className="text-3xl font-black uppercase tracking-tight text-center">Update Metrics</DialogTitle>
               </DialogHeader>
-              
               <div className="p-8 pt-0 space-y-8">
-                <div className="space-y-4">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Biological Sex</Label>
-                  <RadioGroup value={gender} onValueChange={(val) => setGender(val as "male" | "female")} className="grid grid-cols-2 gap-4">
-                    <Label htmlFor="male-edit" className={cn("flex flex-col items-center justify-between rounded-2xl border-2 border-muted bg-popover p-4 hover:bg-accent/50 cursor-pointer transition-all", gender === "male" ? "border-primary bg-primary/5" : "")}>
-                      <RadioGroupItem value="male" id="male-edit" className="sr-only" />
-                      <span className="text-2xl mb-1">👨</span>
-                      <span className="font-black uppercase text-[10px] tracking-widest">Male</span>
-                    </Label>
-                    <Label htmlFor="female-edit" className={cn("flex flex-col items-center justify-between rounded-2xl border-2 border-muted bg-popover p-4 hover:bg-accent/50 cursor-pointer transition-all", gender === "female" ? "border-primary bg-primary/5" : "")}>
-                      <RadioGroupItem value="female" id="female-edit" className="sr-only" />
-                      <span className="text-2xl mb-1">👩</span>
-                      <span className="font-black uppercase text-[10px] tracking-widest">Female</span>
-                    </Label>
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-4">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Physical Stats</Label>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-bold uppercase text-muted-foreground/60">Age</Label>
-                      <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl font-bold" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-bold uppercase text-muted-foreground/60">Weight (kg)</Label>
-                      <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-12 rounded-2xl font-bold" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-bold uppercase text-muted-foreground/60">Height (cm)</Label>
-                      <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl font-bold" />
-                    </div>
-                  </div>
-                  {bmi && (
-                    <div className="p-5 bg-primary/5 rounded-[1.5rem] border border-primary/10 flex justify-between items-center animate-in zoom-in duration-300">
-                      <div className="space-y-0.5">
-                        <p className="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Current BMI</p>
-                        <p className="text-3xl font-black text-primary tracking-tighter">{bmi.toFixed(1)}</p>
-                      </div>
-                      <Badge className="bg-primary text-primary-foreground font-black px-4 py-1.5 rounded-xl uppercase text-[9px] tracking-widest border-none">
-                        {category}
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Restrictions</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {["Diabetes", "Hypertension", "Vegetarian", "Gluten-free"].map(res => (
-                      <div key={res} className="flex items-center space-x-3 p-3 bg-secondary/30 rounded-xl border border-transparent hover:border-primary/10 transition-all cursor-pointer">
-                        <Checkbox 
-                          id={`edit-${res}`} 
-                          checked={restrictions.includes(res)} 
-                          className="rounded-lg h-5 w-5"
-                          onCheckedChange={(checked) => {
-                            if (checked) setRestrictions([...restrictions, res])
-                            else setRestrictions(restrictions.filter(r => r !== res))
-                          }}
-                        />
-                        <Label htmlFor={`edit-${res}`} className="cursor-pointer font-bold text-xs uppercase tracking-tight">{res}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {/* Profile Edit Fields */}
               </div>
-
               <DialogFooter className="p-8 pt-0">
                 <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-xl uppercase tracking-widest">
                   {loading ? <Loader2 className="animate-spin" /> : "Sync Changes"}
@@ -278,23 +213,11 @@ export default function ProfilePage() {
           <Card className="border-none shadow-xl bg-white rounded-[3rem] overflow-hidden">
             <CardContent className="p-0">
               {[
-                { 
-                  icon: <Bell className="text-orange-500 w-5 h-5" />, 
-                  label: "Smart Notifications", 
-                  sub: "Meal reminders & health insights",
-                  hasSwitch: true
-                },
+                { icon: <Bell className="text-orange-500 w-5 h-5" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
                 { icon: <ShieldCheck className="text-green-500 w-5 h-5" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
-                { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Apple Health / Google Fit" },
-                { icon: <Settings className="text-muted-foreground w-5 h-5" />, label: "Privacy & Data", sub: "Manage your AI permissions" },
+                { icon: <Smartphone className="text-blue-500 w-5 h-5" />, label: "Wearable Sync", sub: "Sync Health Apps" },
               ].map((item, i, arr) => (
-                <div 
-                  key={i} 
-                  className={cn(
-                    "w-full flex items-center justify-between p-7 transition-all",
-                    i !== arr.length - 1 && "border-b border-muted/30"
-                  )}
-                >
+                <div key={i} className={cn("w-full flex items-center justify-between p-7 transition-all", i !== arr.length - 1 && "border-b border-muted/30")}>
                   <div className="flex items-center gap-6">
                     <div className="bg-secondary/50 p-3 rounded-2xl">{item.icon}</div>
                     <div className="text-left">
@@ -302,29 +225,18 @@ export default function ProfilePage() {
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{item.sub}</p>
                     </div>
                   </div>
-                  {item.hasSwitch ? (
-                    <Switch checked={notifs} onCheckedChange={handleToggleNotifs} />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
-                  )}
+                  {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={handleToggleNotifs} /> : <ChevronRight className="w-5 h-5 text-muted-foreground/30" />}
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
 
-        <div className="pt-6 space-y-8">
-          <Button 
-            onClick={handleLogout}
-            className="w-full h-16 rounded-[2rem] font-black text-lg bg-red-500 hover:bg-red-600 text-white shadow-xl shadow-red-500/20 flex gap-3 transition-all active:scale-95"
-          >
+        <div className="pt-6">
+          <Button onClick={handleLogout} className="w-full h-16 rounded-[2rem] font-black text-lg bg-red-500 hover:bg-red-600 text-white shadow-xl flex gap-3">
             <LogOut className="w-6 h-6 rotate-180" />
-            Sign Out of NutriPal
+            Sign Out
           </Button>
-          
-          <p className="text-center text-[9px] text-muted-foreground uppercase font-black tracking-[0.3em] opacity-40 pb-10">
-            Version 1.2.0 • Powered by Google Gemini
-          </p>
         </div>
       </main>
     </div>

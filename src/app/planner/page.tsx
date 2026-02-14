@@ -53,8 +53,7 @@ export default function PlannerPage() {
         availableDeals: mockDeals
       })
 
-      // For the purpose of this demo and providing high-fidelity UI, 
-      // we use a structured result that simulates the AI's complex reasoning.
+      // Structured structured result for demo/UI purposes
       setCuratedResult([
         {
           id: 1,
@@ -67,7 +66,7 @@ export default function PlannerPage() {
           healthScore: 92,
           distance: "0.8 km",
           macros: { protein: 18, carbs: 54, fat: 12 },
-          description: "A heart-healthy choice. Soba noodles are low GI, while tofu provides complete plant-based protein. The fermented soy sauce provides probiotics.",
+          description: "A heart-healthy choice. Soba noodles are low GI, while tofu provides complete plant-based protein.",
           ingredients: ["Soba noodles", "Organic tofu", "Broccoli", "Shitake mushrooms", "Ginger soy dressing"]
         },
         {
@@ -81,7 +80,7 @@ export default function PlannerPage() {
           healthScore: 98,
           distance: "2.1 km",
           macros: { protein: 12, carbs: 42, fat: 22 },
-          description: "Rich in Monounsaturated fats from avocado which is great for heart health. Quinoa adds a nutty flavor and essential minerals.",
+          description: "Rich in Monounsaturated fats from avocado which is great for heart health.",
           ingredients: ["White quinoa", "Ripe avocado", "Red onion", "Parsley", "Lemon zest"]
         }
       ])
@@ -91,8 +90,8 @@ export default function PlannerPage() {
         variant: "destructive",
         title: "Ecosystem Busy",
         description: error.message?.includes("429") 
-          ? "Our AI is experiencing high traffic. Please wait a few seconds and try again."
-          : "We couldn't reach the AI curator right now. Please check your connection.",
+          ? "Our AI is experiencing high traffic. Please try again."
+          : "We couldn't reach the AI curator right now.",
       })
     } finally {
       setLoading(false)
@@ -129,7 +128,7 @@ export default function PlannerPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-8 animate-in fade-in duration-700 pb-24 md:pb-8">
-      <header className="space-y-1 pt-safe md:pt-0">
+      <header className="space-y-1 pt-safe md:pt-8">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Meal Curation & Deals</p>
       </header>
@@ -140,7 +139,7 @@ export default function PlannerPage() {
             <Sparkles className="w-20 h-20 mx-auto animate-pulse" />
             <div className="space-y-3 px-6">
               <h2 className="text-3xl font-black">Feeling Indecisive?</h2>
-              <p className="text-white/80 font-medium leading-relaxed">Let NutriPal analyze available deals from Grab & Gojek to suggest the best matches for your macros.</p>
+              <p className="text-white/80 font-medium leading-relaxed">Let NutriPal analyze available deals from Grab & Gojek for your macros.</p>
             </div>
             <Button onClick={handleCurate} disabled={loading} className="bg-white text-primary hover:bg-white/90 font-black h-16 px-16 rounded-[2rem] text-xl shadow-2xl active:scale-95 transition-all">
               {loading ? (
