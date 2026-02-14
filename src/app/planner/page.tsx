@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -15,6 +16,7 @@ import {
   ArrowLeft,
   RefreshCw,
   Utensils,
+  ChevronLeft,
   ChevronRight,
   Target,
   Calendar as CalendarIcon,
@@ -259,36 +261,46 @@ export default function ExplorePage() {
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col">
-            <DialogHeader className="bg-primary p-4 sm:p-5 text-foreground shrink-0 text-center rounded-t-[3rem]">
-              <DialogTitle className="text-base font-black uppercase tracking-widest text-center">AI Curation: Delivery Hub</DialogTitle>
+            <DialogHeader className="bg-primary p-4 sm:p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+              {/* Left: Back Button */}
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsDeliveryOpen(false)}
+                className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/20"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+
+              {/* Center: Title */}
+              <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">
+                AI CURATION: DELIVERY HUB
+              </DialogTitle>
+
+              {/* Right: Date & Time */}
+              <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
+                <div className="flex items-center gap-2 border-r border-foreground/10 pr-3">
+                  <CalendarIcon className="w-3.5 h-3.5 text-foreground" />
+                  <input 
+                    type="date" 
+                    value={targetDate} 
+                    onChange={e => setTargetDate(e.target.value)} 
+                    className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24 text-foreground cursor-pointer" 
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 text-foreground" />
+                  <input 
+                    type="time" 
+                    value={targetTime} 
+                    onChange={e => setTargetTime(e.target.value)} 
+                    className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-14 text-foreground cursor-pointer" 
+                  />
+                </div>
+              </div>
             </DialogHeader>
             <div className="p-4 sm:p-6 overflow-hidden flex-1 flex flex-col">
               <div className="space-y-4 flex-1 flex flex-col overflow-hidden">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 shrink-0">
-                  <h2 className="font-black text-lg tracking-tighter uppercase text-foreground">Top Matches</h2>
-                  <div className="flex items-center gap-3 bg-secondary rounded-full px-4 h-10 border-2 border-border shadow-sm">
-                    <div className="flex items-center gap-2 border-r-2 border-border pr-3">
-                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                      <input 
-                        type="date" 
-                        value={targetDate} 
-                        onChange={e => setTargetDate(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24 text-foreground" 
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
-                      <input 
-                        type="time" 
-                        value={targetTime} 
-                        onChange={e => setTargetTime(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-14 text-foreground" 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto pr-1 no-scrollbar">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto pr-1 no-scrollbar pt-2">
                   {loading ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-8 space-y-3">
                       <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -364,7 +376,16 @@ export default function ExplorePage() {
           </DialogTrigger>
           <DialogContent className="max-w-[70rem] rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[96vw] md:left-[calc(50%+8rem)] max-h-[94vh] flex flex-col">
             <DialogHeader className="bg-accent p-3 sm:p-4 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
-              <DialogTitle className="text-sm font-black uppercase tracking-widest text-left">Daily Smart Menu</DialogTitle>
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest text-foreground hover:bg-white/20"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 mr-2" /> Back
+                </Button>
+                <DialogTitle className="text-[11px] font-black uppercase tracking-widest">Daily Smart Menu</DialogTitle>
+              </div>
               {menuPlan && !loading && (
                 <Button onClick={handleAddAll} className="h-9 px-5 rounded-[0.75rem] bg-white text-foreground hover:bg-white/90 font-black uppercase text-[8px] tracking-widest shadow-xl border-none">
                    <Plus className="w-3 h-3 mr-2" /> Add All to Plan
@@ -396,7 +417,7 @@ export default function ExplorePage() {
                 ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
                   return (
-                    <Card key={type} className="rounded-[1.75rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col">
+                    <Card key={type} className="rounded-[1.75rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col max-w-[320px] mx-auto w-full">
                       <CardContent className="p-4 flex flex-col h-full space-y-3">
                         <div className="flex-1 space-y-3 text-left">
                           <div className="flex items-center justify-between">
