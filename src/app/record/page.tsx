@@ -178,8 +178,8 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32 pt-safe min-h-screen relative">
-      <header className="space-y-1 animate-in fade-in duration-700">
+    <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
+      <header className="space-y-1 pt-safe md:pt-0 animate-in fade-in duration-700">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           Instant AI Expert Analysis

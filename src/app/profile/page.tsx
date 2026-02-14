@@ -139,8 +139,13 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-24 bg-background font-body">
-      <main className="max-w-3xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-700">
-        <section className="flex flex-col items-center text-center space-y-6 pt-10 relative">
+      <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-700">
+        <header className="space-y-1 pt-safe md:pt-0">
+          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
+        </header>
+
+        <section className="flex flex-col items-center text-center space-y-6 pt-4 relative">
           <Avatar className="w-32 h-32 border-[6px] border-white shadow-2xl">
             <AvatarImage src={user.photoURL || ""} />
             <AvatarFallback className="bg-primary text-primary-foreground text-4xl font-black uppercase">
@@ -149,7 +154,7 @@ export default function ProfilePage() {
           </Avatar>
           
           <div className="space-y-2">
-            <h1 className="text-4xl font-black tracking-tight uppercase">{user.displayName || "Demo User"}</h1>
+            <h2 className="text-4xl font-black tracking-tight uppercase">{user.displayName || "Demo User"}</h2>
             <div className="flex justify-center gap-2">
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-widest">
                 Pro Member
@@ -162,7 +167,7 @@ export default function ProfilePage() {
 
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="absolute top-10 right-0 rounded-full h-12 w-12 p-0 border-primary/20 bg-white shadow-sm hover:bg-primary/5">
+              <Button variant="outline" className="absolute top-0 right-0 rounded-full h-12 w-12 p-0 border-primary/20 bg-white shadow-sm hover:bg-primary/5">
                 <Edit2 className="w-5 h-5 text-primary" />
               </Button>
             </DialogTrigger>

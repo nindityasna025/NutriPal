@@ -128,13 +128,10 @@ export default function PlannerPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-700 pb-24 md:pb-8">
-      <header className="space-y-2 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full text-primary font-bold text-xs uppercase tracking-widest">
-          <Sparkles className="w-3 h-3" /> Decision Fatigue Relief
-        </div>
-        <h1 className="text-4xl font-black tracking-tight uppercase">AI Meal Curation</h1>
-        <p className="text-muted-foreground font-medium">NutriPal finds the best healthy deals based on your profile.</p>
+    <div className="max-w-5xl mx-auto px-8 py-8 space-y-8 animate-in fade-in duration-700 pb-24 md:pb-8">
+      <header className="space-y-1 pt-safe md:pt-0">
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Meal Curation & Deals</p>
       </header>
 
       {!curatedResult ? (
@@ -157,7 +154,7 @@ export default function PlannerPage() {
         </Card>
       ) : (
         <div className="space-y-6">
-          <div className="flex items-center justify-between px-4">
+          <div className="flex items-center justify-between px-2">
             <h2 className="font-black text-xs text-muted-foreground uppercase tracking-widest">Top Matches Found</h2>
             <Button variant="ghost" size="sm" onClick={() => setCuratedResult(null)} className="text-[10px] font-black uppercase tracking-widest">Reset</Button>
           </div>

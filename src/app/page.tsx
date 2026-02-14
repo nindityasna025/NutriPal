@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -174,9 +175,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32">
-      <header className="space-y-1 pt-safe">
-        <h1 className="text-5xl font-black tracking-tighter text-foreground">Today</h1>
+    <div className="max-w-5xl mx-auto px-8 py-8 md:py-8 space-y-12 pb-32">
+      <header className="space-y-1 pt-safe md:pt-0">
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Today</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           {format(today, "EEEE, MMMM do")}
         </p>
