@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -38,11 +37,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-// Standardized Macro Colors
+// Standardized Macro Colors - Airy Soft Palette
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Forest Green
+  protein: "hsl(var(--primary))", // Pastel Green
   carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Teal
+  fat: "hsl(var(--accent))",     // Soft Lime
 }
 
 // Scraped Delivery Database (Mocked for Demo)
@@ -173,7 +172,7 @@ export default function ExplorePage() {
       window.open(url, '_blank')
     }
 
-    toast({ title: "Schedule Synced", description: `${item.name} added to your plan for ${dateId}.` })
+    toast({ title: "Schedule Synced", description: `${item.name} added to your plan.` })
     
     setIsDeliveryOpen(false)
     setIsMenuOpen(false)
@@ -205,129 +204,125 @@ export default function ExplorePage() {
         source: "planner",
         macros: item.macros,
         healthScore: 90,
-        description: item.description || "Part of your AI-generated daily plan.",
-        expertInsight: "Curated daily systematic choice.",
+        description: item.description || "Part of your daily curated plan.",
+        expertInsight: "Daily systematic recommendation.",
         createdAt: serverTimestamp()
       })
     });
 
-    toast({ 
-      title: "Full Day Scheduled", 
-      description: `All 3 meals have been added to your record for ${dateId}.` 
-    })
-    
+    toast({ title: "Full Day Planned", description: `All meals synced for ${dateId}.` })
     setIsMenuOpen(false)
     router.push("/")
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
-        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Smart Decision Hub</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Explore</h1>
+        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">Smart Decision Hub</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4">
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-primary/10 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-premium shrink-0">
-                 <Bike className="w-12 h-12 text-primary" />
+            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
+              <div className="w-24 h-24 bg-primary/20 rounded-[2.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
+                 <Bike className="w-12 h-12 text-primary-foreground/70" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-black uppercase leading-tight">Delivery Hub</h3>
-                <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-xs">
-                  Compare GrabFood &amp; GoFood matches for your profile metrics.
+                <h3 className="text-2xl font-bold tracking-tight">Delivery Hub</h3>
+                <p className="text-muted-foreground font-medium text-sm leading-relaxed max-w-xs">
+                  Real-time curation from GrabFood & GoFood based on your profile.
                 </p>
               </div>
-              <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-primary shadow-lg shadow-primary/20">Analyze Ecosystem</Button>
+              <Button className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-[11px] bg-primary shadow-sm">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-primary p-6 text-primary-foreground shrink-0 text-center relative rounded-t-[3rem]">
-              <DialogTitle className="text-xl font-black uppercase tracking-widest text-center">AI Meal Curation by Delivery Hub</DialogTitle>
+            <DialogHeader className="bg-primary p-7 text-primary-foreground shrink-0 text-center relative rounded-t-[3rem]">
+              <DialogTitle className="text-lg font-bold uppercase tracking-widest text-center">AI Curation: Delivery Hub</DialogTitle>
             </DialogHeader>
-            <div className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
-                  <h2 className="font-black text-lg uppercase tracking-tight text-left w-full sm:w-auto">Top Profile Matches</h2>
-                  <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-5 h-10 border border-primary/10 shadow-inner">
-                    <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
-                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+            <div className="p-8 overflow-y-auto flex-1">
+              <div className="space-y-10">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
+                  <h2 className="font-bold text-xl tracking-tight text-left w-full sm:w-auto">Top Matches</h2>
+                  <div className="flex items-center gap-4 bg-secondary/60 rounded-full px-6 h-12 border border-muted/50 shadow-inner">
+                    <div className="flex items-center gap-2.5 border-r border-muted/30 pr-4">
+                      <CalendarIcon className="w-4 h-4 text-primary" />
                       <input 
                         type="date" 
                         value={targetDate} 
                         onChange={e => setTargetDate(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-26" 
+                        className="bg-transparent border-none text-[10px] font-bold uppercase tracking-widest focus:ring-0 w-28" 
                       />
                     </div>
-                    <div className="flex items-center gap-2 pl-1">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
+                    <div className="flex items-center gap-2.5 pl-2">
+                      <Clock className="w-4 h-4 text-primary" />
                       <input 
                         type="time" 
                         value={targetTime} 
                         onChange={e => setTargetTime(e.target.value)} 
-                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                        className="bg-transparent border-none text-[10px] font-bold uppercase tracking-widest focus:ring-0 w-16" 
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {loading ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
-                      <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Analyzing Ecosystem...</p>
+                      <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Scanning Platforms...</p>
                     </div>
                   ) : deliveryResult?.map((item) => (
-                    <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-4 overflow-hidden flex flex-col active:scale-[0.99]">
-                      <CardContent className="p-6 flex flex-col h-full space-y-4">
-                        <div className="space-y-4 flex-1 text-left">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 text-primary font-black text-[9px] uppercase tracking-widest">
-                              <TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score
+                    <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-8 overflow-hidden flex flex-col active:scale-[0.99]">
+                      <CardContent className="p-8 flex flex-col h-full space-y-6">
+                        <div className="space-y-5 flex-1 text-left">
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 text-accent font-bold text-[10px] uppercase tracking-widest">
+                              <TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Rank
                             </div>
-                            <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{item.name}</h3>
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
+                            <h3 className="text-xl font-bold tracking-tight leading-tight">{item.name}</h3>
+                            <p className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-widest">{item.restaurant}</p>
                           </div>
                           
-                          <div className="flex gap-1.5 flex-wrap">
-                            <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-black uppercase text-[8px]">+{item.calories} kcal</Badge>
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge className="rounded-xl px-4 py-1 bg-primary/15 text-primary-foreground border-none font-bold text-[9px] uppercase">+{item.calories} kcal</Badge>
                             {item.tags.map((tag: string, i: number) => (
-                              <Badge key={i} variant="outline" className="rounded-xl px-3 py-1 border-muted-foreground/10 text-muted-foreground font-black uppercase text-[8px]">{tag}</Badge>
+                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1 border-muted/50 text-muted-foreground font-bold text-[9px] uppercase">{tag}</Badge>
                             ))}
                           </div>
 
-                          <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                            <p className="text-[10px] font-medium leading-relaxed italic text-muted-foreground text-left">"{item.reasoning}"</p>
+                          <div className="bg-primary/5 p-5 rounded-[1.5rem] border border-primary/10">
+                            <p className="text-[12px] font-medium leading-relaxed italic text-muted-foreground">"{item.reasoning}"</p>
                           </div>
                         </div>
 
-                        <div className="pt-4 border-t border-muted/20 space-y-4">
-                          <div className="grid grid-cols-3 gap-2">
-                             <div className="space-y-0.5 text-left">
-                               <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
-                               <p className="text-base font-black" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
+                        <div className="pt-6 border-t border-muted/30 space-y-5">
+                          <div className="grid grid-cols-3 gap-3">
+                             <div className="space-y-1 text-left">
+                               <p className="text-[9px] font-bold text-muted-foreground uppercase">Protein</p>
+                               <p className="text-lg font-bold" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
                              </div>
-                             <div className="space-y-0.5 text-left">
-                               <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                               <p className="text-base font-black" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
+                             <div className="space-y-1 text-left">
+                               <p className="text-[9px] font-bold text-muted-foreground uppercase">Carbs</p>
+                               <p className="text-lg font-bold" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
                              </div>
-                             <div className="space-y-0.5 text-left">
-                               <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
-                               <p className="text-base font-black" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
+                             <div className="space-y-1 text-left">
+                               <p className="text-[9px] font-bold text-muted-foreground uppercase">Fat</p>
+                               <p className="text-lg font-bold" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
                              </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
                               {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
                               {item.platform}
                             </div>
-                            <p className="text-xl font-black tracking-tighter">{item.price}</p>
+                            <p className="text-2xl font-bold tracking-tight">{item.price}</p>
                           </div>
 
-                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-11 rounded-xl font-black uppercase tracking-widest text-[9px] shadow-premium">Order &amp; Sync</Button>
+                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -340,102 +335,102 @@ export default function ExplorePage() {
 
         <Dialog open={isMenuOpen} onOpenChange={(open) => { setIsMenuOpen(open); if(open) handleGenerateMenu(); }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-accent/10 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-premium shrink-0">
+            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
+              <div className="w-24 h-24 bg-accent/15 rounded-[2.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
                  <Sparkles className="w-12 h-12 text-accent" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-black uppercase leading-tight">Smart Menu</h3>
-                <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-xs">
-                  Generate a randomized daily plan with platform sync.
+                <h3 className="text-2xl font-bold tracking-tight">Smart Menu</h3>
+                <p className="text-muted-foreground font-medium text-sm leading-relaxed max-w-xs">
+                  Generate a randomized daily plan with seamless platform integration.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-accent/10">Generate Plan</Button>
+              <Button variant="secondary" className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-sm bg-accent hover:opacity-90">Generate Plan</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-accent p-6 text-accent-foreground shrink-0 text-center rounded-t-[3rem] flex flex-row items-center justify-between">
-              <DialogTitle className="text-xl font-black uppercase tracking-widest text-left">Smart Menu Generation</DialogTitle>
+            <DialogHeader className="bg-accent p-7 text-accent-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+              <DialogTitle className="text-lg font-bold uppercase tracking-widest text-left">Daily Smart Menu</DialogTitle>
               {menuPlan && !loading && (
-                <Button onClick={handleAddAll} className="h-10 px-6 rounded-xl bg-white text-accent hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
+                <Button onClick={handleAddAll} className="h-11 px-6 rounded-2xl bg-white text-accent hover:bg-white/90 font-bold uppercase text-[10px] tracking-widest shadow-md">
                    <Plus className="w-4 h-4 mr-2" /> Add All to Planner
                 </Button>
               )}
             </DialogHeader>
-            <div className="p-4 sm:p-6 flex-1 flex flex-col overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 mb-4 shrink-0">
-                <h2 className="font-black text-lg uppercase tracking-tight text-left w-full sm:w-auto">Matched Menu Templates</h2>
-                <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-6 h-10 border border-primary/10 shadow-inner">
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+            <div className="p-8 flex-1 flex flex-col overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2 mb-8 shrink-0">
+                <h2 className="font-bold text-xl tracking-tight text-left w-full sm:w-auto">Plan Your Day</h2>
+                <div className="flex items-center gap-4 bg-secondary/60 rounded-full px-7 h-12 border border-muted/50 shadow-inner">
+                  <div className="flex items-center gap-2.5">
+                    <CalendarIcon className="w-4 h-4 text-primary" />
                     <input 
                       type="date" 
                       value={targetDate} 
                       onChange={e => setTargetDate(e.target.value)} 
-                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-30" 
+                      className="bg-transparent border-none text-[10px] font-bold uppercase tracking-widest focus:ring-0 w-32" 
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
-                    <Loader2 className="w-10 h-10 animate-spin text-accent" />
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Curating Daily Plan...</p>
+                    <Loader2 className="w-12 h-12 animate-spin text-accent" />
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Designing Menu...</p>
                   </div>
                 ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
                   return (
-                    <Card key={type} className="rounded-[2rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-2 overflow-hidden flex flex-col">
-                      <CardContent className="p-4 sm:p-5 flex flex-col h-full space-y-3">
-                        <div className="flex-1 space-y-3 text-left">
+                    <Card key={type} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-accent/5 hover:ring-4 overflow-hidden flex flex-col">
+                      <CardContent className="p-6 flex flex-col h-full space-y-4">
+                        <div className="flex-1 space-y-4 text-left">
                           <div className="flex items-center justify-between">
-                            <Badge variant="secondary" className="bg-primary/10 text-primary uppercase text-[8px] font-black tracking-[0.2em] px-2 py-0.5 rounded-lg">
+                            <Badge variant="secondary" className="bg-accent/15 text-accent-foreground uppercase text-[9px] font-bold tracking-widest px-3 py-1 rounded-xl">
                               {type}
                             </Badge>
-                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-7 w-7">
-                              <RefreshCw className="w-3.5 h-3.5" />
+                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-8 w-8">
+                              <RefreshCw className="w-4 h-4" />
                             </Button>
                           </div>
                           
-                          <div className="space-y-0.5">
-                            <h3 className="text-sm sm:text-base font-black tracking-tight uppercase leading-tight line-clamp-1">{meal.name}</h3>
-                            <p className="text-[9px] font-medium leading-relaxed text-muted-foreground line-clamp-2">{meal.description}</p>
+                          <div className="space-y-1.5">
+                            <h3 className="text-base font-bold tracking-tight leading-tight line-clamp-1">{meal.name}</h3>
+                            <p className="text-[11px] font-medium leading-relaxed text-muted-foreground line-clamp-2">{meal.description}</p>
                           </div>
 
-                          <div className="grid grid-cols-3 gap-1 border-y border-muted/20 py-3">
-                            <div className="space-y-0.5 text-left">
-                              <p className="text-[7px] font-black text-muted-foreground uppercase">Protein</p>
-                              <p className="text-sm font-black" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
+                          <div className="grid grid-cols-3 gap-2 border-y border-muted/30 py-4">
+                            <div className="space-y-1 text-left">
+                              <p className="text-[8px] font-bold text-muted-foreground uppercase">Protein</p>
+                              <p className="text-base font-bold" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
                             </div>
-                            <div className="space-y-0.5 text-left">
-                              <p className="text-[7px] font-black text-muted-foreground uppercase">Carbs</p>
-                              <p className="text-sm font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
+                            <div className="space-y-1 text-left">
+                              <p className="text-[8px] font-bold text-muted-foreground uppercase">Carbs</p>
+                              <p className="text-base font-bold" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
                             </div>
-                            <div className="space-y-0.5 text-left">
-                              <p className="text-[7px] font-black text-muted-foreground uppercase">Fat</p>
-                              <p className="text-sm font-black" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
+                            <div className="space-y-1 text-left">
+                              <p className="text-[8px] font-bold text-muted-foreground uppercase">Fat</p>
+                              <p className="text-base font-bold" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
                             </div>
                           </div>
 
-                          <div className="bg-secondary/20 py-2 rounded-xl text-center">
-                            <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest">Energy</p>
-                            <p className="text-lg font-black tracking-tighter text-foreground">+{meal.calories} kcal</p>
+                          <div className="bg-secondary/30 py-3 rounded-2xl text-center">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Energy Target</p>
+                            <p className="text-xl font-bold tracking-tight">+{meal.calories} kcal</p>
                           </div>
                         </div>
 
-                        <div className="pt-2 space-y-2">
-                          <div className="grid grid-cols-2 gap-1.5">
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-lg h-8 text-[7px] font-black uppercase tracking-widest">
+                        <div className="pt-3 space-y-2.5">
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600/90 hover:bg-green-700 text-white rounded-xl h-9 text-[8px] font-bold uppercase tracking-widest">
                               GrabFood
                             </Button>
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg h-8 text-[7px] font-black uppercase tracking-widest">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600/90 hover:bg-emerald-700 text-white rounded-xl h-9 text-[8px] font-bold uppercase tracking-widest">
                               GoFood
                             </Button>
                           </div>
-                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-lg h-8 text-[7px] font-black uppercase tracking-widest border-primary/20 text-primary hover:bg-primary/5">
-                            <Plus className="w-3 h-3 mr-1" /> Cook Myself
+                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-9 text-[8px] font-bold uppercase tracking-widest border-muted/50 text-muted-foreground hover:bg-secondary">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Cook Myself
                           </Button>
                         </div>
                       </CardContent>

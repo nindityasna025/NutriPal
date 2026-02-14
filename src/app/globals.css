@@ -4,37 +4,38 @@
 
 @layer base {
   :root {
-    /* NutriPal Design Philosophy: Health, Fresh, Trust */
-    /* Hybrid: Apple Cleanliness + Google Structure */
-    --background: 33 30% 97%; /* Warm White Cream */
-    --foreground: 142 76% 10%; /* Deep Green for maximum readability */
+    /* NutriPal Super-Premium Soft Minimal Theme */
+    /* Inspired by Apple HIG & Material Design */
     
-    --card: 0 0% 100%; /* Pure white for high contrast */
-    --card-foreground: 142 76% 10%;
+    --background: 45 33% 97%; /* #FAF8F2 - White-Cream Premium */
+    --foreground: 142 16% 14%; /* #1E2A22 - Deep Green-Black */
     
-    --popover: 33 30% 97%;
-    --popover-foreground: 142 76% 10%;
+    --card: 0 0% 100%; /* #FFFFFF - Pure White Surface */
+    --card-foreground: 142 16% 14%;
     
-    --primary: 142 76% 24%; /* Natural Forest Green */
-    --primary-foreground: 33 30% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 16% 14%;
     
-    --secondary: 142 20% 92%; /* Soft Secondary Green */
-    --secondary-foreground: 142 76% 20%;
+    --primary: 143 26% 81%; /* #BFDCCB - Pastel Green Brand */
+    --primary-foreground: 142 16% 14%;
     
-    --muted: 33 20% 92%;
-    --muted-foreground: 142 10% 40%;
+    --secondary: 143 30% 93%; /* #E6F3EC - Very Light Green */
+    --secondary-foreground: 142 16% 14%;
     
-    --accent: 162 44% 45%; /* Soft Teal Accent for health markers */
-    --accent-foreground: 162 100% 10%;
+    --muted: 96 11% 93%; /* #ECEFEA - Subtle Grey-Green Divider */
+    --muted-foreground: 143 7% 43%; /* #66756C */
+    
+    --accent: 66 73% 66%; /* #DCE96A - Soft Premium Lime */
+    --accent-foreground: 142 16% 14%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 33 20% 88%;
-    --input: 33 20% 88%;
-    --ring: 142 76% 24%;
+    --border: 96 11% 93%;
+    --input: 96 11% 93%;
+    --ring: 143 26% 81%;
     
-    --radius: 1.75rem; /* Smoother, more premium corners */
+    --radius: 1.25rem; /* 20px for "lembut & mahal" feel */
   }
 }
 
@@ -43,27 +44,28 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-primary/20 overflow-x-hidden;
+    @apply bg-background text-foreground font-body antialiased selection:bg-primary/30 overflow-x-hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-black tracking-tight text-foreground uppercase;
+    @apply font-headline font-semibold tracking-tight text-foreground;
   }
+  h1 { @apply text-3xl md:text-4xl; letter-spacing: -0.04em; }
+  h2 { @apply text-2xl; letter-spacing: -0.03em; }
 }
 
-/* Premium Tactile Depth - Apple Style */
+/* Premium Tactile Depth */
 .shadow-premium {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 10px 30px rgba(30, 42, 34, 0.05);
 }
 
 .shadow-premium-lg {
-  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 60px -15px rgba(30, 42, 34, 0.08);
 }
 
 .glass {
-  @apply backdrop-blur-2xl bg-white/70;
+  @apply backdrop-blur-2xl bg-white/80;
 }
 
-/* iPhone Safe Areas */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
