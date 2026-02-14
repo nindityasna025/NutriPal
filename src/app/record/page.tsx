@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -32,7 +33,6 @@ export default function RecordPage() {
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   
-  // Initialize date and time after hydration
   const [logDate, setLogDate] = useState<string>("")
   const [logTime, setLogTime] = useState<string>("")
   
@@ -160,7 +160,14 @@ export default function RecordPage() {
       setResult(output)
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Error", description: "Could not analyze meal photo." })
+      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
+      toast({ 
+        variant: "destructive", 
+        title: isQuotaError ? "AI Capacity Reached" : "AI Error", 
+        description: isQuotaError 
+          ? "Our nutritionist AI is currently over capacity. Please try again in 20 seconds." 
+          : "Could not analyze meal photo." 
+      })
     } finally {
       setAnalyzing(false)
     }

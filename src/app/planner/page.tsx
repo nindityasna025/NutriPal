@@ -89,7 +89,14 @@ export default function ExplorePage() {
       ])
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Unavailable", description: "The Delivery AI curator is currently over capacity." })
+      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
+      toast({ 
+        variant: "destructive", 
+        title: isQuotaError ? "AI Hub Overloaded" : "AI Unavailable", 
+        description: isQuotaError 
+          ? "Our delivery curator is taking a break. Try again in a few seconds." 
+          : "The Delivery AI curator is currently over capacity." 
+      })
     } finally {
       setLoadingDelivery(false)
     }
@@ -111,7 +118,14 @@ export default function ExplorePage() {
       setAiPlan(result)
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Hub Busy", description: "Daily plan generation failed. Please try again in a moment." })
+      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
+      toast({ 
+        variant: "destructive", 
+        title: isQuotaError ? "AI Plan Limit Reached" : "AI Hub Busy", 
+        description: isQuotaError 
+          ? "Generating a whole menu takes a lot of energy! Please wait a moment before trying again." 
+          : "Daily plan generation failed. Please try again in a moment." 
+      })
     } finally {
       setGeneratingPlan(false)
     }
@@ -245,7 +259,7 @@ export default function ExplorePage() {
                     <div className="flex-1 space-y-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health</div>
-                        <h3 className="text-xl font-black tracking-tight uppercase">{item.name}</h3>
+                        <h3 className="text-xl font-black tracking-tight uppercase text-left">{item.name}</h3>
                       </div>
                       <div className="flex gap-2">
                         <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-bold uppercase text-[8px]">+{item.calories} kcal</Badge>
@@ -273,7 +287,7 @@ export default function ExplorePage() {
                         <div className="p-3 bg-yellow-50 rounded-xl text-center"><p className="text-[8px] font-black text-yellow-600 uppercase">Cho</p><p className="text-lg font-black">{item.macros.carbs}g</p></div>
                         <div className="p-3 bg-blue-50 rounded-xl text-center"><p className="text-[8px] font-black text-blue-600 uppercase">Fat</p><p className="text-lg font-black">{item.macros.fat}g</p></div>
                       </div>
-                      <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80">"{item.description}"</p>
+                      <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80 text-left">"{item.description}"</p>
                     </div>
                   )}
                 </CardContent>
@@ -307,12 +321,12 @@ export default function ExplorePage() {
                           <Badge className="bg-green-500 text-white border-none text-[8px] font-black uppercase px-2 py-0.5">Delivery</Badge>
                         )}
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1 text-left">
                         <h4 className="font-black text-lg uppercase leading-tight group-hover:text-primary transition-colors">{meal.data.name}</h4>
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.data.calories} kcal • {meal.data.macros.protein}g Protein</p>
                       </div>
                       {meal.data.deliveryMatch?.isAvailable && (
-                        <div className="p-4 bg-white/70 rounded-xl border border-green-100 shadow-sm">
+                        <div className="p-4 bg-white/70 rounded-xl border border-green-100 shadow-sm text-left">
                           <p className="text-[8px] font-black uppercase text-green-600 mb-1 tracking-widest">{meal.data.deliveryMatch.platform}</p>
                           <p className="text-[10px] font-bold truncate text-foreground">{meal.data.deliveryMatch.restaurant}</p>
                         </div>

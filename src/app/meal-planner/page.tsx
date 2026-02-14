@@ -202,7 +202,14 @@ export default function MealPlannerPage() {
       setActiveRecipe(result)
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Error", description: "Could not fetch recipe instructions." })
+      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
+      toast({ 
+        variant: "destructive", 
+        title: isQuotaError ? "AI Capacity Reached" : "AI Error", 
+        description: isQuotaError 
+          ? "Our recipe chef is busy serving others. Please try again in 20 seconds." 
+          : "Could not fetch recipe instructions." 
+      })
       setIsRecipeDialogOpen(false)
     } finally {
       setGeneratingRecipe(false)
@@ -326,7 +333,7 @@ export default function MealPlannerPage() {
                          </div>
                          <div className="space-y-2 flex-1">
                             <div className="flex items-center gap-4">
-                              <div className="space-y-1">
+                              <div className="space-y-1 text-left">
                                 <div className="flex items-center gap-2.5">
                                   <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
                                 </div>
@@ -371,7 +378,7 @@ export default function MealPlannerPage() {
                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
                   <Sparkles className="w-8 h-8 text-primary" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5">Feeling Indecisive?</p>
                   <h3 className="text-2xl font-black uppercase leading-tight">AI Decision Hub</h3>
                   <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm">
@@ -403,7 +410,6 @@ export default function MealPlannerPage() {
                 </div>
               ) : activeRecipe ? (
                 <div className="space-y-6">
-                  {/* AI Insight Card */}
                   <Card className="border-none bg-primary/5 rounded-[1.5rem] shadow-sm">
                     <CardContent className="p-6 space-y-3 text-left">
                       <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
@@ -415,7 +421,6 @@ export default function MealPlannerPage() {
                     </CardContent>
                   </Card>
 
-                  {/* Ingredients Card */}
                   <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
                     <CardContent className="p-6 space-y-4 text-left">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
@@ -432,7 +437,6 @@ export default function MealPlannerPage() {
                     </CardContent>
                   </Card>
 
-                  {/* Instructions Card */}
                   <Card className="border-none bg-white rounded-[1.5rem] shadow-sm border border-border/50">
                     <CardContent className="p-6 space-y-4 text-left">
                       <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
