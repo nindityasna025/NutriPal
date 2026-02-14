@@ -1,8 +1,8 @@
 
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect, useRef, useMemo } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,13 +12,16 @@ import {
   Camera, 
   Sparkles, 
   Loader2, 
-  CheckCircle2, 
   ChevronRight,
   Calendar as CalendarIcon,
   Trophy,
-  Info
+  Info,
+  Target,
+  ArrowUpCircle,
+  CheckCircle,
+  ArrowDownCircle
 } from "lucide-react"
-import { useFirestore, useUser } from "@/firebase"
+import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
 import { format, startOfToday } from "date-fns"
 import Image from "next/image"
@@ -40,6 +43,13 @@ export default function RecordPage() {
   const { user } = useUser()
   const firestore = useFirestore()
 
+  // Fetch User Profile for BMI logic
+  const profileRef = useMemoFirebase(() => 
+    user ? doc(firestore, "users", user.uid, "profile", "main") : null, 
+    [user, firestore]
+  )
+  const { data: profile } = useDoc(profileRef)
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -60,6 +70,7 @@ export default function RecordPage() {
   const handleAnalyze = () => {
     if (!file) return
     setAnalyzing(true)
+    
     // Simulated AI Analysis
     setTimeout(() => {
       setResult({
@@ -69,7 +80,6 @@ export default function RecordPage() {
         healthScore: 62,
         description: "This meal provides a good mix of carbohydrates from the noodles, moderate protein from egg and veggies, and some fats.",
         ingredients: ["Stir fried noodles", "Carrot", "Egg", "Bean sprouts", "Soy sauce"],
-        tips: "Provides roughly 22% of your daily energy needs. Consider drinking extra water."
       })
       setAnalyzing(false)
     }, 2000)
@@ -109,6 +119,46 @@ export default function RecordPage() {
       console.error(e)
     }
   }
+
+  // Personalized Suggestion Logic based on BMI Category
+  const personalizedSuggestion = useMemo(() => {
+    if (!profile) return null;
+    
+    const category = profile.bmiCategory || "Ideal";
+    
+    if (category === "Underweight") {
+      return {
+        title: "Weight Gain Target",
+        goal: "Calorie Surplus Required",
+        suggestion: "Your focus should be on nutrient-dense foods. Aim for higher healthy fats (Avocados, Nuts) and complex carbs to support healthy weight gain.",
+        icon: <ArrowUpCircle className="text-blue-500 w-6 h-6" />,
+        color: "bg-blue-50",
+        textColor: "text-blue-700",
+        borderColor: "border-blue-200"
+      }
+    } else if (category === "Ideal") {
+      return {
+        title: "Maintenance Goal",
+        goal: "Caloric Equilibrium",
+        suggestion: "You are in the ideal zone! Maintain a balanced macro ratio (40% Carbs, 30% Protein, 30% Fat) to stay fit and energized.",
+        icon: <CheckCircle className="text-primary w-6 h-6" />,
+        color: "bg-primary/5",
+        textColor: "text-primary",
+        borderColor: "border-primary/20"
+      }
+    } else {
+      // Overweight or Obese
+      return {
+        title: "Weight Loss Goal",
+        goal: "Calorie Deficit Focus",
+        suggestion: "To support weight loss, prioritize lean protein to protect muscle mass while significantly reducing simple carbs and added sugars.",
+        icon: <ArrowDownCircle className="text-red-500 w-6 h-6" />,
+        color: "bg-red-50",
+        textColor: "text-red-700",
+        borderColor: "border-red-200"
+      }
+    }
+  }, [profile]);
 
   if (!mounted) return null
 
@@ -177,9 +227,30 @@ export default function RecordPage() {
                   <div className="p-4 bg-blue-50 rounded-2xl text-center"><p className="text-[10px] font-black text-blue-600 uppercase">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
                 </div>
 
+                {/* Personalized Suggestion Section */}
+                {personalizedSuggestion && (
+                  <div className={cn("p-6 rounded-[2rem] border space-y-4", personalizedSuggestion.color, personalizedSuggestion.borderColor)}>
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                         {personalizedSuggestion.icon}
+                         <span className={cn("text-xs font-black uppercase tracking-widest", personalizedSuggestion.textColor)}>
+                           {personalizedSuggestion.title}
+                         </span>
+                       </div>
+                       <Badge className={cn("font-black uppercase text-[8px] tracking-tighter px-3 border-none", personalizedSuggestion.textColor === "text-primary" ? "bg-primary text-white" : personalizedSuggestion.color.replace('bg-', 'bg-').replace('50', '200'))}>
+                         Target Mode: {profile?.bmiCategory || "Ideal"}
+                       </Badge>
+                    </div>
+                    <p className="text-sm font-bold leading-tight">{personalizedSuggestion.goal}</p>
+                    <p className="text-xs font-medium text-foreground/70 leading-relaxed italic">
+                      "{personalizedSuggestion.suggestion}"
+                    </p>
+                  </div>
+                )}
+
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2"><Trophy className="text-primary w-5 h-5" /><span className="text-lg font-black uppercase tracking-tight">Health Benefit</span></div>
+                     <div className="flex items-center gap-2"><Trophy className="text-primary w-5 h-5" /><span className="text-lg font-black uppercase tracking-tight">Health Score</span></div>
                      <div className="flex items-center gap-4">
                         <span className="text-2xl font-black text-primary">{result.healthScore}/100</span>
                         <Progress value={result.healthScore} className="w-24 h-2" />
@@ -188,11 +259,11 @@ export default function RecordPage() {
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground"><Info className="w-3 h-3" /> Description</div>
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground"><Info className="w-3 h-3" /> Analysis Detail</div>
                       <p className="text-sm font-medium leading-relaxed italic pr-4">"{result.description}"</p>
                     </div>
                     <div className="space-y-3">
-                       <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients</p>
+                       <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients Detected</p>
                        <div className="flex flex-wrap gap-2">
                           {result.ingredients.map((ing: string, i: number) => (
                             <Badge key={i} variant="secondary" className="px-4 py-1.5 rounded-xl font-bold bg-secondary/50 border-none">{ing}</Badge>
