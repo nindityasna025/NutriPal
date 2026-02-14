@@ -7,25 +7,19 @@ import {
   Plus, 
   Utensils, 
   Trash2, 
-  Edit2, 
   ChevronLeft, 
   ChevronRight, 
   Loader2, 
   Sparkles, 
-  CookingPot, 
   Trophy, 
-  Calendar as CalendarIcon, 
   Bell, 
   BellOff, 
   ChevronRightIcon,
   Bike,
-  CheckCircle2,
-  RefreshCw
+  CheckCircle2
 } from "lucide-react"
-import { Progress } from "@/components/ui/progress"
-import { addDays, subDays, format, startOfToday } from "date-fns"
+import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
-import { generateRecipe } from "@/ai/flows/generate-recipe"
 import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc } from "firebase/firestore"
@@ -48,14 +42,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [mounted, setMounted] = useState(false)
-  const [recipes, setRecipes] = useState<Record<string, string>>({})
-  const [loadingRecipe, setLoadingRecipe] = useState<Record<string, boolean>>({})
   const [generatingPlan, setGeneratingPlan] = useState(false)
   const [aiPlan, setAiPlan] = useState<GenerateDailyPlanOutput | null>(null)
   const { toast } = useToast()
@@ -65,11 +57,6 @@ export default function MealPlannerPage() {
   const [mealType, setMealType] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-
-  const [editingMealId, setEditingMealId] = useState<string | null>(null)
-  const [editMealName, setEditMealName] = useState("")
-  const [editMealType, setEditMealType] = useState("Breakfast")
-  const [editReminderEnabled, setEditReminderEnabled] = useState(false)
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -116,20 +103,6 @@ export default function MealPlannerPage() {
     toast({ title: "Schedule Added", description: `${mealName} is on the menu.` })
   }
 
-  const handleUpdateMeal = async () => {
-    if (!user || !mealsColRef || !editingMealId) return
-    const mealRef = doc(mealsColRef, editingMealId)
-    const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
-    updateDocumentNonBlocking(mealRef, { 
-      name: editMealName, 
-      type: editMealType, 
-      time: timeMap[editMealType] || "12:00 PM",
-      reminderEnabled: editReminderEnabled
-    })
-    setEditingMealId(null)
-    toast({ title: "Schedule Updated", description: "Menu updated." })
-  }
-
   const handleDeleteMeal = (mealId: string, mealName: string) => {
     if (!user || !mealsColRef) return
     deleteDocumentNonBlocking(doc(mealsColRef, mealId))
@@ -145,7 +118,7 @@ export default function MealPlannerPage() {
         proteinPercent: profile.proteinTarget || 30,
         carbsPercent: profile.carbsTarget || 40,
         fatPercent: profile.fatTarget || 30,
-        dietType: profile.dietaryRestrictions?.[0], // simplified for demo
+        dietType: profile.dietaryRestrictions?.[0],
         allergies: profile.allergies
       })
       setAiPlan(result)
@@ -237,6 +210,52 @@ export default function MealPlannerPage() {
         </div>
       </header>
 
+      {/* Your Schedule Section */}
+      <section className="space-y-8">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Schedule</h2>
+        <div className="space-y-6">
+          {isLoadingMeals ? (
+            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          ) : scheduledMeals && scheduledMeals.length > 0 ? (
+              scheduledMeals.map((meal) => (
+                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                      <div className="flex items-center gap-8 flex-1">
+                         <div className="text-center min-w-[100px] border-r pr-8 border-border hidden sm:block">
+                           <p className="text-xl font-black text-primary/40">{meal.time}</p>
+                         </div>
+                         <div className="space-y-1.5 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-2xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
+                              {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary shrink-0" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />}
+                            </div>
+                            <div className="flex items-center gap-4">
+                               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
+                               <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Pro</span></div>
+                                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Cho</span></div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full"><Trash2 className="w-4 h-4" /></Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-20 sm:py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-6">
+                <Utensils className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-muted-foreground/10" />
+                <p className="text-muted-foreground font-bold text-base sm:text-lg uppercase">No meals scheduled for this day.</p>
+              </div>
+            )}
+        </div>
+      </section>
+
+      {/* Feeling Indecisive? Section (Moved below Your Schedule) */}
       <section className="space-y-8">
         <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -314,50 +333,6 @@ export default function MealPlannerPage() {
             </CardContent>
           </Card>
         )}
-      </section>
-
-      <section className="space-y-8">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Schedule</h2>
-        <div className="space-y-6">
-          {isLoadingMeals ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-          ) : scheduledMeals && scheduledMeals.length > 0 ? (
-              scheduledMeals.map((meal) => (
-                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white">
-                  <CardContent className="p-6 sm:p-8">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                      <div className="flex items-center gap-8 flex-1">
-                         <div className="text-center min-w-[100px] border-r pr-8 border-border hidden sm:block">
-                           <p className="text-xl font-black text-primary/40">{meal.time}</p>
-                         </div>
-                         <div className="space-y-1.5 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-2xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
-                              {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary shrink-0" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />}
-                            </div>
-                            <div className="flex items-center gap-4">
-                               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
-                               <div className="flex items-center gap-2">
-                                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Pro</span></div>
-                                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Cho</span></div>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full"><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-20 sm:py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-6">
-                <Utensils className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-muted-foreground/10" />
-                <p className="text-muted-foreground font-bold text-base sm:text-lg uppercase">No meals scheduled for this day.</p>
-              </div>
-            )}
-        </div>
       </section>
     </div>
   )
