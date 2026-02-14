@@ -74,18 +74,18 @@ const MacroInfoContent = () => (
       <Sparkles className="w-3.5 h-3.5" /> Macro Balance Guide
     </div>
     <p className="text-[11px] font-medium leading-relaxed text-muted-foreground text-left">
-      Breaking down your intake into protein, carbs, and fats—the building blocks of energy and recovery.
+      Breaking down your intake into protein, carbs, and fat—the building blocks of energy and recovery.
     </p>
     <div className="space-y-2 pt-1">
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">
         <span className="text-red-500 font-bold">Protein</span>
         <span>15-35% daily</span>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">
         <span className="text-amber-600 font-bold">Carbs</span>
         <span>40-50% daily</span>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">
         <span className="text-blue-500 font-bold">Fat</span>
         <span>20-35% daily</span>
       </div>
@@ -108,11 +108,16 @@ export default function Dashboard() {
     const data = []
     for (let i = 6; i >= 0; i--) {
       const d = subDays(new Date(), i)
+      const gramsProtein = 30 + Math.floor(Math.random() * 20)
+      const gramsCarbs = 60 + Math.floor(Math.random() * 40)
+      const gramsFat = 20 + Math.floor(Math.random() * 15)
+      
+      // kcal = (protein × 4) + (karbohidrat × 4) + (lemak × 9)
       data.push({
         date: format(d, "MMM d"),
-        protein: 30 + Math.floor(Math.random() * 20),
-        carbs: 60 + Math.floor(Math.random() * 40),
-        fat: 20 + Math.floor(Math.random() * 15),
+        protein: gramsProtein * 4,
+        carbs: gramsCarbs * 4,
+        fat: gramsFat * 9,
       })
     }
     setWeeklyData(data)
@@ -134,7 +139,6 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
-  // Sort meals from morning to night
   const sortedMeals = useMemo(() => {
     if (!meals) return null;
     return [...meals].sort((a, b) => {
@@ -230,7 +234,7 @@ export default function Dashboard() {
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
               <div className="grid grid-cols-3 text-[9px] font-black text-muted-foreground uppercase tracking-widest gap-2">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 text-left">
                   <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
                   {Math.round(proteinPercent)}% <span className="hidden sm:inline">Protein</span>
                 </div>
@@ -238,7 +242,7 @@ export default function Dashboard() {
                   <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
                   {Math.round(carbsPercent)}% <span className="hidden sm:inline">Carbs</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-end">
+                <div className="flex items-center gap-1.5 justify-end text-right">
                   <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
                   {Math.round(fatPercent)}% <span className="hidden sm:inline">Fat</span>
                 </div>
@@ -295,17 +299,27 @@ export default function Dashboard() {
       <section className="space-y-6">
         <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 uppercase text-left">
           <BarChart3 className="w-5 h-5 text-primary" />
-          Weekly Macro Trends
+          Weekly Macro Trend
         </h2>
         <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
           <CardContent className="p-6 sm:p-10">
-            <div className="h-[300px] w-full">
-              <ChartContainer config={chartConfig}>
-                <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <div className="h-[400px] w-full">
+              <ChartContainer config={chartConfig} className="w-full h-full">
+                <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="0" stroke="hsl(var(--border)/0.5)" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9, fontWeight: 600 }} />
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }} 
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9, fontWeight: 600 }}
+                    unit="kcal"
+                  />
+                  <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
                   <ChartLegend content={<ChartLegendContent />} className="pt-6" />
                   <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={24} />
                   <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" />
@@ -348,9 +362,9 @@ export default function Dashboard() {
                             <Badge className="h-4 px-1.5 py-0 text-[7px] font-black uppercase bg-primary/10 text-primary border-none">Score: {meal.healthScore || 85}</Badge>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[8px] font-black text-red-500 uppercase">{meal.macros?.protein}g Protein</span>
-                            <span className="text-[8px] font-black text-amber-600 uppercase">{meal.macros?.carbs}g Carbs</span>
-                            <span className="text-[8px] font-black text-blue-500 uppercase">{meal.macros?.fat}g Fat</span>
+                            <span className="text-[8px] font-black text-red-500 uppercase">Protein {meal.macros?.protein}g</span>
+                            <span className="text-[8px] font-black text-amber-600 uppercase">Carbs {meal.macros?.carbs}g</span>
+                            <span className="text-[8px] font-black text-blue-500 uppercase">Fat {meal.macros?.fat}g</span>
                           </div>
                         </div>
                       </div>
@@ -365,7 +379,7 @@ export default function Dashboard() {
                     <div className="px-8 pb-8 pt-2 space-y-6 border-t border-muted/20">
                       <div className="space-y-4 text-left pt-4">
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                             <Activity className="w-3.5 h-3.5" /> Health Score
                           </div>
                           <span className="text-xl font-black text-primary tracking-tighter">{meal.healthScore || 85}/100</span>
@@ -381,15 +395,15 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="space-y-2 text-left">
-                        <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest text-left">
                           <Leaf className="w-3.5 h-3.5" /> Key Ingredients
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 text-left">
                           {meal.ingredients?.map((ing: string, i: number) => (
                             <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-bold text-[9px] uppercase">
                               {ing}
                             </Badge>
-                          )) || <span className="text-[10px] text-muted-foreground italic">Standard ingredients detected.</span>}
+                          )) || <span className="text-[10px] text-muted-foreground italic text-left">Standard ingredients detected.</span>}
                         </div>
                       </div>
                     </div>
@@ -436,9 +450,9 @@ export default function Dashboard() {
              <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-xl shrink-0 shadow-inner">
                <Sparkles className="w-6 h-6" />
              </div>
-             <h2 className="text-xl font-black uppercase tracking-tight">AI Health Whisper</h2>
+             <h2 className="text-xl font-black uppercase tracking-tight text-left">AI Health Whisper</h2>
           </div>
-          <p className="text-xl sm:text-2xl font-bold leading-tight opacity-90 italic">
+          <p className="text-xl sm:text-2xl font-bold leading-tight opacity-90 italic text-left">
             "Your macro balance is perfectly aligned with your recovery goals. Increase water intake by 0.5L this afternoon to maximize metabolic efficiency."
           </p>
         </div>
