@@ -18,7 +18,7 @@ import {
   ShoppingBag,
   ArrowLeft
 } from "lucide-react"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
@@ -137,7 +137,12 @@ export default function ExplorePage() {
       ingredients: item.ingredients,
       createdAt: serverTimestamp()
     })
-    toast({ title: "Order Processed", description: `${item.name} recorded to your dashboard.` })
+
+    // Open external delivery platform in a new tab
+    const url = item.platform === 'GrabFood' ? 'https://food.grab.com' : 'https://gofood.co.id'
+    window.open(url, '_blank')
+
+    toast({ title: "Order Processed", description: `${item.name} recorded and platform opened.` })
     router.push("/")
   }
 
@@ -154,6 +159,12 @@ export default function ExplorePage() {
       createdAt: serverTimestamp(),
       reminderEnabled: true
     })
+
+    if (source === 'Delivery') {
+      const url = meal.deliveryMatch?.platform === 'GoFood' ? 'https://gofood.co.id' : 'https://food.grab.com'
+      window.open(url, '_blank')
+    }
+
     toast({ title: "Meal Synced", description: `${meal.name} added to your schedule.` })
   }
 
@@ -166,7 +177,7 @@ export default function ExplorePage() {
 
       {!curatedResult && !aiPlan && (
         <section className="space-y-8">
-          <h2 className="text-xl font-black tracking-tight px-1 uppercase text-left">How can AI help today?</h2>
+          <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">How can AI help today?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card 
               onClick={handleCurateDelivery}

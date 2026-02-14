@@ -169,6 +169,11 @@ export default function MealPlannerPage() {
     }
   }
 
+  const handleExternalOrder = (source: string) => {
+    const url = (source === 'GoFood' || source === 'Gojek') ? 'https://gofood.co.id' : 'https://food.grab.com'
+    window.open(url, '_blank')
+  }
+
   if (!mounted || !date) return null
 
   return (
@@ -317,7 +322,7 @@ export default function MealPlannerPage() {
                          {meal.source === 'planner' ? (
                            <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-xl h-10 w-10 border border-primary/10 shadow-sm"><ChefHat className="w-5 h-5" /></Button>
                          ) : (
-                           <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50 rounded-xl h-10 w-10 border border-green-200 shadow-sm"><ShoppingBag className="w-5 h-5" /></Button>
+                           <Button variant="ghost" size="icon" onClick={() => handleExternalOrder(meal.source)} className="text-green-600 hover:bg-green-50 rounded-xl h-10 w-10 border border-green-200 shadow-sm"><ShoppingBag className="w-5 h-5" /></Button>
                          )}
                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-xl h-10 w-10 border border-border/50"><Edit2 className="w-4 h-4" /></Button>
                          <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
