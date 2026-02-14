@@ -164,13 +164,14 @@ export default function ProfilePage() {
                   <Edit2 className="w-4 h-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col">
+              <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col overflow-hidden">
                 <DialogHeader className="p-8 pb-4 shrink-0 bg-primary rounded-t-[3rem]">
-                  <DialogTitle className="text-xl font-black uppercase tracking-tight text-center text-foreground">Update Profile</DialogTitle>
+                  <DialogTitle className="text-xl font-black uppercase tracking-tight text-center text-foreground">Update Health Profile</DialogTitle>
                 </DialogHeader>
-                <ScrollArea className="flex-1">
+                
+                <ScrollArea className="flex-1 overflow-y-auto no-scrollbar">
                   <div className="p-8 space-y-6">
-                    {/* Bio Grid */}
+                    {/* Bio Section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden flex flex-col justify-center bg-white min-h-[140px]">
                         <CardContent className="p-5 space-y-4">
@@ -228,7 +229,7 @@ export default function ProfilePage() {
                       </Card>
                     </div>
 
-                    {/* Dimensions */}
+                    {/* Dimensions Section */}
                     <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
                       <CardContent className="p-6 space-y-5">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
@@ -260,7 +261,7 @@ export default function ProfilePage() {
                       </CardContent>
                     </Card>
 
-                    {/* Health Markers & Allergies */}
+                    {/* Health Markers & Allergies Section */}
                     <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
                       <CardContent className="p-6 space-y-5">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
@@ -295,7 +296,8 @@ export default function ProfilePage() {
                     </Card>
                   </div>
                 </ScrollArea>
-                <DialogFooter className="p-8 pt-4 shrink-0">
+                
+                <DialogFooter className="p-8 pt-4 shrink-0 border-t border-muted/20">
                   <Button onClick={handleUpdateProfile} disabled={loading || !gender || !age || !weight || !height} className="w-full h-14 rounded-2xl font-black text-sm shadow-xl uppercase tracking-widest text-foreground border-none">
                     {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "Save Changes"}
                   </Button>
@@ -332,6 +334,37 @@ export default function ProfilePage() {
               <p className="text-[8px] font-black text-foreground opacity-40 uppercase tracking-widest">Status</p>
               <p className="text-xl font-black tracking-tight uppercase text-foreground">{profile?.bmiCategory || "Healthy"}</p>
             </div>
+          </Card>
+        </div>
+
+        {/* Health Markers Display Section */}
+        <div className="space-y-4">
+          <h2 className="text-[9px] font-black text-foreground opacity-40 uppercase tracking-[0.25em] px-2 text-center">Health Profile</h2>
+          <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 space-y-6">
+             <div className="space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <Heart className="w-3 h-3 text-primary" /> Dietary Markers
+                </p>
+                <div className="flex flex-wrap gap-2">
+                   {profile?.dietaryRestrictions && profile.dietaryRestrictions.length > 0 ? (
+                     profile.dietaryRestrictions.map((res: string) => (
+                       <Badge key={res} variant="secondary" className="bg-primary/10 text-foreground border-none px-4 py-1 rounded-lg font-black text-[9px] uppercase tracking-tight">
+                         {res}
+                       </Badge>
+                     ))
+                   ) : (
+                     <p className="text-[11px] font-bold text-muted-foreground italic">No restrictions set</p>
+                   )}
+                </div>
+             </div>
+             <div className="space-y-3 pt-2 border-t border-muted/30">
+                <p className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <Activity className="w-3 h-3 text-red-500" /> Allergies Detected
+                </p>
+                <p className="text-sm font-black text-foreground opacity-70">
+                   {profile?.allergies || "None provided"}
+                </p>
+             </div>
           </Card>
         </div>
 
