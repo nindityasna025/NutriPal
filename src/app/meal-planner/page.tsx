@@ -170,7 +170,10 @@ export default function MealPlannerPage() {
   }
 
   const handleExternalOrder = (source: string) => {
-    const url = (source === 'GoFood' || source === 'Gojek') ? 'https://gofood.co.id' : 'https://food.grab.com'
+    // Specifically routing to the requested GrabFood link if it's not GoFood
+    const url = (source === 'GoFood' || source === 'Gojek') 
+      ? 'https://gofood.co.id' 
+      : 'https://food.grab.com/id/id/restaurant/lazatto-chicken-burger-citarik-jatireja-delivery/6-C3TXE2W3UA5HNN?'
     window.open(url, '_blank')
   }
 

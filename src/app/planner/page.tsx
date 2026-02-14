@@ -138,8 +138,10 @@ export default function ExplorePage() {
       createdAt: serverTimestamp()
     })
 
-    // Open external delivery platform in a new tab
-    const url = item.platform === 'GrabFood' ? 'https://food.grab.com' : 'https://gofood.co.id'
+    // Open the specific restaurant delivery platform in a new tab
+    const url = item.platform === 'GrabFood' 
+      ? 'https://food.grab.com/id/id/restaurant/lazatto-chicken-burger-citarik-jatireja-delivery/6-C3TXE2W3UA5HNN?' 
+      : 'https://gofood.co.id'
     window.open(url, '_blank')
 
     toast({ title: "Order Processed", description: `${item.name} recorded and platform opened.` })
@@ -161,7 +163,10 @@ export default function ExplorePage() {
     })
 
     if (source === 'Delivery') {
-      const url = meal.deliveryMatch?.platform === 'GoFood' ? 'https://gofood.co.id' : 'https://food.grab.com'
+      const platform = meal.deliveryMatch?.platform || 'GrabFood'
+      const url = platform === 'GoFood' 
+        ? 'https://gofood.co.id' 
+        : 'https://food.grab.com/id/id/restaurant/lazatto-chicken-burger-citarik-jatireja-delivery/6-C3TXE2W3UA5HNN?'
       window.open(url, '_blank')
     }
 
