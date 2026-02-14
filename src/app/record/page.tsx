@@ -12,15 +12,15 @@ import {
   Sparkles, 
   Loader2, 
   ChevronRight,
-  Trophy,
   Image as ImageIcon,
   RefreshCw,
   ChevronLeft,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Trophy
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format, startOfToday } from "date-fns"
+import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
@@ -48,12 +48,6 @@ export default function RecordPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useUser()
   const firestore = useFirestore()
-
-  const profileRef = useMemoFirebase(() => 
-    user ? doc(firestore, "users", user.uid, "profile", "main") : null, 
-    [user, firestore]
-  )
-  const { data: profile } = useDoc(profileRef)
 
   useEffect(() => {
     setMounted(true)
@@ -166,7 +160,7 @@ export default function RecordPage() {
         name: result.name,
         calories: result.calories,
         time: timeStr,
-        source: "photo",
+        source: mode === "upload" ? "manual" : "photo",
         macros: result.macros,
         healthScore: result.healthScore,
         description: result.description,
@@ -237,25 +231,27 @@ export default function RecordPage() {
                 </Button>
               </div>
 
-              <div className="flex items-center justify-between px-2 py-2 bg-secondary/20 rounded-2xl">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Meal Date</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white")}>
-                      <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
-                      {format(selectedDate, "PPP")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(date) => date && setSelectedDate(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              {mode === "upload" && (
+                <div className="flex items-center justify-between px-2 py-2 bg-secondary/20 rounded-2xl animate-in fade-in slide-in-from-top-1 duration-300">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Meal Date</span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white")}>
+                        <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
+                        {format(selectedDate, "PPP")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => date && setSelectedDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && (
