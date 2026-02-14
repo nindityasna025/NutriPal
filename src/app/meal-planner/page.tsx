@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -303,7 +304,7 @@ export default function MealPlannerPage() {
               <Plus className="w-4 h-4 mr-2" /> Add Meal
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh]">
+          <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh] md:left-[calc(50%+8rem)]">
             <DialogHeader className="bg-primary p-6 text-foreground text-center shrink-0">
               <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-center">
                 {editingMealId ? "Refine Meal" : "New Schedule"}
@@ -486,7 +487,7 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-3xl rounded-[4rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] max-h-[92vh] flex flex-col">
+        <DialogContent className="max-w-3xl rounded-[4rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] max-h-[92vh] flex flex-col md:left-[calc(50%+8rem)]">
           <DialogHeader className="bg-primary p-12 text-foreground shrink-0 rounded-t-[4rem]">
             <DialogTitle className="text-3xl font-black uppercase tracking-tighter leading-tight text-center">
               {activeRecipeName}
