@@ -22,7 +22,8 @@ import {
   Info,
   CheckCircle2,
   ScanSearch,
-  AlertCircle
+  AlertCircle,
+  Heart
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -255,7 +256,7 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Education Hub */}
+      {/* Wellness Guides Hub */}
       <section className="space-y-8">
         <div className="space-y-6">
           <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
@@ -318,11 +319,47 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* Ingredients Intelligence Guide */}
+            {/* Health Benefit Guide */}
             <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
               <CardContent className="p-10 space-y-8">
                 <div className="flex flex-col md:flex-row items-center gap-8">
                   <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center shrink-0">
+                    <Heart className="w-10 h-10 text-primary" />
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-black tracking-tight uppercase">Health Benefit</h3>
+                    <p className="text-muted-foreground font-medium leading-relaxed">
+                      The Health Benefit score is a quick 0-100 rate of how healthy your meal is.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-6 bg-secondary/30 rounded-[2rem] space-y-3">
+                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                      <Sparkles className="w-3 h-3" /> The Formula
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
+                      Behind the scenes, the algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins, and minerals. It also makes sure to help you stay away from ultra-processed foods, refined grains, added sugars, and sneaky trans fats.
+                    </p>
+                  </div>
+                  <div className="p-6 bg-primary/5 border border-primary/10 rounded-[2rem] space-y-3">
+                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                      <Trophy className="w-3 h-3" /> The Goal
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
+                      The closer you get to a 100, the more balanced and nutrient-rich your meal is. It's an instant visual indicator of your nutritional quality for the day.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ingredients Intelligence Guide */}
+            <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
+              <CardContent className="p-10 space-y-8">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  <div className="w-20 h-20 bg-secondary rounded-3xl flex items-center justify-center shrink-0">
                     <ScanSearch className="w-10 h-10 text-primary" />
                   </div>
                   <div className="space-y-3">
@@ -350,13 +387,6 @@ export default function Dashboard() {
                       If something doesn't look quite right, feel free to edit the results yourself, so everything stays accurate.
                     </p>
                   </div>
-                </div>
-
-                <div className="pt-4 flex items-start gap-4 p-6 bg-primary/5 rounded-[2rem] border border-primary/10">
-                  <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
-                  <p className="text-sm font-bold leading-relaxed">
-                    Remember, it's not just about numbers—mixing up your meals and focusing on whole, quality foods matters too!
-                  </p>
                 </div>
               </CardContent>
             </Card>
