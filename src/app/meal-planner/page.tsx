@@ -357,7 +357,7 @@ export default function MealPlannerPage() {
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
                                    <div className="flex items-center gap-4">
                                       <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
-                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span></div>
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-600" /><span className="text-[10px] font-black uppercase text-amber-600">{meal.macros?.carbs}g Carbs</span></div>
                                       <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span></div>
                                    </div>
                                 </div>

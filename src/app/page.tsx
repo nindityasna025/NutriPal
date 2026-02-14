@@ -55,10 +55,17 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
+// Consistent Macro Colors
+const MACRO_COLORS = {
+  protein: "#ef4444", // Red-500
+  carbs: "#d97706",   // Amber-600
+  fat: "#3b82f6",     // Blue-500
+}
+
 const chartConfig = {
-  protein: { label: "Protein", color: "hsl(var(--primary))" },
-  carbs: { label: "Carbs", color: "hsl(var(--accent))" },
-  fat: { label: "Fat", color: "#3b82f6" },
+  protein: { label: "Protein", color: MACRO_COLORS.protein },
+  carbs: { label: "Carbs", color: MACRO_COLORS.carbs },
+  fat: { label: "Fat", color: MACRO_COLORS.fat },
 } satisfies ChartConfig
 
 const MacroInfoContent = () => (
@@ -71,11 +78,11 @@ const MacroInfoContent = () => (
     </p>
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-primary font-bold">Protein</span>
+        <span className="text-red-500 font-bold">Protein</span>
         <span>15-35% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-accent font-bold">Carbs</span>
+        <span className="text-amber-600 font-bold">Carbs</span>
         <span>40-50% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
@@ -218,21 +225,21 @@ export default function Dashboard() {
 
             <div className="space-y-4">
               <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary">
-                <div style={{ width: `${proteinPercent}%` }} className="bg-primary h-full transition-all duration-700" />
-                <div style={{ width: `${carbsPercent}%` }} className="bg-accent h-full transition-all duration-700" />
-                <div style={{ width: `${fatPercent}%` }} className="bg-blue-500 h-full transition-all duration-700" />
+                <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
+                <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
+                <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
               <div className="grid grid-cols-3 text-[9px] font-black text-muted-foreground uppercase tracking-widest gap-2">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" /> 
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
                   {Math.round(proteinPercent)}% <span className="hidden sm:inline">Protein</span>
                 </div>
                 <div className="flex items-center gap-1.5 justify-center">
-                  <div className="w-2.5 h-2.5 rounded-full bg-accent shrink-0" /> 
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
                   {Math.round(carbsPercent)}% <span className="hidden sm:inline">Carbs</span>
                 </div>
                 <div className="flex items-center gap-1.5 justify-end">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" /> 
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
                   {Math.round(fatPercent)}% <span className="hidden sm:inline">Fat</span>
                 </div>
               </div>
@@ -341,9 +348,9 @@ export default function Dashboard() {
                             <Badge className="h-4 px-1.5 py-0 text-[7px] font-black uppercase bg-primary/10 text-primary border-none">Score: {meal.healthScore || 85}</Badge>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[8px] font-black text-red-500 uppercase">{meal.macros?.protein}g P</span>
-                            <span className="text-[8px] font-black text-yellow-600 uppercase">{meal.macros?.carbs}g C</span>
-                            <span className="text-[8px] font-black text-blue-500 uppercase">{meal.macros?.fat}g F</span>
+                            <span className="text-[8px] font-black text-red-500 uppercase">{meal.macros?.protein}g Protein</span>
+                            <span className="text-[8px] font-black text-amber-600 uppercase">{meal.macros?.carbs}g Carbs</span>
+                            <span className="text-[8px] font-black text-blue-500 uppercase">{meal.macros?.fat}g Fat</span>
                           </div>
                         </div>
                       </div>

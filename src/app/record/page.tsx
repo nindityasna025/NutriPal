@@ -295,8 +295,8 @@ export default function RecordPage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Pro</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
-                    <div className="p-4 bg-accent/20 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent-foreground uppercase mb-1">Cho</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-4 bg-red-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-red-600 uppercase mb-1">Protein</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
+                    <div className="p-4 bg-amber-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-amber-600 uppercase mb-1">Carbs</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
                     <div className="p-4 bg-blue-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-blue-500 uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
                   </div>
 

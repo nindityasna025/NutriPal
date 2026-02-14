@@ -20,7 +20,7 @@ import {
   Info,
   RefreshCw
 } from "lucide-react"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
@@ -201,7 +201,7 @@ export default function ExplorePage() {
                       </section>
                       <div className="grid grid-cols-3 gap-3">
                         <div className="p-3 bg-red-50 rounded-xl text-center"><p className="text-[8px] font-black text-red-600 uppercase">Protein</p><p className="text-lg font-black">{item.macros.protein}g</p></div>
-                        <div className="p-3 bg-yellow-50 rounded-xl text-center"><p className="text-[8px] font-black text-yellow-600 uppercase">Carbs</p><p className="text-lg font-black">{item.macros.carbs}g</p></div>
+                        <div className="p-3 bg-amber-50 rounded-xl text-center"><p className="text-[8px] font-black text-amber-600 uppercase">Carbs</p><p className="text-lg font-black">{item.macros.carbs}g</p></div>
                         <div className="p-3 bg-blue-50 rounded-xl text-center"><p className="text-[8px] font-black text-blue-600 uppercase">Fat</p><p className="text-lg font-black">{item.macros.fat}g</p></div>
                       </div>
                     </div>
