@@ -67,23 +67,23 @@ const chartConfig = {
 } satisfies ChartConfig
 
 const MacroInfoContent = () => (
-  <div className="space-y-3">
-    <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
-      <Sparkles className="w-3.5 h-3.5 text-primary" /> Macro Balance Guide
+  <div className="space-y-4">
+    <div className="flex items-center gap-2 text-foreground font-black text-[11px] uppercase tracking-widest text-left">
+      <Sparkles className="w-4 h-4 text-primary" /> Macro Balance Guide
     </div>
-    <p className="text-[11px] font-bold leading-relaxed text-muted-foreground text-left">
+    <p className="text-[12px] font-bold leading-relaxed text-muted-foreground text-left">
       Daily energy distribution. Optimized for recovery and activity.
     </p>
-    <div className="space-y-2 pt-1">
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+    <div className="space-y-3 pt-2">
+      <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
         <span className="text-foreground">30%</span>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
         <span className="text-foreground">40%</span>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
         <span className="text-foreground">30%</span>
       </div>
@@ -211,99 +211,108 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6 pb-24 min-h-screen">
-      <header className="space-y-0.5 pt-safe text-center animate-in fade-in duration-500">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tighter text-foreground uppercase">Today</h1>
-        <p className="text-[10px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8 pb-24 min-h-screen">
+      <header className="space-y-1 pt-safe text-center animate-in fade-in duration-500">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-foreground uppercase">Today</h1>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.5em] opacity-40">
           {format(today, "EEEE, MMMM do")}
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden">
-          <CardContent className="p-5 sm:p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2.5rem] overflow-hidden">
+          <CardContent className="p-8 sm:p-12 space-y-12">
             <div className="flex justify-between items-start">
-              <div className="space-y-1 text-left">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground opacity-60">Energy Balance</span>
-                <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-5xl font-black tracking-tighter transition-colors text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-lg font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
+              <div className="space-y-2 text-left">
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-foreground opacity-60">Energy Balance</span>
+                <div className="flex items-baseline gap-3">
+                  <h2 className={cn("text-6xl sm:text-7xl font-black tracking-tighter transition-colors text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-2xl font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full h-8 w-8 bg-secondary hover:bg-secondary/80 transition-all border border-border/50">
-                    <Info className="w-4 h-4 text-foreground" />
+                  <Button variant="secondary" size="icon" className="rounded-full h-10 w-10 bg-secondary hover:bg-secondary/80 transition-all border border-border/50">
+                    <Info className="w-5 h-5 text-foreground" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-72 p-5 rounded-[1.5rem] shadow-premium-lg border-none bg-white">
+                <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-premium-lg border-none bg-white">
                   <MacroInfoContent />
                 </PopoverContent>
               </Popover>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex h-6 w-full rounded-full overflow-hidden bg-secondary border border-border/10">
+            <div className="space-y-6">
+              <div className="flex h-10 w-full rounded-full overflow-hidden bg-secondary border border-border/10 shadow-inner">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
-              <div className="grid grid-cols-3 text-[9px] font-black text-foreground uppercase tracking-widest gap-2">
-                <div className="flex items-center gap-1.5 text-left">
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
-                  {Math.round(proteinPercent)}% Protein
+              <div className="grid grid-cols-3 text-[10px] font-black text-foreground uppercase tracking-widest gap-4">
+                <div className="flex flex-col gap-1 items-start text-left">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
+                    <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
+                  </div>
+                  <span className="text-lg tracking-tighter">{Math.round(proteinPercent)}%</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-center">
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
-                  {Math.round(carbsPercent)}% Carbs
+                <div className="flex flex-col gap-1 items-center justify-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
+                    <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
+                  </div>
+                  <span className="text-lg tracking-tighter">{Math.round(carbsPercent)}%</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-end text-right">
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
-                  {Math.round(fatPercent)}% Fat
+                <div className="flex flex-col gap-1 items-end text-right">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
+                    <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
+                  </div>
+                  <span className="text-lg tracking-tighter">{Math.round(fatPercent)}%</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-1 text-left">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-60">Goal Progress</span>
-                <span className={cn("text-[11px] font-black uppercase tracking-tighter", isOverLimit ? "text-destructive" : "text-foreground")}>
+            <div className="pt-2 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-60">Goal Progress</span>
+                <span className={cn("text-[12px] font-black uppercase tracking-tighter", isOverLimit ? "text-destructive" : "text-foreground")}>
                   {actualPercent}% {isOverLimit ? "Surplus" : "Consumed"}
                 </span>
               </div>
               <Progress 
                 value={caloriePercentForProgress} 
-                className="h-3 rounded-full bg-secondary" 
+                className="h-4 rounded-full bg-secondary" 
                 indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} 
               />
             </div>
           </CardContent>
         </Card>
 
-        <div className="md:col-span-5 grid grid-cols-2 md:grid-cols-1 gap-4">
-          <Card className="border-none shadow-premium rounded-[1.5rem] p-5 flex flex-col items-center justify-center text-center bg-white group transition-all">
-            <div className="p-4 bg-primary/20 rounded-xl mb-3 group-hover:scale-105 transition-transform">
-              <Flame className="w-5 h-5 text-foreground" />
+        <div className="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-6">
+          <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group transition-all">
+            <div className="p-5 bg-primary/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-primary/10">
+              <Flame className="w-6 h-6 text-foreground" />
             </div>
-            <div className="space-y-0.5">
-              <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-              <p className="text-2xl font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-[10px] font-black text-foreground opacity-30">kcal</span></p>
+            <div className="space-y-1">
+              <p className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+              <p className="text-3xl font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-xs font-black text-foreground opacity-30">kcal</span></p>
             </div>
           </Card>
 
-          <Card className="border-none shadow-premium rounded-[1.5rem] p-5 flex flex-col items-center justify-center text-center bg-white group transition-all">
-            <div className="p-4 bg-accent/20 rounded-xl mb-3 group-hover:scale-105 transition-transform">
-              <Droplets className="w-5 h-5 text-foreground" />
+          <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group transition-all">
+            <div className="p-5 bg-accent/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-accent/10">
+              <Droplets className="w-6 h-6 text-foreground" />
             </div>
-            <div className="space-y-4 w-full">
-              <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
-              <div className="flex items-center justify-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-9 w-9 rounded-full bg-secondary/80 hover:bg-secondary transition-all active:scale-90">
-                  <Minus className="w-4 h-4 text-foreground" />
+            <div className="space-y-6 w-full">
+              <p className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
+              <div className="flex items-center justify-center gap-6">
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-12 w-12 rounded-2xl bg-secondary/80 hover:bg-secondary transition-all active:scale-90 border-2 border-border/30">
+                  <Minus className="w-5 h-5 text-foreground" />
                 </Button>
-                <span className="text-2xl font-black tracking-tighter text-foreground">{water}L</span>
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-9 w-9 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all active:scale-90">
-                  <Plus className="w-4 h-4 text-foreground" />
+                <span className="text-4xl font-black tracking-tighter text-foreground">{water}L</span>
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground shadow-lg hover:opacity-95 transition-all active:scale-90 border-none">
+                  <Plus className="w-5 h-5 text-foreground" />
                 </Button>
               </div>
             </div>
@@ -311,14 +320,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-1 uppercase text-left text-foreground">
-          <BarChart3 className="w-6 h-6 text-foreground opacity-80" />
+      <section className="space-y-6">
+        <h2 className="text-xl font-black tracking-tighter flex items-center gap-4 px-2 uppercase text-left text-foreground">
+          <BarChart3 className="w-7 h-7 text-foreground opacity-80" />
           Weekly Macro Trend
         </h2>
-        <Card className="border-none shadow-premium rounded-[1.5rem] overflow-hidden bg-white">
-          <CardContent className="p-6 sm:p-8">
-            <div className="h-[280px] w-full">
+        <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
+          <CardContent className="p-8 sm:p-10">
+            <div className="h-[300px] w-full">
               <ChartContainer config={chartConfig} className="w-full h-full">
                 <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="0" stroke="hsl(var(--muted)/0.3)" />
@@ -326,19 +335,19 @@ export default function Dashboard() {
                     dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 900 }} 
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 11, fontWeight: 900 }} 
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }}
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 900 }}
                     unit="kcal"
                   />
                   <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
-                  <ChartLegend content={<ChartLegendContent />} className="pt-6" />
-                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={24} name="Protein" />
+                  <ChartLegend content={<ChartLegendContent />} className="pt-8" />
+                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={32} name="Protein" />
                   <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" name="Carbs" />
-                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[4, 4, 0, 0]} name="Fat" />
+                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[6, 6, 0, 0]} name="Fat" />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -346,12 +355,12 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-1 uppercase text-left text-foreground">
-          <Utensils className="w-6 h-6 text-foreground opacity-80" />
+      <section className="space-y-6">
+        <h2 className="text-xl font-black tracking-tighter flex items-center gap-4 px-2 uppercase text-left text-foreground">
+          <Utensils className="w-7 h-7 text-foreground opacity-80" />
           Daily Food Record
         </h2>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {sortedMeals && sortedMeals.length > 0 ? (
             sortedMeals.map((meal) => (
               <Collapsible 
@@ -359,63 +368,63 @@ export default function Dashboard() {
                 open={expandedMealId === meal.id} 
                 onOpenChange={(isOpen) => setExpandedMealId(isOpen ? meal.id : null)}
               >
-                <Card className="border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden hover:shadow-premium-lg transition-all group">
+                <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
                   <CollapsibleTrigger asChild>
-                    <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer">
-                      <div className="flex items-center gap-4 flex-1 w-full">
-                         <div className="text-left min-w-[80px] border-r border-border/50 pr-4 hidden sm:block">
-                           <p className="text-lg font-black text-foreground opacity-40 tracking-tighter">{meal.time}</p>
+                    <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6 cursor-pointer">
+                      <div className="flex items-center gap-6 flex-1 w-full">
+                         <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
+                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter">{meal.time}</p>
                          </div>
-                         <div className="space-y-1 flex-1 text-left">
-                            <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                         <div className="space-y-2 flex-1 text-left">
+                            <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                               {meal.name}
                             </h3>
-                            <div className="flex flex-row items-center gap-4">
-                               <p className="text-[10px] font-black text-foreground opacity-60 uppercase tracking-widest">+{meal.calories} KCAL</p>
-                               <div className="flex flex-wrap items-center gap-3">
-                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>P {meal.macros?.protein}G</span></div>
-                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>C {meal.macros?.carbs}G</span></div>
-                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>F {meal.macros?.fat}G</span></div>
+                            <div className="flex flex-row items-center gap-6">
+                               <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{meal.calories} KCAL</p>
+                               <div className="flex flex-wrap items-center gap-4">
+                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>P {meal.macros?.protein}G</span></div>
+                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>C {meal.macros?.carbs}G</span></div>
+                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>F {meal.macros?.fat}G</span></div>
                                </div>
                             </div>
                          </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className={cn("bg-secondary p-2 rounded-full transition-all", expandedMealId === meal.id ? "rotate-180" : "")}>
-                          <ChevronDown className="w-4 h-4 text-foreground" />
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className={cn("bg-secondary p-3 rounded-full transition-all", expandedMealId === meal.id ? "rotate-180" : "")}>
+                          <ChevronDown className="w-5 h-5 text-foreground" />
                         </div>
                       </div>
                     </CardContent>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
-                    <div className="px-6 pb-8 pt-4 space-y-6 border-t border-border/30">
-                      <div className="space-y-4 text-left">
+                    <div className="px-8 pb-10 pt-6 space-y-8 border-t-2 border-border/30">
+                      <div className="space-y-6 text-left">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
-                            <Activity className="w-4 h-4 text-primary" /> Health Score
+                          <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
+                            <Activity className="w-5 h-5 text-primary" /> Health Score
                           </div>
-                          <span className="text-2xl font-black text-foreground tracking-tighter">{meal.healthScore || 85}/100</span>
+                          <span className="text-3xl font-black text-foreground tracking-tighter">{meal.healthScore || 85}/100</span>
                         </div>
-                        <Progress value={meal.healthScore || 85} className="h-2.5 rounded-full bg-secondary" indicatorClassName="bg-accent" />
+                        <Progress value={meal.healthScore || 85} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-accent" />
 
-                        <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
-                          <Sparkles className="w-4 h-4 text-primary" /> AI Insight
+                        <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
+                          <Sparkles className="w-5 h-5 text-primary" /> AI Insight
                         </div>
-                        <p className="text-[12px] font-bold leading-relaxed text-foreground bg-primary/10 p-4 rounded-[1rem] border border-primary/20">
+                        <p className="text-[14px] font-bold leading-relaxed text-foreground bg-primary/10 p-6 rounded-[1.5rem] border-2 border-primary/20">
                           {meal.expertInsight || meal.description || "Nutritionally dense meal aligned with your targets."}
                         </p>
                       </div>
                       
-                      <div className="space-y-3 text-left">
-                        <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest">
-                          <Leaf className="w-4 h-4 text-primary" /> Ingredients
+                      <div className="space-y-4 text-left">
+                        <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
+                          <Leaf className="w-5 h-5 text-primary" /> Ingredients
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-3">
                           {meal.ingredients?.map((ing: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-lg border-border text-foreground opacity-80 px-3 py-1 font-black text-[9px] uppercase">
+                            <Badge key={i} variant="outline" className="rounded-xl border-2 border-border text-foreground opacity-80 px-4 py-1.5 font-black text-[10px] uppercase">
                               {ing}
                             </Badge>
-                          )) || <span className="text-[9px] text-foreground opacity-30 italic font-black uppercase">Natural ingredients.</span>}
+                          )) || <span className="text-[10px] text-foreground opacity-30 italic font-black uppercase">Natural ingredients.</span>}
                         </div>
                       </div>
                     </div>
@@ -424,32 +433,32 @@ export default function Dashboard() {
               </Collapsible>
             ))
           ) : (
-            <div className="text-center py-12 bg-white rounded-[1.5rem] border-2 border-dashed border-border/50 flex flex-col items-center justify-center shadow-premium">
-              <p className="text-foreground font-black text-sm uppercase tracking-widest opacity-30">No records found</p>
+            <div className="text-center py-20 bg-white rounded-[2.5rem] border-4 border-dashed border-border/40 flex flex-col items-center justify-center shadow-premium">
+              <p className="text-foreground font-black text-lg uppercase tracking-[0.2em] opacity-30">No records found</p>
             </div>
           )}
         </div>
       </section>
 
-      <div className="grid grid-cols-2 gap-4 pt-4">
+      <div className="grid grid-cols-2 gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
-          className="h-32 rounded-[2rem] flex flex-col gap-3 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-95 transition-all active:scale-[0.98] group border-none"
+          className="h-36 rounded-[2.5rem] flex flex-col gap-4 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-95 transition-all active:scale-[0.98] group border-none"
         >
-          <div className="p-3 bg-white/30 rounded-xl group-hover:scale-110 transition-transform">
-            <Camera className="w-6 h-6 text-foreground" />
+          <div className="p-4 bg-white/30 rounded-2xl group-hover:scale-110 transition-transform">
+            <Camera className="w-7 h-7 text-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em] text-foreground text-center">Snap Analysis</span>
+          <span className="font-black text-xs uppercase tracking-[0.3em] text-foreground text-center">Snap Analysis</span>
         </Button>
         <Button 
           variant="secondary"
           onClick={() => router.push("/planner")}
-          className="h-32 rounded-[2rem] flex flex-col gap-3 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all active:scale-[0.98] group"
+          className="h-36 rounded-[2.5rem] flex flex-col gap-4 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all active:scale-[0.98] group"
         >
-          <div className="p-3 bg-accent/20 rounded-xl group-hover:scale-110 transition-transform">
-            <Sparkles className="w-6 h-6 text-foreground opacity-60" />
+          <div className="p-4 bg-accent/20 rounded-2xl group-hover:scale-110 transition-transform">
+            <Sparkles className="w-7 h-7 text-foreground opacity-60" strokeWidth={2.5} />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em] text-foreground text-center">Explore Picks</span>
+          <span className="font-black text-xs uppercase tracking-[0.3em] text-foreground text-center">Explore Picks</span>
         </Button>
       </div>
     </div>
