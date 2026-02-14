@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -47,6 +46,7 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
+import { Badge } from "@/components/ui/badge"
 
 // Standardized Macro Colors
 const MACRO_COLORS = {
@@ -75,7 +75,6 @@ export default function MealPlannerPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
-  const [generatingRecipe, setGeneratingRecipe] = useState(false)
   const [activeRecipe, setActiveRecipe] = useState<{ insight: string, ingredients: string[], instructions: string[] } | null>(null)
   const [activeRecipeName, setActiveRecipeName] = useState("")
 
@@ -143,6 +142,7 @@ export default function MealPlannerPage() {
       let description = ""
       let healthScore = 85
       let finalIngredients: string[] = ingredients.split(",").map(i => i.trim()).filter(i => i !== "")
+      let instructions: string[] = []
 
       if (!editingMealId) {
         // AI Analysis Mode for new meals
@@ -159,18 +159,13 @@ export default function MealPlannerPage() {
         description = aiResult.description
         healthScore = aiResult.healthScore
         finalIngredients = aiResult.ingredients
-      } else {
-        // Manual Edit Mode
-        const oldMeal = scheduledMeals?.find(m => m.id === editingMealId)
-        expertInsight = oldMeal?.expertInsight || "Manually adjusted."
-        description = oldMeal?.description || "Updated by user."
-        healthScore = oldMeal?.healthScore || 85
+        instructions = aiResult.instructions
       }
 
       const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
       const finalTime = timeMap[mealType] || "12:00 PM";
 
-      const mealData = {
+      const mealData: any = {
         name: mealName,
         type: mealType,
         time: finalTime,
@@ -184,6 +179,7 @@ export default function MealPlannerPage() {
         description,
         expertInsight,
         ingredients: finalIngredients,
+        instructions: instructions.length > 0 ? instructions : (editingMealId ? (scheduledMeals?.find(m => m.id === editingMealId)?.instructions || []) : []),
         source: "planner",
         reminderEnabled,
         updatedAt: serverTimestamp()
@@ -262,24 +258,21 @@ export default function MealPlannerPage() {
     }
   }
 
-  const handleGetRecipe = async (meal: any) => {
+  const handleGetRecipe = (meal: any) => {
     setActiveRecipeName(meal.name)
-    setGeneratingRecipe(true)
     setIsRecipeDialogOpen(true)
     
-    setTimeout(() => {
-      setActiveRecipe({
-        insight: meal.expertInsight || "A balanced meal designed for your specific health targets.",
-        ingredients: meal.ingredients && meal.ingredients.length > 0 ? meal.ingredients : ["Fresh seasonal ingredients"],
-        instructions: [
-          "Prepare all fresh ingredients by washing and chopping.",
-          "Sauté or steam protein source until cooked through.",
-          "Arrange the meal elements for optimal presentation.",
-          "Season lightly with herbs and serve fresh."
-        ]
-      })
-      setGeneratingRecipe(false)
-    }, 800)
+    // Use pre-saved instructions if available
+    setActiveRecipe({
+      insight: meal.expertInsight || "A balanced meal designed for your specific health targets.",
+      ingredients: meal.ingredients && meal.ingredients.length > 0 ? meal.ingredients : ["Fresh seasonal ingredients"],
+      instructions: meal.instructions && meal.instructions.length > 0 ? meal.instructions : [
+        "Prepare all fresh ingredients by washing and chopping.",
+        "Sauté or steam protein source until cooked through.",
+        "Arrange the meal elements for optimal presentation.",
+        "Season lightly with herbs and serve fresh."
+      ]
+    })
   }
 
   if (!mounted || !date) return null
@@ -501,12 +494,7 @@ export default function MealPlannerPage() {
           </DialogHeader>
           <div className="p-10 overflow-y-auto flex-1 no-scrollbar text-left">
             <ScrollArea className="h-full pr-6">
-              {generatingRecipe ? (
-                <div className="flex flex-col items-center justify-center h-[500px] space-y-6">
-                  <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                  <p className="text-[12px] font-black uppercase tracking-[0.4em] text-foreground opacity-60">RETRIEVING RECIPE...</p>
-                </div>
-              ) : activeRecipe ? (
+              {activeRecipe ? (
                 <div className="space-y-12">
                   <section className="space-y-6">
                     <div className="flex items-center gap-3 text-foreground font-black text-[12px] uppercase tracking-widest">

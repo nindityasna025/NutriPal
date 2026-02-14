@@ -3,7 +3,8 @@
 /**
  * @fileOverview AI flow for analyzing a meal based on text description.
  * 
- * - analyzeTextMeal - Estimates nutritional content (Kcal, macros) and identifies ingredients from text.
+ * - analyzeTextMeal - Estimates nutritional content (Kcal, macros), identifies ingredients, 
+ *   and generates cooking instructions from text.
  */
 
 import { ai } from '@/ai/genkit';
@@ -26,6 +27,7 @@ const AnalyzeTextMealOutputSchema = z.object({
   description: z.string().describe("A brief professional description of the meal."),
   ingredients: z.array(z.string()).describe("List of main ingredients identified in the meal."),
   expertInsight: z.string().max(200).describe("A combined nutritionist insight. STRICTLY MAX 200 characters."),
+  instructions: z.array(z.string()).describe("Step-by-step cooking instructions for this meal."),
 });
 export type AnalyzeTextMealOutput = z.infer<typeof AnalyzeTextMealOutputSchema>;
 
@@ -37,18 +39,18 @@ const prompt = ai.definePrompt({
   name: 'analyzeTextMealPrompt',
   input: { schema: AnalyzeTextMealInputSchema },
   output: { schema: AnalyzeTextMealOutputSchema },
-  prompt: `You are an expert AI Nutritionist. 
-Analyze the following meal description and provide a detailed nutritional breakdown. 
-Estimate the portions and calculate the kcal, protein, carbs, and fat as accurately as possible based on standard database values.
+  prompt: `You are an expert AI Nutritionist and Chef. 
+Analyze the following meal description and provide a full nutritional and culinary breakdown.
 
 Meal: "{{{mealName}}}"
 User's Specific Health Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maintenance{{/if}}
 
 Requirements:
-1. Provide accurate estimates for calories and macros.
-2. Identify the likely main ingredients used.
-3. The "expertInsight" MUST be encouraging and explain how this specific meal supports the goal ({{{userGoal}}}). 
-4. CRITICAL: The "expertInsight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. If it exceeds 200 characters, the validation will fail. Aim for 150-180 characters.
+1. Provide accurate estimates for calories and macros (Protein, Carbs, Fat).
+2. Identify the likely main ingredients.
+3. Create clear, concise step-by-step "instructions" (Cooking Path) for the user.
+4. The "expertInsight" MUST be encouraging and explain how this specific meal supports the goal ({{{userGoal}}}). 
+5. CRITICAL: The "expertInsight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. 
 
 Provide the output in the specified JSON format.`,
 });
