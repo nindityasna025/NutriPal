@@ -7,6 +7,7 @@ import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { 
   Flame, 
   Droplets, 
@@ -16,17 +17,13 @@ import {
   Minus,
   Sparkles,
   Camera,
-  Trophy,
   BarChart3,
-  Info,
-  ScanSearch,
-  AlertCircle
+  Info
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
 import { 
   Bar, 
   BarChart, 
@@ -283,6 +280,42 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      {/* Daily Food Record */}
+      <section className="space-y-6">
+        <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 text-center lg:text-left justify-center lg:justify-start uppercase">
+          <Utensils className="w-5 h-5 text-primary" />
+          Daily Food Record
+        </h2>
+        <div className="space-y-4">
+          {meals && meals.length > 0 ? (
+            meals.map((meal) => (
+              <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all">
+                <CardContent className="p-5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 overflow-hidden">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                      <Utensils className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-black uppercase truncate">{meal.name}</h4>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="rounded-lg text-[8px] font-black uppercase px-2 py-0.5 border-primary/20 text-primary">
+                      {meal.source === 'planner' ? 'Cooked' : (meal.source || 'Logged')}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-12 bg-white/40 rounded-[2.5rem] border-2 border-dashed border-muted/20 flex flex-col items-center justify-center">
+              <p className="text-muted-foreground font-black text-sm uppercase tracking-tight">No meals logged today</p>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* CTA Hub */}
