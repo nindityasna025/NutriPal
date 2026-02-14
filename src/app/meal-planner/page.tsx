@@ -16,7 +16,6 @@ import {
   ChevronRightIcon,
   Edit2,
   ChefHat,
-  ShoppingBag,
   Camera,
   X
 } from "lucide-react"
@@ -169,14 +168,6 @@ export default function MealPlannerPage() {
     }
   }
 
-  const handleExternalOrder = (source: string) => {
-    // Specifically routing to the requested GrabFood link if it's not GoFood
-    const url = (source === 'GoFood' || source === 'Gojek') 
-      ? 'https://gofood.co.id' 
-      : 'https://food.grab.com/id/id/restaurant/lazatto-chicken-burger-citarik-jatireja-delivery/6-C3TXE2W3UA5HNN?'
-    window.open(url, '_blank')
-  }
-
   if (!mounted || !date) return null
 
   return (
@@ -302,12 +293,11 @@ export default function MealPlannerPage() {
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2.5">
                                   <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
-                                  <Badge className={cn(
-                                    "rounded-xl font-black text-[8px] uppercase tracking-widest border-none px-2.5 py-0.5",
-                                    meal.source === 'planner' ? "bg-primary/10 text-primary" : "bg-green-500/10 text-green-600"
-                                  )}>
-                                    {meal.source === 'planner' ? 'COOK' : meal.source}
-                                  </Badge>
+                                  {meal.source === 'planner' && (
+                                    <Badge className="rounded-xl font-black text-[8px] uppercase tracking-widest border-none px-2.5 py-0.5 bg-primary/10 text-primary">
+                                      COOK
+                                    </Badge>
+                                  )}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
@@ -322,10 +312,8 @@ export default function MealPlannerPage() {
                          </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                         {meal.source === 'planner' ? (
+                         {meal.source === 'planner' && (
                            <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-xl h-10 w-10 border border-primary/10 shadow-sm"><ChefHat className="w-5 h-5" /></Button>
-                         ) : (
-                           <Button variant="ghost" size="icon" onClick={() => handleExternalOrder(meal.source)} className="text-green-600 hover:bg-green-50 rounded-xl h-10 w-10 border border-green-200 shadow-sm"><ShoppingBag className="w-5 h-5" /></Button>
                          )}
                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-xl h-10 w-10 border border-border/50"><Edit2 className="w-4 h-4" /></Button>
                          <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>

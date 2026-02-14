@@ -18,7 +18,7 @@ import {
   ShoppingBag,
   ArrowLeft
 } from "lucide-react"
-import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
@@ -138,7 +138,6 @@ export default function ExplorePage() {
       createdAt: serverTimestamp()
     })
 
-    // Open the specific restaurant delivery platform in a new tab
     const url = item.platform === 'GrabFood' 
       ? 'https://food.grab.com/id/id/restaurant/lazatto-chicken-burger-citarik-jatireja-delivery/6-C3TXE2W3UA5HNN?' 
       : 'https://gofood.co.id'
