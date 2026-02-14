@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,7 +15,8 @@ import {
   ChevronUp,
   ChefHat,
   ShoppingBag,
-  ArrowLeft
+  ArrowLeft,
+  Info
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
@@ -27,13 +27,23 @@ import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 
+// Simulated Scraped Database
+const SCRAPED_DATABASE = [
+  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein", "Low Fat"] },
+  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan", "Fiber"] },
+  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["Keto Friendly", "High Protein"] },
+  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb", "Diabetes Friendly"] },
+  { id: "s5", name: "Organic Tofu Curry", restaurant: "Herbivore", price: "Rp 38,000", platform: "GrabFood" as const, calories: 320, macros: { protein: 15, carbs: 35, fat: 14 }, healthScore: 92, tags: ["Vegan", "Gluten-free", "Budget"] },
+  { id: "s6", name: "Lean Turkey Burger", restaurant: "Burgreens", price: "Rp 68,000", platform: "GoFood" as const, calories: 480, macros: { protein: 25, carbs: 42, fat: 18 }, healthScore: 85, tags: ["Healthy", "Clean Eating"] },
+];
+
 export default function ExplorePage() {
   const router = useRouter()
   const { toast } = useToast()
   
   const [loadingDelivery, setLoadingDelivery] = useState(false)
   const [curatedResult, setCuratedResult] = useState<any[] | null>(null)
-  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const [generatingPlan, setGeneratingPlan] = useState(false)
   const [aiPlan, setAiPlan] = useState<GenerateDailyPlanOutput | null>(null)
@@ -45,57 +55,30 @@ export default function ExplorePage() {
   const { data: profile } = useDoc(profileRef)
 
   const handleCurateDelivery = async () => {
+    if (!profile) return
     setLoadingDelivery(true)
     setAiPlan(null)
     try {
-      const dietary = profile?.dietaryRestrictions?.join(", ") || "No specific restrictions"
-      const mockDeals = "GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
-      
-      await curateMealSuggestions({
-        dietaryPreferences: dietary,
-        location: "Jakarta, Indonesia",
-        availableDeals: mockDeals
+      const output = await curateMealSuggestions({
+        userProfile: {
+          bmiCategory: profile.bmiCategory,
+          dietaryRestrictions: profile.dietaryRestrictions,
+          allergies: profile.allergies,
+          calorieTarget: profile.calorieTarget
+        },
+        scrapedDatabase: SCRAPED_DATABASE
       })
 
-      setCuratedResult([
-        {
-          id: 1,
-          name: "Organic Tofu Soba Noodles",
-          calories: 380,
-          price: "Rp 38,500",
-          platform: "GrabFood",
-          platformIcon: <Smartphone className="text-green-500 w-4 h-4" />,
-          promo: "Free Delivery",
-          healthScore: 92,
-          distance: "0.8 km",
-          macros: { protein: 18, carbs: 54, fat: 12 },
-          description: "A heart-healthy choice. Soba noodles are low GI, while tofu provides complete plant-based protein.",
-          ingredients: ["Soba noodles", "Organic tofu", "Broccoli", "Shitake mushrooms", "Ginger soy dressing"]
-        },
-        {
-          id: 2,
-          name: "Avocado Quinoa Salad",
-          calories: 410,
-          price: "Rp 45,000",
-          platform: "GoFood",
-          platformIcon: <Bike className="text-emerald-500 w-4 h-4" />,
-          promo: "Buy 1 Get 1",
-          healthScore: 98,
-          distance: "2.1 km",
-          macros: { protein: 12, carbs: 42, fat: 22 },
-          description: "Rich in Monounsaturated fats from avocado which is great for heart health.",
-          ingredients: ["White quinoa", "Ripe avocado", "Red onion", "Parsley", "Lemon zest"]
-        }
-      ])
+      setCuratedResult(output.topMatches)
     } catch (error: any) {
       console.error(error)
       const isQuotaError = error.message?.includes("429") || error.message?.includes("quota")
       toast({ 
         variant: "destructive", 
-        title: isQuotaError ? "AI Hub Overloaded" : "AI Unavailable", 
+        title: isQuotaError ? "AI Decision Maker Busy" : "AI Hub Overloaded", 
         description: isQuotaError 
           ? "Our delivery curator is taking a break. Try again in a few seconds." 
-          : "The Delivery AI curator is currently over capacity." 
+          : "Could not filter the delivery database at this time." 
       })
     } finally {
       setLoadingDelivery(false)
@@ -139,6 +122,7 @@ export default function ExplorePage() {
 
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
+    
     setDocumentNonBlocking(dailyLogRef, { date: dateId, caloriesConsumed: increment(item.calories) }, { merge: true })
     addDocumentNonBlocking(mealsColRef, {
       name: item.name,
@@ -148,7 +132,7 @@ export default function ExplorePage() {
       macros: item.macros,
       healthScore: item.healthScore,
       description: item.description,
-      ingredients: item.ingredients,
+      expertInsight: item.reasoning,
       createdAt: serverTimestamp()
     })
 
@@ -211,10 +195,10 @@ export default function ExplorePage() {
                 <div className="space-y-2">
                   <h3 className="text-2xl font-black uppercase leading-tight">Delivery AI</h3>
                   <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">
-                    Browse health-matches from local services (Grab/Gojek).
+                    Filter scraped database matches for your BMI & profile.
                   </p>
                 </div>
-                <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[9px] bg-primary">Start Curation</Button>
+                <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[9px] bg-primary">Start Decision Maker</Button>
               </CardContent>
             </Card>
 
@@ -245,31 +229,37 @@ export default function ExplorePage() {
       {curatedResult && (
         <section className="space-y-6 animate-in fade-in zoom-in duration-500">
           <div className="flex items-center justify-between px-1">
-            <h2 className="font-black text-lg uppercase tracking-tight text-left">Top Delivery Matches</h2>
+            <h2 className="font-black text-lg uppercase tracking-tight text-left">Top Profile Matches</h2>
             <Button variant="ghost" onClick={() => setCuratedResult(null)} className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
               <ArrowLeft className="w-3 h-3" /> Back
             </Button>
           </div>
           
           <div className="space-y-6">
-            {curatedResult.map((item, idx) => (
-              <Card key={item.id} className={cn("rounded-[2rem] border-none shadow-premium bg-white group transition-all", idx === 0 && 'ring-2 ring-primary ring-offset-2')}>
+            {curatedResult.map((item) => (
+              <Card key={item.id} className="rounded-[2rem] border-none shadow-premium bg-white group transition-all ring-primary/10 hover:ring-2">
                 <CardContent className="p-0">
                   <div className="p-6 flex flex-col md:flex-row justify-between gap-6">
                     <div className="flex-1 space-y-4">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health</div>
+                        <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score</div>
                         <h3 className="text-xl font-black tracking-tight uppercase text-left">{item.name}</h3>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
                       </div>
                       <div className="flex gap-2">
                         <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-bold uppercase text-[8px]">+{item.calories} kcal</Badge>
-                        <Badge variant="outline" className="rounded-xl px-3 py-1 border-primary/20 text-primary font-bold uppercase text-[8px]">{item.promo}</Badge>
+                        {item.tags.map((tag: string, i: number) => (
+                          <Badge key={i} variant="outline" className="rounded-xl px-3 py-1 border-muted-foreground/10 text-muted-foreground font-bold uppercase text-[8px]">{tag}</Badge>
+                        ))}
                       </div>
                     </div>
                     <div className="md:text-right flex flex-col justify-between items-center md:items-end">
                       <div className="space-y-0.5 text-center md:text-right">
                         <p className="text-2xl font-black tracking-tighter">{item.price}</p>
-                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{item.platformIcon} {item.platform} • {item.distance}</div>
+                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                          {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
+                          {item.platform}
+                        </div>
                       </div>
                       <div className="flex gap-2 mt-4">
                         <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 border bg-white" onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}>
@@ -281,13 +271,20 @@ export default function ExplorePage() {
                   </div>
 
                   {expandedId === item.id && (
-                    <div className="px-6 pb-6 pt-4 border-t border-muted/30 space-y-4 animate-in slide-in-from-top-1">
+                    <div className="px-6 pb-6 pt-4 border-t border-muted/30 space-y-6 animate-in slide-in-from-top-1">
+                      <section className="space-y-2 text-left">
+                        <div className="flex items-center gap-2 text-primary font-black text-[9px] uppercase tracking-widest">
+                          <Info className="w-3.5 h-3.5" /> AI Decision reasoning
+                        </div>
+                        <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                          "{item.reasoning}"
+                        </p>
+                      </section>
                       <div className="grid grid-cols-3 gap-3">
                         <div className="p-3 bg-red-50 rounded-xl text-center"><p className="text-[8px] font-black text-red-600 uppercase">Pro</p><p className="text-lg font-black">{item.macros.protein}g</p></div>
                         <div className="p-3 bg-yellow-50 rounded-xl text-center"><p className="text-[8px] font-black text-yellow-600 uppercase">Cho</p><p className="text-lg font-black">{item.macros.carbs}g</p></div>
                         <div className="p-3 bg-blue-50 rounded-xl text-center"><p className="text-[8px] font-black text-blue-600 uppercase">Fat</p><p className="text-lg font-black">{item.macros.fat}g</p></div>
                       </div>
-                      <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80 text-left">"{item.description}"</p>
                     </div>
                   )}
                 </CardContent>

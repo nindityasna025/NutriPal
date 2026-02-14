@@ -1,66 +1,80 @@
-// src/ai/flows/curate-meal-suggestions.ts
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for curating meal suggestions based on user preferences, location, and available deals from Shopee, Grabfood, and Gojek.
- *
- * - curateMealSuggestions - A function that curates meal suggestions for the user.
- * - CurateMealSuggestionsInput - The input type for the curateMealSuggestions function.
- * - CurateMealSuggestionsOutput - The output type for the curateMealSuggestions function.
+ * @fileOverview AI flow for curating meal suggestions from a database of scraped delivery data.
+ * 
+ * - curateMealSuggestions - Filters a database of food items based on user profile metrics.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+
+const DeliveryItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  restaurant: z.string(),
+  price: z.string(),
+  platform: z.enum(['GrabFood', 'GoFood']),
+  calories: z.number(),
+  macros: z.object({
+    protein: z.number(),
+    carbs: z.number(),
+    fat: z.number(),
+  }),
+  healthScore: z.number(),
+  tags: z.array(z.string()),
+});
 
 const CurateMealSuggestionsInputSchema = z.object({
-  dietaryPreferences: z
-    .string()
-    .describe(
-      'The dietary preferences of the user (e.g., vegetarian, gluten-free, vegan).'
-    ),
-  location: z
-    .string()
-    .describe('The current location of the user (e.g., city, address).'),
-  availableDeals: z
-    .string()
-    .describe(
-      'A list of available deals from Shopee, Grabfood, and Gojek, including the price and vendor.'
-    ),
+  userProfile: z.object({
+    bmiCategory: z.string().optional(),
+    dietaryRestrictions: z.array(z.string()).optional(),
+    allergies: z.string().optional(),
+    calorieTarget: z.number().optional(),
+  }),
+  scrapedDatabase: z.array(DeliveryItemSchema).describe("The database of scraped items to filter from."),
 });
-export type CurateMealSuggestionsInput = z.infer<
-  typeof CurateMealSuggestionsInputSchema
->;
+export type CurateMealSuggestionsInput = z.infer<typeof CurateMealSuggestionsInputSchema>;
+
+const SuggestionSchema = DeliveryItemSchema.extend({
+  reasoning: z.string().max(200).describe("Why this meal was chosen for the user's specific profile."),
+});
 
 const CurateMealSuggestionsOutputSchema = z.object({
-  mealSuggestions: z
-    .string()
-    .describe(
-      'A list of curated meal suggestions based on the user preferences, location, and available deals.'
-    ),
+  topMatches: z.array(SuggestionSchema),
 });
-export type CurateMealSuggestionsOutput = z.infer<
-  typeof CurateMealSuggestionsOutputSchema
->;
+export type CurateMealSuggestionsOutput = z.infer<typeof CurateMealSuggestionsOutputSchema>;
 
-export async function curateMealSuggestions(
-  input: CurateMealSuggestionsInput
-): Promise<CurateMealSuggestionsOutput> {
+export async function curateMealSuggestions(input: CurateMealSuggestionsInput): Promise<CurateMealSuggestionsOutput> {
   return curateMealSuggestionsFlow(input);
 }
 
 const prompt = ai.definePrompt({
   name: 'curateMealSuggestionsPrompt',
-  input: {schema: CurateMealSuggestionsInputSchema},
-  output: {schema: CurateMealSuggestionsOutputSchema},
-  prompt: `You are a personal meal assistant. Please provide a list of meal suggestions based on the user's dietary preferences, location, and available deals from Shopee, Grabfood, and Gojek.
+  input: { schema: CurateMealSuggestionsInputSchema },
+  output: { schema: CurateMealSuggestionsOutputSchema },
+  prompt: `You are a Smart Delivery Decision Maker. 
+Your goal is to filter the provided database of scraped food items to find the TOP 3 best matches for the user.
 
-Dietary Preferences: {{{dietaryPreferences}}}
-Location: {{{location}}}
-Available Deals: {{{availableDeals}}}
+User Profile:
+- Category: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
+- Restrictions: {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
+- Allergies: {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
+- Daily Calorie Goal: {{{userProfile.calorieTarget}}} kcal
 
-Consider the user's preferences and location to suggest healthy and affordable meal options from nearby restaurants and delivery services. Take into account all available deals and provide the cheapest options.
+DATABASE OF SCRAPED ITEMS:
+{{#each scrapedDatabase}}
+- ID: {{id}}, Name: {{name}}, Restaurant: {{restaurant}}, Price: {{price}}, Platform: {{platform}}, Kcal: {{calories}}, Health: {{healthScore}}, Tags: {{tags}}
+{{/each}}
 
-Meal Suggestions:`,
+CRITICAL RULES:
+1. Filter out items that contain the user's allergies.
+2. Prioritize items that match dietary restrictions (e.g., if Vegetarian, only pick Vegetarian).
+3. If the user is "Overweight" or "Obese", prioritize items with <500kcal and higher Health Scores.
+4. If the user is "Underweight", prioritize items with higher protein and moderate calories.
+5. Provide a "reasoning" for each pick that explains how it aligns with their BMI category or goal. Max 200 chars.
+
+Provide the top 3 matches in the specified JSON format.`,
 });
 
 const curateMealSuggestionsFlow = ai.defineFlow(
@@ -69,8 +83,9 @@ const curateMealSuggestionsFlow = ai.defineFlow(
     inputSchema: CurateMealSuggestionsInputSchema,
     outputSchema: CurateMealSuggestionsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async (input) => {
+    const { output } = await prompt(input);
+    if (!output) throw new Error("AI failed to filter delivery data.");
+    return output;
   }
 );
