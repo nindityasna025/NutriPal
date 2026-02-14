@@ -20,7 +20,8 @@ import {
   ChevronDown,
   ChevronUp,
   ShoppingBag,
-  AlertTriangle
+  AlertTriangle,
+  Bell
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit } from "firebase/firestore"
@@ -378,6 +379,9 @@ export default function Dashboard() {
                             <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                               {meal.name}
                             </h3>
+                            {meal.reminderEnabled && (
+                              <Bell className="w-4 h-4 text-primary fill-primary/20" />
+                            )}
                             {meal.allergenWarning && (
                               <Badge variant="destructive" className="h-5 px-2 text-[8px] font-black uppercase">
                                 <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT

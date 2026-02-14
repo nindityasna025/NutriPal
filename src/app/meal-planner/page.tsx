@@ -17,7 +17,8 @@ import {
   ShoppingBag,
   ListOrdered,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Bell
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -422,6 +423,9 @@ export default function MealPlannerPage() {
                           <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
                             {meal.name}
                           </h3>
+                          {meal.reminderEnabled && (
+                            <Bell className="w-4 h-4 text-primary fill-primary/20" />
+                          )}
                           {meal.allergenWarning && (
                             <Badge variant="destructive" className="h-5 px-2 text-[8px] font-black uppercase animate-pulse">
                               <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
