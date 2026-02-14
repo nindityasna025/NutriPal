@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -50,7 +49,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
 import { Badge } from "@/components/ui/badge"
 
-// Standardized Macro Colors
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
   carbs: "hsl(38 92% 50%)",
@@ -65,7 +63,6 @@ export default function MealPlannerPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   
-  // Form State
   const [mealName, setMealName] = useState("")
   const [mealType, setMealType] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
@@ -89,7 +86,6 @@ export default function MealPlannerPage() {
     setMounted(true)
   }, [])
 
-  // Auto-recalculate calories when macros change
   useEffect(() => {
     if (editingMealId) {
       const p = parseFloat(protein) || 0;
@@ -148,7 +144,6 @@ export default function MealPlannerPage() {
       let allergenWarning = ""
 
       if (!editingMealId) {
-        // AI Analysis Mode
         let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
         if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
         else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"

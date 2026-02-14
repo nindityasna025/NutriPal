@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -38,35 +37,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
+import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 
-// Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Forest Green
-  carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Teal
+  protein: "hsl(var(--primary))",
+  carbs: "hsl(38 92% 50%)",
+  fat: "hsl(var(--accent))",
 }
 
 const SCRAPED_DATABASE = [
-  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein"], restricts: [] },
-  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan"], restricts: ["Vegetarian", "Vegan"] },
-  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["High Protein"], restricts: ["Keto"] },
-  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb"], restricts: ["Keto", "Diabetes"] },
+  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein"] },
+  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan"] },
+  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["High Protein"] },
+  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb"] },
 ];
-
-const TEMPLATE_MEALS = {
-  Breakfast: [
-    { name: "Avocado & Egg Toast", calories: 380, macros: { protein: 14, carbs: 28, fat: 22 }, description: "Creamy avocado on toast.", time: "08:30 AM" },
-    { name: "Greek Yogurt Parfait", calories: 320, macros: { protein: 18, carbs: 35, fat: 8 }, description: "Yogurt with berries.", time: "08:30 AM" },
-  ],
-  Lunch: [
-    { name: "Grilled Salmon Salad", calories: 450, macros: { protein: 32, carbs: 15, fat: 28 }, description: "Salmon on mixed greens.", time: "01:00 PM" },
-    { name: "Quinoa Veggie Bowl", calories: 410, macros: { protein: 15, carbs: 55, fat: 12 }, description: "Quinoa with vegetables.", time: "01:00 PM" },
-  ],
-  Dinner: [
-    { name: "Herb Roasted Chicken", calories: 510, macros: { protein: 35, carbs: 12, fat: 28 }, description: "Roasted chicken with greens.", time: "07:30 PM" },
-    { name: "Baked Cod & Greens", calories: 390, macros: { protein: 28, carbs: 10, fat: 22 }, description: "Cod with steamed broccoli.", time: "07:30 PM" },
-  ]
-};
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -88,53 +73,49 @@ export default function ExplorePage() {
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
 
-  const handleCurateDelivery = () => {
+  const handleCurateDelivery = async () => {
+    if (!profile) return;
     setLoading(true)
     setDeliveryResult(null)
-    setTimeout(() => {
-      const filtered = SCRAPED_DATABASE.filter(item => {
-        if (!profile) return true;
-        const matchesRestrictions = profile.dietaryRestrictions?.length 
-          ? profile.dietaryRestrictions.every((res: string) => item.restricts.includes(res))
-          : true;
-        return matchesRestrictions;
+    try {
+      const result = await curateMealSuggestions({
+        userProfile: {
+          bmiCategory: profile.bmiCategory,
+          dietaryRestrictions: profile.dietaryRestrictions,
+          allergies: profile.allergies,
+          calorieTarget: profile.calorieTarget
+        },
+        scrapedDatabase: SCRAPED_DATABASE
       });
-
-      const grabMatch = filtered.find(item => item.platform === "GrabFood") || SCRAPED_DATABASE.find(item => item.platform === "GrabFood");
-      const goMatch = filtered.find(item => item.platform === "GoFood") || SCRAPED_DATABASE.find(item => item.platform === "GoFood");
-
-      setDeliveryResult([
-        { ...grabMatch, reasoning: "Top GrabFood match for your target." },
-        { ...goMatch, reasoning: "Optimal healthy choice via GoFood." }
-      ].filter(Boolean));
+      setDeliveryResult(result.topMatches);
+    } catch (err) {
+      console.error(err);
+      toast({ variant: "destructive", title: "AI Hub Unavailable", description: "Could not analyze delivery ecosystem." });
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   }
 
-  const handleGenerateMenu = () => {
+  const handleGenerateMenu = async () => {
+    if (!profile) return;
     setLoading(true)
     setMenuPlan(null)
-    setTimeout(() => {
-      const plan = {
-        Breakfast: TEMPLATE_MEALS.Breakfast[Math.floor(Math.random() * TEMPLATE_MEALS.Breakfast.length)],
-        Lunch: TEMPLATE_MEALS.Lunch[Math.floor(Math.random() * TEMPLATE_MEALS.Lunch.length)],
-        Dinner: TEMPLATE_MEALS.Dinner[Math.floor(Math.random() * TEMPLATE_MEALS.Dinner.length)],
-      };
+    try {
+      const plan = await generateDailyPlan({
+        calorieTarget: profile.calorieTarget || 2000,
+        proteinPercent: profile.proteinTarget || 30,
+        carbsPercent: profile.carbsTarget || 40,
+        fatPercent: profile.fatTarget || 30,
+        dietType: profile.dietaryRestrictions?.join(", "),
+        allergies: profile.allergies
+      });
       setMenuPlan(plan);
+    } catch (err) {
+      console.error(err);
+      toast({ variant: "destructive", title: "AI Hub Unavailable", description: "Could not design your daily menu." });
+    } finally {
       setLoading(false);
-    }, 1000);
-  }
-
-  const swapMeal = (type: "Breakfast" | "Lunch" | "Dinner") => {
-    if (!menuPlan) return;
-    const pool = TEMPLATE_MEALS[type];
-    let nextMeal;
-    do {
-      nextMeal = pool[Math.floor(Math.random() * pool.length)];
-    } while (nextMeal.name === menuPlan[type].name && pool.length > 1);
-    
-    setMenuPlan({ ...menuPlan, [type]: nextMeal });
-    toast({ title: `${type} Swapped`, description: "A new systematic choice has been generated." });
+    }
   }
 
   const handleOrderNow = async (item: any, source: 'delivery' | 'menu') => {
@@ -191,21 +172,21 @@ export default function ExplorePage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
-    const totalCals = (menuPlan.Breakfast?.calories || 0) + 
-                      (menuPlan.Lunch?.calories || 0) + 
-                      (menuPlan.Dinner?.calories || 0);
+    const totalCals = (menuPlan.breakfast?.calories || 0) + 
+                      (menuPlan.lunch?.calories || 0) + 
+                      (menuPlan.dinner?.calories || 0);
     
-    const totalProtein = (menuPlan.Breakfast?.macros?.protein || 0) + 
-                         (menuPlan.Lunch?.macros?.protein || 0) + 
-                         (menuPlan.Dinner?.macros?.protein || 0);
+    const totalProtein = (menuPlan.breakfast?.macros?.protein || 0) + 
+                         (menuPlan.lunch?.macros?.protein || 0) + 
+                         (menuPlan.dinner?.macros?.protein || 0);
 
-    const totalCarbs = (menuPlan.Breakfast?.macros?.carbs || 0) + 
-                       (menuPlan.Lunch?.macros?.carbs || 0) + 
-                       (menuPlan.Dinner?.macros?.carbs || 0);
+    const totalCarbs = (menuPlan.breakfast?.macros?.carbs || 0) + 
+                       (menuPlan.lunch?.macros?.carbs || 0) + 
+                       (menuPlan.dinner?.macros?.carbs || 0);
 
-    const totalFat = (menuPlan.Breakfast?.macros?.fat || 0) + 
-                     (menuPlan.Lunch?.macros?.fat || 0) + 
-                     (menuPlan.Dinner?.macros?.fat || 0);
+    const totalFat = (menuPlan.breakfast?.macros?.fat || 0) + 
+                     (menuPlan.lunch?.macros?.fat || 0) + 
+                     (menuPlan.dinner?.macros?.fat || 0);
 
     setDocumentNonBlocking(dailyLogRef, { 
       date: dateId, 
@@ -215,7 +196,7 @@ export default function ExplorePage() {
       fatTotal: increment(totalFat)
     }, { merge: true })
 
-    const types = ["Breakfast", "Lunch", "Dinner"] as const;
+    const types = ["breakfast", "lunch", "dinner"] as const;
     types.forEach(type => {
       const item = menuPlan[type];
       addDocumentNonBlocking(mealsColRef, {
@@ -237,7 +218,7 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative text-center">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Decision Hub</p>
@@ -253,7 +234,7 @@ export default function ExplorePage() {
               <div className="space-y-4 text-center">
                 <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Delivery Hub</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Real-time curation from GrabFood & GoFood berdasarkan profil Anda.
+                  Real-time curation from GrabFood & GoFood based on your profile.
                 </p>
               </div>
               <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Analyze Ecosystem</Button>
@@ -355,7 +336,7 @@ export default function ExplorePage() {
               <div className="space-y-4 text-center">
                 <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Smart Menu</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Generate harian dengan integrasi platform pengantaran otomatis.
+                  Generate daily plan with automated delivery platform integration.
                 </p>
               </div>
               <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-accent text-foreground hover:opacity-90 border-none">Generate Plan</Button>
@@ -397,7 +378,7 @@ export default function ExplorePage() {
                     <Loader2 className="w-12 h-12 animate-spin text-accent" />
                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Designing Menu...</p>
                   </div>
-                ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
+                ) : menuPlan && (["breakfast", "lunch", "dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
                   return (
                     <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col max-w-[280px] mx-auto w-full">
@@ -407,9 +388,6 @@ export default function ExplorePage() {
                             <Badge variant="secondary" className="bg-accent/20 text-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-[0.6rem] border-none">
                               {type}
                             </Badge>
-                            <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-foreground opacity-30 hover:bg-secondary rounded-full h-8 w-8 transition-all active:rotate-180">
-                              <RefreshCw className="w-4 h-4" />
-                            </Button>
                           </div>
                           <div className="space-y-1">
                             <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
@@ -435,17 +413,20 @@ export default function ExplorePage() {
                           </div>
                         </div>
                         <div className="pt-2 space-y-2">
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border-none">
-                              GrabFood
+                          {meal.deliveryMatch?.isAvailable ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border-none">
+                                GrabFood
+                              </Button>
+                              <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border-none">
+                                GoFood
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border border-border text-foreground opacity-60 hover:bg-secondary shadow-sm">
+                              <Plus className="w-4 h-4 mr-2" /> Cook Myself
                             </Button>
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border-none">
-                              GoFood
-                            </Button>
-                          </div>
-                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest border border-border text-foreground opacity-60 hover:bg-secondary shadow-sm">
-                            <Plus className="w-4 h-4 mr-2" /> Cook Myself
-                          </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>

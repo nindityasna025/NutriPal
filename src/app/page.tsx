@@ -47,7 +47,6 @@ import {
 } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
 
-// Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", 
   carbs: "hsl(38 92% 50%)",      

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -102,7 +101,6 @@ export default function OnboardingPage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Gender - Compact & Identical Height */}
         <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden flex flex-col justify-center bg-white min-h-[140px]">
           <CardContent className="p-5 space-y-4">
             <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
@@ -139,7 +137,6 @@ export default function OnboardingPage() {
           </CardContent>
         </Card>
 
-        {/* BMI & Status - Compact & Identical Height */}
         <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-primary/5 flex flex-col justify-center min-h-[140px]">
           <CardContent className="p-5 flex flex-col items-center justify-center text-center space-y-1">
             {bmi ? (
@@ -160,7 +157,6 @@ export default function OnboardingPage() {
         </Card>
       </div>
 
-      {/* Body Metrics - Compact Grid */}
       <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
         <CardContent className="p-6 space-y-5">
           <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
@@ -192,7 +188,6 @@ export default function OnboardingPage() {
         </CardContent>
       </Card>
 
-      {/* Health & Restrictions - Compact Checkboxes */}
       <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
         <CardContent className="p-6 space-y-5">
           <div className="flex items-center justify-between">

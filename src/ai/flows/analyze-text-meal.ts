@@ -1,10 +1,10 @@
 'use server';
 
 /**
- * @fileOverview AI flow for analyzing a meal based on text description with allergy detection.
+ * @fileOverview AI flow for analyzing a meal based on text description with strict allergy detection.
  * 
  * - analyzeTextMeal - Estimates nutritional content, identifies ingredients, 
- *   checks for allergens, and generates instructions.
+ *   checks for SPECIFIC user allergens, and generates instructions.
  */
 
 import { ai } from '@/ai/genkit';
@@ -13,7 +13,7 @@ import { z } from 'genkit';
 const AnalyzeTextMealInputSchema = z.object({
   mealName: z.string().describe("The name or description of the meal."),
   userGoal: z.enum(["Maintenance", "Weight Loss", "Weight Gain"]).optional().describe("The user's current health goal."),
-  userAllergies: z.string().optional().describe("The user's known food allergies."),
+  userAllergies: z.string().optional().describe("The user's known food allergies (comma separated)."),
   userRestrictions: z.array(z.string()).optional().describe("The user's dietary restrictions (e.g., Vegan, Vegetarian)."),
 });
 export type AnalyzeTextMealInput = z.infer<typeof AnalyzeTextMealInputSchema>;
@@ -30,7 +30,7 @@ const AnalyzeTextMealOutputSchema = z.object({
   ingredients: z.array(z.string()).describe("List of main ingredients identified in the meal."),
   expertInsight: z.string().max(200).describe("A combined nutritionist insight. STRICTLY MAX 200 characters."),
   instructions: z.array(z.string()).describe("Step-by-step cooking instructions for this meal."),
-  allergenWarning: z.string().optional().describe("Warning message if the meal conflicts with user allergies or restrictions."),
+  allergenWarning: z.string().optional().describe("Warning message ONLY if the meal conflicts with SPECIFIC user allergies listed. Otherwise empty."),
 });
 export type AnalyzeTextMealOutput = z.infer<typeof AnalyzeTextMealOutputSchema>;
 
@@ -47,16 +47,18 @@ Analyze the following meal description and provide a full nutritional and culina
 
 Meal: "{{{mealName}}}"
 User's Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maintenance{{/if}}
-User's Allergies: {{#if userAllergies}}{{{userAllergies}}}{{else}}None{{/if}}
+User's Allergies: {{#if userAllergies}}{{{userAllergies}}}{{else}}None provided{{/if}}
 User's Restrictions: {{#if userRestrictions}}{{{userRestrictions}}}{{else}}None{{/if}}
 
-Requirements:
+STRICT REQUIREMENTS:
 1. Provide accurate estimates for calories and macros.
 2. Identify the main ingredients.
-3. Check if any identified ingredients conflict with the user's allergies or dietary restrictions.
-4. If a conflict is found, provide a clear and urgent warning in the "allergenWarning" field. If no conflict, leave it empty.
-5. Create clear step-by-step "instructions" for the user.
-6. The "expertInsight" MUST be encouraging and explain how this meal supports the goal. Max 200 characters.
+3. ALLERGY AUDIT: Check if any identified ingredients match items listed in "User's Allergies". 
+   - DO NOT hallucinate allergies or provide general safety warnings.
+   - ONLY provide a warning in "allergenWarning" if there is a DIRECT conflict with the provided list.
+   - If the user list is empty or "None provided", "allergenWarning" MUST BE EMPTY.
+4. Create clear step-by-step "instructions" for the user.
+5. The "expertInsight" MUST be encouraging and explain how this meal supports the goal. Max 200 characters.
 
 Provide the output in the specified JSON format.`,
 });
