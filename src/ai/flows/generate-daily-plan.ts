@@ -1,7 +1,8 @@
 'use server';
 
 /**
- * @fileOverview AI flow for generating a full day's meal plan based on user metrics.
+ * @fileOverview AI flow for generating a full day's meal plan based on user metrics, 
+ * including potential delivery matches from simulated ecosystem data.
  */
 
 import { ai } from '@/ai/genkit';
@@ -21,6 +22,12 @@ const MealRecommendationSchema = z.object({
   description: z.string(),
   swapSuggestion: z.string().describe('An alternative meal if the user doesn\'t like this one'),
   ingredients: z.array(z.string()),
+  deliveryMatch: z.object({
+    isAvailable: z.boolean(),
+    platform: z.enum(['GrabFood', 'GoFood']).optional(),
+    price: z.string().optional(),
+    restaurant: z.string().optional(),
+  }).optional().describe('Simulated delivery app match for this specific meal recommendation'),
 });
 
 const GenerateDailyPlanInputSchema = z.object({
@@ -48,7 +55,7 @@ const prompt = ai.definePrompt({
   name: 'generateDailyPlanPrompt',
   input: { schema: GenerateDailyPlanInputSchema },
   output: { schema: GenerateDailyPlanOutputSchema },
-  prompt: `You are an expert AI Nutritionist. 
+  prompt: `You are an expert AI Nutritionist with access to a simulated delivery ecosystem (GrabFood, GoFood). 
 Generate a balanced daily meal plan (Breakfast, Lunch, Dinner) for a user with the following targets:
 
 Total Calorie Target: {{{calorieTarget}}} kcal
@@ -58,9 +65,9 @@ Allergies: {{#if allergies}}{{{allergies}}}{{else}}None{{/if}}
 
 Requirements:
 1. The sum of calories across all 3 meals must be close to the calorie target.
-2. The meals must respect the diet type and allergies.
-3. For each meal, provide a "swapSuggestion" which is a healthier or similar alternative.
-4. Keep ingredients simple and accessible.`,
+2. For each meal, check if it's commonly available on delivery apps in a city like Jakarta. If so, populate the deliveryMatch field with a simulated restaurant and price.
+3. Provide a "swapSuggestion" which is a healthier or similar alternative.
+4. Keep ingredients simple and accessible for the "Cook Yourself" path.`,
 });
 
 const generateDailyPlanFlow = ai.defineFlow(
