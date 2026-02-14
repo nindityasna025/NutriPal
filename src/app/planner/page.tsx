@@ -260,7 +260,7 @@ export default function ExplorePage() {
               <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col">
+          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
             <DialogHeader className="bg-primary p-4 sm:p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               {/* Left: Back Button */}
               <Button 
@@ -374,7 +374,7 @@ export default function ExplorePage() {
               <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] shadow-sm bg-accent text-foreground hover:opacity-90 border-none">Generate Plan</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-[70rem] rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[96vw] md:left-[calc(50%+8rem)] max-h-[94vh] flex flex-col">
+          <DialogContent className="max-w-[70rem] rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[96vw] md:left-[calc(50%+8rem)] max-h-[94vh] flex flex-col [&>button]:hidden">
             <DialogHeader className="bg-accent p-3 sm:p-4 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button 
