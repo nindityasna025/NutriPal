@@ -18,12 +18,13 @@ import {
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format, startOfToday } from "date-fns"
+import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -47,7 +48,7 @@ export default function RecordPage() {
 
   const startCamera = async () => {
     setMode("camera")
-    setSelectedDate(new Date()) // Default to now for camera
+    setSelectedDate(new Date())
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } } 
@@ -124,7 +125,7 @@ export default function RecordPage() {
         title: "Expert Unavailable",
         description: error.message?.includes("429") 
           ? "AI Nutritionist is over capacity. Please try again." 
-          : "Could not analyze meal photo.",
+          : "Could not analyze meal photo. Image might be too large.",
       })
     } finally {
       setAnalyzing(false)
@@ -149,7 +150,7 @@ export default function RecordPage() {
         name: result.name,
         calories: result.calories,
         time: timeStr,
-        source: mode === "camera" ? "photo" : "manual",
+        source: mode === "camera" ? "photo" : "gallery",
         macros: result.macros,
         healthScore: result.healthScore,
         description: result.description,
@@ -168,7 +169,7 @@ export default function RecordPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
-      <header className="space-y-1 animate-in fade-in duration-700">
+      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           Instant AI Expert Analysis

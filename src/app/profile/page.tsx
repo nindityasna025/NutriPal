@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -140,7 +139,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body">
       <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-700">
-        <header className="space-y-1">
+        <header className="space-y-1 pt-safe md:pt-8">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
         </header>
@@ -176,7 +175,20 @@ export default function ProfilePage() {
                 <DialogTitle className="text-3xl font-black uppercase tracking-tight text-center">Update Metrics</DialogTitle>
               </DialogHeader>
               <div className="p-8 pt-0 space-y-8">
-                {/* Profile Edit Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Weight (kg)</Label>
+                    <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Height (cm)</Label>
+                    <Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</Label>
+                  <Input type="number" value={age} onChange={e => setAge(e.target.value)} className="h-12 rounded-2xl border-primary/10 font-bold" />
+                </div>
               </div>
               <DialogFooter className="p-8 pt-0">
                 <Button onClick={handleUpdateProfile} disabled={loading} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-xl uppercase tracking-widest">

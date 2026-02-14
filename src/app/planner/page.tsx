@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -46,14 +45,12 @@ export default function PlannerPage() {
       const dietary = profile?.dietaryRestrictions?.join(", ") || "No specific restrictions"
       const mockDeals = "GrabFood: HealthyBowl Buy 1 Get 1, GoFood: VeganVibe Free Delivery"
       
-      // Call the AI flow
       await curateMealSuggestions({
         dietaryPreferences: dietary,
         location: "Jakarta, Indonesia",
         availableDeals: mockDeals
       })
 
-      // Structured structured result for demo/UI purposes
       setCuratedResult([
         {
           id: 1,
@@ -128,7 +125,7 @@ export default function PlannerPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-8 animate-in fade-in duration-700 pb-24 md:pb-8">
-      <header className="space-y-1">
+      <header className="space-y-1 pt-safe md:pt-8">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Meal Curation & Deals</p>
       </header>

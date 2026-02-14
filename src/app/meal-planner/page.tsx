@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -168,7 +167,7 @@ export default function MealPlannerPage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body relative">
       <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-500">
-        <header className="flex flex-col lg:flex-row items-center justify-between gap-6">
+        <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-8">
           <div className="space-y-1.5 w-full lg:w-auto text-left">
             <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Weekly Nutrition Organizer</p>
