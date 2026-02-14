@@ -88,6 +88,17 @@ export default function MealPlannerPage() {
     setMounted(true)
   }, [])
 
+  // Auto-recalculate calories when macros change (Only in Edit mode)
+  useEffect(() => {
+    if (editingMealId) {
+      const p = parseFloat(protein) || 0;
+      const c = parseFloat(carbs) || 0;
+      const f = parseFloat(fat) || 0;
+      const calculated = (p * 4) + (c * 4) + (f * 9);
+      setCalories(Math.round(calculated).toString());
+    }
+  }, [protein, carbs, fat, editingMealId]);
+
   const dateId = date ? format(date, "yyyy-MM-dd") : ""
   
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
@@ -134,6 +145,7 @@ export default function MealPlannerPage() {
       let finalIngredients: string[] = ingredients.split(",").map(i => i.trim()).filter(i => i !== "")
 
       if (!editingMealId) {
+        // AI Analysis Mode for new meals
         let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
         if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
         else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
@@ -147,6 +159,12 @@ export default function MealPlannerPage() {
         description = aiResult.description
         healthScore = aiResult.healthScore
         finalIngredients = aiResult.ingredients
+      } else {
+        // Manual Edit Mode
+        const oldMeal = scheduledMeals?.find(m => m.id === editingMealId)
+        expertInsight = oldMeal?.expertInsight || "Manually adjusted."
+        description = oldMeal?.description || "Updated by user."
+        healthScore = oldMeal?.healthScore || 85
       }
 
       const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
@@ -292,18 +310,18 @@ export default function MealPlannerPage() {
               <Plus className="w-4 h-4 mr-2" /> Add Meal
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col">
-            <DialogHeader className="bg-primary p-10 text-foreground text-center shrink-0">
-              <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-center">
+          <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh]">
+            <DialogHeader className="bg-primary p-6 text-foreground text-center shrink-0">
+              <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-center">
                 {editingMealId ? "Refine Meal" : "New Schedule"}
               </DialogTitle>
             </DialogHeader>
-            <div className="p-10 space-y-8 overflow-y-auto flex-1 no-scrollbar text-left">
-              <div className="grid gap-6">
-                <div className="space-y-2">
-                  <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing</Label>
+            <div className="p-6 space-y-6 overflow-y-auto flex-1 no-scrollbar text-left">
+              <div className="grid gap-4">
+                <div className="space-y-1">
+                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing</Label>
                   <Select value={mealType} onValueChange={setMealType}>
-                    <SelectTrigger className="h-14 rounded-2xl font-black border-2 border-border text-foreground">
+                    <SelectTrigger className="h-12 rounded-2xl font-black border-2 border-border text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -314,53 +332,55 @@ export default function MealPlannerPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
-                  <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                
+                <div className="space-y-1">
+                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
+                  <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                 </div>
 
-                <div className="space-y-6 pt-4 border-t-2 border-border/50">
-                  <Label className="text-[11px] font-black uppercase tracking-widest text-primary">Nutritional Adjustment</Label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Calories (Kcal)</Label>
-                      <Input type="number" value={calories} onChange={(e) => setCalories(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                {editingMealId && (
+                  <div className="space-y-4 pt-4 border-t-2 border-border/50 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Nutritional Adjustment</Label>
+                      <Badge variant="outline" className="text-[8px] font-black border-primary/20 text-foreground">{calories} KCAL</Badge>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
-                      <Input type="number" value={protein} onChange={(e) => setProtein(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
+                        <Input type="number" value={protein} onChange={(e) => setProtein(e.target.value)} className="h-10 rounded-xl border-2 border-border font-black text-xs" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
+                        <Input type="number" value={carbs} onChange={(e) => setCarbs(e.target.value)} className="h-10 rounded-xl border-2 border-border font-black text-xs" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
+                        <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-10 rounded-xl border-2 border-border font-black text-xs" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
-                      <Input type="number" value={carbs} onChange={(e) => setCarbs(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
-                      <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                    <div className="space-y-1">
+                      <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Ingredients</Label>
+                      <Textarea 
+                        placeholder="e.g. Salmon, Asparagus, Lemon" 
+                        className="rounded-2xl border-2 border-border font-black min-h-[80px] text-xs" 
+                        value={ingredients} 
+                        onChange={(e) => setIngredients(e.target.value)} 
+                      />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Ingredients (comma separated)</Label>
-                    <Textarea 
-                      placeholder="e.g. Salmon, Asparagus, Lemon" 
-                      className="rounded-2xl border-2 border-border font-black min-h-[100px]" 
-                      value={ingredients} 
-                      onChange={(e) => setIngredients(e.target.value)} 
-                    />
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem] border-2 border-transparent hover:border-border transition-all">
-                  <div className="space-y-1">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
-                    <p className="text-[10px] text-foreground opacity-50 font-black uppercase tracking-tighter">Notify 15m before meal time.</p>
+                <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-2xl border-2 border-transparent hover:border-border transition-all">
+                  <div className="space-y-0.5">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
+                    <p className="text-[8px] text-foreground opacity-50 font-black uppercase tracking-tighter">Notify before meal time.</p>
                   </div>
                   <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
                 </div>
               </div>
             </div>
-            <DialogFooter className="p-10 pt-0 shrink-0">
-              <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-xs shadow-premium text-foreground border-none">
+            <DialogFooter className="p-6 pt-0 shrink-0">
+              <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium text-foreground border-none">
                 {isSaving ? (
                   <div className="flex items-center gap-3">
                     <Loader2 className="animate-spin w-5 h-5" />
