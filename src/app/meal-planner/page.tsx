@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -16,11 +17,14 @@ import {
   BellOff, 
   ChevronRightIcon,
   Bike,
-  CheckCircle2
+  CheckCircle2,
+  Edit2,
+  ChefHat
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
 import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
+import { generateRecipe } from "@/ai/flows/generate-recipe"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc } from "firebase/firestore"
 import { cn } from "@/lib/utils"
@@ -42,8 +46,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -52,11 +57,19 @@ export default function MealPlannerPage() {
   const [aiPlan, setAiPlan] = useState<GenerateDailyPlanOutput | null>(null)
   const { toast } = useToast()
   
+  // Add/Edit Meal States
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingMealId, setEditingMealId] = useState<string | null>(null)
   const [mealName, setMealName] = useState("")
   const [mealType, setMealType] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+
+  // Recipe States
+  const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
+  const [generatingRecipe, setGeneratingRecipe] = useState(false)
+  const [activeRecipe, setActiveRecipe] = useState<string | null>(null)
+  const [activeRecipeName, setActiveRecipeName] = useState("")
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -82,31 +95,69 @@ export default function MealPlannerPage() {
   const handleNextDay = () => date && setDate(addDays(date, 1))
   const handleToday = () => setDate(startOfToday())
 
-  const handleAddMeal = async () => {
+  const handleSaveMeal = async () => {
     if (!user || !mealsColRef || !mealName) return
     setIsSaving(true)
     
     const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
-    addDocumentNonBlocking(mealsColRef, {
+    const mealData = {
       name: mealName,
       type: mealType,
       time: timeMap[mealType] || "12:00 PM",
-      calories: 438,
-      macros: { protein: 12, carbs: 33, fat: 18 },
-      healthScore: 78,
-      description: "Scheduled for energy balance throughout your day.",
+      calories: 450,
+      macros: { protein: 25, carbs: 45, fat: 15 },
+      healthScore: 85,
+      description: "Optimized for your metabolic goals.",
       source: "planner",
       reminderEnabled,
-      createdAt: serverTimestamp()
-    })
-    setMealName(""); setIsDialogOpen(false); setIsSaving(false)
-    toast({ title: "Schedule Added", description: `${mealName} is on the menu.` })
+      updatedAt: serverTimestamp()
+    }
+
+    if (editingMealId) {
+      updateDocumentNonBlocking(doc(mealsColRef, editingMealId), mealData)
+      toast({ title: "Meal Updated", description: "Your schedule has been revised." })
+    } else {
+      addDocumentNonBlocking(mealsColRef, {
+        ...mealData,
+        createdAt: serverTimestamp()
+      })
+      toast({ title: "Meal Added", description: `${mealName} is now on the menu.` })
+    }
+
+    setMealName(""); setEditingMealId(null); setIsDialogOpen(false); setIsSaving(false)
+  }
+
+  const openEditDialog = (meal: any) => {
+    setEditingMealId(meal.id)
+    setMealName(meal.name)
+    setMealType(meal.type || "Breakfast")
+    setReminderEnabled(!!meal.reminderEnabled)
+    setIsDialogOpen(true)
   }
 
   const handleDeleteMeal = (mealId: string, mealName: string) => {
     if (!user || !mealsColRef) return
     deleteDocumentNonBlocking(doc(mealsColRef, mealId))
     toast({ variant: "destructive", title: "Meal Deleted", description: `${mealName} removed from schedule.` })
+  }
+
+  const handleGetRecipe = async (mealName: string) => {
+    setActiveRecipeName(mealName)
+    setGeneratingRecipe(true)
+    setIsRecipeDialogOpen(true)
+    try {
+      const result = await generateRecipe({
+        mealName,
+        dietaryRestrictions: profile?.dietaryRestrictions || []
+      })
+      setActiveRecipe(result.recipe)
+    } catch (error) {
+      console.error(error)
+      toast({ variant: "destructive", title: "Chef is Busy", description: "Could not generate recipe at this time." })
+      setIsRecipeDialogOpen(false)
+    } finally {
+      setGeneratingRecipe(false)
+    }
   }
 
   const handleGenerateAiPlan = async () => {
@@ -122,10 +173,10 @@ export default function MealPlannerPage() {
         allergies: profile.allergies
       })
       setAiPlan(result)
-      toast({ title: "AI Plan Ready", description: "Explore your custom daily recommendations." })
+      toast({ title: "AI Plan Ready", description: "Custom daily recommendations generated." })
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Busy", description: "NutriPal AI is currently over capacity." })
+      toast({ variant: "destructive", title: "AI Unavailable", description: "NutriPal AI is over capacity." })
     } finally {
       setGeneratingPlan(false)
     }
@@ -143,7 +194,7 @@ export default function MealPlannerPage() {
       })
     }
     setAiPlan(null)
-    toast({ title: "Plan Applied", description: "Today's schedule has been updated with AI recommendations." })
+    toast({ title: "Plan Applied", description: "Today's schedule updated with AI picks." })
   }
 
   if (!mounted || !date) return null
@@ -153,7 +204,7 @@ export default function MealPlannerPage() {
       <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-8 animate-in fade-in duration-700">
         <div className="space-y-1 w-full lg:w-auto text-center lg:text-left">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Weekly Nutrition Organizer</p>
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Daily Nutrition Organizer</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-center lg:justify-end">
@@ -167,14 +218,14 @@ export default function MealPlannerPage() {
             <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary/50 shrink-0"><ChevronRight className="h-4 w-4" /></Button>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) { setEditingMealId(null); setMealName(""); } }}>
             <DialogTrigger asChild>
               <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0">
                 <Plus className="w-4 h-4 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2.5rem]">
-              <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">Schedule Meal</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle className="text-2xl font-black text-center pt-4 uppercase tracking-tight">{editingMealId ? "Edit Meal" : "Schedule Meal"}</DialogTitle></DialogHeader>
               <div className="grid gap-6 py-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Time</Label>
@@ -201,8 +252,8 @@ export default function MealPlannerPage() {
                 </div>
               </div>
               <DialogFooter className="pb-4">
-                <Button onClick={handleAddMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg">
-                  {isSaving ? <Loader2 className="animate-spin" /> : "Save Schedule"}
+                <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg">
+                  {isSaving ? <Loader2 className="animate-spin" /> : editingMealId ? "Update Schedule" : "Save Schedule"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -212,7 +263,7 @@ export default function MealPlannerPage() {
 
       {/* Your Schedule Section */}
       <section className="space-y-8">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Schedule</h2>
+        <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Schedule</h2>
         <div className="space-y-6">
           {isLoadingMeals ? (
             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
@@ -240,7 +291,9 @@ export default function MealPlannerPage() {
                          </div>
                       </div>
                       <div className="flex items-center gap-3">
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full"><Trash2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-full h-10 w-10"><ChefHat className="w-5 h-5" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-full h-10 w-10"><Edit2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-full h-10 w-10"><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   </CardContent>
@@ -255,7 +308,36 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      {/* Feeling Indecisive? Section (Moved below Your Schedule) */}
+      {/* AI Recipe Dialog */}
+      <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
+        <DialogContent className="max-w-2xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg">
+          <div className="bg-primary p-8 text-primary-foreground">
+            <h3 className="text-xs font-black uppercase tracking-[0.3em] opacity-80 mb-2">AI Nutritionist Masterclass</h3>
+            <h2 className="text-3xl font-black uppercase tracking-tight leading-tight">{activeRecipeName}</h2>
+          </div>
+          <div className="p-8">
+            <ScrollArea className="h-[400px] pr-4">
+              {generatingRecipe ? (
+                <div className="flex flex-col items-center justify-center h-full space-y-4">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Crafting your perfect recipe...</p>
+                </div>
+              ) : activeRecipe ? (
+                <div className="prose prose-sm prose-green max-w-none">
+                  <div className="whitespace-pre-wrap leading-relaxed font-medium text-foreground/80">
+                    {activeRecipe}
+                  </div>
+                </div>
+              ) : null}
+            </ScrollArea>
+          </div>
+          <DialogFooter className="p-8 pt-0">
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs">Close Recipe</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Feeling Indecisive? Section */}
       <section className="space-y-8">
         <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -290,7 +372,7 @@ export default function MealPlannerPage() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-lg font-black uppercase leading-tight">Daily Menu AI</h3>
-                  <p className="text-muted-foreground font-medium text-xs leading-tight">Generate a structured daily menu based on your BMR/TDEE.</p>
+                  <p className="text-muted-foreground font-medium text-xs leading-tight">Generate a structured menu based on your BMR/TDEE.</p>
                 </div>
               </div>
               <ChevronRightIcon className="w-6 h-6 opacity-20 text-accent shrink-0" />
