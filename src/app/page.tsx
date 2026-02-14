@@ -19,7 +19,8 @@ import {
   Trophy,
   BarChart3,
   Info,
-  ScanSearch
+  ScanSearch,
+  AlertCircle
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -150,7 +151,10 @@ export default function Dashboard() {
   const consumed = totals.calories
   const burned = dailyLog?.caloriesBurned || 450
   const water = dailyLog?.waterIntake || 1.8
-  const caloriePercent = Math.min(100, Math.round((consumed / calorieTarget) * 100))
+  
+  const actualPercent = Math.round((consumed / calorieTarget) * 100)
+  const caloriePercentForProgress = Math.min(100, actualPercent)
+  const isOverLimit = consumed > calorieTarget
 
   const totalMacros = totals.protein + totals.carbs + totals.fat;
   const proteinPercent = totalMacros > 0 ? (totals.protein / totalMacros) * 100 : 0;
@@ -191,7 +195,7 @@ export default function Dashboard() {
               <div className="space-y-1">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
                 <div className="flex items-baseline gap-3">
-                  <h2 className="text-6xl font-black tracking-tighter">{consumed}</h2>
+                  <h2 className={cn("text-6xl font-black tracking-tighter", isOverLimit && "text-destructive")}>{consumed}</h2>
                   <span className="text-xl font-bold text-muted-foreground/40 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
@@ -223,9 +227,18 @@ export default function Dashboard() {
             <div className="pt-2">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Goal Completion</span>
-                <span className="text-sm font-black text-primary">{caloriePercent}%</span>
+                <div className="flex items-center gap-2">
+                  {isOverLimit && <AlertCircle className="w-4 h-4 text-destructive animate-pulse" />}
+                  <span className={cn("text-sm font-black", isOverLimit ? "text-destructive" : "text-primary")}>
+                    {actualPercent}% {isOverLimit && "(OVER)"}
+                  </span>
+                </div>
               </div>
-              <Progress value={caloriePercent} className="h-4 rounded-full bg-secondary" indicatorClassName="bg-primary" />
+              <Progress 
+                value={caloriePercentForProgress} 
+                className="h-4 rounded-full bg-secondary" 
+                indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} 
+              />
             </div>
           </CardContent>
         </Card>

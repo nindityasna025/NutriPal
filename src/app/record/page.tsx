@@ -267,23 +267,23 @@ export default function RecordPage() {
                 </Button>
                 
                 {mode === "gallery" && !result && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-10">
-                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                  <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-12 w-full sm:w-auto">
+                      <CalendarIcon className="w-4 h-4 text-primary" />
                       <input 
                         type="date" 
                         value={logDate}
                         onChange={(e) => setLogDate(e.target.value)}
-                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer"
+                        className="bg-transparent border-none text-xs font-black uppercase tracking-widest focus:ring-0 cursor-pointer w-full"
                       />
                     </div>
-                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-10">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
+                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-12 w-full sm:w-auto">
+                      <Clock className="w-4 h-4 text-primary" />
                       <input 
                         type="time" 
                         value={logTime}
                         onChange={(e) => setLogTime(e.target.value)}
-                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer"
+                        className="bg-transparent border-none text-xs font-black uppercase tracking-widest focus:ring-0 cursor-pointer w-full"
                       />
                     </div>
                   </div>
