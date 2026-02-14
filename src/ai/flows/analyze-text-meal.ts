@@ -3,7 +3,7 @@
 /**
  * @fileOverview AI flow for analyzing a meal based on text description.
  * 
- * - analyzeTextMeal - Estimates nutritional content (Kcal, macros) from text.
+ * - analyzeTextMeal - Estimates nutritional content (Kcal, macros) and identifies ingredients from text.
  */
 
 import { ai } from '@/ai/genkit';
@@ -24,6 +24,7 @@ const AnalyzeTextMealOutputSchema = z.object({
   }),
   healthScore: z.number().min(0).max(100).describe("A score from 0-100 based on nutritional quality."),
   description: z.string().describe("A brief professional description of the meal."),
+  ingredients: z.array(z.string()).describe("List of main ingredients identified in the meal."),
   expertInsight: z.string().max(200).describe("A combined nutritionist insight covering health benefits and goal alignment. Max 200 characters."),
 });
 export type AnalyzeTextMealOutput = z.infer<typeof AnalyzeTextMealOutputSchema>;
@@ -45,8 +46,9 @@ User's Specific Health Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maint
 
 Requirements:
 1. Provide accurate estimates for calories and macros.
-2. The "expertInsight" MUST be encouraging and explain how this specific meal supports the goal ({{{userGoal}}}). 
-3. CRITICAL: The "expertInsight" MUST NOT EXCEED 200 characters.
+2. Identify the likely main ingredients used.
+3. The "expertInsight" MUST be encouraging and explain how this specific meal supports the goal ({{{userGoal}}}). 
+4. CRITICAL: The "expertInsight" MUST NOT EXCEED 200 characters.
 
 Provide the output in the specified JSON format.`,
 });

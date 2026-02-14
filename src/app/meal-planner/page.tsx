@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -17,7 +16,9 @@ import {
   ChefHat,
   ShoppingBag,
   ListOrdered,
-  Clock
+  Clock,
+  Activity,
+  Leaf
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -52,15 +53,6 @@ const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
   carbs: "hsl(38 92% 50%)",
   fat: "hsl(var(--accent))",
-}
-
-// Dummy Recipe Database
-const DUMMY_RECIPES: Record<string, { insight: string, ingredients: string[], instructions: string[] }> = {
-  "default": {
-    insight: "This balanced meal is optimized for your health goals. It provides a high-quality Protein profile that supports muscle recovery while maintaining a stable glycemic response.",
-    ingredients: ["Fresh seasonal protein", "Complex carbohydrates", "Healthy fats", "Fiber-rich greens"],
-    instructions: ["Prepare the main Protein source with light seasoning.", "Steam or lightly sauté the greens to preserve nutrients.", "Assemble the base with complex grains.", "Combine all elements and garnish."]
-  }
 }
 
 export default function MealPlannerPage() {
@@ -138,8 +130,9 @@ export default function MealPlannerPage() {
       let expertInsight = ""
       let description = ""
       let healthScore = 85
+      let ingredients: string[] = []
 
-      // If it's a NEW meal or if values are 0, trigger AI Analysis
+      // AI Analysis for NEW meals or if values are defaults
       if (!editingMealId) {
         let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
         if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
@@ -153,6 +146,7 @@ export default function MealPlannerPage() {
         expertInsight = aiResult.expertInsight
         description = aiResult.description
         healthScore = aiResult.healthScore
+        ingredients = aiResult.ingredients
       }
 
       const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
@@ -171,13 +165,13 @@ export default function MealPlannerPage() {
         healthScore,
         description,
         expertInsight,
+        ingredients,
         source: "planner",
         reminderEnabled,
         updatedAt: serverTimestamp()
       }
 
       if (editingMealId) {
-        // When editing, find the old meal to subtract its values first
         const oldMeal = scheduledMeals?.find(m => m.id === editingMealId)
         if (oldMeal) {
           setDocumentNonBlocking(dailyLogRef, {
@@ -203,7 +197,7 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try зagain." });
+      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try again." });
     } finally {
       setIsSaving(false);
     }
@@ -248,14 +242,23 @@ export default function MealPlannerPage() {
     }
   }
 
-  const handleGetRecipe = async (mealName: string) => {
-    setActiveRecipeName(mealName)
+  const handleGetRecipe = async (meal: any) => {
+    setActiveRecipeName(meal.name)
     setGeneratingRecipe(true)
     setIsRecipeDialogOpen(true)
     
+    // Simulate recipe generation based on identified ingredients
     setTimeout(() => {
-      const recipe = DUMMY_RECIPES[mealName] || DUMMY_RECIPES["default"]
-      setActiveRecipe(recipe)
+      setActiveRecipe({
+        insight: meal.expertInsight || "A balanced meal designed for your specific health targets.",
+        ingredients: meal.ingredients && meal.ingredients.length > 0 ? meal.ingredients : ["Fresh seasonal ingredients"],
+        instructions: [
+          "Prepare all fresh ingredients by washing and chopping.",
+          "Sauté or steam protein source until cooked through.",
+          "Arrange the meal elements for optimal presentation.",
+          "Season lightly with herbs and serve fresh."
+        ]
+      })
       setGeneratingRecipe(false)
     }, 800)
   }
@@ -402,7 +405,7 @@ export default function MealPlannerPage() {
                        </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                       <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-xl h-10 w-10 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-5 h-5" /></Button>
+                       <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-xl h-10 w-10 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-5 h-5" /></Button>
                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-xl h-10 w-10 border border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-4 h-4" /></Button>
                        <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-xl h-10 w-10 border border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-4 h-4" /></Button>
                     </div>
@@ -509,5 +512,3 @@ export default function MealPlannerPage() {
     </div>
   )
 }
-
-    
