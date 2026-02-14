@@ -235,32 +235,27 @@ export default function RecordPage() {
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
-                <div className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full text-primary font-black text-[9px] uppercase tracking-widest">
-                  Secure Sync
-                </div>
               </div>
 
-              {!result && (
-                <div className="flex items-center justify-between px-2 py-2 bg-secondary/20 rounded-2xl">
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Meal Date</span>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white")}>
-                        <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
-                        {format(selectedDate, "PPP")}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(date) => date && setSelectedDate(date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              )}
+              <div className="flex items-center justify-between px-2 py-2 bg-secondary/20 rounded-2xl">
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Meal Date</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white")}>
+                      <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
+                      {format(selectedDate, "PPP")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && (
@@ -326,26 +321,6 @@ export default function RecordPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-secondary/10 rounded-2xl">
-                      <div className="flex items-center gap-3">
-                        <CalendarIcon className="w-4 h-4 text-primary" />
-                        <span className="text-xs font-black uppercase tracking-widest">Log for: {format(selectedDate, "PPP")}</span>
-                      </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-[10px] font-black text-primary uppercase underline">Change</Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={(date) => date && setSelectedDate(date)}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
                     <div className="space-y-3 p-6 bg-secondary/20 rounded-[2rem]">
                       <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Dietary Insight</p>
                       <p className="text-sm font-bold leading-relaxed italic text-foreground/80 opacity-90">"{result.description}"</p>
