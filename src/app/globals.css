@@ -4,11 +4,9 @@
 
 @layer base {
   :root {
-    /* NutriPal Super-Premium Soft Minimal Theme */
-    /* Inspired by Apple HIG & Material Design */
-    
+    /* NutriPal Super-Premium Soft Minimal - Sharp Edition */
     --background: 45 33% 97%; /* #FAF8F2 - White-Cream Premium */
-    --foreground: 142 16% 14%; /* #1E2A22 - Deep Green-Black */
+    --foreground: 142 16% 14%; /* #1E2A22 - Deep Green-Black (High Contrast) */
     
     --card: 0 0% 100%; /* #FFFFFF - Pure White Surface */
     --card-foreground: 142 16% 14%;
@@ -35,7 +33,7 @@
     --input: 96 11% 93%;
     --ring: 143 26% 81%;
     
-    --radius: 1.25rem; /* 20px for "lembut & mahal" feel */
+    --radius: 1.25rem;
   }
 }
 
@@ -47,23 +45,23 @@
     @apply bg-background text-foreground font-body antialiased selection:bg-primary/30 overflow-x-hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-semibold tracking-tight text-foreground;
+    @apply font-headline font-bold tracking-tight text-foreground;
   }
   h1 { @apply text-3xl md:text-4xl; letter-spacing: -0.04em; }
   h2 { @apply text-2xl; letter-spacing: -0.03em; }
 }
 
-/* Premium Tactile Depth */
+/* Tactile Depth - No Blur "Fog" */
 .shadow-premium {
-  box-shadow: 0 10px 30px rgba(30, 42, 34, 0.05);
+  box-shadow: 0 4px 20px rgba(30, 42, 34, 0.04), 0 1px 3px rgba(30, 42, 34, 0.02);
 }
 
 .shadow-premium-lg {
-  box-shadow: 0 20px 60px -15px rgba(30, 42, 34, 0.08);
+  box-shadow: 0 20px 50px -12px rgba(30, 42, 34, 0.1);
 }
 
 .glass {
-  @apply backdrop-blur-2xl bg-white/80;
+  @apply bg-white/90 backdrop-blur-md;
 }
 
 .pb-safe {

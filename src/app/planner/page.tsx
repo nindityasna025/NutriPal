@@ -37,14 +37,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-// Standardized Macro Colors - Airy Soft Palette
+// Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Pastel Green
-  carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Soft Lime
+  protein: "#BFDCCB", // Pastel Green
+  carbs: "#F3F8C6",   // Warm Amber/Light
+  fat: "#DCE96A",     // Soft Lime
 }
 
-// Scraped Delivery Database (Mocked for Demo)
 const SCRAPED_DATABASE = [
   { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein"], restricts: [] },
   { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan"], restricts: ["Vegetarian", "Vegan"] },
@@ -52,7 +51,6 @@ const SCRAPED_DATABASE = [
   { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb"], restricts: ["Keto", "Diabetes"] },
 ];
 
-// Smart Menu Template Pools
 const TEMPLATE_MEALS = {
   Breakfast: [
     { name: "Avocado & Egg Toast", calories: 380, macros: { protein: 14, carbs: 28, fat: 22 }, description: "Creamy avocado on whole grain toast with a perfectly poached egg.", time: "08:30 AM" },
@@ -218,8 +216,8 @@ export default function ExplorePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Explore</h1>
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">Smart Decision Hub</p>
+        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
+        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Decision Hub</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4">
@@ -227,33 +225,33 @@ export default function ExplorePage() {
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
               <div className="w-24 h-24 bg-primary/20 rounded-[2.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0">
-                 <Bike className="w-12 h-12 text-primary-foreground/70" />
+                 <Bike className="w-12 h-12 text-primary" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-bold tracking-tight">Delivery Hub</h3>
-                <p className="text-muted-foreground font-medium text-sm leading-relaxed max-w-xs">
+                <h3 className="text-2xl font-black tracking-tight uppercase">Delivery Hub</h3>
+                <p className="text-muted-foreground font-bold text-sm leading-relaxed max-w-xs uppercase tracking-tight">
                   Real-time curation from GrabFood & GoFood based on your profile.
                 </p>
               </div>
-              <Button className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-[11px] bg-primary shadow-sm">Analyze Ecosystem</Button>
+              <Button className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-primary shadow-sm">Analyze Ecosystem</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
+          <DialogContent className="max-w-5xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
             <DialogHeader className="bg-primary p-7 text-primary-foreground shrink-0 text-center relative rounded-t-[3rem]">
-              <DialogTitle className="text-lg font-bold uppercase tracking-widest text-center">AI Curation: Delivery Hub</DialogTitle>
+              <DialogTitle className="text-lg font-black uppercase tracking-widest text-center">AI Curation: Delivery Hub</DialogTitle>
             </DialogHeader>
             <div className="p-8 overflow-y-auto flex-1">
               <div className="space-y-10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
-                  <h2 className="font-bold text-xl tracking-tight text-left w-full sm:w-auto">Top Matches</h2>
-                  <div className="flex items-center gap-4 bg-secondary/60 rounded-full px-6 h-12 border border-muted/50 shadow-inner">
-                    <div className="flex items-center gap-2.5 border-r border-muted/30 pr-4">
+                  <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase">Top Matches</h2>
+                  <div className="flex items-center gap-4 bg-secondary rounded-full px-6 h-12 border border-muted shadow-inner">
+                    <div className="flex items-center gap-2.5 border-r border-muted/50 pr-4">
                       <CalendarIcon className="w-4 h-4 text-primary" />
                       <input 
                         type="date" 
                         value={targetDate} 
                         onChange={e => setTargetDate(e.target.value)} 
-                        className="bg-transparent border-none text-[10px] font-bold uppercase tracking-widest focus:ring-0 w-28" 
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-28" 
                       />
                     </div>
                     <div className="flex items-center gap-2.5 pl-2">
@@ -262,7 +260,7 @@ export default function ExplorePage() {
                         type="time" 
                         value={targetTime} 
                         onChange={e => setTargetTime(e.target.value)} 
-                        className="bg-transparent border-none text-[10px] font-bold uppercase tracking-widest focus:ring-0 w-16" 
+                        className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-16" 
                       />
                     </div>
                   </div>
@@ -272,57 +270,57 @@ export default function ExplorePage() {
                   {loading ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
                       <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Scanning Platforms...</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">Scanning Platforms...</p>
                     </div>
                   ) : deliveryResult?.map((item) => (
                     <Card key={item.id} className="rounded-[2.5rem] border-none shadow-premium bg-white group transition-all ring-primary/5 hover:ring-8 overflow-hidden flex flex-col active:scale-[0.99]">
                       <CardContent className="p-8 flex flex-col h-full space-y-6">
                         <div className="space-y-5 flex-1 text-left">
                           <div className="space-y-1.5">
-                            <div className="flex items-center gap-2 text-accent font-bold text-[10px] uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
                               <TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Rank
                             </div>
-                            <h3 className="text-xl font-bold tracking-tight leading-tight">{item.name}</h3>
-                            <p className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-widest">{item.restaurant}</p>
+                            <h3 className="text-xl font-black tracking-tight leading-tight uppercase">{item.name}</h3>
+                            <p className="text-[11px] font-black text-muted-foreground/60 uppercase tracking-widest">{item.restaurant}</p>
                           </div>
                           
                           <div className="flex gap-2 flex-wrap">
-                            <Badge className="rounded-xl px-4 py-1 bg-primary/15 text-primary-foreground border-none font-bold text-[9px] uppercase">+{item.calories} kcal</Badge>
+                            <Badge className="rounded-xl px-4 py-1 bg-primary text-primary-foreground border-none font-black text-[9px] uppercase">+{item.calories} kcal</Badge>
                             {item.tags.map((tag: string, i: number) => (
-                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1 border-muted/50 text-muted-foreground font-bold text-[9px] uppercase">{tag}</Badge>
+                              <Badge key={i} variant="outline" className="rounded-xl px-4 py-1 border-muted text-muted-foreground font-black text-[9px] uppercase">{tag}</Badge>
                             ))}
                           </div>
 
                           <div className="bg-primary/5 p-5 rounded-[1.5rem] border border-primary/10">
-                            <p className="text-[12px] font-medium leading-relaxed italic text-muted-foreground">"{item.reasoning}"</p>
+                            <p className="text-[12px] font-bold leading-relaxed italic text-foreground/80">"{item.reasoning}"</p>
                           </div>
                         </div>
 
                         <div className="pt-6 border-t border-muted/30 space-y-5">
                           <div className="grid grid-cols-3 gap-3">
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-bold text-muted-foreground uppercase">Protein</p>
-                               <p className="text-lg font-bold" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
+                               <p className="text-[9px] font-black text-muted-foreground uppercase">Protein</p>
+                               <p className="text-lg font-black" style={{ color: "#7FB79A" }}>{item.macros.protein}g</p>
                              </div>
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-bold text-muted-foreground uppercase">Carbs</p>
-                               <p className="text-lg font-bold" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
+                               <p className="text-[9px] font-black text-muted-foreground uppercase">Carbs</p>
+                               <p className="text-lg font-black" style={{ color: "#E6B800" }}>{item.macros.carbs}g</p>
                              </div>
                              <div className="space-y-1 text-left">
-                               <p className="text-[9px] font-bold text-muted-foreground uppercase">Fat</p>
-                               <p className="text-lg font-bold" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
+                               <p className="text-[9px] font-black text-muted-foreground uppercase">Fat</p>
+                               <p className="text-lg font-black" style={{ color: "#DCE96A" }}>{item.macros.fat}g</p>
                              </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-[11px] font-black text-muted-foreground uppercase tracking-widest">
                               {item.platform === 'GrabFood' ? <Smartphone className="text-green-500 w-4 h-4" /> : <Bike className="text-emerald-500 w-4 h-4" />}
                               {item.platform}
                             </div>
-                            <p className="text-2xl font-bold tracking-tight">{item.price}</p>
+                            <p className="text-2xl font-black tracking-tight">{item.price}</p>
                           </div>
 
-                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
+                          <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-sm">Order & Sync</Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -340,34 +338,34 @@ export default function ExplorePage() {
                  <Sparkles className="w-12 h-12 text-accent" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-bold tracking-tight">Smart Menu</h3>
-                <p className="text-muted-foreground font-medium text-sm leading-relaxed max-w-xs">
+                <h3 className="text-2xl font-black tracking-tight uppercase">Smart Menu</h3>
+                <p className="text-muted-foreground font-bold text-sm leading-relaxed max-w-xs uppercase tracking-tight">
                   Generate a randomized daily plan with seamless platform integration.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-sm bg-accent hover:opacity-90">Generate Plan</Button>
+              <Button variant="secondary" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-sm bg-accent hover:opacity-90">Generate Plan</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
+          <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
             <DialogHeader className="bg-accent p-7 text-accent-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
-              <DialogTitle className="text-lg font-bold uppercase tracking-widest text-left">Daily Smart Menu</DialogTitle>
+              <DialogTitle className="text-lg font-black uppercase tracking-widest text-left">Daily Smart Menu</DialogTitle>
               {menuPlan && !loading && (
-                <Button onClick={handleAddAll} className="h-11 px-6 rounded-2xl bg-white text-accent hover:bg-white/90 font-bold uppercase text-[10px] tracking-widest shadow-md">
+                <Button onClick={handleAddAll} className="h-11 px-6 rounded-2xl bg-white text-accent hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
                    <Plus className="w-4 h-4 mr-2" /> Add All to Planner
                 </Button>
               )}
             </DialogHeader>
             <div className="p-8 flex-1 flex flex-col overflow-hidden">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2 mb-8 shrink-0">
-                <h2 className="font-bold text-xl tracking-tight text-left w-full sm:w-auto">Plan Your Day</h2>
-                <div className="flex items-center gap-4 bg-secondary/60 rounded-full px-7 h-12 border border-muted/50 shadow-inner">
+                <h2 className="font-black text-xl tracking-tight text-left w-full sm:w-auto uppercase">Plan Your Day</h2>
+                <div className="flex items-center gap-4 bg-secondary rounded-full px-7 h-12 border border-muted shadow-inner">
                   <div className="flex items-center gap-2.5">
                     <CalendarIcon className="w-4 h-4 text-primary" />
                     <input 
                       type="date" 
                       value={targetDate} 
                       onChange={e => setTargetDate(e.target.value)} 
-                      className="bg-transparent border-none text-[10px] font-bold uppercase tracking-widest focus:ring-0 w-32" 
+                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-32" 
                     />
                   </div>
                 </div>
@@ -377,7 +375,7 @@ export default function ExplorePage() {
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-accent" />
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Designing Menu...</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">Designing Menu...</p>
                   </div>
                 ) : menuPlan && (["Breakfast", "Lunch", "Dinner"] as const).map((type) => {
                   const meal = menuPlan[type];
@@ -386,7 +384,7 @@ export default function ExplorePage() {
                       <CardContent className="p-6 flex flex-col h-full space-y-4">
                         <div className="flex-1 space-y-4 text-left">
                           <div className="flex items-center justify-between">
-                            <Badge variant="secondary" className="bg-accent/15 text-accent-foreground uppercase text-[9px] font-bold tracking-widest px-3 py-1 rounded-xl">
+                            <Badge variant="secondary" className="bg-accent/15 text-accent-foreground uppercase text-[9px] font-black tracking-widest px-3 py-1 rounded-xl">
                               {type}
                             </Badge>
                             <Button variant="ghost" size="icon" onClick={() => swapMeal(type)} className="text-muted-foreground hover:bg-secondary rounded-full h-8 w-8">
@@ -395,41 +393,41 @@ export default function ExplorePage() {
                           </div>
                           
                           <div className="space-y-1.5">
-                            <h3 className="text-base font-bold tracking-tight leading-tight line-clamp-1">{meal.name}</h3>
-                            <p className="text-[11px] font-medium leading-relaxed text-muted-foreground line-clamp-2">{meal.description}</p>
+                            <h3 className="text-base font-black tracking-tight leading-tight line-clamp-1 uppercase">{meal.name}</h3>
+                            <p className="text-[11px] font-bold leading-relaxed text-muted-foreground line-clamp-2">{meal.description}</p>
                           </div>
 
                           <div className="grid grid-cols-3 gap-2 border-y border-muted/30 py-4">
                             <div className="space-y-1 text-left">
-                              <p className="text-[8px] font-bold text-muted-foreground uppercase">Protein</p>
-                              <p className="text-base font-bold" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                              <p className="text-base font-black" style={{ color: "#7FB79A" }}>{meal.macros.protein}g</p>
                             </div>
                             <div className="space-y-1 text-left">
-                              <p className="text-[8px] font-bold text-muted-foreground uppercase">Carbs</p>
-                              <p className="text-base font-bold" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                              <p className="text-base font-black" style={{ color: "#E6B800" }}>{meal.macros.carbs}g</p>
                             </div>
                             <div className="space-y-1 text-left">
-                              <p className="text-[8px] font-bold text-muted-foreground uppercase">Fat</p>
-                              <p className="text-base font-bold" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                              <p className="text-base font-black" style={{ color: "#DCE96A" }}>{meal.macros.fat}g</p>
                             </div>
                           </div>
 
-                          <div className="bg-secondary/30 py-3 rounded-2xl text-center">
-                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Energy Target</p>
-                            <p className="text-xl font-bold tracking-tight">+{meal.calories} kcal</p>
+                          <div className="bg-secondary py-3 rounded-2xl text-center">
+                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Energy Target</p>
+                            <p className="text-xl font-black tracking-tight">+{meal.calories} kcal</p>
                           </div>
                         </div>
 
                         <div className="pt-3 space-y-2.5">
                           <div className="grid grid-cols-2 gap-2">
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600/90 hover:bg-green-700 text-white rounded-xl h-9 text-[8px] font-bold uppercase tracking-widest">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GrabFood" }, 'menu')} className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-9 text-[8px] font-black uppercase tracking-widest">
                               GrabFood
                             </Button>
-                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600/90 hover:bg-emerald-700 text-white rounded-xl h-9 text-[8px] font-bold uppercase tracking-widest">
+                            <Button onClick={() => handleOrderNow({ ...meal, platform: "GoFood" }, 'menu')} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-9 text-[8px] font-black uppercase tracking-widest">
                               GoFood
                             </Button>
                           </div>
-                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-9 text-[8px] font-bold uppercase tracking-widest border-muted/50 text-muted-foreground hover:bg-secondary">
+                          <Button onClick={() => handleOrderNow(meal, 'menu')} variant="outline" className="w-full rounded-xl h-9 text-[8px] font-black uppercase tracking-widest border-muted text-muted-foreground hover:bg-secondary">
                             <Plus className="w-3.5 h-3.5 mr-1.5" /> Cook Myself
                           </Button>
                         </div>

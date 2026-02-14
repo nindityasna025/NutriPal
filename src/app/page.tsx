@@ -53,11 +53,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-// Standardized Macro Colors - Airy Soft Palette
+// Standardized Macro Colors - Sharp Palette
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Pastel Green
-  carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Soft Lime
+  protein: "#BFDCCB", // Pastel Green
+  carbs: "#F3F8C6",   // Light Amber
+  fat: "#DCE96A",     // Soft Lime
 }
 
 const chartConfig = {
@@ -68,7 +68,7 @@ const chartConfig = {
 
 const MacroInfoContent = () => (
   <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary-foreground/70 font-semibold text-[10px] uppercase tracking-widest text-left">
+    <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest text-left">
       <Sparkles className="w-3.5 h-3.5" /> Macro Balance Guide
     </div>
     <p className="text-[12px] font-medium leading-relaxed text-muted-foreground text-left">
@@ -76,15 +76,15 @@ const MacroInfoContent = () => (
     </p>
     <div className="space-y-2.5 pt-1">
       <div className="flex items-center justify-between text-[11px] font-bold uppercase">
-        <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
+        <span style={{ color: "#7FB79A" }}>Protein</span>
         <span className="text-muted-foreground">30%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-bold uppercase">
-        <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
+        <span style={{ color: "#E6B800" }}>Carbs</span>
         <span className="text-muted-foreground">40%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-bold uppercase">
-        <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
+        <span style={{ color: "#DCE96A" }}>Fat</span>
         <span className="text-muted-foreground">30%</span>
       </div>
     </div>
@@ -191,9 +191,9 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen">
-      <header className="space-y-1 pt-safe md:pt-4 text-center lg:text-left animate-in fade-in duration-700">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Today</h1>
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">
+      <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-700">
+        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Today</h1>
+        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">
           {format(today, "EEEE, MMMM do")}
         </p>
       </header>
@@ -203,10 +203,10 @@ export default function Dashboard() {
           <CardContent className="p-8 sm:p-12 space-y-10">
             <div className="flex justify-between items-start">
               <div className="space-y-1.5 text-left">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Energy Balance</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
                 <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-5xl font-bold tracking-tight transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-lg font-semibold text-muted-foreground/30 tracking-tight">/ {calorieTarget} kcal</span>
+                  <h2 className={cn("text-5xl font-black tracking-tight transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-lg font-bold text-muted-foreground/30 tracking-tight">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
@@ -215,7 +215,7 @@ export default function Dashboard() {
                     <Info className="w-5 h-5 text-primary" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-72 p-6 rounded-[2.5rem] shadow-premium-lg border-none glass">
+                <PopoverContent className="w-72 p-6 rounded-[2.5rem] shadow-premium-lg border-none bg-white">
                   <MacroInfoContent />
                 </PopoverContent>
               </Popover>
@@ -227,7 +227,7 @@ export default function Dashboard() {
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
-              <div className="grid grid-cols-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest gap-2">
+              <div className="grid grid-cols-3 text-[10px] font-black text-foreground uppercase tracking-widest gap-2">
                 <div className="flex items-center gap-2 text-left">
                   <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
                   {Math.round(proteinPercent)}% Protein
@@ -245,8 +245,8 @@ export default function Dashboard() {
 
             <div className="pt-2 text-left">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Goal Progress</span>
-                <span className={cn("text-xs font-bold", isOverLimit ? "text-destructive" : "text-primary")}>
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Goal Progress</span>
+                <span className={cn("text-xs font-black", isOverLimit ? "text-destructive" : "text-primary")}>
                   {actualPercent}% {isOverLimit && "SURPLUS"}
                 </span>
               </div>
@@ -265,8 +265,8 @@ export default function Dashboard() {
               <Flame className="w-7 h-7 text-primary" />
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Burn</p>
-              <p className="text-3xl font-bold tracking-tight">{dailyLog?.caloriesBurned || 450} <span className="text-[12px] font-medium text-muted-foreground/60">kcal</span></p>
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Active Burn</p>
+              <p className="text-3xl font-black tracking-tight">{dailyLog?.caloriesBurned || 450} <span className="text-[12px] font-bold text-muted-foreground/60">kcal</span></p>
             </div>
           </Card>
 
@@ -275,12 +275,12 @@ export default function Dashboard() {
               <Droplets className="w-7 h-7 text-accent" />
             </div>
             <div className="space-y-5 w-full">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Hydration</p>
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Hydration</p>
               <div className="flex items-center justify-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-10 w-10 rounded-full bg-secondary/50 hover:bg-secondary">
                   <Minus className="w-4 h-4" />
                 </Button>
-                <span className="text-3xl font-bold tracking-tight">{water}L</span>
+                <span className="text-3xl font-black tracking-tight">{water}L</span>
                 <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-10 w-10 rounded-full bg-primary shadow-sm hover:opacity-90">
                   <Plus className="w-4 h-4" />
                 </Button>
@@ -291,7 +291,7 @@ export default function Dashboard() {
       </div>
 
       <section className="space-y-8">
-        <h2 className="text-xl font-bold tracking-tight flex items-center gap-3 px-1">
+        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left">
           <BarChart3 className="w-6 h-6 text-primary" />
           Weekly Macro Trend
         </h2>
@@ -305,12 +305,12 @@ export default function Dashboard() {
                     dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 600 }} 
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 11, fontWeight: 700 }} 
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 500 }}
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 600 }}
                     unit="kcal"
                   />
                   <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
@@ -326,7 +326,7 @@ export default function Dashboard() {
       </section>
 
       <section className="space-y-8">
-        <h2 className="text-xl font-bold tracking-tight flex items-center gap-3 px-1">
+        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-1 uppercase text-left">
           <Utensils className="w-6 h-6 text-primary" />
           Daily Food Record
         </h2>
@@ -350,15 +350,15 @@ export default function Dashboard() {
                           )}
                         </div>
                         <div className="min-w-0 text-left space-y-1">
-                          <h4 className="text-lg font-bold truncate group-hover:text-primary transition-colors">{meal.name}</h4>
+                          <h4 className="text-lg font-black truncate group-hover:text-primary transition-colors uppercase">{meal.name}</h4>
                           <div className="flex items-center gap-3">
-                            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
-                            <Badge className="h-5 px-2 py-0 text-[8px] font-bold uppercase bg-accent/10 text-accent-foreground border-none">Score: {meal.healthScore || 85}</Badge>
+                            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
+                            <Badge className="h-5 px-2 py-0 text-[8px] font-black uppercase bg-accent/20 text-accent-foreground border-none">Score: {meal.healthScore || 85}</Badge>
                           </div>
                           <div className="flex items-center gap-3 mt-1.5">
-                            <span className="text-[9px] font-bold uppercase" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
-                            <span className="text-[9px] font-bold uppercase" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
-                            <span className="text-[9px] font-bold uppercase" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
+                            <span className="text-[9px] font-black uppercase" style={{ color: "#7FB79A" }}>Protein {meal.macros?.protein}g</span>
+                            <span className="text-[9px] font-black uppercase" style={{ color: "#E6B800" }}>Carbs {meal.macros?.carbs}g</span>
+                            <span className="text-[9px] font-black uppercase" style={{ color: "#C7D94F" }}>Fat {meal.macros?.fat}g</span>
                           </div>
                         </div>
                       </div>
@@ -373,31 +373,31 @@ export default function Dashboard() {
                     <div className="px-10 pb-10 pt-4 space-y-8 border-t border-muted/30">
                       <div className="space-y-6 text-left">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest">
+                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                             <Activity className="w-4 h-4" /> Health Score
                           </div>
-                          <span className="text-2xl font-bold text-primary tracking-tight">{meal.healthScore || 85}/100</span>
+                          <span className="text-2xl font-black text-primary tracking-tight">{meal.healthScore || 85}/100</span>
                         </div>
                         <Progress value={meal.healthScore || 85} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-accent" />
 
-                        <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                           <Sparkles className="w-4 h-4" /> AI Health Insight
                         </div>
-                        <p className="text-[13px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-6 rounded-[1.5rem] border border-primary/10">
+                        <p className="text-[13px] font-bold leading-relaxed text-foreground bg-primary/5 p-6 rounded-[1.5rem] border border-primary/10">
                           {meal.expertInsight || meal.description || "A nutritionally dense meal that aligns with your specific health targets."}
                         </p>
                       </div>
                       
                       <div className="space-y-3 text-left">
-                        <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                           <Leaf className="w-4 h-4" /> Key Ingredients
                         </div>
                         <div className="flex flex-wrap gap-2.5">
                           {meal.ingredients?.map((ing: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-xl border-muted/50 text-muted-foreground px-4 py-1 font-bold text-[10px] uppercase">
+                            <Badge key={i} variant="outline" className="rounded-xl border-muted/50 text-muted-foreground px-4 py-1 font-black text-[10px] uppercase">
                               {ing}
                             </Badge>
-                          )) || <span className="text-[11px] text-muted-foreground/60 italic">Natural ingredients identified.</span>}
+                          )) || <span className="text-[11px] text-muted-foreground/60 italic font-bold">Natural ingredients identified.</span>}
                         </div>
                       </div>
                     </div>
@@ -406,8 +406,8 @@ export default function Dashboard() {
               </Collapsible>
             ))
           ) : (
-            <div className="text-center py-16 bg-white/50 rounded-[3rem] border-2 border-dashed border-muted/40 flex flex-col items-center justify-center">
-              <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest opacity-40">No records found for today</p>
+            <div className="text-center py-16 bg-white rounded-[3rem] border-2 border-dashed border-muted/40 flex flex-col items-center justify-center">
+              <p className="text-muted-foreground font-black text-sm uppercase tracking-widest opacity-40">No records found for today</p>
             </div>
           )}
         </div>
@@ -421,7 +421,7 @@ export default function Dashboard() {
           <div className="p-5 bg-white/20 rounded-2xl group-hover:scale-110 transition-transform">
             <Camera className="w-8 h-8" />
           </div>
-          <span className="font-bold text-sm uppercase tracking-[0.25em]">Snap Analysis</span>
+          <span className="font-black text-sm uppercase tracking-[0.25em]">Snap Analysis</span>
         </Button>
         <Button 
           variant="secondary"
@@ -431,7 +431,7 @@ export default function Dashboard() {
           <div className="p-5 bg-accent/10 rounded-2xl group-hover:scale-110 transition-transform">
             <Sparkles className="w-8 h-8 text-accent" />
           </div>
-          <span className="font-bold text-sm uppercase tracking-[0.25em]">Explore Picks</span>
+          <span className="font-black text-sm uppercase tracking-[0.25em]">Explore Picks</span>
         </Button>
       </div>
     </div>
