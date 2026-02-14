@@ -297,33 +297,33 @@ export default function MealPlannerPage() {
         </Link>
       </section>
 
-      {/* AI Recipe Dialog - Standardized Component */}
+      {/* AI Recipe Dialog - Optimized and Compact Size */}
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-3xl rounded-[4rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[95vw]">
-          <DialogHeader className="bg-primary p-12 text-primary-foreground">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80 mb-3">Professional Kitchen Guide</h3>
-            <DialogTitle className="text-4xl font-black uppercase tracking-tight leading-tight">
+        <DialogContent className="max-w-xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[95vw]">
+          <DialogHeader className="bg-primary p-8 sm:p-10 text-primary-foreground">
+            <h3 className="text-[9px] font-black uppercase tracking-[0.4em] opacity-80 mb-2">Professional Kitchen Guide</h3>
+            <DialogTitle className="text-3xl font-black uppercase tracking-tight leading-tight">
               {activeRecipeName}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-12">
-            <ScrollArea className="h-[450px] pr-6">
+          <div className="p-8">
+            <ScrollArea className="h-[400px] pr-4">
               {generatingRecipe ? (
                 <div className="flex flex-col items-center justify-center h-full space-y-6">
-                  <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Formulating precise instructions...</p>
                 </div>
               ) : activeRecipe ? (
                 <div className="prose prose-sm prose-green max-w-none">
-                  <div className="whitespace-pre-wrap leading-relaxed font-bold text-foreground/80 text-base sm:text-lg">
+                  <div className="whitespace-pre-wrap leading-relaxed font-bold text-foreground/80 text-sm sm:text-base">
                     {activeRecipe}
                   </div>
                 </div>
               ) : null}
             </ScrollArea>
           </div>
-          <DialogFooter className="p-12 pt-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-18 rounded-[2.5rem] font-black uppercase tracking-widest text-sm shadow-premium">Return to Schedule</Button>
+          <DialogFooter className="p-8 pt-0">
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-xs shadow-premium">Return to Schedule</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
