@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -20,8 +19,7 @@ import {
   Trophy,
   BarChart3,
   Info,
-  ScanSearch,
-  CheckCircle2
+  ScanSearch
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -53,38 +51,38 @@ import { Badge } from "@/components/ui/badge"
 const chartConfig = {
   protein: {
     label: "Protein",
-    color: "hsl(0 84.2% 60.2%)",
+    color: "hsl(var(--destructive))",
   },
   carbs: {
     label: "Carbs",
-    color: "hsl(47.9 95.8% 53.1%)",
+    color: "#EAB308",
   },
   fat: {
     label: "Fat",
-    color: "hsl(221.2 83.2% 53.3%)",
+    color: "#3B82F6",
   },
 } satisfies ChartConfig
 
 const MacroInfoContent = () => (
-  <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+  <div className="space-y-3">
+    <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wide">
       <Sparkles className="w-4 h-4" /> Macro Balance Guide
     </div>
-    <p className="text-xs font-medium leading-relaxed text-foreground/80">
-      This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good.
+    <p className="text-sm text-muted-foreground leading-relaxed">
+      Daily intake breakdown for sustained energy and recovery.
     </p>
-    <div className="space-y-3">
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-red-500">Protein</span>
-        <span>20-30g / 15-35% daily</span>
+    <div className="space-y-2 pt-2 border-t">
+      <div className="flex items-center justify-between text-xs font-medium">
+        <span className="text-destructive">Protein</span>
+        <span>15-35% daily</span>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-xs font-medium">
         <span className="text-yellow-600">Carbs</span>
-        <span>20-30g / 40-50% daily</span>
+        <span>40-50% daily</span>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
+      <div className="flex items-center justify-between text-xs font-medium">
         <span className="text-blue-500">Fat</span>
-        <span>10-15g / 20-35% daily</span>
+        <span>20-35% daily</span>
       </div>
     </div>
   </div>
@@ -105,9 +103,9 @@ export default function Dashboard() {
       const d = subDays(new Date(), i)
       data.push({
         date: format(d, "MMM d"),
-        protein: 350 + Math.floor(Math.random() * 150),
-        carbs: 800 + Math.floor(Math.random() * 300),
-        fat: 400 + Math.floor(Math.random() * 200),
+        protein: 300 + Math.floor(Math.random() * 150),
+        carbs: 600 + Math.floor(Math.random() * 300),
+        fat: 200 + Math.floor(Math.random() * 200),
       })
     }
     setWeeklyData(data)
@@ -141,9 +139,8 @@ export default function Dashboard() {
 
   if (!mounted || isUserLoading || !user) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
+      <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Initializing Ecosystem</p>
       </div>
     )
   }
@@ -164,132 +161,122 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32 animate-in fade-in duration-1000">
-      <section className="space-y-1">
-        <h1 className="text-5xl font-black tracking-tighter uppercase text-foreground">Today</h1>
-        <p className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.25em] opacity-50">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 pb-32">
+      {/* Header - Material Typography Hierarchy */}
+      <section className="px-2">
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">Today</h1>
+        <p className="text-sm font-medium text-muted-foreground mt-1">
           {format(today, "EEEE, MMMM do")}
         </p>
       </section>
 
-      {/* Hero Stats */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="rounded-[3rem] border-none shadow-2xl bg-white overflow-hidden group">
-          <CardContent className="p-10 space-y-8">
-            <div className="flex justify-between items-end">
+      {/* Hero Card - Material Elevation 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <Card className="md:col-span-7 border-none elevation-2 bg-card rounded-[1.5rem] overflow-hidden">
+          <CardContent className="p-8 space-y-6">
+            <div className="flex justify-between items-baseline">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Calories Consumed</p>
-                <h2 className="text-6xl font-black tracking-tighter tabular-nums">{consumed}</h2>
-              </div>
-              <div className="text-right pb-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Target</p>
-                <p className="text-lg font-black">{calorieTarget}</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /> Protein</div>
-                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /> Carbs</div>
-                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Fat</div>
+                <span className="text-xs font-bold uppercase tracking-widest text-primary">Consumed</span>
+                <div className="flex items-baseline gap-2">
+                  <h2 className="text-5xl font-bold">{consumed}</h2>
+                  <span className="text-lg font-medium text-muted-foreground">/ {calorieTarget} kcal</span>
                 </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full text-muted-foreground/40 hover:text-primary">
-                      <Info className="w-3 h-3" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                    <MacroInfoContent />
-                  </PopoverContent>
-                </Popover>
               </div>
-              <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary/50 border border-muted/10">
-                <div style={{ width: '25%' }} className="bg-red-500 h-full transition-all duration-700" />
-                <div style={{ width: '45%' }} className="bg-yellow-500 h-full transition-all duration-700 delay-100" />
-                <div style={{ width: '30%' }} className="bg-blue-500 h-full transition-all duration-700 delay-200" />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground/50 hover:text-primary">
+                    <Info className="w-5 h-5" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-4 rounded-xl elevation-3 border-none shadow-xl">
+                  <MacroInfoContent />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex h-3 w-full rounded-full overflow-hidden bg-secondary">
+                <div style={{ width: '25%' }} className="bg-destructive h-full transition-all duration-500" />
+                <div style={{ width: '45%' }} className="bg-yellow-500 h-full transition-all duration-500" />
+                <div style={{ width: '30%' }} className="bg-blue-500 h-full transition-all duration-500" />
+              </div>
+              <div className="flex justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-tight">
+                <span>Protein 25g</span>
+                <span>Carbs 45g</span>
+                <span>Fat 30g</span>
               </div>
             </div>
-            
+
             <div className="pt-2">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Daily Goal Progress</span>
-                <span className="text-xs font-black text-primary">{caloriePercent}%</span>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-muted-foreground">Daily Goal</span>
+                <span className="text-xs font-bold text-primary">{caloriePercent}%</span>
               </div>
-              <Progress value={caloriePercent} className="h-2.5 rounded-full bg-secondary" />
+              <Progress value={caloriePercent} className="h-2 rounded-full bg-secondary" />
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 gap-6">
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 flex flex-col items-center justify-center text-center gap-4 group hover:scale-[1.02] transition-all">
-            <div className="p-4 bg-red-50 rounded-3xl group-hover:bg-red-100 transition-colors">
-              <Flame className="w-6 h-6 text-red-500" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Calories Burned</p>
-              <h3 className="text-3xl font-black tabular-nums">{burned}</h3>
+        {/* Quick Stats - Elevation 1 */}
+        <div className="md:col-span-5 grid grid-cols-1 gap-6">
+          <Card className="border-none elevation-1 rounded-2xl p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-red-50 rounded-xl">
+                <Flame className="w-6 h-6 text-destructive" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Burned</p>
+                <p className="text-2xl font-bold">{burned} kcal</p>
+              </div>
             </div>
           </Card>
-          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-8 flex flex-col items-center justify-center text-center gap-4 group hover:scale-[1.02] transition-all">
-            <div className="p-4 bg-blue-50 rounded-3xl group-hover:bg-blue-100 transition-colors">
-              <Droplets className="w-6 h-6 text-blue-500" />
-            </div>
-            <div className="space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Water Intake</p>
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full border border-muted hover:bg-secondary">
-                  <Minus className="w-3 h-3" />
-                </Button>
-                <h3 className="text-2xl font-black tabular-nums">{water}L</h3>
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10">
-                  <Plus className="w-3 h-3 text-primary" />
-                </Button>
+
+          <Card className="border-none elevation-1 rounded-2xl p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <Droplets className="w-6 h-6 text-blue-500" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Hydration</p>
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full border border-border">
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="text-2xl font-bold">{water}L</span>
+                  <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full border border-primary/20 bg-primary/5">
+                    <Plus className="w-4 h-4 text-primary" />
+                  </Button>
+                </div>
               </div>
             </div>
           </Card>
         </div>
-      </section>
+      </div>
 
-      {/* Weekly Charts */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-xl">
-            <BarChart3 className="w-5 h-5 text-primary" />
-          </div>
-          Weekly Overview
+      {/* Weekly Trends - MD3 Adaptive Container */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-bold px-2 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-primary" />
+          Weekly Progress
         </h2>
-        <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-          <CardContent className="p-8 md:p-10">
-            <div className="h-[350px] w-full">
+        <Card className="border-none elevation-1 rounded-2xl overflow-hidden">
+          <CardContent className="p-6">
+            <div className="h-[300px] w-full">
               <ChartContainer config={chartConfig}>
-                <BarChart 
-                  data={weeklyData}
-                  margin={{ top: 20, right: 10, left: 0, bottom: 20 }}
-                >
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--muted)/0.5)" />
+                <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 800 }}
-                    tickMargin={15}
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontWeight: 600 }}
                   />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
-                    tickMargin={10}
-                  />
-                  <ChartTooltip 
-                    cursor={{ fill: "hsl(var(--muted)/0.1)" }} 
-                    content={<ChartTooltipContent hideLabel />} 
-                  />
-                  <ChartLegend content={<ChartLegendContent />} className="pt-10" />
-                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={36} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
+                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                  <ChartLegend content={<ChartLegendContent />} className="pt-6" />
+                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={32} />
                   <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" />
-                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -297,181 +284,123 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Daily Food Report */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Food Report</h2>
-        <div className="space-y-5">
+      {/* Daily Meals - Material List Pattern */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-bold px-2 uppercase tracking-tight">Daily Log</h2>
+        <div className="space-y-3">
           {isLoadingMeals ? (
-            <div className="flex justify-center py-16"><Loader2 className="animate-spin text-primary h-8 w-8" /></div>
+            <div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" /></div>
           ) : meals && meals.length > 0 ? (
             meals.map((meal) => (
-              <Card key={meal.id} className="rounded-[2.5rem] border-none shadow-lg overflow-hidden bg-white transition-all hover:shadow-xl">
-                <div 
-                  className="p-8 flex items-center justify-between cursor-pointer hover:bg-accent/5 transition-colors"
-                  onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
-                >
-                  <div className="flex items-center gap-8">
-                    <div className="w-20 h-20 bg-secondary rounded-[2rem] flex items-center justify-center overflow-hidden relative shadow-inner">
+              <Card 
+                key={meal.id} 
+                className="rounded-2xl border-none elevation-1 hover:elevation-2 transition-all cursor-pointer overflow-hidden group bg-card"
+                onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
+              >
+                <div className="p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 bg-muted rounded-xl relative overflow-hidden flex-shrink-0">
                       <Image 
                         src={`https://picsum.photos/seed/${meal.id}/200`} 
                         alt={meal.name} 
                         fill 
-                        className="object-cover"
-                        data-ai-hint="healthy meal"
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <h3 className="font-black text-2xl leading-tight tracking-tight">{meal.name}</h3>
-                      <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em]">{meal.time}</p>
+                    <div>
+                      <h3 className="font-bold text-lg leading-tight">{meal.name}</h3>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-black text-3xl tracking-tighter text-foreground">+{meal.calories}</span>
-                    <span className="text-[10px] font-black text-muted-foreground ml-1.5 uppercase">kcal</span>
+                    <span className="text-xl font-bold">+{meal.calories}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground ml-1">KCAL</span>
                   </div>
                 </div>
                 {expandedMeal === meal.id && (
-                  <div className="px-10 pb-10 pt-4 border-t border-muted/10 space-y-8 animate-in slide-in-from-top-4 duration-500">
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-b border-muted/10 pb-6">
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.protein}g Protein</span></div>
-                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.carbs}g Carbs</span></div>
-                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[11px] font-black uppercase">{meal.macros?.fat}g Fat</span></div>
-                        
-                        <div className="flex items-center gap-2 ml-auto">
-                           <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
-                                <Info className="w-3.5 h-3.5" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                              <MacroInfoContent />
-                            </PopoverContent>
-                          </Popover>
-                          <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
-                            <Trophy className="w-3.5 h-3.5 text-primary" />
-                            <span className="text-[11px] font-black uppercase text-primary">{meal.healthScore}/100 Score</span>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-4 w-4 rounded-full text-primary hover:bg-primary/20 ml-1">
-                                  <Info className="w-2.5 h-2.5" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                                <div className="space-y-3">
-                                  <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                                    <Trophy className="w-4 h-4" /> Health Benefit Score
-                                  </div>
-                                  <p className="text-xs font-medium leading-relaxed text-foreground/80">
-                                    Health Benefit score is a quick 0-100 rate of how healthy your meal is.
-                                    Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
-                                    The closer to 100, the more nutrient-rich your meal is!
-                                  </p>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                        </div>
+                  <div className="px-6 pb-6 pt-2 border-t border-border/50 animate-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-3 gap-3 mb-6">
+                      <div className="text-center p-2 bg-destructive/5 rounded-lg border border-destructive/10">
+                        <span className="block text-[9px] font-bold text-destructive uppercase">Protein</span>
+                        <span className="text-sm font-bold">{meal.macros?.protein}g</span>
+                      </div>
+                      <div className="text-center p-2 bg-yellow-50 rounded-lg border border-yellow-200/50">
+                        <span className="block text-[9px] font-bold text-yellow-600 uppercase">Carbs</span>
+                        <span className="text-sm font-bold">{meal.macros?.carbs}g</span>
+                      </div>
+                      <div className="text-center p-2 bg-blue-50 rounded-lg border border-blue-200/50">
+                        <span className="block text-[9px] font-bold text-blue-500 uppercase">Fat</span>
+                        <span className="text-sm font-bold">{meal.macros?.fat}g</span>
                       </div>
                     </div>
-                    
-                    {/* Ingredients Section with Info Button */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                         <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40">Ingredients Intelligence</p>
-                         <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
-                                <Info className="w-3.5 h-3.5" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                                  <ScanSearch className="w-4 h-4" /> AI Scanning
-                                </div>
-                                <p className="text-xs font-medium leading-relaxed text-foreground/80">
-                                  AI-powered food recognition scans the photo to pick out the ingredients and estimate their portions.
-                                  While AI usually gets things right, it can sometimes mix up the ingredients, especially in complex dishes. 
-                                  It works best when each item is clearly visible. If something doesn't look quite right, feel free to edit the results yourself.
-                                </p>
-                              </div>
-                            </PopoverContent>
-                         </Popover>
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-bold text-primary uppercase">Health Score: {meal.healthScore}/100</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {meal.ingredients?.map((ing: string, i: number) => (
-                          <Badge key={i} variant="secondary" className="px-3 py-1 rounded-lg font-bold text-[10px] bg-secondary/50 border-none">
-                            {ing}
-                          </Badge>
-                        )) || <p className="text-xs text-muted-foreground italic">No ingredient data available.</p>}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40">Nutritional Analysis</p>
-                      <p className="text-base font-medium text-foreground/70 leading-relaxed italic pr-8">
-                        "{meal.description || "Balanced meal providing sustained energy."}"
-                      </p>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full">
+                            <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72 p-4 rounded-xl elevation-3 border-none">
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            Nutrient density score based on fiber, proteins, and minerals vs processed additives.
+                          </p>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 )}
               </Card>
             ))
           ) : (
-            <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center gap-8">
-              <Utensils className="w-16 h-16 text-muted-foreground/20" />
-              <p className="text-muted-foreground font-black text-xl uppercase tracking-tight">Your Log is Empty</p>
-              <Button onClick={() => router.push("/record")} className="rounded-full px-12 h-14 font-black uppercase text-xs tracking-widest shadow-xl">
-                Log My First Meal
+            <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-border flex flex-col items-center gap-4">
+              <Utensils className="w-12 h-12 text-muted-foreground/30" />
+              <p className="text-muted-foreground font-medium">No activity logged for today.</p>
+              <Button onClick={() => router.push("/record")} className="rounded-full px-8 h-12 font-bold elevation-1">
+                Log Your First Meal
               </Button>
             </div>
           )}
         </div>
       </section>
 
-      {/* Action Hub */}
-      <section className="grid grid-cols-2 gap-6 pt-4">
+      {/* Action FABs - Material Design Pattern */}
+      <div className="flex gap-4 pt-4">
         <Button 
           onClick={() => router.push("/record")}
-          className="h-40 rounded-[2.5rem] flex flex-col gap-3 bg-primary text-primary-foreground hover:bg-primary/95 shadow-2xl shadow-primary/20 transition-all active:scale-95 group"
+          className="flex-1 h-32 rounded-3xl flex flex-col gap-2 bg-primary text-primary-foreground elevation-2 hover:elevation-3 transition-all active:scale-95"
         >
-          <div className="p-3 bg-white/20 rounded-2xl group-hover:rotate-6 transition-transform">
-            <Camera className="w-8 h-8" />
-          </div>
-          <span className="font-black uppercase text-xs tracking-[0.2em]">Snap Meal</span>
+          <Camera className="w-8 h-8" />
+          <span className="font-bold text-xs uppercase tracking-widest">Snap Meal</span>
         </Button>
         <Button 
           variant="secondary"
           onClick={() => router.push("/meal-planner")}
-          className="h-40 rounded-[2.5rem] flex flex-col gap-3 bg-white border-2 border-primary/5 hover:bg-secondary/50 text-primary shadow-xl transition-all active:scale-95 group"
+          className="flex-1 h-32 rounded-3xl flex flex-col gap-2 bg-card text-foreground border-none elevation-1 hover:elevation-2 transition-all active:scale-95"
         >
-          <div className="p-3 bg-primary/5 rounded-2xl group-hover:-rotate-6 transition-transform">
-            <Calendar className="w-8 h-8" />
-          </div>
-          <span className="font-black uppercase text-xs tracking-[0.2em]">Plan Day</span>
+          <Calendar className="w-8 h-8 text-primary" />
+          <span className="font-bold text-xs uppercase tracking-widest text-primary">Plan Day</span>
         </Button>
-      </section>
+      </div>
 
-      {/* AI Wellness Banner */}
-      <Card className="rounded-[3rem] border-none bg-primary text-primary-foreground p-12 relative overflow-hidden group shadow-2xl shadow-primary/30">
-        <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
-          <Sparkles className="w-48 h-48" />
+      {/* AI Wellness Insight - Elevated Banner */}
+      <Card className="rounded-3xl border-none elevation-2 bg-primary text-primary-foreground p-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <Sparkles className="w-32 h-32" />
         </div>
-        <div className="relative z-10 space-y-6 max-w-lg">
-          <div className="flex items-center gap-4">
-             <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
-               <Sparkles className="w-6 h-6" />
+        <div className="relative z-10 space-y-4">
+          <div className="flex items-center gap-3">
+             <div className="bg-white/20 p-2 rounded-lg">
+               <Sparkles className="w-5 h-5" />
              </div>
-             <h2 className="text-2xl font-black uppercase tracking-tight">AI Wellness Insight</h2>
+             <h2 className="text-lg font-bold uppercase tracking-tight">AI Wellness</h2>
           </div>
-          <p className="text-lg font-medium opacity-90 leading-relaxed italic">
-            "You're maintaining a great macro balance today. Keep drinking water to support recovery from your active morning."
+          <p className="text-base font-medium opacity-90 italic">
+            "Your protein intake is excellent today. Try adding a bit more water after your next meal to optimize digestion."
           </p>
-          <Button variant="secondary" className="rounded-full font-black text-[10px] uppercase tracking-[0.2em] h-12 px-10 bg-white text-primary">
-            View Full Analysis
-          </Button>
         </div>
       </Card>
     </div>
