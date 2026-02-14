@@ -24,6 +24,7 @@ import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import { 
   Bar, 
   BarChart, 
@@ -290,8 +291,12 @@ export default function Dashboard() {
               <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all">
                 <CardContent className="p-5 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 overflow-hidden">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                      <Utensils className="w-6 h-6 text-primary" />
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 relative overflow-hidden">
+                      {meal.imageUrl ? (
+                        <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
+                      ) : (
+                        <Utensils className="w-6 h-6 text-primary" />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-sm font-black uppercase truncate">{meal.name}</h4>

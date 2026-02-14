@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,9 @@ import {
   ChevronRightIcon,
   Edit2,
   ChefHat,
-  ShoppingBag
+  ShoppingBag,
+  Camera,
+  X
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -24,6 +26,7 @@ import { generateRecipe } from "@/ai/flows/generate-recipe"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp } from "firebase/firestore"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import {
   Dialog,
   DialogContent,
@@ -56,7 +59,9 @@ export default function MealPlannerPage() {
   const [mealName, setMealName] = useState("")
   const [mealType, setMealType] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
+  const [mealImageUrl, setMealImageUrl] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
   const [generatingRecipe, setGeneratingRecipe] = useState(false)
@@ -84,6 +89,17 @@ export default function MealPlannerPage() {
   const handleNextDay = () => date && setDate(addDays(date, 1))
   const handleToday = () => setDate(startOfToday())
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setMealImageUrl(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSaveMeal = async () => {
     if (!user || !mealsColRef || !mealName) return
     setIsSaving(true)
@@ -99,6 +115,7 @@ export default function MealPlannerPage() {
       description: "Custom meal scheduled for peak metabolic performance.",
       source: "planner",
       reminderEnabled,
+      imageUrl: mealImageUrl,
       updatedAt: serverTimestamp()
     }
 
@@ -110,7 +127,15 @@ export default function MealPlannerPage() {
       toast({ title: "Meal Scheduled", description: `${mealName} is now on your timeline.` })
     }
 
-    setMealName(""); setEditingMealId(null); setIsDialogOpen(false); setIsSaving(false)
+    resetForm()
+  }
+
+  const resetForm = () => {
+    setMealName("")
+    setEditingMealId(null)
+    setMealImageUrl(null)
+    setIsDialogOpen(false)
+    setIsSaving(false)
   }
 
   const openEditDialog = (meal: any) => {
@@ -118,6 +143,7 @@ export default function MealPlannerPage() {
     setMealName(meal.name)
     setMealType(meal.type || "Breakfast")
     setReminderEnabled(!!meal.reminderEnabled)
+    setMealImageUrl(meal.imageUrl || null)
     setIsDialogOpen(true)
   }
 
@@ -164,19 +190,19 @@ export default function MealPlannerPage() {
             <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronRight className="h-4 w-4" /></Button>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) { setEditingMealId(null); setMealName(""); } }}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6 font-black uppercase text-[9px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
                 <Plus className="w-4 h-4 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background">
+            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw] max-w-lg">
               <DialogHeader className="bg-primary p-8 text-primary-foreground text-center">
                 <DialogTitle className="text-2xl font-black uppercase tracking-tight">
                   {editingMealId ? "Refine Meal" : "New Schedule"}
                 </DialogTitle>
               </DialogHeader>
-              <div className="p-8 space-y-6">
+              <div className="p-8 space-y-6 overflow-y-auto max-h-[60vh]">
                 <div className="grid gap-5">
                   <div className="space-y-1.5">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
@@ -196,6 +222,35 @@ export default function MealPlannerPage() {
                     <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Description</Label>
                     <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-[1.25rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
+                  
+                  <div className="space-y-1.5">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Image (Optional)</Label>
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-primary/10 rounded-[1.5rem] p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-all aspect-video relative overflow-hidden"
+                    >
+                      {mealImageUrl ? (
+                        <>
+                          <Image src={mealImageUrl} alt="Meal Preview" fill className="object-cover" />
+                          <Button 
+                            variant="destructive" 
+                            size="icon" 
+                            className="absolute top-2 right-2 rounded-full h-8 w-8"
+                            onClick={(e) => { e.stopPropagation(); setMealImageUrl(null); }}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="w-8 h-8 text-primary/20 mb-2" />
+                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Click to upload photo</p>
+                        </>
+                      )}
+                    </div>
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  </div>
+
                   <div className="flex items-center justify-between p-5 bg-secondary/30 rounded-[1.5rem]">
                     <div className="space-y-0.5">
                       <Label className="text-[10px] font-black uppercase tracking-widest">Smart Alerts</Label>
@@ -229,23 +284,32 @@ export default function MealPlannerPage() {
                          <div className="text-center min-w-[100px] border-r pr-8 border-border hidden sm:block">
                            <p className="text-xl font-black text-primary/40 leading-none">{meal.time}</p>
                          </div>
-                         <div className="space-y-1.5 flex-1">
-                            <div className="flex items-center gap-2.5">
-                              <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
-                              <Badge className={cn(
-                                "rounded-xl font-black text-[8px] uppercase tracking-widest border-none px-2.5 py-0.5",
-                                meal.source === 'planner' ? "bg-primary/10 text-primary" : "bg-green-500/10 text-green-600"
-                              )}>
-                                {meal.source === 'planner' ? 'COOK' : meal.source}
-                              </Badge>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-4">
-                               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
-                               <div className="flex items-center gap-4">
-                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
-                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span></div>
-                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span></div>
-                               </div>
+                         <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-4">
+                              {meal.imageUrl && (
+                                <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm shrink-0 border border-muted/20">
+                                  <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
+                                </div>
+                              )}
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2.5">
+                                  <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
+                                  <Badge className={cn(
+                                    "rounded-xl font-black text-[8px] uppercase tracking-widest border-none px-2.5 py-0.5",
+                                    meal.source === 'planner' ? "bg-primary/10 text-primary" : "bg-green-500/10 text-green-600"
+                                  )}>
+                                    {meal.source === 'planner' ? 'COOK' : meal.source}
+                                  </Badge>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4">
+                                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
+                                   <div className="flex items-center gap-4">
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span></div>
+                                      <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span></div>
+                                   </div>
+                                </div>
+                              </div>
                             </div>
                          </div>
                       </div>
