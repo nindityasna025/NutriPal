@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ import {
   Info
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
-import { doc, collection, serverTimestamp } from "firebase/firestore"
+import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -188,7 +188,7 @@ export default function ExplorePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Explore</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Smart Decision Hub</p>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60 text-center lg:text-left">Smart Decision Hub</p>
       </header>
 
       {!curatedResult && !aiPlan && (
@@ -255,12 +255,12 @@ export default function ExplorePage() {
                 <CardContent className="p-0">
                   <div className="p-6 flex flex-col md:flex-row justify-between gap-6">
                     <div className="flex-1 space-y-4">
-                      <div className="space-y-1">
+                      <div className="space-y-1 text-left">
                         <div className="flex items-center gap-1.5 text-primary font-black text-[9px] uppercase tracking-widest text-left"><TrendingUp className="w-3.5 h-3.5" /> {item.healthScore}% Health Score</div>
                         <h3 className="text-xl font-black tracking-tight uppercase text-left">{item.name}</h3>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-left">{item.restaurant}</p>
                       </div>
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex gap-2 flex-wrap justify-start">
                         <Badge className="rounded-xl px-3 py-1 bg-primary/10 text-primary border-none font-bold uppercase text-[8px]">+{item.calories} kcal</Badge>
                         {item.tags.map((tag: string, i: number) => (
                           <Badge key={i} variant="outline" className="rounded-xl px-3 py-1 border-muted-foreground/10 text-muted-foreground font-bold uppercase text-[8px]">{tag}</Badge>
