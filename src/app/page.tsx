@@ -23,7 +23,7 @@ import {
   Activity,
   Leaf
 } from "lucide-react"
-import { format, startOfToday, subDays } from "date-fns"
+import { format, startOfToday, subDays, parseISO } from "date-fns"
 import { collection, doc, query, orderBy, limit } from "firebase/firestore"
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -55,9 +55,9 @@ import {
 
 // Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Forest Green Brand
-  carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Lime
+  protein: "hsl(var(--primary))", 
+  carbs: "hsl(38 92% 50%)",      
+  fat: "hsl(var(--accent))",     
 }
 
 const chartConfig = {
@@ -131,11 +131,13 @@ export default function Dashboard() {
   const { data: logsData } = useCollection(logsQuery)
 
   const weeklyData = useMemo(() => {
+    if (!today) return [];
     const days = [];
     for (let i = 6; i >= 0; i--) {
-      const d = subDays(new Date(), i);
+      const d = subDays(today, i);
       const dStr = format(d, "yyyy-MM-dd");
-      const foundLog = logsData?.find(l => l.date === dStr);
+      // Cek dokumen dailyLog yang memiliki ID atau field 'date' yang cocok
+      const foundLog = logsData?.find(l => l.date === dStr || l.id === dStr);
       
       if (foundLog) {
         days.push({
@@ -154,7 +156,7 @@ export default function Dashboard() {
       }
     }
     return days;
-  }, [logsData]);
+  }, [logsData, today]);
 
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
@@ -211,9 +213,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8 pb-24 min-h-screen">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8 space-y-8 pb-24 min-h-screen">
       <header className="space-y-1 pt-safe text-center animate-in fade-in duration-500">
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-foreground uppercase">Today</h1>
+        <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Today</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.5em] opacity-40">
           {format(today, "EEEE, MMMM do")}
         </p>
@@ -221,18 +223,18 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2.5rem] overflow-hidden">
-          <CardContent className="p-8 sm:p-12 space-y-12">
+          <CardContent className="p-8 sm:p-10 space-y-10">
             <div className="flex justify-between items-start">
-              <div className="space-y-2 text-left">
+              <div className="space-y-1 text-left">
                 <span className="text-[11px] font-black uppercase tracking-[0.3em] text-foreground opacity-60">Energy Balance</span>
                 <div className="flex items-baseline gap-3">
-                  <h2 className={cn("text-6xl sm:text-7xl font-black tracking-tighter transition-colors text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-2xl font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
+                  <h2 className={cn("text-6xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-xl font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full h-10 w-10 bg-secondary hover:bg-secondary/80 transition-all border border-border/50">
+                  <Button variant="secondary" size="icon" className="rounded-full h-10 w-10 bg-secondary hover:bg-secondary/80 border border-border/50">
                     <Info className="w-5 h-5 text-foreground" />
                   </Button>
                 </PopoverTrigger>
@@ -291,7 +293,7 @@ export default function Dashboard() {
 
         <div className="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-6">
           <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group transition-all">
-            <div className="p-5 bg-primary/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-primary/10">
+            <div className="p-4 bg-primary/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-primary/10">
               <Flame className="w-6 h-6 text-foreground" />
             </div>
             <div className="space-y-1">
@@ -301,18 +303,18 @@ export default function Dashboard() {
           </Card>
 
           <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group transition-all">
-            <div className="p-5 bg-accent/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-accent/10">
+            <div className="p-4 bg-accent/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-accent/10">
               <Droplets className="w-6 h-6 text-foreground" />
             </div>
-            <div className="space-y-6 w-full">
+            <div className="space-y-4 w-full">
               <p className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
               <div className="flex items-center justify-center gap-6">
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-12 w-12 rounded-2xl bg-secondary/80 hover:bg-secondary transition-all active:scale-90 border-2 border-border/30">
-                  <Minus className="w-5 h-5 text-foreground" />
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-10 w-10 rounded-xl bg-secondary/80 hover:bg-secondary border border-border/30">
+                  <Minus className="w-4 h-4 text-foreground" />
                 </Button>
-                <span className="text-4xl font-black tracking-tighter text-foreground">{water}L</span>
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground shadow-lg hover:opacity-95 transition-all active:scale-90 border-none">
-                  <Plus className="w-5 h-5 text-foreground" />
+                <span className="text-3xl font-black tracking-tighter text-foreground">{water}L</span>
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-10 w-10 rounded-xl bg-primary text-primary-foreground shadow-lg hover:opacity-95 border-none">
+                  <Plus className="w-4 h-4 text-foreground" />
                 </Button>
               </div>
             </div>
@@ -443,22 +445,22 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
-          className="h-36 rounded-[2.5rem] flex flex-col gap-4 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-95 transition-all active:scale-[0.98] group border-none"
+          className="h-32 rounded-[2.5rem] flex flex-col gap-3 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-95 transition-all group border-none"
         >
-          <div className="p-4 bg-white/30 rounded-2xl group-hover:scale-110 transition-transform">
-            <Camera className="w-7 h-7 text-foreground" strokeWidth={2.5} />
+          <div className="p-3 bg-white/30 rounded-2xl group-hover:scale-110 transition-transform">
+            <Camera className="w-6 h-6 text-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.3em] text-foreground text-center">Snap Analysis</span>
+          <span className="font-black text-[10px] uppercase tracking-[0.3em] text-foreground text-center">Snap Analysis</span>
         </Button>
         <Button 
           variant="secondary"
           onClick={() => router.push("/planner")}
-          className="h-36 rounded-[2.5rem] flex flex-col gap-4 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all active:scale-[0.98] group"
+          className="h-32 rounded-[2.5rem] flex flex-col gap-3 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all group"
         >
-          <div className="p-4 bg-accent/20 rounded-2xl group-hover:scale-110 transition-transform">
-            <Sparkles className="w-7 h-7 text-foreground opacity-60" strokeWidth={2.5} />
+          <div className="p-3 bg-accent/20 rounded-2xl group-hover:scale-110 transition-transform">
+            <Sparkles className="w-6 h-6 text-foreground opacity-60" strokeWidth={2.5} />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.3em] text-foreground text-center">Explore Picks</span>
+          <span className="font-black text-[10px] uppercase tracking-[0.3em] text-foreground text-center">Explore Picks</span>
         </Button>
       </div>
     </div>

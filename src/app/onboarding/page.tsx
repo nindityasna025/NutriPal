@@ -46,18 +46,13 @@ export default function OnboardingPage() {
   }, [weight, height])
 
   const calculateCalorieTarget = (w: number, h: number, a: number, g: "male" | "female", cat: string) => {
-    // Mifflin-St Jeor Equation
     let bmr = (10 * w) + (6.25 * h) - (5 * a)
     if (g === "male") bmr += 5
     else bmr -= 161
-
-    // Baseline TDEE (Sedentary factor 1.2)
     const tdee = bmr * 1.2
-
-    // Adjust based on health category goal
-    if (cat === "Obese" || cat === "Overweight") return Math.round(tdee - 500) // Weight loss
-    if (cat === "Underweight") return Math.round(tdee + 500) // Weight gain
-    return Math.round(tdee) // Maintenance
+    if (cat === "Obese" || cat === "Overweight") return Math.round(tdee - 500)
+    if (cat === "Underweight") return Math.round(tdee + 500)
+    return Math.round(tdee)
   }
 
   const handleFinish = async () => {
@@ -80,13 +75,12 @@ export default function OnboardingPage() {
         dietaryRestrictions: restrictions,
         allergies,
         calorieTarget,
-        proteinTarget: 30, // 30% Protein
-        carbsTarget: 40,   // 40% Carbs
-        fatTarget: 30,     // 30% Fat
+        proteinTarget: 30,
+        carbsTarget: 40,
+        fatTarget: 30,
         onboardedAt: new Date().toISOString()
       }
       
-      // 1. Save Profile
       await setDoc(doc(firestore, "users", user.uid), { 
         onboarded: true, 
         email: user.email 
@@ -94,19 +88,9 @@ export default function OnboardingPage() {
       
       await setDoc(doc(firestore, "users", user.uid, "profile", "main"), profileData)
 
-      // 2. Generate Initial Meal Plan for Today
       const today = new Date()
       const dateId = format(today, "yyyy-MM-dd")
       const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
-
-      await setDoc(dailyLogRef, {
-        date: dateId,
-        caloriesConsumed: 0,
-        caloriesBurned: 450, // Default estimate
-        waterIntake: 0
-      }, { merge: true })
-
-      const mealsColRef = collection(dailyLogRef, "meals")
 
       const starterMeals = [
         {
@@ -116,8 +100,8 @@ export default function OnboardingPage() {
           source: "planner",
           macros: { protein: 14, carbs: 28, fat: 24 },
           healthScore: 92,
-          description: "Whole grain toast topped with fresh avocado and perfectly poached eggs. High in healthy fats.",
-          ingredients: ["Whole grain bread", "Avocado", "Eggs", "Chili flakes"],
+          description: "Whole grain toast topped with fresh avocado and perfectly poached eggs.",
+          ingredients: ["Whole grain bread", "Avocado", "Eggs"],
           reminderEnabled: true,
           createdAt: serverTimestamp()
         },
@@ -128,8 +112,8 @@ export default function OnboardingPage() {
           source: "planner",
           macros: { protein: 12, carbs: 55, fat: 18 },
           healthScore: 95,
-          description: "Fresh and light quinoa bowl with cucumber, olives, and feta. Perfect for a busy afternoon.",
-          ingredients: ["Quinoa", "Cucumber", "Kalamata olives", "Feta cheese", "Lemon dressing"],
+          description: "Fresh and light quinoa bowl with cucumber, olives, and feta.",
+          ingredients: ["Quinoa", "Cucumber", "Feta cheese"],
           reminderEnabled: true,
           createdAt: serverTimestamp()
         },
@@ -140,17 +124,33 @@ export default function OnboardingPage() {
           source: "planner",
           macros: { protein: 34, carbs: 12, fat: 28 },
           healthScore: 98,
-          description: "Grilled Atlantic salmon seasoned with fresh herbs and lemon. Rich in Omega-3 fatty acids.",
-          ingredients: ["Salmon fillet", "Lemon", "Rosemary", "Asparagus", "Olive oil"],
+          description: "Grilled Atlantic salmon seasoned with fresh herbs and lemon.",
+          ingredients: ["Salmon fillet", "Lemon", "Asparagus"],
           reminderEnabled: true,
           createdAt: serverTimestamp()
         }
       ]
 
-      // Create starter meals
+      const totals = starterMeals.reduce((acc, m) => ({
+        calories: acc.calories + m.calories,
+        protein: acc.protein + m.macros.protein,
+        carbs: acc.carbs + m.macros.carbs,
+        fat: acc.fat + m.macros.fat,
+      }), { calories: 0, protein: 0, carbs: 0, fat: 0 })
+
+      await setDoc(dailyLogRef, {
+        date: dateId,
+        caloriesConsumed: totals.calories,
+        proteinTotal: totals.protein,
+        carbsTotal: totals.carbs,
+        fatTotal: totals.fat,
+        caloriesBurned: 450,
+        waterIntake: 0
+      }, { merge: true })
+
+      const mealsColRef = collection(dailyLogRef, "meals")
       for (const meal of starterMeals) {
-        const mealRef = doc(mealsColRef)
-        await setDoc(mealRef, meal)
+        await setDoc(doc(mealsColRef), meal)
       }
       
       router.push("/")
@@ -267,7 +267,7 @@ export default function OnboardingPage() {
                 <Checkbox 
                   id={res} 
                   checked={restrictions.includes(res)} 
-                  className="rounded-lg h-5 w-5 border-2 border-primary/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  className="rounded-lg h-5 w-5 border-2 border-primary/20 data-[state=checked]:bg-primary"
                   onCheckedChange={(checked) => {
                     if (checked) setRestrictions([...restrictions, res])
                     else setRestrictions(restrictions.filter(r => r !== res))
@@ -278,7 +278,7 @@ export default function OnboardingPage() {
             ))}
           </div>
           <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Food Allergies (if any)</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Food Allergies</Label>
             <Input 
               value={allergies} 
               onChange={e => setAllergies(e.target.value)} 
@@ -292,7 +292,7 @@ export default function OnboardingPage() {
       <Button 
         onClick={handleFinish} 
         disabled={loading || !weight || !height || !gender || !age} 
-        className="w-full h-16 text-lg font-black uppercase tracking-widest rounded-[2rem] shadow-xl shadow-primary/20 transition-all active:scale-95 bg-primary text-primary-foreground hover:bg-primary/90"
+        className="w-full h-16 text-lg font-black uppercase tracking-widest rounded-[2rem] shadow-xl bg-primary text-primary-foreground"
       >
         {loading ? <Loader2 className="animate-spin mr-3" /> : null}
         Complete My Profile
