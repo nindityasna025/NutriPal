@@ -19,7 +19,8 @@ import {
   ListOrdered,
   Clock,
   Activity,
-  Leaf
+  Leaf,
+  ChevronDown
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -49,6 +50,13 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 
 // Standardized Macro Colors
 const MACRO_COLORS = {
@@ -60,6 +68,7 @@ const MACRO_COLORS = {
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [mounted, setMounted] = useState(false)
+  const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
   const { toast } = useToast()
   
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -377,9 +386,9 @@ export default function MealPlannerPage() {
         </Dialog>
       </div>
 
-      <section className="space-y-4">
-        <h2 className="text-[11px] font-black tracking-[0.2em] flex items-center gap-3 px-2 uppercase text-left text-foreground opacity-60">
-          <Clock className="w-4 h-4 text-foreground" />
+      <section className="space-y-6">
+        <h2 className="text-xl font-black tracking-tighter flex items-center gap-4 px-2 uppercase text-left text-foreground">
+          <Clock className="w-7 h-7 text-foreground opacity-80" />
           YOUR SCHEDULE
         </h2>
         <div className="space-y-4">
@@ -387,42 +396,111 @@ export default function MealPlannerPage() {
             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
           ) : scheduledMeals && scheduledMeals.length > 0 ? (
               sortedMeals.map((meal) => (
-                <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden hover:shadow-premium-lg transition-all group">
-                  <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-1 w-full">
-                       <div className="text-left min-w-[70px] border-r border-border/50 pr-4 hidden sm:block">
-                         <p className="text-[13px] font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
-                       </div>
-                       <div className="space-y-1 flex-1 text-left">
-                          <h3 className="text-sm font-black tracking-tight uppercase leading-none text-foreground group-hover:text-primary transition-colors">
-                            {meal.name}
-                          </h3>
-                          <div className="flex flex-row items-center gap-4">
-                             <p className="text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
-                             <div className="flex flex-wrap items-center gap-3">
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
-                                  <span className="text-[8px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
+                <Collapsible 
+                  key={meal.id} 
+                  open={expandedMealId === meal.id} 
+                  onOpenChange={(isOpen) => setExpandedMealId(isOpen ? meal.id : null)}
+                >
+                  <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
+                    <div className="flex items-center gap-4">
+                      <CollapsibleTrigger asChild>
+                        <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6 cursor-pointer flex-1 w-full">
+                          <div className="flex items-center gap-6 flex-1 w-full">
+                            <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
+                              <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
+                            </div>
+                            <div className="space-y-2 flex-1 text-left">
+                              <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                                {meal.name}
+                              </h3>
+                              <div className="flex flex-row items-center gap-6">
+                                <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                                <div className="flex flex-wrap items-center gap-4">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
+                                    <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
+                                    <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
+                                    <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
-                                  <span className="text-[8px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
-                                  <span className="text-[8px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
-                                </div>
-                             </div>
+                              </div>
+                            </div>
                           </div>
-                       </div>
+                        </CardContent>
+                      </CollapsibleTrigger>
+                      
+                      <div className="flex items-center gap-2 pr-6 sm:pr-8 shrink-0">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={(e) => { e.stopPropagation(); handleGetRecipe(meal); }} 
+                          className="text-foreground hover:bg-primary/20 rounded-lg h-9 w-9 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"
+                        >
+                          <ChefHat className="w-5 h-5" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={(e) => { e.stopPropagation(); openEditDialog(meal); }} 
+                          className="text-foreground opacity-50 hover:bg-secondary rounded-lg h-9 w-9 border border-border shadow-sm transition-all active:scale-90"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal); }} 
+                          className="text-foreground opacity-50 hover:text-destructive rounded-lg h-9 w-9 border border-border shadow-sm transition-all active:scale-90"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                        <div className={cn("bg-secondary p-2 rounded-full transition-all ml-2", expandedMealId === meal.id ? "rotate-180" : "")}>
+                          <ChevronDown className="w-4 h-4 text-foreground opacity-30" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                       <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-lg h-8 w-8 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-4 h-4" /></Button>
-                       <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-lg h-8 w-8 border border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-3.5 h-3.5" /></Button>
-                       <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-lg h-8 w-8 border border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-3.5 h-3.5" /></Button>
-                    </div>
-                  </CardContent>
-                </Card>
+
+                    <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
+                      <div className="px-8 pb-10 pt-6 space-y-8 border-t-2 border-border/30">
+                        <div className="space-y-6 text-left">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
+                              <Activity className="w-5 h-5 text-primary" /> Health Score
+                            </div>
+                            <span className="text-3xl font-black text-foreground tracking-tighter">{meal.healthScore || 85}/100</span>
+                          </div>
+                          <Progress value={meal.healthScore || 85} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-accent" />
+
+                          <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
+                            <Sparkles className="w-5 h-5 text-primary" /> AI Insight
+                          </div>
+                          <p className="text-[14px] font-bold leading-relaxed text-foreground bg-primary/10 p-6 rounded-[1.5rem] border-2 border-primary/20">
+                            {meal.expertInsight || meal.description || "Nutritionally dense meal aligned with your targets."}
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-4 text-left">
+                          <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
+                            <Leaf className="w-5 h-5 text-primary" /> Ingredients
+                          </div>
+                          <div className="flex flex-wrap gap-3">
+                            {meal.ingredients?.map((ing: string, i: number) => (
+                              <Badge key={i} variant="outline" className="rounded-xl border-2 border-border text-foreground opacity-80 px-4 py-1.5 font-black text-[10px] uppercase">
+                                {ing}
+                              </Badge>
+                            )) || <span className="text-[10px] text-foreground opacity-30 italic font-black uppercase">Natural ingredients.</span>}
+                          </div>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
               ))
             ) : (
               <div className="text-center py-16 bg-white/50 rounded-[2.5rem] border-2 border-dashed border-border/30 flex flex-col items-center justify-center shadow-sm px-6">
@@ -436,22 +514,19 @@ export default function MealPlannerPage() {
 
       <section className="pt-2">
         <Link href="/planner">
-          <Card className="rounded-[2.5rem] bg-primary/20 border-2 border-primary/30 text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]">
-            <CardContent className="p-6 sm:p-8 flex flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-6 flex-1">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0 border border-primary/20">
-                  <Sparkles className="w-6 h-6 text-primary" />
+          <Card className="rounded-[2rem] bg-primary/20 border-2 border-primary/30 text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]">
+            <CardContent className="p-4 sm:p-5 flex flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0 border border-primary/20">
+                  <Sparkles className="w-5 h-5 text-primary" />
                 </div>
-                <div className="space-y-1 text-left">
-                  <p className="text-[9px] font-black uppercase text-foreground opacity-70 tracking-[0.3em] mb-0.5">FEELING INDECISIVE?</p>
-                  <h3 className="text-xl font-black uppercase tracking-tighter leading-none text-foreground">AI DECISION HUB</h3>
-                  <p className="text-foreground opacity-60 font-black text-[9px] uppercase tracking-widest leading-relaxed max-w-[200px] hidden sm:block">
-                    LET AI ANALYZE DEALS OR CURATE A MENU INSTANTLY.
-                  </p>
+                <div className="space-y-0.5 text-left">
+                  <p className="text-[8px] font-black uppercase text-foreground opacity-70 tracking-[0.2em]">FEELING INDECISIVE?</p>
+                  <h3 className="text-lg font-black uppercase tracking-tighter leading-none text-foreground">AI DECISION HUB</h3>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-primary text-foreground px-6 h-10 rounded-xl font-black uppercase text-[9px] tracking-widest shadow-xl shadow-primary/20 group-hover:bg-primary/90 transition-all border-none shrink-0">
-                EXPLORE <ChevronRightIcon className="w-4 h-4" />
+              <div className="flex items-center gap-2 bg-primary text-foreground px-4 h-9 rounded-xl font-black uppercase text-[8px] tracking-widest shadow-xl shadow-primary/20 group-hover:bg-primary/90 transition-all border-none shrink-0">
+                EXPLORE <ChevronRightIcon className="w-3.5 h-3.5" />
               </div>
             </CardContent>
           </Card>
