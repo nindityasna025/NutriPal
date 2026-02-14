@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -302,32 +303,39 @@ export default function MealPlannerPage() {
             <div className="flex justify-center py-32"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>
           ) : scheduledMeals && scheduledMeals.length > 0 ? (
               sortedMeals.map((meal) => (
-                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[3rem] overflow-hidden bg-white group">
-                  <CardContent className="p-8 sm:p-12">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-10">
-                      <div className="flex items-center gap-12 flex-1 w-full">
-                         <div className="text-left min-w-[140px] border-r-2 border-border/50 pr-12 hidden sm:block">
-                           <p className="text-3xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
-                         </div>
-                         <div className="space-y-4 flex-1 text-left">
-                            <h3 className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
-                              {meal.name}
-                            </h3>
-                            <div className="flex flex-col gap-2">
-                               <p className="text-[12px] font-black text-foreground opacity-60 uppercase tracking-widest">+{meal.calories} KCAL</p>
-                               <div className="flex flex-wrap items-center gap-6">
-                                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[11px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[11px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[11px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span></div>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                      <div className="flex items-center gap-4 shrink-0">
-                         <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-2xl h-12 w-12 border-2 border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-6 h-6" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-2xl h-12 w-12 border-2 border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-5 h-5" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-2xl h-12 w-12 border-2 border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-5 h-5" /></Button>
-                      </div>
+                <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
+                  <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-6 flex-1 w-full">
+                       <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
+                         <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
+                       </div>
+                       <div className="space-y-2 flex-1 text-left">
+                          <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                            {meal.name}
+                          </h3>
+                          <div className="flex flex-row items-center gap-6">
+                             <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                             <div className="flex flex-wrap items-center gap-4">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
+                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
+                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
+                                  <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                       <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-foreground hover:bg-primary/20 rounded-xl h-10 w-10 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"><ChefHat className="w-5 h-5" /></Button>
+                       <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-foreground opacity-50 hover:bg-secondary rounded-xl h-10 w-10 border border-border shadow-sm transition-all active:scale-90"><Edit2 className="w-4 h-4" /></Button>
+                       <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal)} className="text-foreground opacity-50 hover:text-destructive rounded-xl h-10 w-10 border border-border shadow-sm transition-all active:scale-90"><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </CardContent>
                 </Card>
