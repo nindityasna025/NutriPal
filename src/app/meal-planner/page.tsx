@@ -146,42 +146,42 @@ export default function MealPlannerPage() {
   if (!mounted || !date) return null
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
-      <header className="flex flex-col lg:flex-row items-center justify-between gap-8 pt-safe md:pt-8 animate-in fade-in duration-700">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
+      <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-4 animate-in fade-in duration-700">
         <div className="space-y-1 w-full lg:w-auto text-center lg:text-left">
-          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
+          <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Plan</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Strategic Daily Menu</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto justify-center lg:justify-end">
-          <Button variant="outline" onClick={handleToday} className="rounded-full h-14 px-8 font-black uppercase text-[10px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-center lg:justify-end">
+          <Button variant="outline" onClick={handleToday} className="rounded-full h-11 px-6 font-black uppercase text-[9px] tracking-widest border-border shadow-sm hover:bg-secondary/50 transition-all">
             Today
           </Button>
           
-          <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1.5">
-            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-11 w-11 rounded-full hover:bg-secondary/50"><ChevronLeft className="h-5 w-5" /></Button>
-            <div className="px-6 font-black text-[12px] uppercase tracking-widest min-w-[180px] text-center">{format(date, "EEEE, MMM d")}</div>
-            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-11 w-11 rounded-full hover:bg-secondary/50"><ChevronRight className="h-5 w-5" /></Button>
+          <div className="flex items-center bg-white rounded-full border border-border shadow-sm p-1">
+            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronLeft className="h-4 w-4" /></Button>
+            <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center">{format(date, "EEEE, MMM d")}</div>
+            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-9 w-9 rounded-full hover:bg-secondary/50"><ChevronRight className="h-4 w-4" /></Button>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) { setEditingMealId(null); setMealName(""); } }}>
             <DialogTrigger asChild>
-              <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
-                <Plus className="w-5 h-5 mr-2" /> Add Meal
+              <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6 font-black uppercase text-[9px] tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95">
+                <Plus className="w-4 h-4 mr-2" /> Add Meal
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background">
-              <DialogHeader className="bg-primary p-10 text-primary-foreground text-center">
-                <DialogTitle className="text-3xl font-black uppercase tracking-tight">
+            <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background">
+              <DialogHeader className="bg-primary p-8 text-primary-foreground text-center">
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight">
                   {editingMealId ? "Refine Meal" : "New Schedule"}
                 </DialogTitle>
               </DialogHeader>
-              <div className="p-10 space-y-8">
-                <div className="grid gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
+              <div className="p-8 space-y-6">
+                <div className="grid gap-5">
+                  <div className="space-y-1.5">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
                     <Select value={mealType} onValueChange={setMealType}>
-                      <SelectTrigger className="h-14 rounded-[1.5rem] font-bold border-muted-foreground/10">
+                      <SelectTrigger className="h-12 rounded-[1.25rem] font-bold border-muted-foreground/10">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
@@ -192,21 +192,21 @@ export default function MealPlannerPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Description</Label>
-                    <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-[1.5rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                  <div className="space-y-1.5">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Description</Label>
+                    <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-[1.25rem] font-bold border-primary/10" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                   </div>
-                  <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem]">
-                    <div className="space-y-1">
-                      <Label className="text-xs font-black uppercase tracking-widest">Smart Alerts</Label>
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase">Notify 15m before meal time.</p>
+                  <div className="flex items-center justify-between p-5 bg-secondary/30 rounded-[1.5rem]">
+                    <div className="space-y-0.5">
+                      <Label className="text-[10px] font-black uppercase tracking-widest">Smart Alerts</Label>
+                      <p className="text-[9px] text-muted-foreground font-medium uppercase">Notify 15m before meal time.</p>
                     </div>
                     <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
                   </div>
                 </div>
               </div>
-              <DialogFooter className="p-10 pt-0">
-                <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-premium">
+              <DialogFooter className="p-8 pt-0">
+                <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-[1.5rem] font-black uppercase tracking-widest text-xs shadow-premium">
                   {isSaving ? <Loader2 className="animate-spin" /> : editingMealId ? "Sync Changes" : "Confirm Schedule"}
                 </Button>
               </DialogFooter>
@@ -215,115 +215,115 @@ export default function MealPlannerPage() {
         </div>
       </header>
 
-      {/* Your Daily Agenda - Structured List */}
-      <section className="space-y-10">
-        <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Agenda</h2>
-        <div className="space-y-6">
+      {/* Your Daily Agenda */}
+      <section className="space-y-6">
+        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-center lg:text-left">Your Agenda</h2>
+        <div className="space-y-4">
           {isLoadingMeals ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+            <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
           ) : scheduledMeals && scheduledMeals.length > 0 ? (
               scheduledMeals.map((meal) => (
-                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[3rem] overflow-hidden bg-white">
-                  <CardContent className="p-8 sm:p-10">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
-                      <div className="flex items-center gap-10 flex-1">
-                         <div className="text-center min-w-[120px] border-r pr-10 border-border hidden sm:block">
-                           <p className="text-2xl font-black text-primary/40 leading-none">{meal.time}</p>
+                <Card key={meal.id} className="border-none shadow-premium hover:shadow-premium-lg transition-all rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                      <div className="flex items-center gap-8 flex-1">
+                         <div className="text-center min-w-[100px] border-r pr-8 border-border hidden sm:block">
+                           <p className="text-xl font-black text-primary/40 leading-none">{meal.time}</p>
                          </div>
-                         <div className="space-y-2 flex-1">
-                            <div className="flex items-center gap-3">
-                              <h3 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
+                         <div className="space-y-1.5 flex-1">
+                            <div className="flex items-center gap-2.5">
+                              <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
                               <Badge className={cn(
-                                "rounded-xl font-black text-[9px] uppercase tracking-widest border-none px-3 py-1",
+                                "rounded-xl font-black text-[8px] uppercase tracking-widest border-none px-2.5 py-0.5",
                                 meal.source === 'planner' ? "bg-primary/10 text-primary" : "bg-green-500/10 text-green-600"
                               )}>
                                 {meal.source === 'planner' ? 'COOK' : meal.source}
                               </Badge>
                             </div>
-                            <div className="flex flex-wrap items-center gap-6">
-                               <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
+                            <div className="flex flex-wrap items-center gap-4">
+                               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories} KCAL</p>
                                <div className="flex items-center gap-4">
-                                  <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[11px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[11px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span></div>
+                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
+                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span></div>
                                </div>
                             </div>
                          </div>
                       </div>
-                      <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex items-center gap-3 shrink-0">
                          {meal.source === 'planner' ? (
-                           <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-2xl h-12 w-12 border border-primary/10 shadow-sm"><ChefHat className="w-6 h-6" /></Button>
+                           <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-xl h-10 w-10 border border-primary/10 shadow-sm"><ChefHat className="w-5 h-5" /></Button>
                          ) : (
-                           <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50 rounded-2xl h-12 w-12 border border-green-200 shadow-sm"><ShoppingBag className="w-6 h-6" /></Button>
+                           <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50 rounded-xl h-10 w-10 border border-green-200 shadow-sm"><ShoppingBag className="w-5 h-5" /></Button>
                          )}
-                         <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-2xl h-12 w-12 border border-border/50"><Edit2 className="w-5 h-5" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-2xl h-12 w-12 border border-border/50"><Trash2 className="w-5 h-5" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-xl h-10 w-10 border border-border/50"><Edit2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <div className="text-center py-32 bg-white/40 rounded-[4rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-10">
-                <Utensils className="w-20 h-20 mb-6 text-muted-foreground/10" />
-                <p className="text-muted-foreground font-black text-xl uppercase tracking-tighter">Your timeline is clear.</p>
-                <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-2">Plan a meal or ask the AI for a decision relief below.</p>
+              <div className="text-center py-24 bg-white/40 rounded-[3rem] border-2 border-dashed border-muted/30 flex flex-col items-center justify-center shadow-sm px-8">
+                <Utensils className="w-16 h-16 mb-4 text-muted-foreground/10" />
+                <p className="text-muted-foreground font-black text-lg uppercase tracking-tight">Your timeline is clear.</p>
+                <p className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-1">Plan a meal or ask the AI for a decision relief below.</p>
               </div>
             )}
         </div>
       </section>
 
-      {/* Decision Fatigue Relief Hub - Routing to Explore Hub */}
-      <section className="pt-8">
+      {/* Decision Fatigue Relief Hub */}
+      <section className="pt-6">
         <Link href="/planner">
-          <Card className="rounded-[4rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
-            <CardContent className="p-12 sm:p-16 flex flex-col sm:flex-row items-center justify-between gap-8">
-              <div className="flex items-center gap-10 flex-1">
-                <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
-                  <Sparkles className="w-12 h-12 text-primary" />
+          <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
+            <CardContent className="p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-8 flex-1">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
+                  <Sparkles className="w-8 h-8 text-primary" />
                 </div>
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-1">Feeling Indecisive?</p>
-                  <h3 className="text-3xl font-black uppercase leading-tight">AI Decision Hub</h3>
-                  <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest leading-relaxed max-w-md">
-                    Let our expert AI analyze delivery deals or curate a full BMR-matched menu instantly.
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase text-primary tracking-[0.3em] opacity-80 mb-0.5">Feeling Indecisive?</p>
+                  <h3 className="text-2xl font-black uppercase leading-tight">AI Decision Hub</h3>
+                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed max-w-sm">
+                    Let AI analyze delivery deals or curate a BMR-matched menu instantly.
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 bg-primary text-primary-foreground px-8 h-16 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20">
-                Explore AI Hub <ChevronRightIcon className="w-5 h-5" />
+              <div className="flex items-center gap-3 bg-primary text-primary-foreground px-6 h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20">
+                Explore AI Hub <ChevronRightIcon className="w-4 h-4" />
               </div>
             </CardContent>
           </Card>
         </Link>
       </section>
 
-      {/* AI Recipe Dialog - Optimized and Compact Size */}
+      {/* AI Recipe Dialog */}
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[95vw]">
-          <DialogHeader className="bg-primary p-8 sm:p-10 text-primary-foreground">
-            <h3 className="text-[9px] font-black uppercase tracking-[0.4em] opacity-80 mb-2">Professional Kitchen Guide</h3>
-            <DialogTitle className="text-3xl font-black uppercase tracking-tight leading-tight">
+        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
+          <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground">
+            <h3 className="text-[8px] font-black uppercase tracking-[0.4em] opacity-80 mb-1.5">Professional Kitchen Guide</h3>
+            <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight">
               {activeRecipeName}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-8">
-            <ScrollArea className="h-[400px] pr-4">
+          <div className="p-6">
+            <ScrollArea className="h-[350px] pr-4">
               {generatingRecipe ? (
-                <div className="flex flex-col items-center justify-center h-full space-y-6">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Formulating precise instructions...</p>
+                <div className="flex flex-col items-center justify-center h-full space-y-4">
+                  <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Formulating instructions...</p>
                 </div>
               ) : activeRecipe ? (
                 <div className="prose prose-sm prose-green max-w-none">
-                  <div className="whitespace-pre-wrap leading-relaxed font-bold text-foreground/80 text-sm sm:text-base">
+                  <div className="whitespace-pre-wrap leading-relaxed font-bold text-foreground/80 text-sm">
                     {activeRecipe}
                   </div>
                 </div>
               ) : null}
             </ScrollArea>
           </div>
-          <DialogFooter className="p-8 pt-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-xs shadow-premium">Return to Schedule</Button>
+          <DialogFooter className="p-6 pt-0">
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] shadow-premium">Return to Schedule</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

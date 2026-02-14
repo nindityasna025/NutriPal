@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Input } from "@/components/ui/input"
 import { 
   Camera, 
   Sparkles, 
@@ -21,7 +20,7 @@ import {
 } from "lucide-react"
 import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format, startOfToday, parseISO } from "date-fns"
+import { format, parseISO } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
@@ -32,7 +31,6 @@ export default function RecordPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
   const [logDate, setLogDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
   const [logTime, setLogTime] = useState<string>(format(new Date(), "HH:mm"))
   const { toast } = useToast()
@@ -55,7 +53,6 @@ export default function RecordPage() {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-
         if (width > height) {
           if (width > maxWidth) {
             height *= maxWidth / width;
@@ -71,7 +68,7 @@ export default function RecordPage() {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
       };
     });
   };
@@ -82,18 +79,12 @@ export default function RecordPage() {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } } 
       });
-      setHasCameraPermission(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      setHasCameraPermission(false);
-      toast({
-        variant: "destructive",
-        title: "Camera Access Required",
-        description: "Please enable camera permissions in your settings.",
-      })
+      console.error(error);
+      toast({ variant: "destructive", title: "Camera Error", description: "Enable camera permissions to use this feature." })
       setMode("choice")
     }
   }
@@ -114,8 +105,7 @@ export default function RecordPage() {
       const context = canvas.getContext('2d');
       if (context) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL('image/jpeg');
-        setFilePreview(dataUrl);
+        setFilePreview(canvas.toDataURL('image/jpeg'));
         stopCamera()
       }
     }
@@ -126,9 +116,7 @@ export default function RecordPage() {
     if (file) {
       setMode("gallery")
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFilePreview(reader.result as string);
-      };
+      reader.onloadend = () => setFilePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   }
@@ -138,8 +126,6 @@ export default function RecordPage() {
     setMode("choice")
     setFilePreview(null)
     setResult(null)
-    setLogDate(format(new Date(), "yyyy-MM-dd"))
-    setLogTime(format(new Date(), "HH:mm"))
   }
 
   const handleAnalyze = async () => {
@@ -150,14 +136,8 @@ export default function RecordPage() {
       const output = await analyzeMeal({ photoDataUri: compressed })
       setResult(output)
     } catch (error: any) {
-      console.error("Analysis failed", error)
-      toast({
-        variant: "destructive",
-        title: "Expert Unavailable",
-        description: error.message?.includes("429") 
-          ? "AI Nutritionist is over capacity. Please try again." 
-          : "Could not analyze meal photo. Image processing limit reached.",
-      })
+      console.error(error)
+      toast({ variant: "destructive", title: "AI Error", description: "Could not analyze meal photo." })
     } finally {
       setAnalyzing(false)
     }
@@ -165,10 +145,8 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    
     const selectedDate = parseISO(logDate)
     const dateId = format(selectedDate, "yyyy-MM-dd")
-    
     let timeStr = format(new Date(), "hh:mm a")
     if (mode === "gallery" && logTime) {
       const [hours, mins] = logTime.split(':')
@@ -177,203 +155,130 @@ export default function RecordPage() {
       timeStr = format(d, "hh:mm a")
     }
     
-    try {
-      const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
-      const mealRef = doc(collection(dailyLogRef, "meals"))
-      
-      await setDoc(dailyLogRef, { 
-        date: dateId,
-        caloriesConsumed: increment(result.calories)
-      }, { merge: true })
-      
-      await setDoc(mealRef, {
-        name: result.name,
-        calories: result.calories,
-        time: timeStr,
-        source: mode === "camera" ? "photo" : "gallery",
-        macros: result.macros,
-        healthScore: result.healthScore,
-        description: result.description,
-        ingredients: result.ingredients,
-        createdAt: serverTimestamp()
-      })
-      
-      toast({ title: "Logged Successfully", description: `${result.name} recorded for ${dateId} at ${timeStr}.` })
-      resetAll()
-    } catch (e) {
-      console.error(e)
-    }
+    const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
+    const mealRef = doc(collection(dailyLogRef, "meals"))
+    await setDoc(dailyLogRef, { date: dateId, caloriesConsumed: increment(result.calories) }, { merge: true })
+    await setDoc(mealRef, {
+      name: result.name,
+      calories: result.calories,
+      time: timeStr,
+      source: mode === "camera" ? "photo" : "gallery",
+      macros: result.macros,
+      healthScore: result.healthScore,
+      description: result.description,
+      ingredients: result.ingredients,
+      createdAt: serverTimestamp()
+    })
+    toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
+    resetAll()
   }
 
   if (!mounted) return null
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700 text-center lg:text-left">
-        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
-          Instant AI Expert Analysis
-        </p>
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
+      <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
+        <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Snap Meal</h1>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Expert Analysis</p>
       </header>
 
       {mode === "choice" && !preview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-          <Card 
-            onClick={startCamera}
-            className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
-          >
-            <CardContent className="p-12 flex flex-col items-center gap-8">
-              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
-                <Camera className="w-8 h-8 text-primary" strokeWidth={2.5} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          <Card onClick={startCamera} className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden">
+            <CardContent className="p-10 flex flex-col items-center gap-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
+                <Camera className="w-7 h-7 text-primary" strokeWidth={2.5} />
               </div>
-              <div className="text-center space-y-1">
-                <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
+              <div className="text-center space-y-0.5">
+                <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Live Camera</h3>
+                <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Capture Now</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card 
-            onClick={() => fileInputRef.current?.click()}
-            className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden"
-          >
-            <CardContent className="p-12 flex flex-col items-center gap-8">
-              <div className="w-20 h-20 bg-accent/10 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-sm">
-                <ImageIcon className="w-8 h-8 text-accent" strokeWidth={2.5} />
+          <Card onClick={() => fileInputRef.current?.click()} className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group active:scale-[0.98] overflow-hidden">
+            <CardContent className="p-10 flex flex-col items-center gap-6">
+              <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
+                <ImageIcon className="w-7 h-7 text-accent" strokeWidth={2.5} />
               </div>
-              <div className="text-center space-y-1">
-                <h3 className="text-xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
-                <p className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-[0.2em]">Max 10MB</p>
+              <div className="text-center space-y-0.5">
+                <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Gallery</h3>
+                <p className="text-[8px] text-muted-foreground/40 font-bold uppercase tracking-[0.2em]">Upload File</p>
               </div>
             </CardContent>
           </Card>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            accept="image/*" 
-            className="hidden" 
-          />
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
         </div>
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <section className="space-y-8">
-            <Card className="rounded-[3rem] border-none shadow-premium bg-white p-6 sm:p-8 space-y-6">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary self-start">
-                  <ChevronLeft className="w-4 h-4 mr-2" /> Back
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <section className="space-y-6">
+            <Card className="rounded-[2.5rem] border-none shadow-premium bg-white p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <Button variant="ghost" onClick={resetAll} className="rounded-full h-9 px-4 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
+                  <ChevronLeft className="w-3.5 h-3.5 mr-1.5" /> Back
                 </Button>
-                
                 {mode === "gallery" && !result && (
-                  <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
-                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-12 w-full sm:w-auto">
-                      <CalendarIcon className="w-4 h-4 text-primary shrink-0" />
-                      <input 
-                        type="date" 
-                        value={logDate}
-                        onChange={(e) => setLogDate(e.target.value)}
-                        className="bg-transparent border-none text-xs font-black uppercase tracking-widest focus:ring-0 cursor-pointer w-full"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-12 w-full sm:w-auto">
-                      <Clock className="w-4 h-4 text-primary shrink-0" />
-                      <input 
-                        type="time" 
-                        value={logTime}
-                        onChange={(e) => setLogTime(e.target.value)}
-                        className="bg-transparent border-none text-xs font-black uppercase tracking-widest focus:ring-0 cursor-pointer w-full"
-                      />
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-3 h-10 flex-1">
+                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                      <input type="date" value={logDate} onChange={e => setLogDate(e.target.value)} className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 w-full" />
                     </div>
                   </div>
                 )}
               </div>
-
-              <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
-                {mode === "camera" && !preview && (
-                  <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                )}
-                
+              <div className="relative border border-muted/30 rounded-[2rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
+                {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
                 {preview && (
-                  <div className="relative w-full h-full animate-in fade-in duration-500">
-                    <Image src={preview} alt="Meal Preview" fill className="object-cover" />
+                  <div className="relative w-full h-full">
+                    <Image src={preview} alt="Meal" fill className="object-cover" />
                     {!result && (
-                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-4 right-4 rounded-full bg-white/90 shadow-premium active:scale-90 transition-transform z-10">
-                        <RefreshCw className="w-5 h-5 text-primary" />
+                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-3 right-3 rounded-full bg-white/90 shadow-premium">
+                        <RefreshCw className="w-4 h-4 text-primary" />
                       </Button>
                     )}
                   </div>
                 )}
               </div>
-
-              {mode === "camera" && !preview && (
-                <Button onClick={capturePhoto} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
-                  CAPTURE PHOTO
-                </Button>
-              )}
-              
-              {preview && !result && (
-                <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-premium-lg bg-primary text-primary-foreground">
-                  {analyzing ? <Loader2 className="animate-spin mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
-                  {analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}
-                </Button>
-              )}
+              {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-14 rounded-2xl font-black text-sm bg-primary text-primary-foreground">CAPTURE PHOTO</Button>}
+              {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-14 rounded-2xl font-black text-sm bg-primary text-primary-foreground">{analyzing ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="w-4 h-4 mr-2" />}{analyzing ? "ANALYZING..." : "EXPERT ANALYSIS"}</Button>}
             </Card>
           </section>
 
-          <section className="space-y-8">
+          <section className="space-y-6">
             {result ? (
-              <div className="animate-in slide-in-from-right-8 duration-700">
-                <Card className="rounded-[3rem] border-none shadow-premium bg-white p-6 sm:p-10 space-y-10">
-                  <div className="flex justify-between items-start border-b border-muted/20 pb-8">
-                    <div className="space-y-1.5 flex-1 pr-4">
-                      <span className="text-[10px] font-black uppercase text-primary tracking-widest opacity-60">AI Nutritionist</span>
-                      <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">{result.name}</h2>
-                    </div>
-                    <div className="text-right shrink-0">
-                       <p className="text-4xl sm:text-5xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[10px] ml-1 uppercase opacity-40">kcal</span></p>
-                    </div>
+              <Card className="rounded-[2.5rem] border-none shadow-premium bg-white p-6 sm:p-8 space-y-8 animate-in slide-in-from-right-2 duration-500">
+                <div className="flex justify-between items-start border-b border-muted/20 pb-6">
+                  <div className="space-y-1 flex-1 pr-4">
+                    <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60">AI Nutritionist</span>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">{result.name}</h2>
                   </div>
-
-                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                    <div className="p-4 sm:p-6 bg-primary/5 rounded-[2rem] text-center"><p className="text-[9px] font-black text-primary uppercase mb-1.5 tracking-widest">Pro</p><p className="text-xl sm:text-2xl font-black">{result.macros.protein}g</p></div>
-                    <div className="p-4 sm:p-6 bg-accent/20 rounded-[2rem] text-center"><p className="text-[9px] font-black text-accent-foreground uppercase mb-1.5 tracking-widest">Cho</p><p className="text-xl sm:text-2xl font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-4 sm:p-6 bg-blue-50 rounded-[2rem] text-center"><p className="text-[9px] font-black text-blue-500 uppercase mb-1.5 tracking-widest">Fat</p><p className="text-xl sm:text-2xl font-black">{result.macros.fat}g</p></div>
+                  <div className="text-right shrink-0">
+                    <p className="text-3xl sm:text-4xl font-black text-primary tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-40">kcal</span></p>
                   </div>
-
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                         <div className="bg-primary/10 p-2 rounded-xl shrink-0"><Trophy className="w-5 h-5 text-primary" /></div>
-                         <span className="text-base sm:text-lg font-black uppercase tracking-tight">Health Score</span>
-                       </div>
-                       <span className="text-2xl sm:text-3xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
-                    </div>
-                    <Progress value={result.healthScore} className="h-4 rounded-full" />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-4 bg-primary/5 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-primary uppercase mb-1">Pro</p><p className="text-lg font-black">{result.macros.protein}g</p></div>
+                  <div className="p-4 bg-accent/20 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-accent-foreground uppercase mb-1">Cho</p><p className="text-lg font-black">{result.macros.carbs}g</p></div>
+                  <div className="p-4 bg-blue-50 rounded-[1.5rem] text-center"><p className="text-[8px] font-black text-blue-500 uppercase mb-1">Fat</p><p className="text-lg font-black">{result.macros.fat}g</p></div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-black uppercase tracking-tight">Health Score</span>
+                    <span className="text-2xl font-black text-primary tracking-tighter">{result.healthScore}/100</span>
                   </div>
-
-                  <div className="space-y-4">
-                    <div className="space-y-3 p-6 bg-secondary/20 rounded-[2rem]">
-                      <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Dietary Insight</p>
-                      <p className="text-xs sm:text-sm font-bold leading-relaxed italic text-foreground/80 opacity-90">"{result.description}"</p>
-                    </div>
-
-                    <Button onClick={handleSave} className="w-full h-16 rounded-[2rem] font-black text-lg sm:text-xl bg-foreground text-white shadow-premium active:scale-[0.98] transition-all">
-                      LOG RECORD <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 ml-3" />
-                    </Button>
-                  </div>
-                </Card>
-              </div>
+                  <Progress value={result.healthScore} className="h-3 rounded-full" />
+                </div>
+                <div className="space-y-4 pt-2">
+                  <div className="p-5 bg-secondary/20 rounded-[1.5rem]"><p className="text-[12px] font-bold leading-relaxed italic text-foreground/80">"{result.description}"</p></div>
+                  <Button onClick={handleSave} className="w-full h-14 rounded-2xl font-black text-sm bg-foreground text-white shadow-premium">LOG RECORD <ChevronRight className="w-4 h-4 ml-2" /></Button>
+                </div>
+              </Card>
             ) : (
-              <div className="h-[300px] sm:h-[500px] border border-dashed border-border/40 rounded-[3rem] flex flex-col items-center justify-center p-8 sm:p-14 text-center bg-white/30 backdrop-blur-sm">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-3xl flex items-center justify-center shadow-premium mb-8 shrink-0">
-                  <ScanSearch className="w-8 h-8 sm:w-10 sm:h-10 text-primary/10" />
-                </div>
-                <div className="space-y-3">
-                  <p className="text-muted-foreground font-black uppercase text-xs tracking-[0.3em]">Awaiting Content</p>
-                  <p className="text-muted-foreground/40 text-[9px] sm:text-[10px] font-black uppercase leading-relaxed max-w-[220px]">Analysis will begin as soon as a meal photo is provided</p>
-                </div>
+              <div className="h-[300px] border border-dashed border-border/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center bg-white/30 backdrop-blur-sm">
+                <ScanSearch className="w-12 h-12 text-primary/10 mb-6" />
+                <p className="text-muted-foreground font-black uppercase text-[10px] tracking-[0.2em]">Awaiting Content</p>
               </div>
             )}
           </section>
