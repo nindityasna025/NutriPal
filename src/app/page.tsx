@@ -121,7 +121,7 @@ export default function Dashboard() {
     return query(
       collection(firestore, "users", user.uid, "dailyLogs"),
       orderBy("date", "desc"),
-      limit(7)
+      limit(10)
     );
   }, [user, firestore]);
 
@@ -133,7 +133,8 @@ export default function Dashboard() {
   const weeklyData = useMemo(() => {
     if (!today) return [];
     const days = [];
-    for (let i = 6; i >= 0; i--) {
+    // Rentang waktu H-7 hingga H-1 (e.g. tanggal 7-13 jika hari ini tanggal 14)
+    for (let i = 7; i >= 1; i--) {
       const d = subDays(today, i);
       const dStr = format(d, "yyyy-MM-dd");
       const foundLog = logsData?.find(l => l.date === dStr || l.id === dStr);
@@ -222,7 +223,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2.5rem] overflow-hidden">
-          <CardContent className="p-8 sm:p-10 space-y-10">
+          <CardContent className="p-8 sm:p-12 space-y-12">
             <div className="flex justify-between items-start">
               <div className="space-y-1 text-left">
                 <span className="text-[11px] font-black uppercase tracking-[0.3em] text-foreground opacity-60">Energy Balance</span>
@@ -243,8 +244,8 @@ export default function Dashboard() {
               </Popover>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex h-10 w-full rounded-full overflow-hidden bg-secondary border border-border/10 shadow-inner">
+            <div className="space-y-8">
+              <div className="flex h-12 w-full rounded-full overflow-hidden bg-secondary border border-border/10 shadow-inner">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
@@ -255,21 +256,21 @@ export default function Dashboard() {
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
                     <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
                   </div>
-                  <span className="text-lg tracking-tighter">{Math.round(proteinPercent)}%</span>
+                  <span className="text-xl tracking-tighter">{Math.round(proteinPercent)}%</span>
                 </div>
                 <div className="flex flex-col gap-1 items-center justify-center">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
                     <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
                   </div>
-                  <span className="text-lg tracking-tighter">{Math.round(carbsPercent)}%</span>
+                  <span className="text-xl tracking-tighter">{Math.round(carbsPercent)}%</span>
                 </div>
                 <div className="flex flex-col gap-1 items-end text-right">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
                     <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
                   </div>
-                  <span className="text-lg tracking-tighter">{Math.round(fatPercent)}%</span>
+                  <span className="text-xl tracking-tighter">{Math.round(fatPercent)}%</span>
                 </div>
               </div>
             </div>
@@ -291,7 +292,7 @@ export default function Dashboard() {
         </Card>
 
         <div className="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-6">
-          <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group transition-all">
+          <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center group transition-all">
             <div className="p-4 bg-primary/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-primary/10">
               <Flame className="w-6 h-6 text-foreground" />
             </div>
@@ -301,7 +302,7 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          <Card className="border-none shadow-premium rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center bg-white group transition-all">
+          <Card className="border-none shadow-premium bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center group transition-all">
             <div className="p-4 bg-accent/20 rounded-2xl mb-4 group-hover:scale-105 transition-transform border-2 border-accent/10">
               <Droplets className="w-6 h-6 text-foreground" />
             </div>
