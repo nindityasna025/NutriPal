@@ -4,36 +4,36 @@
 
 @layer base {
   :root {
-    /* Apple Human Interface Guidelines - Clean Palette */
-    --background: 0 0% 100%; /* Pure White */
-    --foreground: 142 70% 5%; /* Very dark green for text */
+    /* Apple Human Interface Guidelines - Premium Cream & Green Palette */
+    --background: 33 30% 97%; /* White Cream */
+    --foreground: 142 76% 10%; /* Deepest Green for text */
     
-    --card: 0 0% 100%;
-    --card-foreground: 142 70% 5%;
+    --card: 0 0% 100%; /* Pure white cards to pop against cream */
+    --card-foreground: 142 76% 10%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 142 70% 5%;
+    --popover: 33 30% 97%;
+    --popover-foreground: 142 76% 10%;
     
-    --primary: 142 72% 29%; /* Deep Forest Green */
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 76% 24%; /* Hijau (Deep Forest Green) */
+    --primary-foreground: 33 30% 98%;
     
-    --secondary: 142 20% 96%; /* Very subtle green-gray tint */
-    --secondary-foreground: 142 72% 20%;
+    --secondary: 142 20% 92%; /* Subtle Green Tint */
+    --secondary-foreground: 142 76% 20%;
     
-    --muted: 142 10% 95%;
+    --muted: 33 20% 92%; /* Creamy Muted */
     --muted-foreground: 142 10% 40%;
     
-    --accent: 84 81% 44%; /* Vibrant Lime Green */
-    --accent-foreground: 0 0% 0%;
+    --accent: 84 100% 92%; /* Lime Pastel */
+    --accent-foreground: 142 76% 20%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 142 10% 90%;
-    --input: 142 10% 90%;
-    --ring: 142 72% 29%;
+    --border: 33 20% 88%;
+    --input: 33 20% 88%;
+    --ring: 142 76% 24%;
     
-    --radius: 1.5rem; /* Large, smooth iOS-style corners */
+    --radius: 1.5rem; /* iOS-style smooth corners */
   }
 }
 
@@ -42,14 +42,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-primary/10;
+    @apply bg-background text-foreground font-body antialiased selection:bg-primary/20;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline font-extrabold tracking-tight text-foreground;
   }
 }
 
-/* Premium Diffused Shadows */
+/* Premium iOS Shadows */
 .shadow-ios {
   box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
 }
@@ -59,5 +59,5 @@
 }
 
 .glass {
-  @apply backdrop-blur-xl bg-white/80;
+  @apply backdrop-blur-xl bg-white/70;
 }

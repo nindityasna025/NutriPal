@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -76,7 +75,7 @@ const MacroInfoContent = () => (
         <span>20-30g / 15-35% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-accent font-bold">Carbs</span>
+        <span className="text-accent-foreground font-bold">Carbs</span>
         <span>20-30g / 40-50% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
@@ -84,9 +83,6 @@ const MacroInfoContent = () => (
         <span>10-15g / 20-35% daily</span>
       </div>
     </div>
-    <p className="text-[10px] italic text-muted-foreground/80 leading-tight border-t pt-2">
-      Our smart tech looks at the ingredients and portions to figure out how your macros stack up.
-    </p>
   </div>
 )
 
@@ -101,9 +97,6 @@ const HealthBenefitInfoContent = () => (
     <p className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
       Our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also helps you stay away from ultra-processed foods, refined grains, and added sugars.
     </p>
-    <p className="text-[10px] font-bold text-primary">
-      The closer you get to a 100, the more balanced and nutrient-rich your meal is.
-    </p>
   </div>
 )
 
@@ -114,9 +107,6 @@ const IngredientsInfoContent = () => (
     </div>
     <p className="text-xs font-medium leading-relaxed text-muted-foreground">
       AI scans the photo to pick out ingredients and estimate portions.
-    </p>
-    <p className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
-      While AI usually gets things right, it can sometimes mix up ingredients in complex dishes. It works best when each item is clearly visible.
     </p>
     <p className="text-[10px] italic text-primary">
       Feel free to edit results in the Planner for 100% accuracy.
@@ -222,7 +212,7 @@ export default function Dashboard() {
 
       {/* Hero Calories Card */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <Card className="md:col-span-8 border-none shadow-ios bg-white rounded-[2.5rem] overflow-hidden">
+        <Card className="md:col-span-8 border-none shadow-ios bg-card rounded-[2.5rem] overflow-hidden">
           <CardContent className="p-10 space-y-8">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
@@ -267,9 +257,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Quick Sync Stats - Centered Content */}
+        {/* Quick Sync Stats */}
         <div className="md:col-span-4 grid grid-cols-1 gap-6">
-          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-ios-lg transition-all">
+          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-card group hover:shadow-ios-lg transition-all">
             <div className="p-4 bg-primary/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
               <Flame className="w-6 h-6 text-primary" />
             </div>
@@ -279,7 +269,7 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-white group hover:shadow-ios-lg transition-all">
+          <Card className="border-none shadow-ios rounded-[2rem] p-8 flex flex-col items-center justify-center text-center bg-card group hover:shadow-ios-lg transition-all">
             <div className="p-4 bg-blue-50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
               <Droplets className="w-6 h-6 text-blue-500" />
             </div>
@@ -305,7 +295,7 @@ export default function Dashboard() {
           < BarChart3 className="w-6 h-6 text-primary" />
           Weekly Overview
         </h2>
-        <Card className="border-none shadow-ios rounded-[2.5rem] overflow-hidden bg-white">
+        <Card className="border-none shadow-ios rounded-[2.5rem] overflow-hidden bg-card">
           <CardContent className="p-10">
             <div className="h-[350px] w-full">
               <ChartContainer config={chartConfig}>
@@ -340,7 +330,7 @@ export default function Dashboard() {
             meals.map((meal) => (
               <Card 
                 key={meal.id} 
-                className="rounded-[2rem] border-none shadow-ios hover:shadow-ios-lg transition-all cursor-pointer overflow-hidden group bg-white"
+                className="rounded-[2rem] border-none shadow-ios hover:shadow-ios-lg transition-all cursor-pointer overflow-hidden group bg-card"
                 onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
               >
                 <div className="p-6 flex items-center justify-between">
@@ -371,8 +361,8 @@ export default function Dashboard() {
                         <span className="block text-[10px] font-black text-primary uppercase tracking-widest mb-1">Protein</span>
                         <span className="text-xl font-extrabold">{meal.macros?.protein}g</span>
                       </div>
-                      <div className="text-center p-4 bg-accent/10 rounded-2xl">
-                        <span className="block text-[10px] font-black text-accent uppercase tracking-widest mb-1">Carbs</span>
+                      <div className="text-center p-4 bg-accent/20 rounded-2xl">
+                        <span className="block text-[10px] font-black text-accent-foreground uppercase tracking-widest mb-1">Carbs</span>
                         <span className="text-xl font-extrabold">{meal.macros?.carbs}g</span>
                       </div>
                       <div className="text-center p-4 bg-blue-50 rounded-2xl">
@@ -419,7 +409,7 @@ export default function Dashboard() {
               <Utensils className="w-16 h-16 text-muted-foreground/10" />
               <div className="space-y-1">
                 <p className="text-muted-foreground font-extrabold text-lg">No activity logged today.</p>
-                <p className="text-sm text-muted-foreground font-medium">Capture your first meal to start tracking.</p>
+                <p className="text-sm text-muted-foreground font-medium">Plan your first meal to start tracking.</p>
               </div>
               <Button onClick={() => router.push("/meal-planner")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
                 MEAL PLANNER
@@ -429,7 +419,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Action Hub - Snap then Explore order */}
+      {/* Action Hub */}
       <div className="flex gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
@@ -443,9 +433,9 @@ export default function Dashboard() {
         <Button 
           variant="secondary"
           onClick={() => router.push("/planner")}
-          className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-white text-primary border-none shadow-ios hover:shadow-ios-lg transition-all active:scale-95 group"
+          className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-card text-primary border-none shadow-ios hover:shadow-ios-lg transition-all active:scale-95 group"
         >
-          <div className="p-4 bg-primary/5 rounded-2xl group-hover:scale-110 transition-transform">
+          <div className="p-4 bg-accent/30 rounded-2xl group-hover:scale-110 transition-transform">
             <Sparkles className="w-8 h-8" />
           </div>
           <span className="font-black text-xs uppercase tracking-[0.2em]">Explore Deals</span>
