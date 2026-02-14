@@ -141,9 +141,9 @@ export default function Dashboard() {
       if (foundLog) {
         days.push({
           date: format(d, "MMM d"),
-          protein: (foundLog.proteinTotal || 0) * 4,
-          carbs: (foundLog.carbsTotal || 0) * 4,
-          fat: (foundLog.fatTotal || 0) * 9,
+          protein: Math.max(0, (foundLog.proteinTotal || 0) * 4),
+          carbs: Math.max(0, (foundLog.carbsTotal || 0) * 4),
+          fat: Math.max(0, (foundLog.fatTotal || 0) * 9),
         });
       } else {
         days.push({
@@ -168,14 +168,14 @@ export default function Dashboard() {
   }, [meals]);
 
   const calorieTarget = profile?.calorieTarget || 2000
-  const consumed = totals.calories
+  const consumed = Math.max(0, totals.calories)
   const water = dailyLog?.waterIntake || 0
   
   const actualPercent = Math.round((consumed / calorieTarget) * 100)
   const caloriePercentForProgress = Math.min(100, actualPercent)
   const isOverLimit = consumed > calorieTarget
 
-  const totalMacrosKcal = (totals.protein * 4) + (totals.carbs * 4) + (totals.fat * 9);
+  const totalMacrosKcal = Math.max(0, (totals.protein * 4) + (totals.carbs * 4) + (totals.fat * 9));
   const proteinPercent = totalMacrosKcal > 0 ? ((totals.protein * 4) / totalMacrosKcal) * 100 : 0;
   const carbsPercent = totalMacrosKcal > 0 ? ((totals.carbs * 4) / totalMacrosKcal) * 100 : 0;
   const fatPercent = totalMacrosKcal > 0 ? ((totals.fat * 9) / totalMacrosKcal) * 100 : 0;
@@ -297,7 +297,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-1">
               <p className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-              <p className="text-3xl font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-xs font-black text-foreground opacity-30">kcal</span></p>
+              <p className="text-3xl font-black tracking-tighter text-foreground">{Math.max(0, dailyLog?.caloriesBurned || 450)} <span className="text-xs font-black text-foreground opacity-30">kcal</span></p>
             </div>
           </Card>
 
