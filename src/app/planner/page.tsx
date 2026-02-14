@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -25,6 +26,13 @@ import {
   CheckCircle2,
   Cpu
 } from "lucide-react"
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { format } from "date-fns"
