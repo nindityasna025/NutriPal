@@ -244,6 +244,7 @@ export default function MealPlannerPage() {
                                <div className="flex items-center gap-4">
                                   <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein}g Protein</span></div>
                                   <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-yellow-500" /><span className="text-[10px] font-black uppercase text-yellow-600">{meal.macros?.carbs}g Carbs</span></div>
+                                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-[10px] font-black uppercase text-blue-500">{meal.macros?.fat}g Fat</span></div>
                                </div>
                             </div>
                          </div>
@@ -319,7 +320,7 @@ export default function MealPlannerPage() {
             </ScrollArea>
           </div>
           <DialogFooter className="p-6 pt-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] shadow-premium">Return to Schedule</Button>
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium">Return to Schedule</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

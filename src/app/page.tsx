@@ -296,6 +296,11 @@ export default function Dashboard() {
                     <div className="min-w-0">
                       <h4 className="text-sm font-black uppercase truncate">{meal.name}</h4>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[8px] font-black text-red-500 uppercase">{meal.macros?.protein}g P</span>
+                        <span className="text-[8px] font-black text-yellow-600 uppercase">{meal.macros?.carbs}g C</span>
+                        <span className="text-[8px] font-black text-blue-500 uppercase">{meal.macros?.fat}g F</span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
