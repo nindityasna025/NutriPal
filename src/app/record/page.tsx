@@ -7,15 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { 
   Camera, 
   Sparkles, 
   Loader2, 
   ChevronRight,
-  Calendar as CalendarIcon,
   Trophy,
-  Info,
   ArrowUpCircle,
   CheckCircle,
   ArrowDownCircle,
@@ -27,36 +24,8 @@ import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
 import { format, startOfToday } from "date-fns"
 import Image from "next/image"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
-
-const MacroInfoContent = () => (
-  <div className="space-y-4">
-    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-      <Sparkles className="w-4 h-4" /> Macro Balance Guide
-    </div>
-    <p className="text-xs font-medium leading-relaxed text-foreground/80">
-      Breakdown of protein, carbs, and fats to keep your body fueled.
-    </p>
-    <div className="space-y-3">
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-primary font-bold">Protein</span>
-        <span>20-30g</span>
-      </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-accent-foreground font-bold">Carbs</span>
-        <span>20-30g</span>
-      </div>
-      <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-blue-500 font-bold">Fat</span>
-        <span>10-15g</span>
-      </div>
-    </div>
-  </div>
-)
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "upload">("choice")
@@ -65,7 +34,6 @@ export default function RecordPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [recordDate, setRecordDate] = useState<Date>(startOfToday())
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
   const { toast } = useToast()
   
@@ -180,7 +148,8 @@ export default function RecordPage() {
 
   const handleSave = async () => {
     if (!user || !result || !mounted) return
-    const dateId = format(recordDate, "yyyy-MM-dd")
+    const today = startOfToday()
+    const dateId = format(today, "yyyy-MM-dd")
     const timeStr = format(new Date(), "hh:mm a")
     
     try {
@@ -211,39 +180,13 @@ export default function RecordPage() {
     }
   }
 
-  const personalizedSuggestion = useMemo(() => {
-    if (!profile) return null;
-    const cat = profile.bmiCategory || "Ideal";
-    if (cat === "Underweight") return {
-      title: "Surplus Focus",
-      icon: <ArrowUpCircle className="text-blue-500 w-6 h-6" />,
-      color: "bg-blue-50",
-      textColor: "text-blue-700",
-      borderColor: "border-blue-200"
-    }
-    if (cat === "Ideal") return {
-      title: "Maintain Balance",
-      icon: <CheckCircle className="text-primary w-6 h-6" />,
-      color: "bg-primary/5",
-      textColor: "text-primary",
-      borderColor: "border-primary/20"
-    }
-    return {
-      title: "Deficit Focus",
-      icon: <ArrowDownCircle className="text-red-500 w-6 h-6" />,
-      color: "bg-red-50",
-      textColor: "text-red-700",
-      borderColor: "border-red-200"
-    }
-  }, [profile]);
-
   if (!mounted) return null
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8 space-y-8 animate-in fade-in duration-500 pb-24 min-h-screen">
       <header className="text-center space-y-2">
         <h1 className="text-4xl font-black tracking-tight uppercase text-foreground">Snap Your Meal</h1>
-        <p className="text-muted-foreground font-medium text-sm">Choose your method to analyze your nutrition.</p>
+        <p className="text-muted-foreground font-medium text-sm">Log your meal with AI analysis instantly.</p>
       </header>
 
       {mode === "choice" && !preview && (
@@ -289,17 +232,9 @@ export default function RecordPage() {
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-xs font-black uppercase text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="h-10 rounded-full border-primary/20 bg-primary/5 text-xs font-bold px-4">
-                      <CalendarIcon className="mr-2 h-3 w-3 text-primary" />
-                      {format(recordDate, "MMM d")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 rounded-[2rem] border-none shadow-2xl">
-                    <Calendar mode="single" selected={recordDate} onSelect={(date) => date && setRecordDate(date)} initialFocus />
-                  </PopoverContent>
-                </Popover>
+                <div className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full text-primary font-bold text-[10px] uppercase tracking-widest">
+                  Live Sync
+                </div>
               </div>
 
               <div className="relative border-2 border-dashed border-primary/10 rounded-[2.5rem] bg-secondary/5 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
