@@ -19,8 +19,8 @@ import {
   ArrowLeft,
   Info
 } from "lucide-react"
-import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
-import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { doc, collection, serverTimestamp } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -67,21 +67,17 @@ export default function ExplorePage() {
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
 
-  // Custom Model Logic: Delivery Curation
   const handleCurateDelivery = () => {
     if (!profile) return
     setLoadingDelivery(true)
     setAiPlan(null)
     
-    // Simulate model processing
     setTimeout(() => {
       const filtered = SCRAPED_DATABASE.filter(item => {
-        // Filter by restrictions
         const matchesRestrictions = profile.dietaryRestrictions?.length 
           ? profile.dietaryRestrictions.every((res: string) => item.restricts.includes(res) || item.tags.includes(res))
           : true;
         
-        // Filter by BMI logic
         let fitsBmi = true;
         if (profile.bmiCategory === "Obese" || profile.bmiCategory === "Overweight") {
           fitsBmi = item.calories < 550;
@@ -98,7 +94,6 @@ export default function ExplorePage() {
     }, 800);
   }
 
-  // Custom Model Logic: Daily Plan Generation
   const handleGenerateAiPlan = () => {
     if (!profile) return
     setGeneratingPlan(true)
@@ -134,8 +129,8 @@ export default function ExplorePage() {
       source: item.platform,
       macros: item.macros,
       healthScore: item.healthScore,
-      description: item.description,
-      expertInsight: item.reasoning,
+      description: item.reasoning || "Balanced meal curated for your profile.",
+      expertInsight: item.reasoning || "Matched to your profile goals.",
       createdAt: serverTimestamp()
     })
 
@@ -154,7 +149,6 @@ export default function ExplorePage() {
     const dateId = format(today, "yyyy-MM-dd")
     const mealsColRef = collection(firestore, "users", user.uid, "dailyLogs", dateId, "meals")
     
-    // Carry over the jam (time) based on meal type
     const timeMap: Record<string, string> = { 
       "Breakfast": "08:30 AM", 
       "Lunch": "01:00 PM", 
@@ -163,15 +157,21 @@ export default function ExplorePage() {
     };
     const mealTime = timeMap[type] || "12:00 PM";
 
-    await setDoc(doc(mealsColRef), {
-      ...meal,
+    const newDocRef = doc(mealsColRef);
+    setDocumentNonBlocking(newDocRef, {
+      name: meal.name,
+      calories: meal.calories,
+      macros: meal.macros,
+      description: meal.description || meal.reasoning || "Personalized meal recommendation.",
+      expertInsight: meal.reasoning || meal.description || "Optimized for your current health metrics.",
+      ingredients: meal.ingredients || [],
       type,
       time: mealTime,
       source: source === 'Cook' ? 'planner' : (meal.deliveryMatch?.platform || 'GrabFood'),
       createdAt: serverTimestamp(),
       reminderEnabled: true,
-      healthScore: 90
-    })
+      healthScore: meal.healthScore || 90
+    }, { merge: true })
 
     if (source === 'Delivery') {
       const platform = meal.deliveryMatch?.platform || 'GrabFood'
