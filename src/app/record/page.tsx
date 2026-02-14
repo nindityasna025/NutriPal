@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -19,7 +18,7 @@ import {
   Scale,
   Leaf
 } from "lucide-react"
-import { useFirestore, useUser } from "@/firebase"
+import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
 import { format, parseISO } from "date-fns"
 import Image from "next/image"
@@ -43,6 +42,9 @@ export default function RecordPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useUser()
   const firestore = useFirestore()
+
+  const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
+  const { data: profile } = useDoc(profileRef)
 
   useEffect(() => {
     setMounted(true)
@@ -135,8 +137,18 @@ export default function RecordPage() {
     if (!preview) return
     setAnalyzing(true)
     try {
+      // Determine goal from profile
+      let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
+      if (profile?.bmiCategory) {
+        if (profile.bmiCategory === "Overweight" || profile.bmiCategory === "Obese") userGoal = "Weight Loss"
+        else if (profile.bmiCategory === "Underweight") userGoal = "Weight Gain"
+      }
+
       const compressed = await compressImage(preview);
-      const output = await analyzeMeal({ photoDataUri: compressed })
+      const output = await analyzeMeal({ 
+        photoDataUri: compressed,
+        userGoal
+      })
       setResult(output)
     } catch (error: any) {
       console.error(error)

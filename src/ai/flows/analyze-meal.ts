@@ -12,6 +12,7 @@ import { z } from 'genkit';
 const AnalyzeMealInputSchema = z.object({
   photoDataUri: z.string().describe("The photo of the meal as a data URI."),
   description: z.string().optional().describe("Optional description of the meal."),
+  userGoal: z.enum(["Maintenance", "Weight Loss", "Weight Gain"]).optional().describe("The user's current health goal."),
 });
 export type AnalyzeMealInput = z.infer<typeof AnalyzeMealInputSchema>;
 
@@ -27,7 +28,7 @@ const AnalyzeMealOutputSchema = z.object({
   description: z.string().describe("A brief nutritionist's summary of the meal."),
   ingredients: z.array(z.string()).describe("List of main ingredients identified."),
   healthBenefit: z.string().describe("Specific health benefits of this meal."),
-  weightGoalAdvice: z.string().describe("Analysis of how this meal fits Maintenance, Weight Loss, or Weight Gain goals."),
+  weightGoalAdvice: z.string().describe("Specific analysis of how this meal fits the user's specific goal (Maintenance, Weight Loss, or Weight Gain)."),
 });
 export type AnalyzeMealOutput = z.infer<typeof AnalyzeMealOutputSchema>;
 
@@ -43,9 +44,11 @@ const prompt = ai.definePrompt({
 Analyze this meal photo and provide a detailed nutritional breakdown. 
 Estimate the portion sizes and calculate the kcal, protein, carbs, and fat as accurately as possible.
 
+User's Specific Health Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maintenance{{/if}}
+
 Include the following sections in your output:
 1. "healthBenefit": A clear summary of the nutritional strengths of this meal (e.g., high in antioxidants, heart-healthy fats, etc.).
-2. "weightGoalAdvice": A breakdown of how this meal performs for someone looking to Maintain Weight, Lose Weight, or Gain Weight.
+2. "weightGoalAdvice": A tailored breakdown of how this meal performs specifically for the user's goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Health{{/if}}. 
 
 If a description is provided, use it to refine your analysis: "{{{description}}}"
 

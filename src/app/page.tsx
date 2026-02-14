@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -336,7 +335,7 @@ export default function Dashboard() {
                     <div className="px-8 pb-8 pt-2 space-y-6 border-t border-muted/20">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                             <Heart className="w-3.5 h-3.5" /> Health Benefit
                           </div>
                           <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10">
@@ -344,8 +343,8 @@ export default function Dashboard() {
                           </p>
                         </div>
                         <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
-                            <Scale className="w-3.5 h-3.5" /> Weight Goal Alignment
+                          <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest text-left">
+                            <Scale className="w-3.5 h-3.5" /> Goal Alignment
                           </div>
                           <div className="p-4 bg-secondary/30 rounded-2xl border border-transparent">
                             <p className="text-[11px] font-bold leading-relaxed text-foreground/80">
