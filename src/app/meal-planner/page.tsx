@@ -168,10 +168,10 @@ export default function MealPlannerPage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body relative">
       <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-500">
-        <section className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6 border-b border-muted/30 pt-safe md:pt-8">
+        <header className="flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="space-y-1.5 w-full lg:w-auto text-left">
             <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Meal Planner</h1>
-            <p className="text-muted-foreground font-semibold text-[10px] uppercase tracking-[0.25em] opacity-60">Weekly Nutrition Organizer</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Weekly Nutrition Organizer</p>
           </div>
           
           <div className="flex items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
@@ -237,7 +237,7 @@ export default function MealPlannerPage() {
               </DialogContent>
             </Dialog>
           </div>
-        </section>
+        </header>
 
         <Link href="/planner">
           <Card className="rounded-[2.5rem] bg-primary/10 border-none text-foreground shadow-sm overflow-hidden group cursor-pointer transition-all hover:scale-[1.01]">

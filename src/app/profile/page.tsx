@@ -140,7 +140,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen pb-24 bg-background font-body">
       <main className="max-w-5xl mx-auto px-8 py-8 space-y-10 animate-in fade-in duration-700">
-        <header className="space-y-1 pt-safe md:pt-8">
+        <header className="space-y-1">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
         </header>
