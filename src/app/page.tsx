@@ -458,7 +458,7 @@ export default function Dashboard() {
           className="h-32 rounded-[2.5rem] flex flex-col gap-3 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all group"
         >
           <div className="p-3 bg-accent/20 rounded-2xl group-hover:scale-110 transition-transform">
-            <Sparkles className="w-6 h-6 text-foreground opacity-60" strokeWidth={2.5} />
+            <Utensils className="w-6 h-6 text-foreground opacity-60" strokeWidth={2.5} />
           </div>
           <span className="font-black text-[10px] uppercase tracking-[0.3em] text-foreground text-center">Meal Planner</span>
         </Button>
