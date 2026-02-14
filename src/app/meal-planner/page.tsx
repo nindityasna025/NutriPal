@@ -573,7 +573,7 @@ export default function MealPlannerPage() {
             </ScrollArea>
           </div>
           <DialogFooter className="p-12 pt-0 shrink-0">
-             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-[12px] shadow-premium text-foreground border-none">RETURN TO SCHEDULE</Button>
+             <Button onClick={() => setIsRecipeDialogOpen(false)} className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest text-[12px] shadow-premium text-foreground border-none">COOKED</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
