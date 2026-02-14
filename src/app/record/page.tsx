@@ -42,15 +42,15 @@ const MacroInfoContent = () => (
     </p>
     <div className="space-y-3">
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-red-500">Protein</span>
+        <span className="text-primary font-bold">Protein</span>
         <span>20-30g / 15-35% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-yellow-600">Carbs</span>
+        <span className="text-accent-foreground font-bold">Carbs</span>
         <span>20-30g / 40-50% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase">
-        <span className="text-blue-500">Fat</span>
+        <span className="text-blue-500 font-bold">Fat</span>
         <span>10-15g / 20-35% daily</span>
       </div>
     </div>
@@ -257,7 +257,7 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500 pb-24">
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-10 animate-in fade-in duration-500 pb-24 overflow-x-hidden">
       <header className="text-center space-y-2">
         <h1 className="text-4xl font-black tracking-tight uppercase">Record & Recap</h1>
         <p className="text-muted-foreground font-medium text-sm">Snap your food for instant AI Expert nutritional analysis.</p>
@@ -374,9 +374,9 @@ export default function RecordPage() {
                     </Popover>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 bg-red-50 rounded-2xl text-center"><p className="text-[10px] font-black text-red-600 uppercase">Protein</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
-                    <div className="p-4 bg-yellow-50 rounded-2xl text-center"><p className="text-[10px] font-black text-yellow-600 uppercase">Carbs</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-4 bg-blue-50 rounded-2xl text-center"><p className="text-[10px] font-black text-blue-600 uppercase">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
+                    <div className="p-4 bg-primary/10 rounded-2xl text-center"><p className="text-[10px] font-black text-primary uppercase">Protein</p><p className="text-2xl font-black">{result.macros.protein}g</p></div>
+                    <div className="p-4 bg-accent/30 rounded-2xl text-center"><p className="text-[10px] font-black text-accent-foreground uppercase">Carbs</p><p className="text-2xl font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-4 bg-blue-50 rounded-2xl text-center"><p className="text-[10px] font-black text-blue-500 uppercase">Fat</p><p className="text-2xl font-black">{result.macros.fat}g</p></div>
                   </div>
                 </div>
 

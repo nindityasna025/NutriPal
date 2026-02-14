@@ -129,9 +129,9 @@ export default function Dashboard() {
       const d = subDays(new Date(), i)
       data.push({
         date: format(d, "MMM d"),
-        protein: 300 + Math.floor(Math.random() * 150),
-        carbs: 600 + Math.floor(Math.random() * 300),
-        fat: 200 + Math.floor(Math.random() * 200),
+        protein: 30 + Math.floor(Math.random() * 20),
+        carbs: 60 + Math.floor(Math.random() * 40),
+        fat: 20 + Math.floor(Math.random() * 15),
       })
     }
     setWeeklyData(data)
@@ -202,7 +202,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32">
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32 overflow-x-hidden">
       <header className="space-y-1">
         <h1 className="text-5xl font-extrabold tracking-tighter text-foreground">Today</h1>
         <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest opacity-60">
@@ -263,7 +263,7 @@ export default function Dashboard() {
             <div className="p-4 bg-primary/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
               <Flame className="w-6 h-6 text-primary" />
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Burned</p>
               <p className="text-4xl font-extrabold">{burned} <span className="text-sm font-bold text-muted-foreground">kcal</span></p>
             </div>
