@@ -162,7 +162,6 @@ export default function Dashboard() {
         </p>
       </header>
 
-      {/* Hero Glance Card */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <Card className="md:col-span-8 border-none shadow-premium bg-white rounded-[2.5rem] overflow-hidden">
           <CardContent className="p-6 sm:p-10 space-y-8">
@@ -170,7 +169,7 @@ export default function Dashboard() {
               <div className="space-y-1">
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
                 <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-5xl font-black tracking-tighter transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <h2 className={cn("text-4xl font-black tracking-tighter transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
                   <span className="text-lg font-bold text-muted-foreground/40 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
@@ -224,7 +223,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Action Widgets */}
         <div className="md:col-span-4 grid grid-cols-1 gap-4">
           <Card className="border-none shadow-premium rounded-[2rem] p-6 flex flex-col items-center justify-center text-center bg-white group hover:shadow-premium-lg transition-all">
             <div className="p-4 bg-primary/10 rounded-2xl mb-3 group-hover:scale-105 transition-transform">
@@ -256,7 +254,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Weekly Trends */}
       <section className="space-y-6">
         <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 uppercase text-left">
           <BarChart3 className="w-5 h-5 text-primary" />
@@ -282,7 +279,6 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Daily Food Record */}
       <section className="space-y-6">
         <h2 className="text-lg font-black tracking-tight flex items-center gap-2 px-1 uppercase text-left">
           <Utensils className="w-5 h-5 text-primary" />
@@ -318,7 +314,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* CTA Hub */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
         <Button 
           onClick={() => router.push("/record")}
@@ -341,7 +336,6 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* AI Health Whisper */}
       <Card className="rounded-[3rem] border-none shadow-premium-lg bg-primary text-primary-foreground p-8 sm:p-12 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:rotate-6 transition-transform duration-1000 hidden lg:block">
           <Sparkles className="w-48 h-48" />

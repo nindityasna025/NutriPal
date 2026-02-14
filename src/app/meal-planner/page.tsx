@@ -215,7 +215,6 @@ export default function MealPlannerPage() {
         </div>
       </header>
 
-      {/* Your Daily Schedule */}
       <section className="space-y-6">
         <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">Your Schedule</h2>
         <div className="space-y-4">
@@ -272,7 +271,6 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      {/* AI Hub Access */}
       <section className="pt-6">
         <Link href="/planner">
           <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
@@ -297,7 +295,6 @@ export default function MealPlannerPage() {
         </Link>
       </section>
 
-      {/* AI Recipe Dialog */}
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
         <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
           <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground">
