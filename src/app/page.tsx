@@ -107,7 +107,6 @@ export default function Dashboard() {
     const data = []
     for (let i = 6; i >= 0; i--) {
       const d = subDays(new Date(), i)
-      // Mocked data using the Kcal conversion formula
       const gramsProtein = 30 + Math.floor(Math.random() * 20)
       const gramsCarbs = 60 + Math.floor(Math.random() * 40)
       const gramsFat = 20 + Math.floor(Math.random() * 15)
@@ -138,7 +137,6 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
 
-  // Chronological sort: pagi to malam
   const sortedMeals = useMemo(() => {
     if (!meals) return null;
     return [...meals].sort((a, b) => {

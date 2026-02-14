@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -20,7 +21,8 @@ import {
   Calendar as CalendarIcon,
   Clock,
   X,
-  Plus
+  Plus,
+  CheckCircle2
 } from "lucide-react"
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
@@ -178,6 +180,46 @@ export default function ExplorePage() {
     router.push("/")
   }
 
+  const handleAddAll = async () => {
+    if (!user || !firestore || !menuPlan) return
+    const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
+    const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
+    const mealsColRef = collection(dailyLogRef, "meals")
+    
+    const totalCals = (menuPlan.Breakfast?.calories || 0) + 
+                      (menuPlan.Lunch?.calories || 0) + 
+                      (menuPlan.Dinner?.calories || 0);
+
+    setDocumentNonBlocking(dailyLogRef, { 
+      date: dateId, 
+      caloriesConsumed: increment(totalCals) 
+    }, { merge: true })
+
+    const types = ["Breakfast", "Lunch", "Dinner"] as const;
+    types.forEach(type => {
+      const item = menuPlan[type];
+      addDocumentNonBlocking(mealsColRef, {
+        name: item.name,
+        calories: item.calories,
+        time: item.time,
+        source: "planner",
+        macros: item.macros,
+        healthScore: 90,
+        description: item.description || "Part of your AI-generated daily plan.",
+        expertInsight: "Curated daily systematic choice.",
+        createdAt: serverTimestamp()
+      })
+    });
+
+    toast({ 
+      title: "Full Day Scheduled", 
+      description: `All 3 meals have been added to your record for ${dateId}.` 
+    })
+    
+    setIsMenuOpen(false)
+    router.push("/")
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
       <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
@@ -186,7 +228,6 @@ export default function ExplorePage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-        {/* Delivery Hub Trigger */}
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
@@ -297,7 +338,6 @@ export default function ExplorePage() {
           </DialogContent>
         </Dialog>
 
-        {/* Smart Menu Trigger */}
         <Dialog open={isMenuOpen} onOpenChange={(open) => { setIsMenuOpen(open); if(open) handleGenerateMenu(); }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-12 flex flex-col items-center justify-between text-center space-y-8 active:scale-[0.98]">
@@ -314,8 +354,13 @@ export default function ExplorePage() {
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white/95 backdrop-blur-sm w-[94vw] md:left-[calc(50%+8rem)] max-h-[95vh] flex flex-col">
-            <DialogHeader className="bg-accent p-6 text-accent-foreground shrink-0 text-center rounded-t-[3rem]">
-              <DialogTitle className="text-xl font-black uppercase tracking-widest text-center">Smart Menu Generation</DialogTitle>
+            <DialogHeader className="bg-accent p-6 text-accent-foreground shrink-0 text-center rounded-t-[3rem] flex flex-row items-center justify-between">
+              <DialogTitle className="text-xl font-black uppercase tracking-widest text-left">Smart Menu Generation</DialogTitle>
+              {menuPlan && !loading && (
+                <Button onClick={handleAddAll} className="h-10 px-6 rounded-xl bg-white text-accent hover:bg-white/90 font-black uppercase text-[10px] tracking-widest shadow-md">
+                   <Plus className="w-4 h-4 mr-2" /> Add All to Planner
+                </Button>
+              )}
             </DialogHeader>
             <div className="p-4 sm:p-6 flex-1 flex flex-col overflow-hidden">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 mb-4 shrink-0">
