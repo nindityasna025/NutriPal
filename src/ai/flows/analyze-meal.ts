@@ -47,7 +47,10 @@ User's Specific Health Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maint
 
 For the "expertInsight" field, provide a single, professional, and encouraging summary that combines the key health benefits of this meal AND how it specifically supports the user's goal ({{{userGoal}}}). 
 
-CRITICAL: The "expertInsight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. If it exceeds 200 characters, the system will fail. Aim for around 150-180 characters to be safe.
+CRITICAL: The "expertInsight" MUST BE EXTREMELY CONCISE. 
+- TARGET LENGTH: 150 characters.
+- ABSOLUTE LIMIT: 200 characters. 
+- DO NOT EXCEED 200 characters or the system will fail.
 
 If a description is provided, use it to refine your analysis: "{{{description}}}"
 

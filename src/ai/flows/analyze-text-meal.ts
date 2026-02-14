@@ -58,7 +58,10 @@ STRICT REQUIREMENTS:
    - ONLY provide a warning in "allergenWarning" if there is a DIRECT conflict with the provided list.
    - If the user list is empty or "None provided", "allergenWarning" MUST BE EMPTY.
 4. Create clear step-by-step "instructions" for the user.
-5. The "expertInsight" MUST be encouraging and explain how this meal supports the goal. Max 200 characters.
+5. CRITICAL: The "expertInsight" MUST be encouraging and explain how this meal supports the goal.
+   - TARGET LENGTH: 150 characters.
+   - ABSOLUTE LIMIT: 200 characters. 
+   - DO NOT EXCEED 200 characters or the system will crash.
 
 Provide the output in the specified JSON format.`,
 });

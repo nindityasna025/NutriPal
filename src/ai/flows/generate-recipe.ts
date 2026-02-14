@@ -37,7 +37,10 @@ User's Dietary Context: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{el
 
 Requirements:
 1. The "insight" must combine the health benefits of this meal and explain how it supports the user's current fitness goal. 
-2. CRITICAL: The "insight" MUST BE EXTREMELY CONCISE AND STRICTLY NOT EXCEED 200 characters. Validation will fail if it's longer.
+2. CRITICAL: The "insight" MUST BE EXTREMELY CONCISE.
+   - TARGET LENGTH: 150 characters.
+   - ABSOLUTE LIMIT: 200 characters. 
+   - Validation will fail if it's longer than 200 characters.
 3. The "ingredients" should be a clear list.
 4. The "instructions" should be sequential and easy to follow.
 

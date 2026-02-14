@@ -72,7 +72,10 @@ CRITICAL RULES:
 2. Prioritize items that match dietary restrictions (e.g., if Vegetarian, only pick Vegetarian).
 3. If the user is "Overweight" or "Obese", prioritize items with <500kcal and higher Health Scores.
 4. If the user is "Underweight", prioritize items with higher protein and moderate calories.
-5. Provide a "reasoning" for each pick that explains how it aligns with their BMI category or goal. Max 200 chars.
+5. Provide a "reasoning" for each pick that explains how it aligns with their BMI category or goal. 
+   - TARGET LENGTH: 150 characters.
+   - ABSOLUTE LIMIT: 200 characters. 
+   - DO NOT EXCEED 200 characters.
 
 Provide the top 3 matches in the specified JSON format.`,
 });
