@@ -181,7 +181,7 @@ export default function MealPlannerPage() {
         if (allergenWarning) {
           toast({
             variant: "destructive",
-            title: "Peringatan Alergi!",
+            title: "Allergy Warning!",
             description: allergenWarning,
           });
         }
@@ -231,7 +231,13 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Try again." });
+      toast({ 
+        variant: "destructive", 
+        title: err.message?.includes("429") ? "AI Taking a Break" : "Analysis Error", 
+        description: err.message?.includes("429") 
+          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
+          : "Could not analyze meal. Try again." 
+      });
     } finally {
       setIsSaving(false);
     }

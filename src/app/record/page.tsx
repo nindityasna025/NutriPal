@@ -28,11 +28,10 @@ import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-// Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))", // Forest Green Brand
-  carbs: "hsl(38 92% 50%)",      // Amber
-  fat: "hsl(var(--accent))",     // Lime
+  protein: "hsl(var(--primary))",
+  carbs: "hsl(38 92% 50%)",
+  fat: "hsl(var(--accent))",
 }
 
 export default function RecordPage() {
@@ -169,7 +168,13 @@ export default function RecordPage() {
       setResult(output)
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Error", description: "Could not analyze meal photo." })
+      toast({ 
+        variant: "destructive", 
+        title: error.message?.includes("429") ? "AI Taking a Break" : "AI Error", 
+        description: error.message?.includes("429") 
+          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
+          : "Could not analyze meal photo." 
+      })
     } finally {
       setAnalyzing(false)
     }
@@ -209,7 +214,7 @@ export default function RecordPage() {
       description: result.description,
       ingredients: result.ingredients,
       expertInsight: result.expertInsight,
-      status: "consumed", // Recorded via Snap is considered consumed
+      status: "consumed",
       imageUrl: preview, 
       createdAt: serverTimestamp()
     });

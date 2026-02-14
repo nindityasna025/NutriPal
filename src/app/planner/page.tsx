@@ -89,9 +89,15 @@ export default function ExplorePage() {
         scrapedDatabase: SCRAPED_DATABASE
       });
       setDeliveryResult(result.topMatches);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "AI Hub Unavailable", description: "Could not analyze delivery ecosystem." });
+      toast({ 
+        variant: "destructive", 
+        title: err.message?.includes("429") ? "AI Taking a Break" : "AI Hub Unavailable", 
+        description: err.message?.includes("429") 
+          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
+          : "Could not analyze delivery ecosystem." 
+      });
     } finally {
       setLoading(false);
     }
@@ -111,9 +117,15 @@ export default function ExplorePage() {
         allergies: profile.allergies
       });
       setMenuPlan(plan);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "AI Hub Unavailable", description: "Could not design your daily menu." });
+      toast({ 
+        variant: "destructive", 
+        title: err.message?.includes("429") ? "AI Taking a Break" : "AI Hub Unavailable", 
+        description: err.message?.includes("429") 
+          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
+          : "Could not design your daily menu." 
+      });
     } finally {
       setLoading(false);
     }
@@ -136,7 +148,6 @@ export default function ExplorePage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
-    // NOTE: We DO NOT update dailyLog aggregates here because it's only "planned"
     setDocumentNonBlocking(dailyLogRef, { 
       date: dateId
     }, { merge: true })
@@ -171,7 +182,6 @@ export default function ExplorePage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
-    // NOTE: We DO NOT update dailyLog aggregates here because it's only "planned"
     setDocumentNonBlocking(dailyLogRef, { 
       date: dateId
     }, { merge: true })
