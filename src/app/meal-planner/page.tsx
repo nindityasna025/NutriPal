@@ -322,11 +322,6 @@ export default function MealPlannerPage() {
                          </div>
                          <div className="space-y-2 flex-1">
                             <div className="flex items-center gap-4">
-                              {meal.imageUrl && (
-                                <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm shrink-0 border border-muted/20">
-                                  <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
-                                </div>
-                              )}
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2.5">
                                   <h3 className="text-xl font-black tracking-tight uppercase leading-tight">{meal.name}</h3>
