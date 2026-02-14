@@ -139,7 +139,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700">
+      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700 text-center lg:text-left">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Manage Your Health Metrics</p>
       </header>
@@ -223,7 +223,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] px-4">Ecosystem Settings</h2>
+          <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] px-4 text-center lg:text-left">Ecosystem Settings</h2>
           <Card className="border-none shadow-premium bg-white rounded-[3rem] overflow-hidden">
             <CardContent className="p-0">
               {[

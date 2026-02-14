@@ -180,7 +180,7 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32">
-      <header className="space-y-1 pt-safe md:pt-8">
+      <header className="space-y-1 pt-safe md:pt-8 text-center lg:text-left">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Today</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">
           {format(today, "EEEE, MMMM do")}
@@ -286,7 +286,7 @@ export default function Dashboard() {
 
       {/* Weekly Trends */}
       <section className="space-y-6">
-        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-2">
+        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 px-2 text-center lg:text-left justify-center lg:justify-start">
           <BarChart3 className="w-6 h-6 text-primary" />
           Weekly Overview
         </h2>
@@ -317,7 +317,7 @@ export default function Dashboard() {
 
       {/* Daily Meals List */}
       <section className="space-y-6">
-        <h2 className="text-xl font-black tracking-tight px-2 uppercase">Daily Activity</h2>
+        <h2 className="text-xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Daily Activity</h2>
         <div className="space-y-5">
           {isLoadingMeals ? (
             <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>
@@ -328,8 +328,8 @@ export default function Dashboard() {
                 className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all cursor-pointer overflow-hidden group bg-white"
                 onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
               >
-                <div className="p-8 flex items-center justify-between">
-                  <div className="flex items-center gap-8">
+                <div className="p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-8 w-full sm:w-auto">
                     <div className="w-20 h-20 bg-secondary rounded-3xl relative overflow-hidden flex-shrink-0 shadow-inner">
                       <Image 
                         src={`https://picsum.photos/seed/${meal.id}/400`} 
@@ -344,14 +344,14 @@ export default function Dashboard() {
                       <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1.5">{meal.time}</p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right w-full sm:w-auto">
                     <span className="text-3xl font-black text-primary tracking-tighter">+{meal.calories}</span>
                     <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1.5">kcal</span>
                   </div>
                 </div>
                 {expandedMeal === meal.id && (
                   <div className="px-10 pb-10 pt-4 border-t border-muted/20 animate-in slide-in-from-top-4 duration-500">
-                    <div className="grid grid-cols-3 gap-5 mb-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
                       <div className="text-center p-6 bg-primary/5 rounded-[2rem]">
                         <span className="block text-[9px] font-black text-primary uppercase tracking-widest mb-1.5">Protein</span>
                         <span className="text-2xl font-black">{meal.macros?.protein}g</span>
@@ -365,7 +365,7 @@ export default function Dashboard() {
                         <span className="text-2xl font-black">{meal.macros?.fat}g</span>
                       </div>
                     </div>
-                    <div className="p-6 bg-secondary/50 rounded-[2.5rem] flex items-center justify-between">
+                    <div className="p-6 bg-secondary/50 rounded-[2.5rem] flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className="bg-white p-3 rounded-2xl shadow-sm">
                           <Trophy className="w-5 h-5 text-primary" />
@@ -399,7 +399,7 @@ export default function Dashboard() {
       </section>
 
       {/* Action Hub - High-fidelity tactile controls */}
-      <div className="grid grid-cols-2 gap-6 pt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
           className="h-44 rounded-[3.5rem] flex flex-col gap-4 bg-primary text-primary-foreground shadow-premium-lg hover:shadow-premium-lg transition-all active:scale-[0.97] group"
@@ -422,18 +422,18 @@ export default function Dashboard() {
       </div>
 
       {/* AI Wellness Coach */}
-      <Card className="rounded-[4rem] border-none shadow-premium-lg bg-primary text-primary-foreground p-12 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
+      <Card className="rounded-[4rem] border-none shadow-premium-lg bg-primary text-primary-foreground p-8 sm:p-12 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:rotate-12 transition-transform duration-1000 hidden lg:block">
           <Sparkles className="w-56 h-56" />
         </div>
-        <div className="relative z-10 space-y-8 max-w-2xl">
-          <div className="flex items-center gap-4">
+        <div className="relative z-10 space-y-8 max-w-2xl text-center lg:text-left">
+          <div className="flex flex-col lg:flex-row items-center gap-4">
              <div className="bg-white/20 p-4 rounded-3xl backdrop-blur-xl">
                <Sparkles className="w-8 h-8" />
              </div>
              <h2 className="text-2xl font-black uppercase tracking-tight">Wellness Coach</h2>
           </div>
-          <p className="text-2xl font-bold leading-tight opacity-90 italic">
+          <p className="text-xl sm:text-2xl font-bold leading-tight opacity-90 italic">
             "Your protein levels are optimal for recovery today. Try adding a bit more hydration after your next meal to boost digestion."
           </p>
         </div>

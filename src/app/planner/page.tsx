@@ -126,7 +126,7 @@ export default function PlannerPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700">
+      <header className="space-y-1 pt-safe md:pt-8 animate-in fade-in duration-700 text-center lg:text-left">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Meal Curation & Deals</p>
       </header>
@@ -165,18 +165,18 @@ export default function PlannerPage() {
                     <div className="p-8 flex flex-col md:flex-row justify-between gap-8">
                       <div className="flex-1 space-y-6">
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest"><TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Score</div>
-                          <h3 className="text-2xl font-black tracking-tight uppercase">{item.name}</h3>
+                          <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest justify-center lg:justify-start"><TrendingUp className="w-4 h-4" /> {item.healthScore}% Health Score</div>
+                          <h3 className="text-2xl font-black tracking-tight uppercase text-center lg:text-left">{item.name}</h3>
                         </div>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                           <Badge className="rounded-xl px-4 py-1.5 bg-primary/10 text-primary border-none font-bold uppercase text-[9px]">+{item.calories} kcal</Badge>
                           <Badge variant="outline" className="rounded-xl px-4 py-1.5 border-primary/20 text-primary font-bold uppercase text-[9px]">{item.promo}</Badge>
                         </div>
                       </div>
-                      <div className="md:text-right flex flex-col justify-between items-start md:items-end">
-                        <div className="space-y-1">
+                      <div className="md:text-right flex flex-col justify-between items-center md:items-end">
+                        <div className="space-y-1 text-center md:text-right">
                           <p className="text-3xl font-black tracking-tighter uppercase">{item.price}</p>
-                          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.platformIcon} {item.platform} • {item.distance}</div>
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest justify-center md:justify-end">{item.platformIcon} {item.platform} • {item.distance}</div>
                         </div>
                         <div className="flex items-center gap-2 mt-6 w-full md:w-auto">
                           <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 border bg-white shadow-sm" onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}>

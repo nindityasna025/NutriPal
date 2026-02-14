@@ -168,12 +168,12 @@ export default function MealPlannerPage() {
   return (
     <div className="max-w-5xl mx-auto px-8 py-8 space-y-12 pb-32 min-h-screen relative">
       <header className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-safe md:pt-8 animate-in fade-in duration-700">
-        <div className="space-y-1 w-full lg:w-auto text-left">
+        <div className="space-y-1 w-full lg:w-auto text-center lg:text-left">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">Weekly Nutrition Organizer</p>
         </div>
         
-        <div className="flex items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-center lg:justify-end">
           <Button 
             variant="outline" 
             onClick={handleToday} 
@@ -257,7 +257,7 @@ export default function MealPlannerPage() {
         </Link>
 
         <div className="space-y-8">
-          <h2 className="text-3xl font-black tracking-tight px-2 uppercase">Your Schedule</h2>
+          <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Your Schedule</h2>
           <div className="space-y-6">
             {isLoadingMeals ? (
               <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
@@ -268,7 +268,7 @@ export default function MealPlannerPage() {
                       <CardContent className="p-8">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                           <div className="flex items-center gap-8 flex-1">
-                             <div className="text-center min-w-[100px] border-r pr-8 border-border">
+                             <div className="text-center min-w-[100px] border-r pr-8 border-border hidden sm:block">
                                <p className="text-xl font-black text-primary/40 whitespace-nowrap">{meal.time}</p>
                              </div>
                              <div className="space-y-1.5">
@@ -276,7 +276,8 @@ export default function MealPlannerPage() {
                                   <h3 className="text-2xl font-black tracking-tight uppercase">{meal.name}</h3>
                                   {meal.reminderEnabled ? <Bell className="w-3.5 h-3.5 text-primary" /> : <BellOff className="w-3.5 h-3.5 text-muted-foreground/30" />}
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <p className="text-[10px] font-black text-primary/40 sm:hidden">{meal.time}</p>
+                                <div className="flex flex-wrap items-center gap-4">
                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">+{meal.calories || 438} KCAL</p>
                                    <div className="flex items-center gap-2">
                                       <div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] font-black uppercase text-red-500">{meal.macros?.protein || 12}G Protein</span>
@@ -338,7 +339,7 @@ export default function MealPlannerPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meal Name</Label>
-              <Input className="h-12 rounded-2xl font-bold" value={editMealName} onChange={(e) => setMealName(e.target.value)} />
+              <Input className="h-12 rounded-2xl font-bold" value={editMealName} onChange={(e) => setEditMealName(e.target.value)} />
             </div>
             <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl">
               <div className="space-y-0.5">
