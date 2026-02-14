@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -17,11 +16,12 @@ import {
   ChefHat,
   ShoppingBag,
   ListOrdered,
-  Clock
+  Clock,
+  AlertTriangle
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
-import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from "@/firebase"
 import { doc, collection, serverTimestamp, increment } from "firebase/firestore"
 import { setDocumentNonBlocking, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -76,7 +76,7 @@ export default function MealPlannerPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
-  const [activeRecipe, setActiveRecipe] = useState<{ insight: string, ingredients: string[], instructions: string[] } | null>(null)
+  const [activeRecipe, setActiveRecipe] = useState<{ insight: string, ingredients: string[], instructions: string[], allergenWarning?: string } | null>(null)
   const [activeRecipeName, setActiveRecipeName] = useState("")
 
   const { user } = useUser()
@@ -88,7 +88,7 @@ export default function MealPlannerPage() {
     setMounted(true)
   }, [])
 
-  // Auto-recalculate calories when macros change (Only in Edit mode)
+  // Auto-recalculate calories when macros change
   useEffect(() => {
     if (editingMealId) {
       const p = parseFloat(protein) || 0;
@@ -144,14 +144,21 @@ export default function MealPlannerPage() {
       let healthScore = 85
       let finalIngredients: string[] = ingredients.split(",").map(i => i.trim()).filter(i => i !== "")
       let instructions: string[] = []
+      let allergenWarning = ""
 
       if (!editingMealId) {
-        // AI Analysis Mode for new meals
+        // AI Analysis Mode
         let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
         if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
         else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
 
-        const aiResult = await analyzeTextMeal({ mealName, userGoal });
+        const aiResult = await analyzeTextMeal({ 
+          mealName, 
+          userGoal,
+          userAllergies: profile?.allergies,
+          userRestrictions: profile?.dietaryRestrictions
+        });
+
         finalCalories = aiResult.calories
         finalProtein = aiResult.macros.protein
         finalCarbs = aiResult.macros.carbs
@@ -161,6 +168,15 @@ export default function MealPlannerPage() {
         healthScore = aiResult.healthScore
         finalIngredients = aiResult.ingredients
         instructions = aiResult.instructions
+        allergenWarning = aiResult.allergenWarning || ""
+
+        if (allergenWarning) {
+          toast({
+            variant: "destructive",
+            title: "Peringatan Alergi!",
+            description: allergenWarning,
+          });
+        }
       }
 
       const timeMap: Record<string, string> = { "Breakfast": "08:30 AM", "Lunch": "01:00 PM", "Snack": "04:00 PM", "Dinner": "07:30 PM" }
@@ -181,6 +197,7 @@ export default function MealPlannerPage() {
         expertInsight,
         ingredients: finalIngredients,
         instructions: instructions.length > 0 ? instructions : (editingMealId ? (scheduledMeals?.find(m => m.id === editingMealId)?.instructions || []) : []),
+        allergenWarning,
         source: "planner",
         reminderEnabled,
         updatedAt: serverTimestamp()
@@ -264,7 +281,6 @@ export default function MealPlannerPage() {
     setActiveRecipeName(meal.name)
     setIsRecipeDialogOpen(true)
     
-    // Use pre-saved instructions if available
     setActiveRecipe({
       insight: meal.expertInsight || "A balanced meal designed for your specific health targets.",
       ingredients: meal.ingredients && meal.ingredients.length > 0 ? meal.ingredients : ["Fresh seasonal ingredients"],
@@ -273,7 +289,8 @@ export default function MealPlannerPage() {
         "Sauté or steam protein source until cooked through.",
         "Arrange the meal elements for optimal presentation.",
         "Season lightly with herbs and serve fresh."
-      ]
+      ],
+      allergenWarning: meal.allergenWarning
     })
   }
 
@@ -405,9 +422,16 @@ export default function MealPlannerPage() {
                         <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                       </div>
                       <div className="space-y-2 flex-1">
-                        <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
-                          {meal.name}
-                        </h3>
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                            {meal.name}
+                          </h3>
+                          {meal.allergenWarning && (
+                            <Badge variant="destructive" className="h-5 px-2 text-[8px] font-black uppercase animate-pulse">
+                              <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex flex-row items-center gap-6">
                           <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
                           <div className="flex flex-wrap items-center gap-4">
@@ -498,6 +522,16 @@ export default function MealPlannerPage() {
             <ScrollArea className="h-full pr-6">
               {activeRecipe ? (
                 <div className="space-y-12">
+                  {activeRecipe.allergenWarning && (
+                    <div className="bg-destructive/10 border-2 border-destructive/20 p-8 rounded-[2.5rem] flex items-start gap-6 animate-pulse">
+                      <AlertTriangle className="w-10 h-10 text-destructive shrink-0 mt-1" />
+                      <div className="space-y-1">
+                        <p className="text-[12px] font-black uppercase tracking-widest text-destructive">ALLERGY WARNING</p>
+                        <p className="text-[15px] font-bold text-foreground opacity-90">{activeRecipe.allergenWarning}</p>
+                      </div>
+                    </div>
+                  )}
+
                   <section className="space-y-6">
                     <div className="flex items-center gap-3 text-foreground font-black text-[12px] uppercase tracking-widest">
                       <Sparkles className="w-6 h-6 text-primary" /> EXPERT INSIGHT

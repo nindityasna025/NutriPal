@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -20,7 +19,8 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
-  ShoppingBag
+  ShoppingBag,
+  AlertTriangle
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit } from "firebase/firestore"
@@ -45,6 +45,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Badge } from "@/components/ui/badge"
 
 // Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
@@ -374,9 +375,16 @@ export default function Dashboard() {
                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                         </div>
                         <div className="space-y-2 flex-1 text-left">
-                          <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
-                            {meal.name}
-                          </h3>
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                              {meal.name}
+                            </h3>
+                            {meal.allergenWarning && (
+                              <Badge variant="destructive" className="h-5 px-2 text-[8px] font-black uppercase">
+                                <AlertTriangle className="w-3 h-3 mr-1" /> ALLERGY ALERT
+                              </Badge>
+                            )}
+                          </div>
                           <div className="flex flex-row items-center gap-6">
                             <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
                             <div className="flex flex-wrap items-center gap-4">
@@ -405,6 +413,13 @@ export default function Dashboard() {
                       <div className="px-8 pb-8 pt-2 space-y-10 animate-in slide-in-from-top-4 duration-300">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t-2 border-border/30 pt-8">
                           <div className="space-y-6">
+                             {meal.allergenWarning && (
+                               <div className="bg-destructive/10 border-2 border-destructive/20 p-6 rounded-[1.5rem] flex items-start gap-4 mb-4">
+                                  <AlertTriangle className="w-6 h-6 text-destructive shrink-0 mt-1" />
+                                  <p className="text-[12px] font-bold text-foreground leading-tight">{meal.allergenWarning}</p>
+                               </div>
+                             )}
+
                              <div className="flex items-center justify-between">
                                 <span className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60">Health Score</span>
                                 <span className="text-2xl font-black text-foreground tracking-tighter">{meal.healthScore}/100</span>
