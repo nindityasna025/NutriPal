@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { 
   Camera, 
   Sparkles, 
@@ -19,7 +20,8 @@ import {
   ArrowUpCircle,
   CheckCircle,
   ArrowDownCircle,
-  ScanSearch
+  ScanSearch,
+  RefreshCw
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -62,13 +64,15 @@ export default function RecordPage() {
   const [result, setResult] = useState<any | null>(null)
   const [mounted, setMounted] = useState(false)
   const [recordDate, setRecordDate] = useState<Date>(startOfToday())
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null)
   const { toast } = useToast()
   
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useUser()
   const firestore = useFirestore()
 
-  // Fetch User Profile for BMI logic
   const profileRef = useMemoFirebase(() => 
     user ? doc(firestore, "users", user.uid, "profile", "main") : null, 
     [user, firestore]
@@ -77,6 +81,26 @@ export default function RecordPage() {
 
   useEffect(() => {
     setMounted(true)
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+      }
+    };
+    getCameraPermission();
+
+    return () => {
+      if (videoRef.current?.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
   }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,18 +109,60 @@ export default function RecordPage() {
       setFile(selected)
       setFilePreview(URL.createObjectURL(selected))
       setResult(null)
+      // Stop camera if file is uploaded
+      if (videoRef.current?.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
     }
   }
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click()
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        setFilePreview(dataUrl);
+        // Convert dataUrl to File object for simulation
+        fetch(dataUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            const capturedFile = new File([blob], "capture.jpg", { type: "image/jpeg" });
+            setFile(capturedFile);
+          });
+        
+        // Stop stream after capture
+        if (video.srcObject) {
+          const stream = video.srcObject as MediaStream;
+          stream.getTracks().forEach(track => track.stop());
+        }
+      }
+    }
+  }
+
+  const retakePhoto = async () => {
+    setFile(null);
+    setFilePreview(null);
+    setResult(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setHasCameraPermission(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      setHasCameraPermission(false);
+    }
   }
 
   const handleAnalyze = () => {
     if (!file) return
     setAnalyzing(true)
-    
-    // Simulated AI Analysis
     setTimeout(() => {
       setResult({
         name: "Kuetiau Goreng",
@@ -140,17 +206,15 @@ export default function RecordPage() {
       setFile(null)
       setFilePreview(null)
       setResult(null)
+      retakePhoto()
     } catch (e) {
       console.error(e)
     }
   }
 
-  // Personalized Suggestion Logic based on BMI Category
   const personalizedSuggestion = useMemo(() => {
     if (!profile) return null;
-    
     const category = profile.bmiCategory || "Ideal";
-    
     if (category === "Underweight") {
       return {
         title: "Weight Gain Target",
@@ -172,7 +236,6 @@ export default function RecordPage() {
         borderColor: "border-primary/20"
       }
     } else {
-      // Overweight or Obese
       return {
         title: "Weight Loss Goal",
         goal: "Calorie Deficit Focus",
@@ -212,22 +275,66 @@ export default function RecordPage() {
               </Popover>
             </div>
 
-            <div onClick={triggerFileInput} className="border-2 border-dashed border-primary/20 rounded-[2.5rem] bg-secondary/10 aspect-square relative flex flex-col items-center justify-center group cursor-pointer hover:bg-primary/5 transition-all overflow-hidden">
-              <Input type="file" accept="image/*" className="hidden" onChange={handleFileChange} ref={fileInputRef} />
-              {preview ? (
-                <Image src={preview} alt="Meal Preview" fill className="object-cover" />
-              ) : (
-                <div className="text-center space-y-4">
-                  <Camera className="w-12 h-12 text-primary mx-auto" strokeWidth={1.5} />
-                  <p className="font-black text-lg uppercase tracking-tight">Snap or Upload</p>
+            <div className="relative border-2 border-dashed border-primary/20 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden">
+              <video 
+                ref={videoRef} 
+                className={cn("w-full h-full object-cover", (preview || hasCameraPermission === false) && "hidden")} 
+                autoPlay 
+                muted 
+                playsInline
+              />
+              <canvas ref={canvasRef} className="hidden" />
+              
+              {preview && (
+                <div className="relative w-full h-full">
+                  <Image src={preview} alt="Captured Meal" fill className="object-cover" />
+                  <Button 
+                    variant="secondary" 
+                    size="icon" 
+                    onClick={retakePhoto} 
+                    className="absolute top-4 right-4 rounded-full bg-white/80 backdrop-blur-sm"
+                  >
+                    <RefreshCw className="w-4 h-4 text-primary" />
+                  </Button>
                 </div>
               )}
+
+              {hasCameraPermission === false && !preview && (
+                <div className="text-center space-y-4 p-8">
+                  <Camera className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
+                  <Alert variant="destructive" className="rounded-2xl border-none bg-destructive/10">
+                    <AlertTitle className="font-bold">Camera Access Required</AlertTitle>
+                    <AlertDescription className="text-xs">
+                      Please allow camera access to use this feature, or upload a photo manually.
+                    </AlertDescription>
+                  </Alert>
+                  <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="rounded-full">
+                    Upload Manually
+                  </Button>
+                </div>
+              )}
+
+              <Input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleFileChange} 
+                ref={fileInputRef} 
+              />
             </div>
+
+            {hasCameraPermission && !preview && (
+              <Button onClick={capturePhoto} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-lg flex gap-2">
+                <Camera className="w-6 h-6" /> CAPTURE PHOTO
+              </Button>
+            )}
             
-            <Button onClick={handleAnalyze} disabled={!file || analyzing || !!result} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-lg">
-              {analyzing ? <Loader2 className="animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
-              {result ? "Analysis Ready" : "Analyze Meal"}
-            </Button>
+            {preview && (
+              <Button onClick={handleAnalyze} disabled={analyzing || !!result} className="w-full h-16 rounded-[2rem] font-black text-lg shadow-lg">
+                {analyzing ? <Loader2 className="animate-spin mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />}
+                {result ? "Analysis Ready" : "Analyze Meal"}
+              </Button>
+            )}
           </Card>
         </section>
 
@@ -267,7 +374,6 @@ export default function RecordPage() {
                   </div>
                 </div>
 
-                {/* Personalized Suggestion Section */}
                 {personalizedSuggestion && (
                   <div className={cn("p-6 rounded-[2rem] border space-y-4", personalizedSuggestion.color, personalizedSuggestion.borderColor)}>
                     <div className="flex items-center justify-between">
@@ -277,9 +383,6 @@ export default function RecordPage() {
                            {personalizedSuggestion.title}
                          </span>
                        </div>
-                       <Badge className={cn("font-black uppercase text-[8px] tracking-tighter px-3 border-none", personalizedSuggestion.textColor === "text-primary" ? "bg-primary text-white" : personalizedSuggestion.color.replace('bg-', 'bg-').replace('50', '200'))}>
-                         Target Mode: {profile?.bmiCategory || "Ideal"}
-                       </Badge>
                     </div>
                     <p className="text-sm font-bold leading-tight">{personalizedSuggestion.goal}</p>
                     <p className="text-xs font-medium text-foreground/70 leading-relaxed italic">
@@ -293,25 +396,6 @@ export default function RecordPage() {
                      <div className="flex items-center gap-2">
                        <Trophy className="text-primary w-5 h-5" />
                        <span className="text-lg font-black uppercase tracking-tight">Health Score</span>
-                       <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
-                            <Info className="w-3.5 h-3.5" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                              <Trophy className="w-4 h-4" /> Health Benefit Score
-                            </div>
-                            <p className="text-xs font-medium leading-relaxed text-foreground/80">
-                              Health Benefit score is a quick 0-100 rate of how healthy your meal is.
-                              Behind the scenes, our algorithm checks for proteins, complex carbs, healthy fats, fiber, vitamins and minerals. It also filters for ultra-processed foods, refined grains, and added sugars.
-                              The closer to 100, the more nutrient-rich your meal is!
-                            </p>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
                      </div>
                      <div className="flex items-center gap-4">
                         <span className="text-2xl font-black text-primary">{result.healthScore}/100</span>
@@ -327,25 +411,6 @@ export default function RecordPage() {
                     <div className="space-y-3">
                        <div className="flex items-center justify-between">
                           <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients Detected</p>
-                          <Popover>
-                             <PopoverTrigger asChild>
-                               <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground/40 hover:text-primary">
-                                 <Info className="w-3.5 h-3.5" />
-                               </Button>
-                             </PopoverTrigger>
-                             <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
-                               <div className="space-y-3">
-                                 <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                                   <ScanSearch className="w-4 h-4" /> AI Scanning
-                                 </div>
-                                 <p className="text-xs font-medium leading-relaxed text-foreground/80">
-                                   AI-powered food recognition scans the photo to pick out the ingredients and estimate their portions.
-                                   While AI usually gets things right, it can sometimes mix up the ingredients, especially in complex dishes. 
-                                   It works best when each item is clearly visible. If something doesn't look quite right, feel free to edit the results yourself.
-                                 </p>
-                               </div>
-                             </PopoverContent>
-                          </Popover>
                        </div>
                        <div className="flex flex-wrap gap-2">
                           {result.ingredients.map((ing: string, i: number) => (
@@ -365,8 +430,8 @@ export default function RecordPage() {
             <div className="h-full min-h-[400px] border-2 border-dashed border-muted/30 rounded-[3rem] flex flex-col items-center justify-center p-12 text-center space-y-4">
               <Camera className="w-16 h-16 text-muted-foreground/10" strokeWidth={1} />
               <div className="space-y-1">
-                <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">Waiting for Analysis</p>
-                <p className="text-muted-foreground/60 text-sm font-medium">Upload a photo to see nutritional details.</p>
+                <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">Waiting for Photo</p>
+                <p className="text-muted-foreground/60 text-sm font-medium">Capture your meal using the live camera feed.</p>
               </div>
             </div>
           )}
