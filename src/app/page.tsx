@@ -136,7 +136,6 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals, isLoading: isLoadingMeals } = useCollection(mealsColRef)
 
-  // Dynamic calculations based on meal reports
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
     return meals.reduce((acc, meal) => ({
@@ -356,7 +355,7 @@ export default function Dashboard() {
                               <Info className="w-3.5 h-3.5" />
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                          <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-ios-lg border-none glass">
                             <div className="space-y-3">
                               <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                                 <Trophy className="w-4 h-4" /> Health Benefit Score
@@ -382,8 +381,8 @@ export default function Dashboard() {
                 <p className="text-muted-foreground font-extrabold text-lg">No activity logged today.</p>
                 <p className="text-sm text-muted-foreground font-medium">Capture your first meal to start tracking.</p>
               </div>
-              <Button onClick={() => router.push("/record")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
-                Snap Your First Meal
+              <Button onClick={() => router.push("/planner")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
+                Explore Your First Meal
               </Button>
             </div>
           )}
@@ -393,7 +392,7 @@ export default function Dashboard() {
       {/* Action Hub */}
       <div className="flex gap-6 pt-6">
         <Button 
-          onClick={() => router.push("/record")}
+          onClick={() => router.push("/planner")}
           className="flex-1 h-36 rounded-[2.5rem] flex flex-col gap-3 bg-primary text-primary-foreground shadow-ios-lg hover:shadow-ios-lg transition-all active:scale-95 group"
         >
           <div className="p-4 bg-white/10 rounded-2xl group-hover:scale-110 transition-transform">
