@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { 
@@ -20,7 +20,9 @@ import {
   Trophy,
   BarChart3,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  ScanSearch,
+  AlertCircle
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -230,7 +232,7 @@ export default function Dashboard() {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11, fontWeight: 800 }}
-                    tickMargin={12}
+                    tickMargin={15}
                   />
                   <YAxis 
                     axisLine={false} 
@@ -253,71 +255,113 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Macro Education Section */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
-          <div className="p-2 bg-orange-50 rounded-xl">
-            <Info className="w-5 h-5 text-orange-500" />
-          </div>
-          Macro Balance Guide
-        </h2>
-        <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-          <CardContent className="p-10 space-y-8">
-            <div className="space-y-4">
-              <h3 className="text-xl font-black tracking-tight uppercase flex items-center gap-2">
-                Understanding Your Mix
-              </h3>
-              <p className="text-muted-foreground font-medium leading-relaxed">
-                This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good. Our smart tech looks at the ingredients and portions to figure out how your macros stack up.
-              </p>
+      {/* Education Hub */}
+      <section className="space-y-8">
+        <div className="space-y-6">
+          <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
+            <div className="p-2 bg-orange-50 rounded-xl">
+              <Info className="w-5 h-5 text-orange-500" />
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { 
-                  title: "Protein", 
-                  color: "bg-red-500", 
-                  guide: "20-30g per meal", 
-                  perc: "15-35% daily",
-                  desc: "Essential for muscle repair and satiety."
-                },
-                { 
-                  title: "Carbs", 
-                  color: "bg-yellow-500", 
-                  guide: "20-30g per meal", 
-                  perc: "40-50% daily",
-                  desc: "Aim for good sources like veggies and grains."
-                },
-                { 
-                  title: "Fat", 
-                  color: "bg-blue-500", 
-                  guide: "10-15g per meal", 
-                  perc: "20-35% daily",
-                  desc: "Healthy fats from nuts, seeds, or avocado."
-                }
-              ].map((m, i) => (
-                <div key={i} className="space-y-4 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-muted-foreground/10 transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("w-3 h-3 rounded-full", m.color)} />
-                    <span className="font-black text-xs uppercase tracking-widest">{m.title}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-lg font-black tracking-tight">{m.guide}</p>
-                    <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{m.perc}</p>
-                  </div>
-                  <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">{m.desc}</p>
+            Wellness Guides
+          </h2>
+          
+          <div className="grid grid-cols-1 gap-8">
+            {/* Macro Balance Guide */}
+            <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
+              <CardContent className="p-10 space-y-8">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-black tracking-tight uppercase flex items-center gap-2">
+                    Macro Balance
+                  </h3>
+                  <p className="text-muted-foreground font-medium leading-relaxed">
+                    This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good. Our smart tech looks at the ingredients and portions to figure out how your macros stack up.
+                  </p>
                 </div>
-              ))}
-            </div>
 
-            <div className="pt-4 flex items-start gap-4 p-6 bg-primary/5 rounded-[2rem] border border-primary/10">
-              <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
-              <p className="text-sm font-bold leading-relaxed">
-                Remember, it's not just about numbers—mixing up your meals and focusing on whole, quality foods matters too!
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    { 
+                      title: "Protein", 
+                      color: "bg-red-500", 
+                      guide: "20-30g per meal", 
+                      perc: "15-35% daily",
+                      desc: "Essential for muscle repair and satiety."
+                    },
+                    { 
+                      title: "Carbs", 
+                      color: "bg-yellow-500", 
+                      guide: "20-30g per meal", 
+                      perc: "40-50% daily",
+                      desc: "Aim for good sources like veggies and grains."
+                    },
+                    { 
+                      title: "Fat", 
+                      color: "bg-blue-500", 
+                      guide: "10-15g per meal", 
+                      perc: "20-35% daily",
+                      desc: "Healthy fats from nuts, seeds, or avocado."
+                    }
+                  ].map((m, i) => (
+                    <div key={i} className="space-y-4 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-muted-foreground/10 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-3 h-3 rounded-full", m.color)} />
+                        <span className="font-black text-xs uppercase tracking-widest">{m.title}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-lg font-black tracking-tight">{m.guide}</p>
+                        <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{m.perc}</p>
+                      </div>
+                      <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">{m.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ingredients Intelligence Guide */}
+            <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
+              <CardContent className="p-10 space-y-8">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center shrink-0">
+                    <ScanSearch className="w-10 h-10 text-primary" />
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-black tracking-tight uppercase">Ingredients Intelligence</h3>
+                    <p className="text-muted-foreground font-medium leading-relaxed">
+                      AI-powered food recognition scans the photo to pick out the ingredients and estimate their portions.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-6 bg-secondary/30 rounded-[2rem] space-y-3">
+                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                      <Sparkles className="w-3 h-3" /> How it Works
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
+                      While AI usually gets things right, it can sometimes mix up the ingredients, especially in complex dishes. It works best when each item is clearly visible.
+                    </p>
+                  </div>
+                  <div className="p-6 bg-primary/5 border border-primary/10 rounded-[2rem] space-y-3">
+                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                      <AlertCircle className="w-3 h-3" /> Your Control
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
+                      If something doesn't look quite right, feel free to edit the results yourself, so everything stays accurate.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex items-start gap-4 p-6 bg-primary/5 rounded-[2rem] border border-primary/10">
+                  <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
+                  <p className="text-sm font-bold leading-relaxed">
+                    Remember, it's not just about numbers—mixing up your meals and focusing on whole, quality foods matters too!
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </section>
 
       {/* Daily Report */}
@@ -385,7 +429,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Action Hub - Moved to Bottom */}
+      {/* Action Hub */}
       <section className="grid grid-cols-2 gap-6 pt-4">
         <Button 
           onClick={() => router.push("/record")}
