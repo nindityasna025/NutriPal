@@ -55,11 +55,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-// Consistent Macro Colors
+// Consistent Macro Colors - Themed
 const MACRO_COLORS = {
-  protein: "#ef4444", // Red-500
-  carbs: "#d97706",   // Amber-600
-  fat: "#3b82f6",     // Blue-500
+  protein: "hsl(var(--primary))", // Deep Forest Green
+  carbs: "hsl(38 92% 50%)",      // Warm Amber
+  fat: "hsl(var(--accent))",     // Soft Teal
 }
 
 const chartConfig = {
@@ -78,15 +78,15 @@ const MacroInfoContent = () => (
     </p>
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">
-        <span className="text-red-500 font-bold">Protein</span>
+        <span className="font-bold" style={{ color: MACRO_COLORS.protein }}>Protein</span>
         <span>15-35% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">
-        <span className="text-amber-600 font-bold">Carbs</span>
+        <span className="font-bold" style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
         <span>40-50% daily</span>
       </div>
       <div className="flex items-center justify-between text-[10px] font-black uppercase text-left">
-        <span className="text-blue-500 font-bold">Fat</span>
+        <span className="font-bold" style={{ color: MACRO_COLORS.fat }}>Fat</span>
         <span>20-35% daily</span>
       </div>
     </div>
@@ -176,10 +176,10 @@ export default function Dashboard() {
   const caloriePercentForProgress = Math.min(100, actualPercent)
   const isOverLimit = consumed > calorieTarget
 
-  const totalMacros = totals.protein + totals.carbs + totals.fat;
-  const proteinPercent = totalMacros > 0 ? (totals.protein / totalMacros) * 100 : 0;
-  const carbsPercent = totalMacros > 0 ? (totals.carbs / totalMacros) * 100 : 0;
-  const fatPercent = totalMacros > 0 ? (totals.fat / totalMacros) * 100 : 0;
+  const totalMacrosKcal = (totals.protein * 4) + (totals.carbs * 4) + (totals.fat * 9);
+  const proteinPercent = totalMacrosKcal > 0 ? ((totals.protein * 4) / totalMacrosKcal) * 100 : 0;
+  const carbsPercent = totalMacrosKcal > 0 ? ((totals.carbs * 4) / totalMacrosKcal) * 100 : 0;
+  const fatPercent = totalMacrosKcal > 0 ? ((totals.fat * 9) / totalMacrosKcal) * 100 : 0;
 
   const adjustWater = (amount: number) => {
     if (!dailyLogRef || !dateId) return;
@@ -362,9 +362,9 @@ export default function Dashboard() {
                             <Badge className="h-4 px-1.5 py-0 text-[7px] font-black uppercase bg-primary/10 text-primary border-none">Score: {meal.healthScore || 85}</Badge>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[8px] font-black text-red-500 uppercase">Protein {meal.macros?.protein}g</span>
-                            <span className="text-[8px] font-black text-amber-600 uppercase">Carbs {meal.macros?.carbs}g</span>
-                            <span className="text-[8px] font-black text-blue-500 uppercase">Fat {meal.macros?.fat}g</span>
+                            <span className="text-[8px] font-black uppercase" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
+                            <span className="text-[8px] font-black uppercase" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
+                            <span className="text-[8px] font-black uppercase" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
                           </div>
                         </div>
                       </div>
@@ -395,7 +395,7 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="space-y-2 text-left">
-                        <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest text-left">
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left" style={{ color: MACRO_COLORS.fat }}>
                           <Leaf className="w-3.5 h-3.5" /> Key Ingredients
                         </div>
                         <div className="flex flex-wrap gap-2 text-left">
