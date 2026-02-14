@@ -130,9 +130,11 @@ export default function ExplorePage() {
     if (!user || !firestore) return
     const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
     
-    // Format time correctly
+    // For Smart Menu, we use the meal's default time (Breakfast/Lunch/Dinner indicators)
+    // For Delivery Hub, we use the specific selected targetTime if available.
     let finalTime = item.time || "12:00 PM"
-    if (targetTime) {
+    
+    if (view === "delivery" && targetTime) {
       const [hours, mins] = targetTime.split(':')
       const h = parseInt(hours)
       const ampm = h >= 12 ? 'PM' : 'AM'
@@ -262,15 +264,15 @@ export default function ExplorePage() {
                     <div className="grid grid-cols-3 gap-3">
                        <div className="space-y-0.5 text-left">
                          <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
-                         <p className="font-black text-primary">{item.macros.protein}g</p>
+                         <p className="font-black text-primary" style={{ color: MACRO_COLORS.protein }}>{item.macros.protein}g</p>
                        </div>
                        <div className="space-y-0.5 text-left">
                          <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                         <p className="font-black text-orange-500">{item.macros.carbs}g</p>
+                         <p className="font-black" style={{ color: MACRO_COLORS.carbs }}>{item.macros.carbs}g</p>
                        </div>
                        <div className="space-y-0.5 text-left">
                          <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
-                         <p className="font-black text-accent">{item.macros.fat}g</p>
+                         <p className="font-black text-accent" style={{ color: MACRO_COLORS.fat }}>{item.macros.fat}g</p>
                        </div>
                     </div>
                     
@@ -296,23 +298,14 @@ export default function ExplorePage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-1">
             <div className="flex items-center gap-4">
                <h2 className="font-black text-lg uppercase tracking-tight text-left">Matched Menu Templates</h2>
-               <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-11 border border-primary/10 shadow-inner">
-                  <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
+               <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-6 h-11 border border-primary/10 shadow-inner">
+                  <div className="flex items-center gap-2">
                     <CalendarIcon className="w-3.5 h-3.5 text-primary" />
                     <input 
                       type="date" 
                       value={targetDate} 
                       onChange={e => setTargetDate(e.target.value)} 
                       className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24" 
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 pl-1">
-                    <Clock className="w-3.5 h-3.5 text-primary" />
-                    <input 
-                      type="time" 
-                      value={targetTime} 
-                      onChange={e => setTargetTime(e.target.value)} 
-                      className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
                     />
                   </div>
                </div>
@@ -346,15 +339,15 @@ export default function ExplorePage() {
                       <div className="grid grid-cols-3 gap-3">
                         <div className="space-y-0.5 text-left">
                           <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
-                          <p className="text-lg font-black text-primary">{meal.macros.protein}g</p>
+                          <p className="text-lg font-black text-primary" style={{ color: MACRO_COLORS.protein }}>{meal.macros.protein}g</p>
                         </div>
                         <div className="space-y-0.5 text-left">
                           <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                          <p className="text-lg font-black text-orange-500">{meal.macros.carbs}g</p>
+                          <p className="text-lg font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
                         </div>
                         <div className="space-y-0.5 text-left">
                           <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
-                          <p className="text-lg font-black text-accent">{meal.macros.fat}g</p>
+                          <p className="text-lg font-black text-accent" style={{ color: MACRO_COLORS.fat }}>{meal.macros.fat}g</p>
                         </div>
                       </div>
 
