@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -18,7 +17,11 @@ import {
   Sparkles,
   Camera,
   BarChart3,
-  Info
+  Info,
+  ChevronRight,
+  Heart,
+  Scale,
+  Leaf
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -45,6 +48,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 const chartConfig = {
   protein: { label: "Protein", color: "hsl(var(--primary))" },
@@ -83,6 +93,8 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [mounted, setMounted] = useState(false)
   const [weeklyData, setWeeklyData] = useState<any[]>([])
+  const [selectedMeal, setSelectedMeal] = useState<any | null>(null)
+  const [isInsightOpen, setIsInsightOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -144,6 +156,11 @@ export default function Dashboard() {
     if (!dailyLogRef) return;
     const newWater = Math.max(0, water + amount);
     setDocumentNonBlocking(dailyLogRef, { waterIntake: Number(newWater.toFixed(1)), date: dateId }, { merge: true });
+  }
+
+  const openMealInsight = (meal: any) => {
+    setSelectedMeal(meal);
+    setIsInsightOpen(true);
   }
 
   if (!mounted || isUserLoading || !user) {
@@ -288,7 +305,11 @@ export default function Dashboard() {
         <div className="space-y-4">
           {meals && meals.length > 0 ? (
             meals.map((meal) => (
-              <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all">
+              <Card 
+                key={meal.id} 
+                onClick={() => openMealInsight(meal)}
+                className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all cursor-pointer group"
+              >
                 <CardContent className="p-5 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 overflow-hidden">
                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 relative overflow-hidden">
@@ -299,7 +320,7 @@ export default function Dashboard() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-sm font-black uppercase truncate">{meal.name}</h4>
+                      <h4 className="text-sm font-black uppercase truncate group-hover:text-primary transition-colors">{meal.name}</h4>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[8px] font-black text-red-500 uppercase">{meal.macros?.protein}g P</span>
@@ -309,6 +330,9 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    <div className="bg-primary/10 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ChevronRight className="w-4 h-4 text-primary" />
+                    </div>
                     <Badge variant="outline" className="rounded-lg text-[8px] font-black uppercase px-2 py-0.5 border-primary/20 text-primary">
                       {meal.source === 'planner' ? 'Cooked' : (meal.source || 'Logged')}
                     </Badge>
@@ -362,6 +386,77 @@ export default function Dashboard() {
           </p>
         </div>
       </Card>
+
+      <Dialog open={isInsightOpen} onOpenChange={setIsInsightOpen}>
+        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-background w-[92vw]">
+          <DialogHeader className="bg-primary p-6 sm:p-8 text-primary-foreground relative">
+             {selectedMeal?.imageUrl && (
+               <div className="absolute inset-0 opacity-20 z-0">
+                  <Image src={selectedMeal.imageUrl} alt="" fill className="object-cover grayscale" />
+               </div>
+             )}
+             <div className="relative z-10 space-y-2">
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-tight">
+                  {selectedMeal?.name}
+                </DialogTitle>
+                <div className="flex items-center gap-3">
+                   <Badge className="bg-white/20 backdrop-blur-md text-white border-none font-black text-[9px] uppercase tracking-widest px-3 py-1">
+                      {selectedMeal?.calories} kcal
+                   </Badge>
+                   <div className="flex items-center gap-1.5 text-[10px] font-black uppercase">
+                      <span className="text-white/70">Score:</span>
+                      <span className="text-white">{selectedMeal?.healthScore}/100</span>
+                   </div>
+                </div>
+             </div>
+          </DialogHeader>
+          <div className="p-6 sm:p-8">
+            <ScrollArea className="h-[400px] pr-4">
+               <div className="space-y-8 pb-4">
+                  <section className="space-y-3">
+                     <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                        <Heart className="w-4 h-4" /> Health Benefit
+                     </div>
+                     <p className="text-sm font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                        {selectedMeal?.healthBenefit || selectedMeal?.description || "High-quality nutritional profile focused on recovery and clean energy."}
+                     </p>
+                  </section>
+
+                  <section className="space-y-3">
+                     <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
+                        <Scale className="w-4 h-4" /> Goal Alignment
+                     </div>
+                     <div className="grid gap-3">
+                        <div className="p-4 bg-secondary/30 rounded-2xl border border-transparent">
+                           <p className="text-xs font-bold leading-relaxed">
+                              {selectedMeal?.weightGoalAdvice || "Balanced macros make this an ideal choice for sustained weight maintenance and consistent metabolic health."}
+                           </p>
+                        </div>
+                     </div>
+                  </section>
+
+                  <section className="space-y-3">
+                     <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
+                        <Leaf className="w-4 h-4" /> Key Ingredients
+                     </div>
+                     <div className="flex flex-wrap gap-2">
+                        {selectedMeal?.ingredients?.map((ing: string, i: number) => (
+                          <Badge key={i} variant="outline" className="rounded-xl border-muted-foreground/10 text-muted-foreground px-3 py-1 font-bold text-[10px] uppercase tracking-tight">
+                            {ing}
+                          </Badge>
+                        )) || <p className="text-xs text-muted-foreground italic">Standard ingredients detected.</p>}
+                     </div>
+                  </section>
+               </div>
+            </ScrollArea>
+          </div>
+          <div className="p-8 pt-0">
+             <Button onClick={() => setIsInsightOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-premium">
+                Got it, thanks!
+             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

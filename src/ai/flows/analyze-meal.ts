@@ -26,6 +26,8 @@ const AnalyzeMealOutputSchema = z.object({
   healthScore: z.number().min(0).max(100).describe("A score from 0-100 based on nutritional quality."),
   description: z.string().describe("A brief nutritionist's summary of the meal."),
   ingredients: z.array(z.string()).describe("List of main ingredients identified."),
+  healthBenefit: z.string().describe("Specific health benefits of this meal."),
+  weightGoalAdvice: z.string().describe("Analysis of how this meal fits Maintenance, Weight Loss, or Weight Gain goals."),
 });
 export type AnalyzeMealOutput = z.infer<typeof AnalyzeMealOutputSchema>;
 
@@ -41,11 +43,15 @@ const prompt = ai.definePrompt({
 Analyze this meal photo and provide a detailed nutritional breakdown. 
 Estimate the portion sizes and calculate the kcal, protein, carbs, and fat as accurately as possible.
 
+Include the following sections in your output:
+1. "healthBenefit": A clear summary of the nutritional strengths of this meal (e.g., high in antioxidants, heart-healthy fats, etc.).
+2. "weightGoalAdvice": A breakdown of how this meal performs for someone looking to Maintain Weight, Lose Weight, or Gain Weight.
+
 If a description is provided, use it to refine your analysis: "{{{description}}}"
 
 Meal Photo: {{media url=photoDataUri}}
 
-Provide the output in the specified JSON format. Be encouraging but honest about the nutritional value.`,
+Provide the output in the specified JSON format. Be encouraging but professional.`,
 });
 
 const analyzeMealFlow = ai.defineFlow(
