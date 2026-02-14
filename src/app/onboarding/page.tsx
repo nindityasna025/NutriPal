@@ -105,8 +105,8 @@ export default function OnboardingPage() {
         {/* Gender - Compact & Identical Height */}
         <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden flex flex-col justify-center bg-white min-h-[140px]">
           <CardContent className="p-5 space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-              <User className="w-3 h-3" /> Biological Sex
+            <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+              <User className="w-3 h-3 text-primary" /> Biological Sex
             </Label>
             <RadioGroup 
               value={gender} 
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
           <CardContent className="p-5 flex flex-col items-center justify-center text-center space-y-1">
             {bmi ? (
               <div className="animate-in zoom-in duration-300 space-y-1">
-                <p className="text-[9px] font-black uppercase tracking-widest text-primary opacity-60">BMI SCORE</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60">BMI SCORE</p>
                 <p className="text-4xl font-black text-primary tracking-tighter">{bmi.toFixed(1)}</p>
                 <Badge className="bg-primary text-foreground font-black px-3 py-0.5 rounded-lg uppercase text-[8px] tracking-widest border-none">
                   {category}
@@ -153,7 +153,7 @@ export default function OnboardingPage() {
             ) : (
               <div className="opacity-20 flex flex-col items-center">
                 <Calculator className="w-8 h-8 mb-2" />
-                <p className="text-[8px] font-black uppercase tracking-widest">Awaiting Data</p>
+                <p className="text-[8px] font-black uppercase tracking-widest text-foreground">Awaiting Data</p>
               </div>
             )}
           </CardContent>
@@ -163,8 +163,8 @@ export default function OnboardingPage() {
       {/* Body Metrics - Compact Grid */}
       <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
         <CardContent className="p-6 space-y-5">
-          <Label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-            <Calculator className="w-3 h-3" /> Body Dimensions
+          <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+            <Calculator className="w-3 h-3 text-primary" /> Body Dimensions
           </Label>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
@@ -196,8 +196,8 @@ export default function OnboardingPage() {
       <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-white">
         <CardContent className="p-6 space-y-5">
           <div className="flex items-center justify-between">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-              <Heart className="w-3 h-3" /> Health Markers
+            <Label className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+              <Heart className="w-3 h-3 text-primary" /> Health Markers
             </Label>
           </div>
           <div className="grid grid-cols-2 gap-2">
