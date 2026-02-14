@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -452,14 +453,16 @@ export default function MealPlannerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleGetRecipe(meal)} 
-                        className="text-foreground hover:bg-primary/20 rounded-lg h-9 w-9 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"
-                      >
-                        <ChefHat className="w-5 h-5" />
-                      </Button>
+                      {meal.source !== 'GrabFood' && meal.source !== 'GoFood' && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleGetRecipe(meal)} 
+                          className="text-foreground hover:bg-primary/20 rounded-lg h-9 w-9 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90"
+                        >
+                          <ChefHat className="w-5 h-5" />
+                        </Button>
+                      )}
                       <Button 
                         variant="ghost" 
                         size="icon" 
