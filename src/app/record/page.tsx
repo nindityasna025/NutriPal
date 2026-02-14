@@ -15,6 +15,7 @@ import {
   ScanSearch,
   ImageIcon,
   Calendar as CalendarIcon,
+  Clock,
   Leaf
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
@@ -25,11 +26,11 @@ import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 
-// Consistent Macro Colors - Themed
+// Standardized Macro Colors - Consistent with Theme
 const MACRO_COLORS = {
-  protein: "hsl(var(--primary))",
-  carbs: "hsl(38 92% 50%)",
-  fat: "hsl(var(--accent))",
+  protein: "hsl(var(--primary))", // Forest Green
+  carbs: "hsl(38 92% 50%)",      // Amber
+  fat: "hsl(var(--accent))",     // Teal
 }
 
 export default function RecordPage() {
@@ -176,8 +177,9 @@ export default function RecordPage() {
     if (!user || !result || !mounted || !preview || !logDate) return
     const selectedDate = parseISO(logDate)
     const dateId = format(selectedDate, "yyyy-MM-dd")
+    
     let timeStr = format(new Date(), "hh:mm a")
-    if (mode === "gallery" && logTime) {
+    if (logTime) {
       const [hours, mins] = logTime.split(':')
       const d = new Date(selectedDate)
       d.setHours(parseInt(hours), parseInt(mins))
@@ -210,7 +212,7 @@ export default function RecordPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
+      <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center">
         <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">Snap Meal</h1>
         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] opacity-60">AI Expert Analysis</p>
       </header>
@@ -247,18 +249,36 @@ export default function RecordPage() {
       {(mode !== "choice" || preview) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start animate-in fade-in slide-in-from-bottom-2 duration-500">
           <section className="space-y-6">
-            <Card className="rounded-[2.5rem] border-none shadow-premium bg-white p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <Card className="rounded-[2.5rem] border-none shadow-premium bg-white p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-9 px-4 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-3.5 h-3.5 mr-1.5" /> Back
                 </Button>
+                
                 {mode === "gallery" && !result && (
-                  <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-3 h-10">
-                    <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                    <input type="date" value={logDate} onChange={e => setLogDate(e.target.value)} className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0" />
+                  <div className="flex items-center gap-2 bg-secondary/50 rounded-full px-4 h-11 border border-primary/10 shadow-inner">
+                    <div className="flex items-center gap-2 border-r border-muted/30 pr-3">
+                      <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+                      <input 
+                        type="date" 
+                        value={logDate} 
+                        onChange={e => setLogDate(e.target.value)} 
+                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-24" 
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 pl-1">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      <input 
+                        type="time" 
+                        value={logTime} 
+                        onChange={e => setLogTime(e.target.value)} 
+                        className="bg-transparent border-none text-[9px] font-black uppercase tracking-widest focus:ring-0 w-16" 
+                      />
+                    </div>
                   </div>
                 )}
               </div>
+
               <div className="relative border border-muted/30 rounded-[2rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
                 {preview && (
