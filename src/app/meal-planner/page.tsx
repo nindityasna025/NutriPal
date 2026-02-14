@@ -13,21 +13,16 @@ import {
   ChevronRight, 
   Loader2, 
   Sparkles, 
-  Bell, 
-  BellOff, 
   ChevronRightIcon,
-  Bike,
-  CheckCircle2,
   Edit2,
   ChefHat,
   ShoppingBag
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
-import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
 import { generateRecipe } from "@/ai/flows/generate-recipe"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
-import { doc, collection, serverTimestamp, setDoc } from "firebase/firestore"
+import { doc, collection, serverTimestamp } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import {
   Dialog,
@@ -54,8 +49,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 export default function MealPlannerPage() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [mounted, setMounted] = useState(false)
-  const [generatingPlan, setGeneratingPlan] = useState(false)
-  const [aiPlan, setAiPlan] = useState<GenerateDailyPlanOutput | null>(null)
   const { toast } = useToast()
   
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -147,45 +140,6 @@ export default function MealPlannerPage() {
       setIsRecipeDialogOpen(false)
     } finally {
       setGeneratingRecipe(false)
-    }
-  }
-
-  const handleGenerateAiPlan = async () => {
-    if (!profile) return
-    setGeneratingPlan(true)
-    try {
-      const result = await generateDailyPlan({
-        calorieTarget: profile.calorieTarget || 2000,
-        proteinPercent: profile.proteinTarget || 30,
-        carbsPercent: profile.carbsTarget || 40,
-        fatPercent: profile.fatTarget || 30,
-        dietType: profile.dietaryRestrictions?.[0],
-        allergies: profile.allergies
-      })
-      setAiPlan(result)
-      toast({ title: "AI Plan Ready", description: "Your optimal menu has been curated." })
-    } catch (error: any) {
-      console.error(error)
-      toast({ variant: "destructive", title: "AI Busy", description: "Expert Nutritionist is currently offline." })
-    } finally {
-      setGeneratingPlan(false)
-    }
-  }
-
-  const handleAddAiMealToSchedule = async (meal: any, type: string, source: 'Cook' | 'Delivery') => {
-    if (!mealsColRef || !user) return
-    try {
-      await setDoc(doc(mealsColRef), {
-        ...meal,
-        type,
-        source: source === 'Cook' ? 'planner' : (meal.deliveryMatch?.platform || 'GrabFood'),
-        createdAt: serverTimestamp(),
-        reminderEnabled: true
-      })
-      toast({ title: "Meal Synced", description: `${meal.name} added to your ${type} agenda.` })
-    } catch (error) {
-      console.error(error)
-      toast({ variant: "destructive", title: "Error", description: "Failed to sync meal." })
     }
   }
 
@@ -316,118 +270,30 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      {/* AI Decision Hub */}
-      {aiPlan && (
-        <section className="space-y-10 animate-in zoom-in duration-500">
-          <Card className="rounded-[4rem] border-none shadow-premium-lg bg-white overflow-hidden">
-            <CardContent className="p-10 sm:p-16 space-y-12">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div className="space-y-1.5 text-center sm:text-left">
-                  <h2 className="text-4xl font-black uppercase tracking-tight">AI Curated Picks</h2>
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60">Synchronized with your biological targets</p>
+      {/* Decision Fatigue Relief Section */}
+      <section className="space-y-10">
+        <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
+        <Link href="/planner">
+          <Card className="rounded-[4rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] border-2 border-primary/20">
+            <CardContent className="p-12 sm:p-16 flex flex-col sm:flex-row items-center justify-between gap-8">
+              <div className="flex items-center gap-10 flex-1">
+                <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
+                  <Sparkles className="w-12 h-12 text-primary" />
                 </div>
-                <Button variant="outline" onClick={() => setAiPlan(null)} className="rounded-full font-black uppercase text-[11px] px-10 h-14 tracking-[0.2em]">Discard Plan</Button>
+                <div className="space-y-3">
+                  <h3 className="text-3xl font-black uppercase leading-tight">AI Decision Hub</h3>
+                  <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest leading-relaxed max-w-md">
+                    Let our expert AI analyze delivery deals or curate a full BMR-matched menu instantly.
+                  </p>
+                </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  { time: "Breakfast", data: aiPlan.breakfast },
-                  { time: "Lunch", data: aiPlan.lunch },
-                  { time: "Dinner", data: aiPlan.dinner }
-                ].map((meal, i) => (
-                  <div key={i} className="flex flex-col h-full space-y-8 p-8 bg-secondary/20 rounded-[3rem] border border-transparent hover:border-primary/20 transition-all group">
-                    <div className="flex-1 space-y-6">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-black uppercase text-primary tracking-[0.3em]">{meal.time}</p>
-                        {meal.data.deliveryMatch?.isAvailable && (
-                          <Badge className="bg-green-500 text-white border-none text-[9px] font-black uppercase px-3 py-1">Delivery</Badge>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <h4 className="font-black text-2xl uppercase leading-tight group-hover:text-primary transition-colors">{meal.data.name}</h4>
-                        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">+{meal.data.calories} kcal • {meal.data.macros.protein}g Protein</p>
-                      </div>
-                      {meal.data.deliveryMatch?.isAvailable && (
-                        <div className="p-5 bg-white/70 rounded-[1.5rem] border border-green-100 shadow-sm">
-                          <p className="text-[9px] font-black uppercase text-green-600 mb-2 tracking-widest">Available via {meal.data.deliveryMatch.platform}</p>
-                          <p className="text-[11px] font-bold truncate text-foreground">{meal.data.deliveryMatch.restaurant}</p>
-                          <p className="text-[11px] font-black text-primary mt-1">{meal.data.deliveryMatch.price}</p>
-                        </div>
-                      )}
-                      <div className="space-y-2 pt-4 border-t border-muted/50">
-                        <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Swap Idea</p>
-                        <p className="text-[12px] font-medium italic opacity-70 leading-relaxed">"{meal.data.swapSuggestion}"</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <Button 
-                        onClick={() => handleAddAiMealToSchedule(meal.data, meal.time, 'Cook')} 
-                        className="w-full h-12 rounded-2xl bg-white text-primary border border-primary/20 hover:bg-primary hover:text-white font-black uppercase text-[10px] tracking-widest shadow-sm"
-                      >
-                        <ChefHat className="w-4 h-4 mr-2" /> Cook Myself
-                      </Button>
-                      {meal.data.deliveryMatch?.isAvailable && (
-                        <Button 
-                          onClick={() => handleAddAiMealToSchedule(meal.data, meal.time, 'Delivery')} 
-                          className="w-full h-12 rounded-2xl bg-green-500 text-white hover:bg-green-600 font-black uppercase text-[10px] tracking-widest shadow-md"
-                        >
-                          <ShoppingBag className="w-4 h-4 mr-2" /> Order Now
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center gap-4 bg-primary text-primary-foreground px-8 h-16 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20">
+                Explore AI Hub <ChevronRightIcon className="w-5 h-5" />
               </div>
             </CardContent>
           </Card>
-        </section>
-      )}
-
-      {/* Decision Fatigue Relief Section */}
-      {!aiPlan && (
-        <section className="space-y-10">
-          <h2 className="text-3xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Link href="/planner">
-              <Card className="rounded-[3rem] bg-primary/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] h-full">
-                <CardContent className="p-10 flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-8">
-                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
-                      <Bike className="w-10 h-10 text-primary" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <h3 className="text-2xl font-black uppercase leading-tight">Delivery AI</h3>
-                      <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">Browse health-matches from local services.</p>
-                    </div>
-                  </div>
-                  <ChevronRightIcon className="w-8 h-8 opacity-20 text-primary shrink-0" />
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Card 
-              onClick={handleGenerateAiPlan}
-              className={cn(
-                "rounded-[3rem] bg-accent/10 border-none text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] h-full",
-                generatingPlan && "opacity-70 pointer-events-none"
-              )}
-            >
-              <CardContent className="p-10 flex items-center justify-between gap-6">
-                <div className="flex items-center gap-8">
-                  <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-premium shrink-0">
-                    {generatingPlan ? <Loader2 className="w-10 h-10 text-accent animate-spin" /> : <Sparkles className="w-10 h-10 text-accent" />}
-                  </div>
-                  <div className="space-y-1.5">
-                    <h3 className="text-2xl font-black uppercase leading-tight">Menu Master AI</h3>
-                    <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest leading-relaxed">Generate a full BMR-matched menu instantly.</p>
-                  </div>
-                </div>
-                <ChevronRightIcon className="w-8 h-8 opacity-20 text-accent shrink-0" />
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-      )}
+        </Link>
+      </section>
 
       {/* AI Recipe Dialog */}
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
