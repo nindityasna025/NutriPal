@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { 
   Camera, 
@@ -18,7 +17,7 @@ import {
   Calendar as CalendarIcon,
   Trophy
 } from "lucide-react"
-import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
+import { useFirestore, useUser } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
 import { format } from "date-fns"
 import Image from "next/image"
@@ -229,14 +228,11 @@ export default function RecordPage() {
                 <Button variant="ghost" onClick={resetAll} className="rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
-              </div>
 
-              {mode === "upload" && (
-                <div className="flex items-center justify-between px-2 py-2 bg-secondary/20 rounded-2xl animate-in fade-in slide-in-from-top-1 duration-300">
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Meal Date</span>
+                {mode === "upload" && (
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white")}>
+                      <Button variant="outline" className={cn("rounded-xl h-10 px-4 font-bold border-muted/30 bg-white shadow-sm")}>
                         <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
                         {format(selectedDate, "PPP")}
                       </Button>
@@ -250,8 +246,8 @@ export default function RecordPage() {
                       />
                     </PopoverContent>
                   </Popover>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="relative border border-muted/30 rounded-[2.5rem] bg-secondary/10 aspect-square flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && (
