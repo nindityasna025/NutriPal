@@ -45,13 +45,13 @@ export default function DietPlanPage() {
   return (
     <div className="min-h-screen bg-background font-body">
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        <section className="space-y-2 text-center">
+        <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase flex items-center justify-center gap-2">
             <Apple className="text-primary w-12 h-12" />
-            DIET PLANNER
+            Diet Planner
           </h1>
           <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Tailored Nutrition</p>
-        </section>
+        </header>
 
         <Card className="border-none shadow-xl">
           <CardContent className="p-6">
@@ -100,13 +100,13 @@ export default function DietPlanPage() {
 
         {result && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-            <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg text-primary w-fit">
+            <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg text-primary w-fit mx-auto">
               <CheckCircle2 className="w-5 h-5" />
               <span className="font-semibold uppercase tracking-wider text-xs">AI-Generated Plan Ready</span>
             </div>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-headline font-bold">Meal Recommendations</h2>
+              <h2 className="text-2xl font-headline font-bold text-center">Meal Recommendations</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.mealRecommendations.map((meal, idx) => (
                   <Card key={idx} className="bg-white border-primary/10 hover:border-primary/30 transition-colors">
@@ -119,7 +119,7 @@ export default function DietPlanPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-headline font-bold">Step-by-Step Recipes</h2>
+              <h2 className="text-2xl font-headline font-bold text-center">Step-by-Step Recipes</h2>
               <Accordion type="single" collapsible className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
                 {result.recipes.map((recipe, idx) => (
                   <AccordionItem key={idx} value={`item-${idx}`} className="border-b last:border-0 px-4">
@@ -135,7 +135,7 @@ export default function DietPlanPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-headline font-bold text-chart-3 flex items-center gap-2">
+              <h2 className="text-2xl font-headline font-bold text-chart-3 flex items-center justify-center gap-2">
                 <Leaf className="w-6 h-6" />
                 Healthier Organic Alternatives
               </h2>

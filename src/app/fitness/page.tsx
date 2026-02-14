@@ -36,10 +36,10 @@ export default function FitnessPage() {
   return (
     <div className="min-h-screen bg-background font-body">
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        <header className="space-y-1 pt-safe text-center animate-in fade-in duration-500">
+        <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
           <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase flex items-center justify-center gap-2">
             <Activity className="text-primary w-12 h-12" />
-            FITNESS SYNC
+            Fitness Sync
           </h1>
           <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Activity Integration</p>
         </header>
@@ -102,12 +102,12 @@ export default function FitnessPage() {
                       dataKey="day" 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} 
+                      tick={{ fill: "hsl(var(--foreground))", fontSize: 11, fontWeight: 900 }} 
                     />
                     <YAxis 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} 
+                      tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 900 }} 
                     />
                     <Tooltip 
                       cursor={{ fill: "hsl(var(--primary)/0.1)" }}

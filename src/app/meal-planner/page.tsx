@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -210,76 +211,74 @@ export default function MealPlannerPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative animate-in fade-in duration-700">
-      <header className="flex flex-col items-center gap-8 text-center">
-        <div className="space-y-1">
-          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">PLAN</h1>
-          <p className="text-[12px] font-black text-foreground uppercase tracking-[0.5em] opacity-50">STRATEGIC DAILY MENU</p>
-        </div>
+      <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
+        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Strategic Daily Menu</p>
+      </header>
+      
+      <div className="flex flex-wrap items-center gap-6 justify-center">
+        <Button variant="outline" onClick={handleToday} className="rounded-full h-12 px-10 font-black uppercase text-[11px] tracking-widest border-2 border-border shadow-sm hover:bg-secondary transition-all text-foreground">
+          Today
+        </Button>
         
-        <div className="flex flex-wrap items-center gap-6 justify-center">
-          <Button variant="outline" onClick={handleToday} className="rounded-full h-12 px-10 font-black uppercase text-[11px] tracking-widest border-2 border-border shadow-sm hover:bg-secondary transition-all text-foreground">
-            Today
-          </Button>
-          
-          <div className="flex items-center bg-white rounded-full border-2 border-border shadow-sm p-1.5">
-            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary"><ChevronLeft className="h-6 w-6 text-foreground" /></Button>
-            <div className="px-8 font-black text-[11px] uppercase tracking-widest min-w-[180px] text-center text-foreground">
-              {format(date, "EEEE, MMM d")}
-            </div>
-            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary"><ChevronRight className="h-6 w-6 text-foreground" /></Button>
+        <div className="flex items-center bg-white rounded-full border-2 border-border shadow-sm p-1.5">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-10 w-10 rounded-full hover:bg-secondary"><ChevronLeft className="h-6 w-6 text-foreground" /></Button>
+          <div className="px-8 font-black text-[11px] uppercase tracking-widest min-w-[180px] text-center text-foreground">
+            {format(date, "EEEE, MMM d")}
           </div>
+          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-10 w-10 rounded-full hover:bg-secondary"><ChevronRight className="h-6 w-6 text-foreground" /></Button>
+        </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button className="rounded-full bg-primary text-foreground hover:bg-primary/90 h-12 px-10 font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 border-none">
-                <Plus className="w-5 h-5 mr-3" /> Add Meal
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col">
-              <DialogHeader className="bg-primary p-10 text-foreground text-center shrink-0">
-                <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-center">
-                  {editingMealId ? "Refine Meal" : "New Schedule"}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="p-10 space-y-8 overflow-y-auto flex-1">
-                <div className="grid gap-6">
-                  <div className="space-y-2 text-left">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing</Label>
-                    <Select value={mealType} onValueChange={setMealType}>
-                      <SelectTrigger className="h-14 rounded-2xl font-black border-2 border-border text-foreground">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl">
-                        <SelectItem value="Breakfast">Breakfast</SelectItem>
-                        <SelectItem value="Lunch">Lunch</SelectItem>
-                        <SelectItem value="Snack">Snack</SelectItem>
-                        <SelectItem value="Dinner">Dinner</SelectItem>
-                      </SelectContent>
-                    </Select>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if(!open) resetForm(); }}>
+          <DialogTrigger asChild>
+            <Button className="rounded-full bg-primary text-foreground hover:bg-primary/90 h-12 px-10 font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 border-none">
+              <Plus className="w-5 h-5 mr-3" /> Add Meal
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="rounded-[3rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col">
+            <DialogHeader className="bg-primary p-10 text-foreground text-center shrink-0">
+              <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-center">
+                {editingMealId ? "Refine Meal" : "New Schedule"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="p-10 space-y-8 overflow-y-auto flex-1">
+              <div className="grid gap-6">
+                <div className="space-y-2 text-left">
+                  <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing</Label>
+                  <Select value={mealType} onValueChange={setMealType}>
+                    <SelectTrigger className="h-14 rounded-2xl font-black border-2 border-border text-foreground">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="Breakfast">Breakfast</SelectItem>
+                      <SelectItem value="Lunch">Lunch</SelectItem>
+                      <SelectItem value="Snack">Snack</SelectItem>
+                      <SelectItem value="Dinner">Dinner</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2 text-left">
+                  <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
+                  <Input placeholder="e.g. Grilled Salmon" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                </div>
+                
+                <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem] border-2 border-transparent hover:border-border transition-all">
+                  <div className="space-y-1 text-left">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
+                    <p className="text-[10px] text-foreground opacity-50 font-black uppercase tracking-tighter">Notify 15m before meal time.</p>
                   </div>
-                  <div className="space-y-2 text-left">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
-                    <Input placeholder="e.g. Grilled Salmon" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem] border-2 border-transparent hover:border-border transition-all">
-                    <div className="space-y-1 text-left">
-                      <Label className="text-[11px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
-                      <p className="text-[10px] text-foreground opacity-50 font-black uppercase tracking-tighter">Notify 15m before meal time.</p>
-                    </div>
-                    <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
-                  </div>
+                  <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
                 </div>
               </div>
-              <DialogFooter className="p-10 pt-0 shrink-0">
-                <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-xs shadow-premium text-foreground border-none">
-                  {isSaving ? <Loader2 className="animate-spin" /> : editingMealId ? "Sync Changes" : "Confirm Schedule"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header>
+            </div>
+            <DialogFooter className="p-10 pt-0 shrink-0">
+              <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-16 rounded-2xl font-black uppercase tracking-widest text-xs shadow-premium text-foreground border-none">
+                {isSaving ? <Loader2 className="animate-spin" /> : editingMealId ? "Sync Changes" : "Confirm Schedule"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <section className="space-y-8">
         <h2 className="text-[11px] font-black tracking-[0.3em] px-2 uppercase text-left text-foreground opacity-60">YOUR SCHEDULE</h2>

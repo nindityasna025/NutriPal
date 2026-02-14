@@ -93,9 +93,9 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
-      <header className="space-y-1 pt-safe md:pt-4 animate-in fade-in duration-700 text-center lg:text-left">
+      <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Profile</h1>
-        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.25em] opacity-40">Manage Your Health Metrics</p>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Manage Your Health Metrics</p>
       </header>
 
       <section className="space-y-10">
@@ -142,7 +142,7 @@ export default function ProfilePage() {
             </Dialog>
           </div>
           
-          <div className="space-y-2 px-4">
+          <div className="space-y-2 px-4 text-center">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight text-foreground">{user.displayName || "Demo User"}</h2>
             <div className="flex flex-wrap justify-center gap-2">
               <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200 px-4 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest border-none shrink-0">
@@ -174,7 +174,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-[9px] font-black text-foreground opacity-40 uppercase tracking-[0.25em] px-2 text-center lg:text-left">Ecosystem Settings</h2>
+          <h2 className="text-[9px] font-black text-foreground opacity-40 uppercase tracking-[0.25em] px-2 text-center">Ecosystem Settings</h2>
           <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
             <CardContent className="p-0">
               {[
