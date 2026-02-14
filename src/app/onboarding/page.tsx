@@ -9,12 +9,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useFirestore, useUser } from "@/firebase"
-import { doc, setDoc, collection, serverTimestamp } from "firebase/firestore"
+import { doc, setDoc } from "firebase/firestore"
 import { Loader2, Calculator, Scale, Ruler, Heart, User, Calendar } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { format, startOfToday } from "date-fns"
 
 export default function OnboardingPage() {
   const firestore = useFirestore()
@@ -88,71 +87,7 @@ export default function OnboardingPage() {
       
       await setDoc(doc(firestore, "users", user.uid, "profile", "main"), profileData)
 
-      const today = startOfToday()
-      const dateId = format(today, "yyyy-MM-dd")
-      const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
-
-      // Starter Meals Adjusted to exactly 450kcal total
-      const starterMeals = [
-        {
-          name: "Avocado & Poached Egg Toast",
-          calories: 150,
-          time: "08:30 AM",
-          source: "planner",
-          macros: { protein: 9, carbs: 16.1, fat: 5.5 },
-          healthScore: 92,
-          description: "Whole grain toast topped with fresh avocado and perfectly poached eggs.",
-          ingredients: ["Whole grain bread", "Avocado", "Eggs"],
-          reminderEnabled: true,
-          createdAt: serverTimestamp()
-        },
-        {
-          name: "Mediterranean Quinoa Salad",
-          calories: 150,
-          time: "01:00 PM",
-          source: "planner",
-          macros: { protein: 9, carbs: 16.2, fat: 5.5 },
-          healthScore: 95,
-          description: "Fresh and light quinoa bowl with cucumber, olives, and feta.",
-          ingredients: ["Quinoa", "Cucumber", "Feta cheese"],
-          reminderEnabled: true,
-          createdAt: serverTimestamp()
-        },
-        {
-          name: "Lemon Herb Grilled Salmon",
-          calories: 150,
-          time: "07:30 PM",
-          source: "planner",
-          macros: { protein: 9, carbs: 16.1, fat: 5.5 },
-          healthScore: 98,
-          description: "Grilled Atlantic salmon seasoned with fresh herbs and lemon.",
-          ingredients: ["Salmon fillet", "Lemon", "Asparagus"],
-          reminderEnabled: true,
-          createdAt: serverTimestamp()
-        }
-      ]
-
-      const totals = starterMeals.reduce((acc, m) => ({
-        calories: acc.calories + m.calories,
-        protein: acc.protein + m.macros.protein,
-        carbs: acc.carbs + m.macros.carbs,
-        fat: acc.fat + m.macros.fat,
-      }), { calories: 0, protein: 0, carbs: 0, fat: 0 })
-
-      await setDoc(dailyLogRef, {
-        date: dateId,
-        caloriesConsumed: totals.calories,
-        proteinTotal: totals.protein,
-        carbsTotal: totals.carbs,
-        fatTotal: totals.fat,
-        caloriesBurned: 450,
-        waterIntake: 0
-      }, { merge: true })
-
-      const mealsColRef = collection(dailyLogRef, "meals")
-      for (const meal of starterMeals) {
-        await setDoc(doc(mealsColRef), meal)
-      }
+      // Onboarding selesai tanpa menambahkan makanan contoh agar daftar kosong sesuai permintaan.
       
       router.push("/")
     } catch (e) {
