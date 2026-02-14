@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -22,7 +21,7 @@ import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
 import { generateRecipe } from "@/ai/flows/generate-recipe"
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from "@/firebase"
-import { doc, collection, serverTimestamp } from "firebase/firestore"
+import { doc, collection, serverTimestamp, updateDoc, setDoc, deleteDoc } from "firebase/firestore"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
@@ -43,7 +42,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -87,12 +85,42 @@ export default function MealPlannerPage() {
   const handleNextDay = () => date && setDate(addDays(date, 1))
   const handleToday = () => setDate(startOfToday())
 
+  const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new (window as any).Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+    });
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setMealImageUrl(reader.result as string)
+      reader.onloadend = async () => {
+        const rawPhoto = reader.result as string;
+        const compressed = await compressImage(rawPhoto);
+        setMealImageUrl(compressed);
       }
       reader.readAsDataURL(file)
     }
@@ -117,15 +145,21 @@ export default function MealPlannerPage() {
       updatedAt: serverTimestamp()
     }
 
-    if (editingMealId) {
-      updateDocumentNonBlocking(doc(mealsColRef, editingMealId), mealData)
-      toast({ title: "Schedule Updated", description: "Your daily plan has been refined." })
-    } else {
-      addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() })
-      toast({ title: "Meal Scheduled", description: `${mealName} is now on your timeline.` })
+    try {
+      if (editingMealId) {
+        await updateDoc(doc(mealsColRef, editingMealId), mealData);
+        toast({ title: "Schedule Updated", description: "Your daily plan has been refined." })
+      } else {
+        await setDoc(doc(mealsColRef), { ...mealData, createdAt: serverTimestamp() });
+        toast({ title: "Meal Scheduled", description: `${mealName} is now on your timeline.` })
+      }
+      resetForm()
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Save Error", description: err.message });
+    } finally {
+      setIsSaving(false);
     }
-
-    resetForm()
   }
 
   const resetForm = () => {
@@ -145,10 +179,14 @@ export default function MealPlannerPage() {
     setIsDialogOpen(true)
   }
 
-  const handleDeleteMeal = (mealId: string, mealName: string) => {
+  const handleDeleteMeal = async (mealId: string, mealName: string) => {
     if (!user || !mealsColRef) return
-    deleteDocumentNonBlocking(doc(mealsColRef, mealId))
-    toast({ variant: "destructive", title: "Meal Removed", description: `${mealName} taken off your schedule.` })
+    try {
+      await deleteDoc(doc(mealsColRef, mealId));
+      toast({ variant: "destructive", title: "Meal Removed", description: `${mealName} taken off your schedule.` })
+    } catch (err: any) {
+      console.error(err);
+    }
   }
 
   const handleGetRecipe = async (mealName: string) => {

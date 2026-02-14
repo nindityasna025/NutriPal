@@ -101,7 +101,7 @@ export default function RecordPage() {
     }
   }
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -110,18 +110,24 @@ export default function RecordPage() {
       const context = canvas.getContext('2d');
       if (context) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        setFilePreview(canvas.toDataURL('image/jpeg'));
+        const rawPhoto = canvas.toDataURL('image/jpeg');
+        const compressed = await compressImage(rawPhoto);
+        setFilePreview(compressed);
         stopCamera()
       }
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setMode("gallery")
       const reader = new FileReader();
-      reader.onloadend = () => setFilePreview(reader.result as string);
+      reader.onloadend = async () => {
+        const rawPhoto = reader.result as string;
+        const compressed = await compressImage(rawPhoto);
+        setFilePreview(compressed);
+      };
       reader.readAsDataURL(file);
     }
   }
@@ -137,16 +143,15 @@ export default function RecordPage() {
     if (!preview) return
     setAnalyzing(true)
     try {
-      // Determine goal from profile
       let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
       if (profile?.bmiCategory) {
         if (profile.bmiCategory === "Overweight" || profile.bmiCategory === "Obese") userGoal = "Weight Loss"
         else if (profile.bmiCategory === "Underweight") userGoal = "Weight Gain"
       }
 
-      const compressed = await compressImage(preview);
+      // Preview is already compressed during acquisition
       const output = await analyzeMeal({ 
-        photoDataUri: compressed,
+        photoDataUri: preview,
         userGoal
       })
       setResult(output)
@@ -159,7 +164,7 @@ export default function RecordPage() {
   }
 
   const handleSave = async () => {
-    if (!user || !result || !mounted) return
+    if (!user || !result || !mounted || !preview) return
     const selectedDate = parseISO(logDate)
     const dateId = format(selectedDate, "yyyy-MM-dd")
     let timeStr = format(new Date(), "hh:mm a")
@@ -172,8 +177,10 @@ export default function RecordPage() {
     
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealRef = doc(collection(dailyLogRef, "meals"))
-    await setDoc(dailyLogRef, { date: dateId, caloriesConsumed: increment(result.calories) }, { merge: true })
-    await setDoc(mealRef, {
+    
+    // Non-blocking writes to avoid UI lag
+    setDoc(dailyLogRef, { date: dateId, caloriesConsumed: increment(result.calories) }, { merge: true });
+    setDoc(mealRef, {
       name: result.name,
       calories: result.calories,
       time: timeStr,
@@ -184,9 +191,10 @@ export default function RecordPage() {
       ingredients: result.ingredients,
       healthBenefit: result.healthBenefit,
       weightGoalAdvice: result.weightGoalAdvice,
-      imageUrl: preview,
+      imageUrl: preview, // Already compressed during acquisition
       createdAt: serverTimestamp()
-    })
+    });
+
     toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
     resetAll()
   }
