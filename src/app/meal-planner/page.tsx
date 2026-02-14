@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -180,7 +181,9 @@ export default function MealPlannerPage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Timing</Label>
                     <Select value={mealType} onValueChange={setMealType}>
-                      <SelectTrigger className="h-14 rounded-[1.5rem] font-bold border-muted-foreground/10"><SelectValue /></SelectValue>
+                      <SelectTrigger className="h-14 rounded-[1.5rem] font-bold border-muted-foreground/10">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="Breakfast">Breakfast</SelectItem>
                         <SelectItem value="Lunch">Lunch</SelectItem>
@@ -269,7 +272,7 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      {/* Decision Fatigue Relief Hub - Routing to Explore */}
+      {/* Decision Fatigue Relief Hub - Routing to Explore Hub */}
       <section className="space-y-10">
         <h2 className="text-2xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Feeling Indecisive?</h2>
         <Link href="/planner">

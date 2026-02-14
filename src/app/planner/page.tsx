@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -17,7 +18,7 @@ import {
   ShoppingBag,
   ArrowLeft
 } from "lucide-react"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp, setDoc, increment } from "firebase/firestore"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan, type GenerateDailyPlanOutput } from "@/ai/flows/generate-daily-plan"
@@ -93,7 +94,7 @@ export default function ExplorePage() {
       toast({
         variant: "destructive",
         title: "Ecosystem Busy",
-        description: "We couldn't reach the AI curator right now.",
+        description: error.message?.includes("403") ? "API Access Issue: Please check your project configuration." : "We couldn't reach the AI curator right now.",
       })
     } finally {
       setLoadingDelivery(false)
@@ -117,7 +118,11 @@ export default function ExplorePage() {
       toast({ title: "AI Plan Ready", description: "Your optimal menu has been curated." })
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Busy", description: "Expert Nutritionist is currently offline." })
+      toast({ 
+        variant: "destructive", 
+        title: "AI Hub Issue", 
+        description: error.message?.includes("403") ? "API Key access forbidden. Please check your developer settings." : "Expert Nutritionist is currently offline." 
+      })
     } finally {
       setGeneratingPlan(false)
     }

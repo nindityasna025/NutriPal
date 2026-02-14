@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -287,96 +288,6 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-      </section>
-
-      {/* Activity Log - Structured Hierarchy */}
-      <section className="space-y-8">
-        <h2 className="text-xl font-black tracking-tight px-2 uppercase text-center lg:text-left">Daily Activity</h2>
-        <div className="space-y-5">
-          {isLoadingMeals ? (
-            <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>
-          ) : meals && meals.length > 0 ? (
-            meals.map((meal) => (
-              <Card 
-                key={meal.id} 
-                className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all cursor-pointer overflow-hidden group bg-white"
-                onClick={() => setExpandedMeal(expandedMeal === meal.id ? null : meal.id)}
-              >
-                <div className="p-6 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-8">
-                  <div className="flex items-center gap-8 w-full sm:w-auto">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-secondary rounded-[2rem] relative overflow-hidden flex-shrink-0 shadow-inner">
-                      <Image 
-                        src={`https://picsum.photos/seed/${meal.id}/400`} 
-                        alt={meal.name} 
-                        fill 
-                        className="object-cover group-hover:scale-110 transition-transform duration-1000"
-                        data-ai-hint="healthy meal"
-                      />
-                      {meal.source !== 'planner' && (
-                        <div className="absolute top-2 right-2 bg-white/90 p-1 rounded-lg shadow-sm">
-                          <Bike className="w-3 h-3 text-primary" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-black text-2xl sm:text-3xl tracking-tight leading-tight">{meal.name}</h3>
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-2">{meal.time}</p>
-                    </div>
-                  </div>
-                  <div className="text-right w-full sm:w-auto">
-                    <span className="text-3xl sm:text-4xl font-black text-primary tracking-tighter">+{meal.calories}</span>
-                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">kcal</span>
-                  </div>
-                </div>
-                {expandedMeal === meal.id && (
-                  <div className="px-8 sm:px-12 pb-12 pt-4 border-t border-muted/10 animate-in slide-in-from-top-4 duration-500">
-                    <div className="grid grid-cols-3 gap-4 sm:gap-6 mb-10">
-                      <div className="text-center p-6 bg-primary/5 rounded-[2.5rem]">
-                        <span className="block text-[10px] font-black text-primary uppercase tracking-widest mb-2">Protein</span>
-                        <span className="text-2xl font-black">{meal.macros?.protein}g</span>
-                      </div>
-                      <div className="text-center p-6 bg-accent/20 rounded-[2.5rem]">
-                        <span className="block text-[10px] font-black text-accent-foreground uppercase tracking-widest mb-2">Carbs</span>
-                        <span className="text-2xl font-black">{meal.macros?.carbs}g</span>
-                      </div>
-                      <div className="text-center p-6 bg-blue-50 rounded-[2.5rem]">
-                        <span className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2">Fat</span>
-                        <span className="text-2xl font-black">{meal.macros?.fat}g</span>
-                      </div>
-                    </div>
-                    <div className="p-8 bg-secondary/50 rounded-[3rem] flex flex-col sm:flex-row items-center justify-between gap-6">
-                      <div className="flex items-center gap-6">
-                        <div className="bg-white p-4 rounded-2xl shadow-sm shrink-0">
-                          <Trophy className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">NutriPal Score</p>
-                          <p className="text-xl font-black text-primary uppercase">{meal.healthScore}/100 Perfect Harmony</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" className="rounded-full h-12 px-8 font-black uppercase text-[10px] tracking-widest border-primary/20 hover:bg-primary/10">
-                         <ScanSearch className="w-5 h-5 mr-2" /> Detailed Analysis
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            ))
-          ) : (
-            <div className="text-center py-28 bg-white/40 rounded-[4rem] border-2 border-dashed border-border flex flex-col items-center gap-10 px-8">
-              <Utensils className="w-20 h-20 text-muted-foreground/10" />
-              <div className="space-y-3">
-                <p className="text-muted-foreground font-black text-3xl uppercase tracking-tighter">Your Log is Empty</p>
-                <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
-                  Start your transformation by tracking your first meal or generating an AI plan.
-                </p>
-              </div>
-              <Button onClick={() => router.push("/meal-planner")} className="rounded-full px-16 h-18 font-black uppercase tracking-[0.2em] shadow-premium-lg bg-primary text-primary-foreground hover:scale-105 transition-all text-sm">
-                GO TO PLANNER
-              </Button>
-            </div>
-          )}
-        </div>
       </section>
 
       {/* Primary CTA Hub - Optimized for Thumb-Reach */}
