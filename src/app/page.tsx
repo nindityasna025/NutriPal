@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@/firebase"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { 
@@ -18,7 +18,9 @@ import {
   Camera,
   Calendar,
   Trophy,
-  BarChart3
+  BarChart3,
+  Info,
+  CheckCircle2
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc } from "firebase/firestore"
@@ -138,6 +140,7 @@ export default function Dashboard() {
         </p>
       </section>
 
+      {/* Hero Stats */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="rounded-[3rem] border-none shadow-2xl bg-white overflow-hidden group">
           <CardContent className="p-10 space-y-8">
@@ -205,6 +208,7 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* Weekly Charts */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-xl">
@@ -249,6 +253,74 @@ export default function Dashboard() {
         </Card>
       </section>
 
+      {/* Macro Education Section */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-black tracking-tight uppercase px-2 flex items-center gap-3">
+          <div className="p-2 bg-orange-50 rounded-xl">
+            <Info className="w-5 h-5 text-orange-500" />
+          </div>
+          Macro Balance Guide
+        </h2>
+        <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
+          <CardContent className="p-10 space-y-8">
+            <div className="space-y-4">
+              <h3 className="text-xl font-black tracking-tight uppercase flex items-center gap-2">
+                Understanding Your Mix
+              </h3>
+              <p className="text-muted-foreground font-medium leading-relaxed">
+                This is where we break down your meal's mix of protein, carbs, and fats—the big three that keep your body fueled and feeling good. Our smart tech looks at the ingredients and portions to figure out how your macros stack up.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { 
+                  title: "Protein", 
+                  color: "bg-red-500", 
+                  guide: "20-30g per meal", 
+                  perc: "15-35% daily",
+                  desc: "Essential for muscle repair and satiety."
+                },
+                { 
+                  title: "Carbs", 
+                  color: "bg-yellow-500", 
+                  guide: "20-30g per meal", 
+                  perc: "40-50% daily",
+                  desc: "Aim for good sources like veggies and grains."
+                },
+                { 
+                  title: "Fat", 
+                  color: "bg-blue-500", 
+                  guide: "10-15g per meal", 
+                  perc: "20-35% daily",
+                  desc: "Healthy fats from nuts, seeds, or avocado."
+                }
+              ].map((m, i) => (
+                <div key={i} className="space-y-4 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-muted-foreground/10 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("w-3 h-3 rounded-full", m.color)} />
+                    <span className="font-black text-xs uppercase tracking-widest">{m.title}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-lg font-black tracking-tight">{m.guide}</p>
+                    <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{m.perc}</p>
+                  </div>
+                  <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">{m.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 flex items-start gap-4 p-6 bg-primary/5 rounded-[2rem] border border-primary/10">
+              <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
+              <p className="text-sm font-bold leading-relaxed">
+                Remember, it's not just about numbers—mixing up your meals and focusing on whole, quality foods matters too!
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Daily Report */}
       <section className="space-y-6">
         <h2 className="text-2xl font-black tracking-tight uppercase px-2">Daily Food Report</h2>
         <div className="space-y-5">
@@ -313,7 +385,8 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-6">
+      {/* Action Hub - Moved to Bottom */}
+      <section className="grid grid-cols-2 gap-6 pt-4">
         <Button 
           onClick={() => router.push("/record")}
           className="h-40 rounded-[2.5rem] flex flex-col gap-3 bg-primary text-primary-foreground hover:bg-primary/95 shadow-2xl shadow-primary/20 transition-all active:scale-95 group"
@@ -335,6 +408,7 @@ export default function Dashboard() {
         </Button>
       </section>
 
+      {/* AI Wellness Banner */}
       <Card className="rounded-[3rem] border-none bg-primary text-primary-foreground p-12 relative overflow-hidden group shadow-2xl shadow-primary/30">
         <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
           <Sparkles className="w-48 h-48" />
