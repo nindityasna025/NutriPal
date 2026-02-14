@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -63,10 +64,10 @@ const chartConfig = {
 
 const MacroInfoContent = () => (
   <div className="space-y-3">
-    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
       <Sparkles className="w-3.5 h-3.5" /> Macro Balance Guide
     </div>
-    <p className="text-[11px] font-medium leading-relaxed text-muted-foreground">
+    <p className="text-[11px] font-medium leading-relaxed text-muted-foreground text-left">
       Breaking down your intake into protein, carbs, and fats—the building blocks of energy and recovery.
     </p>
     <div className="space-y-2 pt-1">
@@ -91,10 +92,12 @@ export default function Dashboard() {
   const firestore = useFirestore()
   const { user, isUserLoading } = useUser()
   const [mounted, setMounted] = useState(false)
+  const [today, setToday] = useState<Date | null>(null)
   const [weeklyData, setWeeklyData] = useState<any[]>([])
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
 
   useEffect(() => {
+    setToday(startOfToday())
     setMounted(true)
     const data = []
     for (let i = 6; i >= 0; i--) {
@@ -115,8 +118,7 @@ export default function Dashboard() {
     }
   }, [user, isUserLoading, mounted, router])
 
-  const today = startOfToday()
-  const dateId = format(today, "yyyy-MM-dd")
+  const dateId = today ? format(today, "yyyy-MM-dd") : ""
 
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const dailyLogRef = useMemoFirebase(() => (user && dateId) ? doc(firestore, "users", user.uid, "dailyLogs", dateId) : null, [user, firestore, dateId])
@@ -151,12 +153,12 @@ export default function Dashboard() {
   const fatPercent = totalMacros > 0 ? (totals.fat / totalMacros) * 100 : 0;
 
   const adjustWater = (amount: number) => {
-    if (!dailyLogRef) return;
+    if (!dailyLogRef || !dateId) return;
     const newWater = Math.max(0, water + amount);
     setDocumentNonBlocking(dailyLogRef, { waterIntake: Number(newWater.toFixed(1)), date: dateId }, { merge: true });
   }
 
-  if (!mounted || isUserLoading || !user) {
+  if (!mounted || isUserLoading || !user || !today) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -177,7 +179,7 @@ export default function Dashboard() {
         <Card className="md:col-span-8 border-none shadow-premium bg-white rounded-[2.5rem] overflow-hidden">
           <CardContent className="p-6 sm:p-10 space-y-8">
             <div className="flex justify-between items-start">
-              <div className="space-y-1">
+              <div className="space-y-1 text-left">
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Energy Balance</span>
                 <div className="flex items-baseline gap-2">
                   <h2 className={cn("text-4xl font-black tracking-tighter transition-colors", isOverLimit && "text-destructive")}>{consumed}</h2>
@@ -218,7 +220,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="pt-1">
+            <div className="pt-1 text-left">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Goal Progress</span>
                 <span className={cn("text-xs font-black", isOverLimit ? "text-destructive" : "text-primary")}>
@@ -314,7 +316,7 @@ export default function Dashboard() {
                             <Utensils className="w-6 h-6 text-primary" />
                           )}
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 text-left">
                           <h4 className="text-sm font-black uppercase truncate group-hover:text-primary transition-colors">{meal.name}</h4>
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{meal.time} • {meal.calories} kcal</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -338,7 +340,7 @@ export default function Dashboard() {
                           <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest text-left">
                             <Heart className="w-3.5 h-3.5" /> Health Benefit
                           </div>
-                          <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                          <p className="text-[12px] font-medium leading-relaxed text-muted-foreground bg-primary/5 p-4 rounded-2xl border border-primary/10 text-left">
                             {meal.healthBenefit || meal.description || "Balanced nutritional profile optimized for energy and clean recovery."}
                           </p>
                         </div>
@@ -346,14 +348,14 @@ export default function Dashboard() {
                           <div className="flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest text-left">
                             <Scale className="w-3.5 h-3.5" /> Goal Alignment
                           </div>
-                          <div className="p-4 bg-secondary/30 rounded-2xl border border-transparent">
+                          <div className="p-4 bg-secondary/30 rounded-2xl border border-transparent text-left">
                             <p className="text-[11px] font-bold leading-relaxed text-foreground/80">
                               {meal.weightGoalAdvice || "Suitable for consistent weight maintenance and metabolic support."}
                             </p>
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2 text-left">
                         <div className="flex items-center gap-2 text-blue-500 font-black text-[10px] uppercase tracking-widest">
                           <Leaf className="w-3.5 h-3.5" /> Key Ingredients
                         </div>

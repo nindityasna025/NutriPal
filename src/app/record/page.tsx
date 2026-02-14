@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -33,8 +34,11 @@ export default function RecordPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [logDate, setLogDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
-  const [logTime, setLogTime] = useState<string>(format(new Date(), "HH:mm"))
+  
+  // Initialize date and time after hydration
+  const [logDate, setLogDate] = useState<string>("")
+  const [logTime, setLogTime] = useState<string>("")
+  
   const { toast } = useToast()
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -48,6 +52,9 @@ export default function RecordPage() {
 
   useEffect(() => {
     setMounted(true)
+    const now = new Date()
+    setLogDate(format(now, "yyyy-MM-dd"))
+    setLogTime(format(now, "HH:mm"))
   }, [])
 
   const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
@@ -149,7 +156,6 @@ export default function RecordPage() {
         else if (profile.bmiCategory === "Underweight") userGoal = "Weight Gain"
       }
 
-      // Preview is already compressed during acquisition
       const output = await analyzeMeal({ 
         photoDataUri: preview,
         userGoal
@@ -164,7 +170,7 @@ export default function RecordPage() {
   }
 
   const handleSave = async () => {
-    if (!user || !result || !mounted || !preview) return
+    if (!user || !result || !mounted || !preview || !logDate) return
     const selectedDate = parseISO(logDate)
     const dateId = format(selectedDate, "yyyy-MM-dd")
     let timeStr = format(new Date(), "hh:mm a")
@@ -178,7 +184,6 @@ export default function RecordPage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealRef = doc(collection(dailyLogRef, "meals"))
     
-    // Non-blocking writes to avoid UI lag
     setDoc(dailyLogRef, { date: dateId, caloriesConsumed: increment(result.calories) }, { merge: true });
     setDoc(mealRef, {
       name: result.name,
@@ -191,7 +196,7 @@ export default function RecordPage() {
       ingredients: result.ingredients,
       healthBenefit: result.healthBenefit,
       weightGoalAdvice: result.weightGoalAdvice,
-      imageUrl: preview, // Already compressed during acquisition
+      imageUrl: preview, 
       createdAt: serverTimestamp()
     });
 
@@ -277,7 +282,7 @@ export default function RecordPage() {
               <Card className="rounded-[2.5rem] border-none shadow-premium bg-white overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
                 <div className="p-6 sm:p-8 space-y-8">
                   <div className="flex justify-between items-start border-b border-muted/20 pb-6">
-                    <div className="space-y-1 flex-1 pr-4">
+                    <div className="space-y-1 flex-1 pr-4 text-left">
                       <span className="text-[9px] font-black uppercase text-primary tracking-widest opacity-60 text-left block">Analysis Result</span>
                       <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight text-left uppercase">{result.name}</h2>
                     </div>
