@@ -419,7 +419,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Action Hub */}
+      {/* Action Hub - Thumb-friendly controls */}
       <div className="flex gap-6 pt-6">
         <Button 
           onClick={() => router.push("/record")}
