@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useFirestore, useUser } from "@/firebase"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, collection, serverTimestamp } from "firebase/firestore"
 import { Loader2, Calculator, Scale, Ruler, Heart, User, Calendar } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { format } from "date-fns"
 
 export default function OnboardingPage() {
   const firestore = useFirestore()
@@ -85,12 +86,72 @@ export default function OnboardingPage() {
         onboardedAt: new Date().toISOString()
       }
       
+      // 1. Save Profile
       await setDoc(doc(firestore, "users", user.uid), { 
         onboarded: true, 
         email: user.email 
       }, { merge: true })
       
       await setDoc(doc(firestore, "users", user.uid, "profile", "main"), profileData)
+
+      // 2. Generate Initial Meal Plan for Today
+      const today = new Date()
+      const dateId = format(today, "yyyy-MM-dd")
+      const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
+
+      await setDoc(dailyLogRef, {
+        date: dateId,
+        caloriesConsumed: 0,
+        caloriesBurned: 450, // Default estimate
+        waterIntake: 0
+      }, { merge: true })
+
+      const mealsColRef = collection(dailyLogRef, "meals")
+
+      const starterMeals = [
+        {
+          name: "Avocado & Poached Egg Toast",
+          calories: 385,
+          time: "08:30 AM",
+          source: "planner",
+          macros: { protein: 14, carbs: 28, fat: 24 },
+          healthScore: 92,
+          description: "Whole grain toast topped with fresh avocado and perfectly poached eggs. High in healthy fats.",
+          ingredients: ["Whole grain bread", "Avocado", "Eggs", "Chili flakes"],
+          reminderEnabled: true,
+          createdAt: serverTimestamp()
+        },
+        {
+          name: "Mediterranean Quinoa Salad",
+          calories: 420,
+          time: "01:00 PM",
+          source: "planner",
+          macros: { protein: 12, carbs: 55, fat: 18 },
+          healthScore: 95,
+          description: "Fresh and light quinoa bowl with cucumber, olives, and feta. Perfect for a busy afternoon.",
+          ingredients: ["Quinoa", "Cucumber", "Kalamata olives", "Feta cheese", "Lemon dressing"],
+          reminderEnabled: true,
+          createdAt: serverTimestamp()
+        },
+        {
+          name: "Lemon Herb Grilled Salmon",
+          calories: 510,
+          time: "07:30 PM",
+          source: "planner",
+          macros: { protein: 34, carbs: 12, fat: 28 },
+          healthScore: 98,
+          description: "Grilled Atlantic salmon seasoned with fresh herbs and lemon. Rich in Omega-3 fatty acids.",
+          ingredients: ["Salmon fillet", "Lemon", "Rosemary", "Asparagus", "Olive oil"],
+          reminderEnabled: true,
+          createdAt: serverTimestamp()
+        }
+      ]
+
+      // Create starter meals
+      for (const meal of starterMeals) {
+        const mealRef = doc(mealsColRef)
+        await setDoc(mealRef, meal)
+      }
       
       router.push("/")
     } catch (e) {
