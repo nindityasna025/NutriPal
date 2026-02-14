@@ -7,7 +7,6 @@ import { useFirestore, useUser, useCollection, useDoc, useMemoFirebase } from "@
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { 
   Flame, 
   Droplets, 
@@ -19,8 +18,9 @@ import {
   Camera,
   BarChart3,
   Info,
-  Activity,
-  Leaf
+  ChevronDown,
+  ChevronUp,
+  ShoppingBag
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit } from "firebase/firestore"
@@ -90,6 +90,7 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [mounted, setMounted] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
+  const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
 
   useEffect(() => {
     setToday(startOfToday())
@@ -245,21 +246,21 @@ export default function Dashboard() {
                 <div className="flex flex-col gap-1 items-start text-left">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
-                    <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
+                    <span style={{ color: MACRO_COLORS.protein }}>PROTEIN</span>
                   </div>
                   <span className="text-xl tracking-tighter">{Math.round(proteinPercent)}%</span>
                 </div>
                 <div className="flex flex-col gap-1 items-center justify-center">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
-                    <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
+                    <span style={{ color: MACRO_COLORS.carbs }}>CARBS</span>
                   </div>
                   <span className="text-xl tracking-tighter">{Math.round(carbsPercent)}%</span>
                 </div>
                 <div className="flex flex-col gap-1 items-end text-right">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
-                    <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
+                    <span style={{ color: MACRO_COLORS.fat }}>FAT</span>
                   </div>
                   <span className="text-xl tracking-tighter">{Math.round(fatPercent)}%</span>
                 </div>
@@ -355,20 +356,30 @@ export default function Dashboard() {
         </h2>
         <div className="space-y-4">
           {sortedMeals && sortedMeals.length > 0 ? (
-            sortedMeals.map((meal) => (
-              <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
-                <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-6 flex-1 w-full">
-                     <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
-                       <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
-                     </div>
-                     <div className="space-y-2 flex-1 text-left">
-                        <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
-                          {meal.name}
-                        </h3>
-                        <div className="flex flex-row items-center gap-6">
-                           <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
-                           <div className="flex flex-wrap items-center gap-4">
+            sortedMeals.map((meal) => {
+              const isExpanded = expandedMealId === meal.id;
+              return (
+                <Card 
+                  key={meal.id} 
+                  className={cn(
+                    "border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group cursor-pointer",
+                    isExpanded && "ring-2 ring-primary/20"
+                  )}
+                  onClick={() => setExpandedMealId(isExpanded ? null : meal.id)}
+                >
+                  <CardContent className="p-0">
+                    <div className="p-6 sm:p-8 flex items-center justify-between gap-6">
+                      <div className="flex items-center gap-6 flex-1 w-full">
+                        <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
+                          <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
+                        </div>
+                        <div className="space-y-2 flex-1 text-left">
+                          <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                            {meal.name}
+                          </h3>
+                          <div className="flex flex-row items-center gap-6">
+                            <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                            <div className="flex flex-wrap items-center gap-4">
                               <div className="flex items-center gap-2">
                                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
                                 <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span>
@@ -381,13 +392,58 @@ export default function Dashboard() {
                                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
                                 <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span>
                               </div>
-                           </div>
+                            </div>
+                          </div>
                         </div>
-                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                      </div>
+                      <div className="shrink-0 text-foreground opacity-30 group-hover:opacity-100 transition-all">
+                        {isExpanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="px-8 pb-8 pt-2 space-y-10 animate-in slide-in-from-top-4 duration-300">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t-2 border-border/30 pt-8">
+                          <div className="space-y-6">
+                             <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60">Health Score</span>
+                                <span className="text-2xl font-black text-foreground tracking-tighter">{meal.healthScore}/100</span>
+                             </div>
+                             <Progress value={meal.healthScore} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-primary" />
+                             
+                             <section className="space-y-4 pt-2">
+                                <div className="flex items-center gap-3 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
+                                  <Sparkles className="w-5 h-5 text-primary" /> AI Analysis
+                                </div>
+                                <div className="p-6 bg-primary/5 rounded-[1.5rem] border-2 border-primary/10">
+                                   <p className="text-[13px] font-bold leading-relaxed text-foreground opacity-90 italic">
+                                     "{meal.expertInsight || meal.description || "Balanced meal designed for your profile."}"
+                                   </p>
+                                </div>
+                             </section>
+                          </div>
+
+                          <section className="space-y-4">
+                             <div className="flex items-center gap-3 text-foreground font-black text-[10px] uppercase tracking-widest text-left">
+                                <ShoppingBag className="w-5 h-5 text-primary" /> Ingredients
+                             </div>
+                             <div className="bg-secondary/20 p-6 rounded-[2rem] border-2 border-border/30">
+                                <div className="flex flex-wrap gap-2">
+                                  {meal.ingredients?.map((ing: string, i: number) => (
+                                    <span key={i} className="bg-white border-2 border-border px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight text-foreground">
+                                      {ing}
+                                    </span>
+                                  )) || <span className="text-[10px] font-black opacity-30">No ingredients listed</span>}
+                                </div>
+                             </div>
+                          </section>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })
           ) : (
             <div className="text-center py-20 bg-white rounded-[2.5rem] border-4 border-dashed border-border/40 flex flex-col items-center justify-center shadow-premium">
               <p className="text-foreground font-black text-lg uppercase tracking-[0.2em] opacity-30">No records found</p>

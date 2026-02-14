@@ -319,38 +319,36 @@ export default function MealPlannerPage() {
                   <Input placeholder="e.g. Grilled Salmon with Asparagus" className="h-14 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                 </div>
 
-                {editingMealId && (
-                  <div className="space-y-6 pt-4 border-t-2 border-border/50">
-                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary">Nutritional Override</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Calories (Kcal)</Label>
-                        <Input type="number" value={calories} onChange={(e) => setCalories(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
-                        <Input type="number" value={protein} onChange={(e) => setProtein(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
-                        <Input type="number" value={carbs} onChange={(e) => setCarbs(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
-                        <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
-                      </div>
+                <div className="space-y-6 pt-4 border-t-2 border-border/50">
+                  <Label className="text-[11px] font-black uppercase tracking-widest text-primary">Nutritional Adjustment</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1">Calories (Kcal)</Label>
+                      <Input type="number" value={calories} onChange={(e) => setCalories(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Ingredients (comma separated)</Label>
-                      <Textarea 
-                        placeholder="e.g. Salmon, Asparagus, Lemon" 
-                        className="rounded-2xl border-2 border-border font-black min-h-[100px]" 
-                        value={ingredients} 
-                        onChange={(e) => setIngredients(e.target.value)} 
-                      />
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
+                      <Input type="number" value={protein} onChange={(e) => setProtein(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
+                      <Input type="number" value={carbs} onChange={(e) => setCarbs(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
+                      <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-12 rounded-xl border-2 border-border font-black" />
                     </div>
                   </div>
-                )}
+                  <div className="space-y-2">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Ingredients (comma separated)</Label>
+                    <Textarea 
+                      placeholder="e.g. Salmon, Asparagus, Lemon" 
+                      className="rounded-2xl border-2 border-border font-black min-h-[100px]" 
+                      value={ingredients} 
+                      onChange={(e) => setIngredients(e.target.value)} 
+                    />
+                  </div>
+                </div>
                 
                 <div className="flex items-center justify-between p-6 bg-secondary/30 rounded-[2rem] border-2 border-transparent hover:border-border transition-all">
                   <div className="space-y-1">
@@ -453,7 +451,7 @@ export default function MealPlannerPage() {
         </div>
       </section>
 
-      <section className="pt-2">
+      <section className="pt-6">
         <Link href="/planner">
           <Card className="rounded-[2rem] bg-primary/20 border-2 border-primary/30 text-foreground shadow-premium overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]">
             <CardContent className="p-4 sm:p-5 flex flex-row items-center justify-between gap-4">
