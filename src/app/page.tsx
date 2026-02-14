@@ -24,12 +24,12 @@ import {
   AlertTriangle,
   Bell,
   CheckCircle2,
-  XCircle
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
 import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import { 
   Bar, 
   BarChart, 
@@ -243,7 +243,7 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8 space-y-8 pb-24 min-h-screen">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Today</h1>
-        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.5em] opacity-40">
+        <p className="text-[11px] font-black text-foreground uppercase tracking-0.5em opacity-40">
           {format(today, "EEEE, MMMM do")}
         </p>
       </header>
@@ -253,7 +253,7 @@ export default function Dashboard() {
           <CardContent className="p-8 sm:p-12 space-y-12">
             <div className="flex justify-between items-start">
               <div className="space-y-1 text-left">
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-foreground opacity-60">Energy Balance</span>
+                <span className="text-[11px] font-black uppercase tracking-0.3em text-foreground opacity-60">Energy Balance</span>
                 <div className="flex items-baseline gap-3">
                   <h2 className={cn("text-6xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
                   <span className="text-xl font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
@@ -408,6 +408,14 @@ export default function Dashboard() {
                         <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                         </div>
+                        
+                        {/* MEAL PHOTO PREVIEW */}
+                        {meal.imageUrl && (
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-sm shrink-0 border-2 border-border/50">
+                            <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
+                          </div>
+                        )}
+
                         <div className="space-y-2 flex-1 text-left">
                           <div className="flex items-center gap-3">
                             <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
@@ -531,7 +539,7 @@ export default function Dashboard() {
                                   <Sparkles className="w-5 h-5 text-primary" /> AI Analysis
                                 </div>
                                 <div className="p-6 bg-primary/5 rounded-[1.5rem] border-2 border-primary/10">
-                                   <p className="text-[13px] font-bold leading-relaxed text-foreground opacity-90 italic">
+                                   <p className="text-[13px] font-bold leading-relaxed text-foreground opacity-90 italic text-left">
                                      "{meal.expertInsight || meal.description || "Balanced meal designed for your profile."}"
                                    </p>
                                 </div>

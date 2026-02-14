@@ -13,8 +13,7 @@ import {
   RefreshCw,
   ChevronLeft,
   ScanSearch,
-  ImageIcon,
-  Sparkle
+  ImageIcon
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -23,7 +22,6 @@ import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
 
 export default function RecordPage() {
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -168,7 +166,7 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!user || !result || !mounted || !preview) return
     
-    // Always use current time for Snap Meal recordings
+    // RECORD ACTUAL TIME NOW
     const now = new Date()
     const dateId = format(now, "yyyy-MM-dd")
     const timeStr = format(now, "hh:mm a").toUpperCase()
@@ -199,7 +197,7 @@ export default function RecordPage() {
       createdAt: serverTimestamp()
     });
 
-    toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
+    toast({ title: "Logged Successfully", description: `${result.name} recorded at ${timeStr}.` })
     resetAll()
   }
 
@@ -209,7 +207,7 @@ export default function RecordPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen relative animate-in fade-in duration-700">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
-        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">AI Expert Analysis</p>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-0.4em opacity-40">AI Expert Analysis</p>
       </header>
 
       {mode === "choice" && !preview && (
@@ -220,7 +218,7 @@ export default function RecordPage() {
             </div>
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Live Camera</h3>
-              <p className="text-[10px] text-foreground opacity-40 font-black uppercase tracking-[0.3em]">Direct Capture</p>
+              <p className="text-[10px] text-foreground opacity-40 font-black uppercase tracking-0.3em">Direct Capture</p>
             </div>
           </Card>
 
@@ -230,7 +228,7 @@ export default function RecordPage() {
             </div>
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-black tracking-tight uppercase text-foreground">Gallery</h3>
-              <p className="text-[10px] text-foreground opacity-40 font-black uppercase tracking-[0.3em]">Upload Media</p>
+              <p className="text-[10px] text-foreground opacity-40 font-black uppercase tracking-0.3em">Upload Media</p>
             </div>
           </Card>
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
@@ -247,7 +245,7 @@ export default function RecordPage() {
                 </Button>
                 
                 {!result && (
-                  <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[9px] tracking-[0.2em] px-5 py-2 rounded-full border-none">
+                  <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[9px] tracking-0.2em px-5 py-2 rounded-full border-none">
                     Recording Live Session
                   </Badge>
                 )}
@@ -280,7 +278,7 @@ export default function RecordPage() {
                 <div className="p-10 space-y-12 flex flex-col flex-1">
                   <div className="flex justify-between items-start border-b-2 border-border pb-10 shrink-0">
                     <div className="space-y-3 text-left">
-                      <span className="text-[11px] font-black uppercase text-foreground opacity-40 tracking-[0.3em]">Analysis Result</span>
+                      <span className="text-[11px] font-black uppercase text-foreground opacity-40 tracking-0.3em">Analysis Result</span>
                       <h2 className="text-3xl font-black tracking-tight leading-tight uppercase text-foreground">{result.name}</h2>
                     </div>
                     <div className="text-right">
@@ -326,7 +324,7 @@ export default function RecordPage() {
                     </section>
                   </div>
                   
-                  <Button onClick={handleSave} className="w-full h-20 rounded-[2rem] font-black text-[13px] bg-foreground text-white shadow-premium mt-auto uppercase tracking-[0.2em] hover:bg-foreground/90 transition-all active:scale-95">
+                  <Button onClick={handleSave} className="w-full h-20 rounded-[2rem] font-black text-[13px] bg-foreground text-white shadow-premium mt-auto uppercase tracking-0.2em hover:bg-foreground/90 transition-all active:scale-95">
                     Sync to Daily Record <ChevronRight className="w-6 h-6 ml-3" />
                   </Button>
                 </div>
@@ -334,7 +332,7 @@ export default function RecordPage() {
             ) : (
               <div className="flex-1 border-4 border-dashed border-border/40 rounded-[3rem] flex flex-col items-center justify-center p-16 text-center bg-white/50 shadow-inner">
                 <ScanSearch className="w-24 h-24 text-foreground opacity-10 mb-10" />
-                <p className="text-foreground font-black uppercase text-[12px] tracking-[0.4em] opacity-30">Awaiting Capture</p>
+                <p className="text-foreground font-black uppercase text-[12px] tracking-0.4em opacity-30">Awaiting Capture</p>
               </div>
             )}
           </section>
