@@ -19,7 +19,6 @@ import {
   Camera,
   BarChart3,
   Info,
-  ChevronDown,
   Activity,
   Leaf
 } from "lucide-react"
@@ -35,7 +34,6 @@ import {
   CartesianGrid, 
 } from "recharts"
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -47,11 +45,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 
 // Standardized Macro Colors - Sharp Edition
 const MACRO_COLORS = {
@@ -64,7 +57,7 @@ const chartConfig = {
   protein: { label: "Protein", color: MACRO_COLORS.protein },
   carbs: { label: "Carbs", color: MACRO_COLORS.carbs },
   fat: { label: "Fat", color: MACRO_COLORS.fat },
-} satisfies ChartConfig
+} satisfies Record<string, any>
 
 const MacroInfoContent = () => (
   <div className="space-y-4">
@@ -97,7 +90,6 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser()
   const [mounted, setMounted] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
-  const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
 
   useEffect(() => {
     setToday(startOfToday())
@@ -130,7 +122,6 @@ export default function Dashboard() {
   const { data: meals } = useCollection(mealsColRef)
   const { data: logsData } = useCollection(logsQuery)
 
-  // Range: H-7 to H-1
   const weeklyData = useMemo(() => {
     if (!today) return [];
     const days = [];
@@ -365,74 +356,37 @@ export default function Dashboard() {
         <div className="space-y-4">
           {sortedMeals && sortedMeals.length > 0 ? (
             sortedMeals.map((meal) => (
-              <Collapsible 
-                key={meal.id} 
-                open={expandedMealId === meal.id} 
-                onOpenChange={(isOpen) => setExpandedMealId(isOpen ? meal.id : null)}
-              >
-                <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
-                  <CollapsibleTrigger asChild>
-                    <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6 cursor-pointer">
-                      <div className="flex items-center gap-6 flex-1 w-full">
-                         <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
-                           <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
-                         </div>
-                         <div className="space-y-2 flex-1 text-left">
-                            <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
-                              {meal.name}
-                            </h3>
-                            <div className="flex flex-row items-center gap-6">
-                               <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
-                               <div className="flex flex-wrap items-center gap-4">
-                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span></div>
-                                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /><span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span></div>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className={cn("bg-secondary p-3 rounded-full transition-all", expandedMealId === meal.id ? "rotate-180" : "")}>
-                          <ChevronDown className="w-5 h-5 text-foreground" />
+              <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden hover:shadow-premium-lg transition-all group">
+                <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-6 flex-1 w-full">
+                     <div className="text-left min-w-[100px] border-r-2 border-border/50 pr-6 hidden sm:block">
+                       <p className="text-xl font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
+                     </div>
+                     <div className="space-y-2 flex-1 text-left">
+                        <h3 className="text-xl font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">
+                          {meal.name}
+                        </h3>
+                        <div className="flex flex-row items-center gap-6">
+                           <p className="text-[11px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                           <div className="flex flex-wrap items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
+                                <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}G</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
+                                <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}G</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
+                                <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}G</span>
+                              </div>
+                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
-                    <div className="px-8 pb-10 pt-6 space-y-8 border-t-2 border-border/30">
-                      <div className="space-y-6 text-left">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
-                            <Activity className="w-5 h-5 text-primary" /> Health Score
-                          </div>
-                          <span className="text-3xl font-black text-foreground tracking-tighter">{meal.healthScore || 85}/100</span>
-                        </div>
-                        <Progress value={meal.healthScore || 85} className="h-3 rounded-full bg-secondary" indicatorClassName="bg-accent" />
-
-                        <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
-                          <Sparkles className="w-5 h-5 text-primary" /> AI Insight
-                        </div>
-                        <p className="text-[14px] font-bold leading-relaxed text-foreground bg-primary/10 p-6 rounded-[1.5rem] border-2 border-primary/20">
-                          {meal.expertInsight || meal.description || "Nutritionally dense meal aligned with your targets."}
-                        </p>
-                      </div>
-                      
-                      <div className="space-y-4 text-left">
-                        <div className="flex items-center gap-3 text-foreground font-black text-[11px] uppercase tracking-widest">
-                          <Leaf className="w-5 h-5 text-primary" /> Ingredients
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                          {meal.ingredients?.map((ing: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-xl border-2 border-border text-foreground opacity-80 px-4 py-1.5 font-black text-[10px] uppercase">
-                              {ing}
-                            </Badge>
-                          )) || <span className="text-[10px] text-foreground opacity-30 italic font-black uppercase">Natural ingredients.</span>}
-                        </div>
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </Card>
-              </Collapsible>
+                     </div>
+                  </div>
+                </CardContent>
+              </Card>
             ))
           ) : (
             <div className="text-center py-20 bg-white rounded-[2.5rem] border-4 border-dashed border-border/40 flex flex-col items-center justify-center shadow-premium">
