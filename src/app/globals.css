@@ -45,7 +45,7 @@
     @apply bg-background text-foreground font-body antialiased selection:bg-primary/30 overflow-x-hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-bold tracking-tight text-foreground;
+    @apply font-headline font-black tracking-tight text-foreground;
   }
   h1 { @apply text-3xl md:text-4xl; letter-spacing: -0.04em; }
   h2 { @apply text-2xl; letter-spacing: -0.03em; }

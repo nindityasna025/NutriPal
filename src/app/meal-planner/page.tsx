@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react"
@@ -307,7 +306,7 @@ export default function MealPlannerPage() {
                            <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal.name)} className="text-primary hover:bg-primary/10 rounded-xl h-10 w-10 border border-primary/10 shadow-sm"><ChefHat className="w-5 h-5" /></Button>
                          )}
                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(meal)} className="text-muted-foreground hover:bg-secondary rounded-xl h-10 w-10 border border-border/50"><Edit2 className="w-4 h-4" /></Button>
-                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(meal.id, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDeleteMeal(mealId, meal.name)} className="text-muted-foreground hover:text-destructive rounded-xl h-10 w-10 border border-border/50"><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   </CardContent>
