@@ -12,7 +12,6 @@ import {
   ChevronRight, 
   Loader2, 
   Sparkles, 
-  Trophy, 
   Bell, 
   BellOff, 
   ChevronRightIcon,
@@ -182,19 +181,41 @@ export default function MealPlannerPage() {
     }
   }
 
-  const handleApplyAiPlan = async () => {
-    if (!aiPlan || !mealsColRef || !user) return
-    const meals = [aiPlan.breakfast, aiPlan.lunch, aiPlan.dinner]
-    for (const meal of meals) {
+  const handleAddAiMealToSchedule = async (meal: any, type: string) => {
+    if (!mealsColRef || !user) return
+    try {
       await setDoc(doc(mealsColRef), {
         ...meal,
+        type,
+        source: "AI Plan",
+        createdAt: serverTimestamp(),
+        reminderEnabled: true
+      })
+      toast({ title: "Meal Added", description: `${meal.name} added to your ${type} schedule.` })
+    } catch (error) {
+      console.error(error)
+      toast({ variant: "destructive", title: "Sync Error", description: "Could not add meal to schedule." })
+    }
+  }
+
+  const handleApplyAllAiPlan = async () => {
+    if (!aiPlan || !mealsColRef || !user) return
+    const meals = [
+      { data: aiPlan.breakfast, type: "Breakfast" },
+      { data: aiPlan.lunch, type: "Lunch" },
+      { data: aiPlan.dinner, type: "Dinner" }
+    ]
+    for (const meal of meals) {
+      await setDoc(doc(mealsColRef), {
+        ...meal.data,
+        type: meal.type,
         source: "AI Plan",
         createdAt: serverTimestamp(),
         reminderEnabled: true
       })
     }
     setAiPlan(null)
-    toast({ title: "Plan Applied", description: "Today's schedule updated with AI picks." })
+    toast({ title: "Full Plan Applied", description: "Today's schedule fully updated." })
   }
 
   if (!mounted || !date) return null
@@ -363,9 +384,12 @@ export default function MealPlannerPage() {
                   <h2 className="text-2xl font-black uppercase tracking-tight">AI Recommended Plan</h2>
                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Calculated from your {profile?.bmiCategory} Profile</p>
                 </div>
-                <Button onClick={handleApplyAiPlan} className="rounded-full bg-primary text-primary-foreground font-black uppercase text-[10px] px-8 h-12 shadow-lg">
-                  <CheckCircle2 className="w-4 h-4 mr-2" /> Apply to Today
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={() => setAiPlan(null)} className="rounded-full font-black uppercase text-[10px] px-6 h-12">Discard</Button>
+                  <Button onClick={handleApplyAllAiPlan} className="rounded-full bg-primary text-primary-foreground font-black uppercase text-[10px] px-8 h-12 shadow-lg">
+                    <CheckCircle2 className="w-4 h-4 mr-2" /> Apply All
+                  </Button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -374,16 +398,24 @@ export default function MealPlannerPage() {
                   { time: "Lunch", data: aiPlan.lunch },
                   { time: "Dinner", data: aiPlan.dinner }
                 ].map((meal, i) => (
-                  <div key={i} className="space-y-4 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-primary/20 transition-all">
-                    <p className="text-[10px] font-black uppercase text-primary tracking-[0.2em]">{meal.time}</p>
-                    <div className="space-y-1">
-                      <h4 className="font-black text-lg uppercase leading-tight">{meal.data.name}</h4>
-                      <p className="text-[10px] font-black text-muted-foreground">{meal.data.calories} KCAL</p>
+                  <div key={i} className="flex flex-col h-full space-y-4 p-6 bg-secondary/20 rounded-[2rem] border border-transparent hover:border-primary/20 transition-all">
+                    <div className="flex-1 space-y-4">
+                      <p className="text-[10px] font-black uppercase text-primary tracking-[0.2em]">{meal.time}</p>
+                      <div className="space-y-1">
+                        <h4 className="font-black text-lg uppercase leading-tight">{meal.data.name}</h4>
+                        <p className="text-[10px] font-black text-muted-foreground">{meal.data.calories} KCAL</p>
+                      </div>
+                      <div className="space-y-2 pt-2 border-t border-muted/50">
+                        <p className="text-[9px] font-black uppercase text-muted-foreground">Swap Suggestion</p>
+                        <p className="text-[11px] font-medium italic opacity-80 leading-relaxed">"{meal.data.swapSuggestion}"</p>
+                      </div>
                     </div>
-                    <div className="space-y-2 pt-2 border-t border-muted/50">
-                      <p className="text-[9px] font-black uppercase text-muted-foreground">Swap Suggestion</p>
-                      <p className="text-[11px] font-medium italic opacity-80 leading-relaxed">"{meal.data.swapSuggestion}"</p>
-                    </div>
+                    <Button 
+                      onClick={() => handleAddAiMealToSchedule(meal.data, meal.time)} 
+                      className="w-full h-10 rounded-xl bg-white text-primary border border-primary/20 hover:bg-primary hover:text-white font-black uppercase text-[9px] tracking-widest transition-all"
+                    >
+                      Add to Schedule
+                    </Button>
                   </div>
                 ))}
               </div>
