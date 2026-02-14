@@ -215,9 +215,9 @@ export default function MealPlannerPage() {
         </div>
       </header>
 
-      {/* Your Daily Agenda */}
+      {/* Your Daily Schedule */}
       <section className="space-y-6">
-        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">Your Agenda</h2>
+        <h2 className="text-lg font-black tracking-tight px-1 uppercase text-left">Your Schedule</h2>
         <div className="space-y-4">
           {isLoadingMeals ? (
             <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
