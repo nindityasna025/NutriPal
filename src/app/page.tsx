@@ -16,7 +16,6 @@ import {
   Minus,
   Sparkles,
   Camera,
-  Calendar,
   Trophy,
   BarChart3,
   Info
@@ -382,7 +381,7 @@ export default function Dashboard() {
                 <p className="text-sm text-muted-foreground font-medium">Capture your first meal to start tracking.</p>
               </div>
               <Button onClick={() => router.push("/meal-planner")} className="rounded-full px-10 h-14 font-black uppercase tracking-widest shadow-ios-lg">
-                PLAN
+                MEAL PLANNER
               </Button>
             </div>
           )}
