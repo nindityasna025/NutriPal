@@ -19,7 +19,8 @@ import {
   Target,
   ArrowUpCircle,
   CheckCircle,
-  ArrowDownCircle
+  ArrowDownCircle,
+  ScanSearch
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
@@ -263,7 +264,28 @@ export default function RecordPage() {
                       <p className="text-sm font-medium leading-relaxed italic pr-4">"{result.description}"</p>
                     </div>
                     <div className="space-y-3">
-                       <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients Detected</p>
+                       <div className="flex items-center justify-between">
+                          <p className="text-[10px] font-black uppercase text-muted-foreground">Ingredients Detected</p>
+                          <Popover>
+                             <PopoverTrigger asChild>
+                               <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary">
+                                 <Info className="w-3.5 h-3.5" />
+                               </Button>
+                             </PopoverTrigger>
+                             <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                               <div className="space-y-3">
+                                 <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                   <ScanSearch className="w-4 h-4" /> AI Scanning
+                                 </div>
+                                 <p className="text-xs font-medium leading-relaxed text-foreground/80">
+                                   AI-powered food recognition scans the photo to pick out the ingredients and estimate their portions.
+                                   While AI usually gets things right, it can sometimes mix up the ingredients, especially in complex dishes. 
+                                   It works best when each item is clearly visible. If something doesn't look quite right, feel free to edit the results yourself.
+                                 </p>
+                               </div>
+                             </PopoverContent>
+                          </Popover>
+                       </div>
                        <div className="flex flex-wrap gap-2">
                           {result.ingredients.map((ing: string, i: number) => (
                             <Badge key={i} variant="secondary" className="px-4 py-1.5 rounded-xl font-bold bg-secondary/50 border-none">{ing}</Badge>

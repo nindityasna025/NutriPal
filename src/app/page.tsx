@@ -45,6 +45,12 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Badge } from "@/components/ui/badge"
 
 const chartConfig = {
   protein: {
@@ -354,42 +360,6 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Ingredients Intelligence Guide */}
-            <Card className="rounded-[3rem] border-none shadow-xl bg-white overflow-hidden">
-              <CardContent className="p-10 space-y-8">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  <div className="w-20 h-20 bg-secondary rounded-3xl flex items-center justify-center shrink-0">
-                    <ScanSearch className="w-10 h-10 text-primary" />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-xl font-black tracking-tight uppercase">Ingredients Intelligence</h3>
-                    <p className="text-muted-foreground font-medium leading-relaxed">
-                      AI-powered food recognition scans the photo to pick out the ingredients and estimate their portions.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 bg-secondary/30 rounded-[2rem] space-y-3">
-                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                      <Sparkles className="w-3 h-3" /> How it Works
-                    </div>
-                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
-                      While AI usually gets things right, it can sometimes mix up the ingredients, especially in complex dishes. It works best when each item is clearly visible.
-                    </p>
-                  </div>
-                  <div className="p-6 bg-primary/5 border border-primary/10 rounded-[2rem] space-y-3">
-                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
-                      <AlertCircle className="w-3 h-3" /> Your Control
-                    </div>
-                    <p className="text-sm font-medium leading-relaxed text-foreground/80">
-                      If something doesn't look quite right, feel free to edit the results yourself, so everything stays accurate.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
@@ -437,7 +407,41 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full"><Trophy className="w-3.5 h-3.5 text-primary" /><span className="text-[11px] font-black uppercase text-primary">{meal.healthScore}/100 Score</span></div>
                       </div>
                     </div>
-                    <div className="space-y-3">
+                    
+                    {/* Ingredients Section with Info Button */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                         <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40">Ingredients Intelligence</p>
+                         <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary">
+                                <Info className="w-3.5 h-3.5" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/20 bg-white shadow-2xl">
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                  <ScanSearch className="w-4 h-4" /> AI Scanning
+                                </div>
+                                <p className="text-xs font-medium leading-relaxed text-foreground/80">
+                                  AI-powered food recognition scans the photo to pick out the ingredients and estimate their portions.
+                                  While AI usually gets things right, it can sometimes mix up the ingredients, especially in complex dishes. 
+                                  It works best when each item is clearly visible. If something doesn't look quite right, feel free to edit the results yourself.
+                                </p>
+                              </div>
+                            </PopoverContent>
+                         </Popover>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {meal.ingredients?.map((ing: string, i: number) => (
+                          <Badge key={i} variant="secondary" className="px-3 py-1 rounded-lg font-bold text-[10px] bg-secondary/50 border-none">
+                            {ing}
+                          </Badge>
+                        )) || <p className="text-xs text-muted-foreground italic">No ingredient data available.</p>}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40">Nutritional Analysis</p>
                       <p className="text-base font-medium text-foreground/70 leading-relaxed italic pr-8">
                         "{meal.description || "Balanced meal providing sustained energy."}"
