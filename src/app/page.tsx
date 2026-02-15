@@ -109,6 +109,15 @@ export default function Dashboard() {
     const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, 6 - i));
     return last7Days.map(day => {
       const dateStr = format(day, "yyyy-MM-dd");
+      // For today, use the live totals from the meals collection to ensure consistency
+      if (dateStr === dateId) {
+        return {
+          date: format(day, "MMM d"),
+          protein: Math.round((totals.protein || 0) * 4),
+          carbs: Math.round((totals.carbs || 0) * 4),
+          fat: Math.round((totals.fat || 0) * 9),
+        };
+      }
       const log = recentLogs?.find(l => l.date === dateStr);
       return {
         date: format(day, "MMM d"),
@@ -117,11 +126,11 @@ export default function Dashboard() {
         fat: Math.round((log?.fatTotal || 0) * 9),
       };
     });
-  }, [recentLogs, today]);
+  }, [recentLogs, today, dateId, totals]);
 
   const hasChartData = useMemo(() => {
     if (!chartData || chartData.length === 0) return false;
-    // Strict rule: hide if all macros for all 7 days are zero
+    // Hide if all macros for all 7 days are zero
     return chartData.some(d => d.protein > 0 || d.carbs > 0 || d.fat > 0);
   }, [chartData]);
 
