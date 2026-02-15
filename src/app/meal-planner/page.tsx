@@ -162,7 +162,8 @@ export default function MealPlannerPage() {
       // If user provided manual numbers, preserve them. Only AI analyze if fields are zero
       if (!editingMealId && finalProtein === 0 && finalCarbs === 0 && finalFat === 0) {
         const aiResult = await analyzeTextMeal({ 
-          mealName: `${mealTiming}: ${mealName}`, 
+          mealName: `${mealTiming}: ${mealName}`,
+          ingredients: ingredients,
           userGoal: (profile?.bmiCategory === 'Overweight' || profile?.bmiCategory === 'Obese') ? "Weight Loss" : (profile?.bmiCategory === 'Underweight' ? "Weight Gain" : "Maintenance"),
           userAllergies: profile?.allergies,
           userRestrictions: profile?.dietaryRestrictions
@@ -212,7 +213,13 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Action Failed", description: "AI service interrupted. Key rotation triggered." });
+      const errorMessage = (err.message?.toLowerCase() || "");
+      const isQuotaError = errorMessage.includes('429') || errorMessage.includes('quota');
+      toast({ 
+        variant: "destructive", 
+        title: isQuotaError ? "AI Quota Limit Reached" : "Action Failed", 
+        description: isQuotaError ? "Key rotation triggered. Please try again in a moment." : "An unexpected error occurred." 
+      });
     } finally {
       setIsSaving(false);
     }

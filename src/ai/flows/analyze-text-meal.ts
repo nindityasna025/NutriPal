@@ -12,6 +12,7 @@ import { z } from 'genkit';
 
 const AnalyzeTextMealInputSchema = z.object({
   mealName: z.string().describe("The name or description of the meal."),
+  ingredients: z.string().optional().describe("A comma-separated list of ingredients provided by the user."),
   userGoal: z.enum(["Maintenance", "Weight Loss", "Weight Gain"]).optional().describe("The user's current health goal."),
   userAllergies: z.string().optional().describe("The user's known food allergies (comma separated)."),
   userRestrictions: z.array(z.string()).optional().describe("The user's dietary restrictions (e.g., Vegan, Vegetarian)."),
@@ -41,9 +42,13 @@ export async function analyzeTextMeal(input: AnalyzeTextMealInput): Promise<Anal
       input: { schema: AnalyzeTextMealInputSchema },
       output: { schema: AnalyzeTextMealOutputSchema },
       prompt: `You are an expert AI Nutritionist and Chef. 
-Analyze the following meal description and provide a full nutritional and culinary breakdown.
+Analyze the following meal and provide a full nutritional and culinary breakdown.
 
-Meal: "{{{mealName}}}"
+Meal Name: "{{{mealName}}}"
+{{#if ingredients}}
+User-Provided Ingredients: {{{ingredients}}}
+Use these ingredients as the primary source for your analysis, but you can infer other common ingredients if necessary.
+{{/if}}
 User's Goal: {{#if userGoal}}{{{userGoal}}}{{else}}General Maintenance{{/if}}
 User's Allergies: {{#if userAllergies}}{{{userAllergies}}}{{else}}None provided{{/if}}
 User's Restrictions: {{#if userRestrictions}}{{{userRestrictions}}}{{else}}None{{/if}}
