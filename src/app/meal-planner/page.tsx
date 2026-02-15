@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -356,11 +357,6 @@ export default function MealPlannerPage() {
                       <div className="space-y-1 flex-1 text-left">
                         <div className="flex items-center gap-2">
                           <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">{meal.name}</h3>
-                          {meal.status === 'consumed' && (
-                            <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20">
-                              <CheckCircle2 className="w-3 h-3 mr-1" /> CONSUMED
-                            </Badge>
-                          )}
                           {meal.reminderEnabled && meal.status !== 'consumed' && <Bell className="w-3.5 h-3.5 text-primary fill-primary/20" />}
                         </div>
                         <div className="flex flex-row items-center gap-4">
@@ -373,7 +369,14 @@ export default function MealPlannerPage() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Actions and Status Aligned to Right */}
                     <div className="flex items-center gap-2 shrink-0">
+                      {meal.status === 'consumed' && (
+                        <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20 shrink-0">
+                          <CheckCircle2 className="w-3 h-3 mr-1" /> CONSUMED
+                        </Badge>
+                      )}
                       {(meal.source !== 'photo' && meal.source !== 'gallery' && !meal.imageUrl) && (
                         <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-lg h-8 w-8 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90">
                           <ChefHat className="w-4 h-4" />

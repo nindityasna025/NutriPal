@@ -365,10 +365,7 @@ export default function Dashboard() {
                           )}
                         </div>
                         <div className="space-y-0.5 flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground">{meal.name}</h3>
-                            {meal.status === 'consumed' && <Badge className="h-3.5 px-1.5 text-[6px] font-black uppercase bg-green-500/10 text-green-600 border-none">EATEN</Badge>}
-                          </div>
+                          <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground">{meal.name}</h3>
                           <div className="flex flex-wrap items-center gap-3 text-[8px] font-black text-foreground opacity-60 uppercase tracking-widest">
                             <span>+{Math.round(meal.calories)} KCAL</span>
                             <div className="flex gap-2">
@@ -379,7 +376,12 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Action Area - Aligned to the Right */}
                       <div className="flex items-center gap-2 shrink-0">
+                        {meal.status === 'consumed' && (
+                          <Badge className="h-3.5 px-1.5 text-[6px] font-black uppercase bg-green-500/10 text-green-600 border-none shrink-0">EATEN</Badge>
+                        )}
                         {meal.status !== 'consumed' && (
                           <div className="flex items-center gap-2">
                             <Button onClick={(e) => { e.stopPropagation(); handleEatNowClick(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all shadow-sm">EAT NOW</Button>
