@@ -380,16 +380,6 @@ export default function ExplorePage() {
 
   const featureCards = [
     { 
-      id: 'recovery',
-      title: 'Recovery Plan',
-      description: 'Generate a high-protein plan for post-workout recovery.',
-      icon: Bike,
-      color: 'destructive',
-      action: () => { setIsRecoveryOpen(true); handleGenerateMenu(true); },
-      buttonText: 'Generate Plan',
-      show: wasHighlyActive
-    },
-    { 
       id: 'curation',
       title: 'ML Curation',
       description: 'Neural recommendation engine for platform ecosystem matching.',
@@ -433,30 +423,28 @@ export default function ExplorePage() {
         {featureCards.map(card => (
            <Dialog key={card.id}>
              <DialogTrigger asChild>
-                <Card className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-5 flex flex-col items-center justify-between text-center space-y-3 active:scale-[0.98]">
+                <Card className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-6 flex flex-col items-center justify-between text-center space-y-4 active:scale-[0.98]">
                   <div className={cn(
-                    "w-14 h-14 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
+                    "w-16 h-16 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
                     card.color === 'primary' && 'bg-primary/10 border-primary/20',
                     card.color === 'accent' && 'bg-accent/10 border-accent/20',
                     card.color === 'blue' && 'bg-blue-100 border-blue-200',
-                    card.color === 'destructive' && 'bg-destructive/5 border-destructive/10',
                   )}>
                     <card.icon className={cn(
-                      "w-7 h-7",
+                      "w-8 h-8",
                       card.color === 'primary' && 'text-primary',
                       card.color === 'accent' && 'text-accent-foreground',
                       card.color === 'blue' && 'text-blue-600',
-                      card.color === 'destructive' && 'text-destructive',
                     )} />
                   </div>
-                  <div className="space-y-1 text-center flex-1">
+                  <div className="space-y-1.5 text-center flex-1">
                     <h3 className="text-base font-black tracking-tighter uppercase text-foreground">{card.title}</h3>
-                    <p className="text-foreground/60 font-bold text-[9px] leading-snug max-w-xs uppercase tracking-widest">
+                    <p className="text-foreground/60 font-bold text-[10px] leading-snug max-w-xs uppercase tracking-wider">
                       {card.description}
                     </p>
                   </div>
-                  <Button onClick={card.action} variant={card.color === 'destructive' ? 'destructive' : card.color === 'blue' ? 'default' : 'secondary'} className={cn(
-                    "w-full h-10 rounded-xl font-black uppercase tracking-widest text-[9px] border-none",
+                  <Button onClick={card.action} variant={card.color === 'blue' ? 'default' : 'secondary'} className={cn(
+                    "w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] border-none",
                     card.color === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white'
                   )}>
                     {card.buttonText}
@@ -468,7 +456,7 @@ export default function ExplorePage() {
 
         <Dialog open={isDeliveryOpen} onOpenChange={setIsDeliveryOpen}>
           <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center">
+            <DialogHeader className="p-8 text-center border-b">
               <DialogTitle className="text-2xl">NutriPal V1: ML Delivery Hub</DialogTitle>
               <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
             </DialogHeader>
@@ -541,7 +529,7 @@ export default function ExplorePage() {
 
         <Dialog open={isMenuOpen || isRecoveryOpen} onOpenChange={isMenuOpen ? setIsMenuOpen : setIsRecoveryOpen}>
           <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center">
+            <DialogHeader className="p-8 text-center border-b">
                 <DialogTitle className="text-2xl">{isRecoveryOpen ? 'Recovery Plan Synthesis' : 'NutriPal V1: Predictive Synthesis'}</DialogTitle>
                 <div className="text-sm text-muted-foreground font-bold flex items-center justify-center gap-4">
                   <span>A full day's meal plan synthesized by AI based on your profile.</span>
@@ -620,10 +608,9 @@ export default function ExplorePage() {
                 })}
               </div>
             </div>
-             <DialogFooter className="p-6 bg-background rounded-b-[2.5rem]">
-                <Button variant="ghost" onClick={isMenuOpen ? () => setIsMenuOpen(false) : () => setIsRecoveryOpen(false)}>Cancel</Button>
+             <DialogFooter className="p-6 bg-background rounded-b-[2.5rem] border-t">
                 {menuPlan && !loading && (
-                  <Button onClick={() => handleAddAll(isRecoveryOpen)}>
+                  <Button onClick={() => handleAddAll(isRecoveryOpen)} className="w-full">
                      <Plus className="w-4 h-4 mr-2" /> Schedule All Meals
                   </Button>
                 )}
@@ -633,7 +620,7 @@ export default function ExplorePage() {
 
         <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
           <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center">
+            <DialogHeader className="p-8 text-center border-b">
               <DialogTitle className="text-2xl">Recipe From Pantry</DialogTitle>
                <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
             </DialogHeader>

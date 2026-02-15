@@ -365,15 +365,18 @@ export default function Dashboard() {
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
+            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all relative">
                 <DialogTrigger asChild disabled={!wasHighlyActive}>
                   <button className={cn(
-                    "p-1.5 rounded-lg mb-1 border transition-all",
-                    wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10 cursor-default"
+                    "absolute top-2 right-2 p-1.5 rounded-lg border transition-all",
+                    wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10 cursor-default hidden"
                   )}>
-                    <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
+                    <Flame className="w-4 h-4 text-destructive" />
                   </button>
                 </DialogTrigger>
+                <div className="p-1.5 bg-destructive/10 rounded-lg mb-1 border border-destructive/20">
+                  <Flame className="w-4 h-4 text-foreground" />
+                </div>
                 <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
                 <p className="text-lg font-black tracking-tighter text-foreground">{caloriesBurned} <span className="text-[9px] font-black opacity-20">kcal</span></p>
             </Card>
@@ -448,9 +451,8 @@ export default function Dashboard() {
                 )}
               </div>
               <DialogFooter className="p-6 border-t bg-background rounded-b-[2.5rem]">
-                  <Button variant="ghost" onClick={() => setIsRecoveryDialogOpen(false)}>Cancel</Button>
                   {recoveryPlan && !loadingRecoveryPlan && (
-                  <Button onClick={handleAcceptRecoveryPlan}>
+                  <Button onClick={handleAcceptRecoveryPlan} className="w-full">
                       <Plus className="w-4 h-4 mr-2" /> Schedule For Tomorrow
                   </Button>
                   )}
@@ -678,7 +680,7 @@ export default function Dashboard() {
             </div>
           </div>
           <DialogFooter className="p-8 pt-0">
-             <Button variant="ghost" onClick={() => setIsEatNowOpen(false)} className="w-full text-[9px] font-black uppercase text-foreground opacity-40">Cancel</Button>
+             
           </DialogFooter>
         </DialogContent>
       </Dialog>
