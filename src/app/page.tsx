@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Legend } from "recharts"
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Legend, Line } from "recharts"
 import { Separator } from "@/components/ui/separator"
 
 const MACRO_COLORS = {
@@ -111,12 +111,13 @@ export default function Dashboard() {
     const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, 6 - i));
     return last7Days.map(day => {
       const dateStr = format(day, "yyyy-MM-dd");
-      if (dateStr === dateId) {
+      if (dateStr === dateId) { // Today
         return {
           date: format(day, "MMM d"),
           protein: Math.round((totals.protein || 0) * 4),
           carbs: Math.round((totals.carbs || 0) * 4),
           fat: Math.round((totals.fat || 0) * 9),
+          "Calories Burned": dailyLog?.caloriesBurned || 450,
         };
       }
       const log = recentLogs?.find(l => l.date === dateStr);
@@ -125,9 +126,10 @@ export default function Dashboard() {
         protein: Math.round((log?.proteinTotal || 0) * 4),
         carbs: Math.round((log?.carbsTotal || 0) * 4),
         fat: Math.round((log?.fatTotal || 0) * 9),
+        "Calories Burned": log?.caloriesBurned || Math.floor(Math.random() * (550 - 350 + 1) + 350),
       };
     });
-  }, [recentLogs, today, dateId, totals]);
+  }, [recentLogs, today, dateId, totals, dailyLog]);
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = Math.max(0, Math.round(totals.calories))
@@ -277,7 +279,7 @@ export default function Dashboard() {
               <Flame className="w-4 h-4 text-foreground" />
             </div>
             <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-            <p className="text-lg font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[9px] font-black opacity-20">kcal</span></p>
+            <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-[9px] font-black opacity-20">kcal</span></p>
           </Card>
 
           <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px]">
@@ -317,7 +319,8 @@ export default function Dashboard() {
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: "#ff7300", fontSize: 8, fontWeight: 900 }} unit="kcal" />
                   <Tooltip 
                     cursor={{ fill: "hsl(var(--primary)/0.05)" }}
                     content={({ active, payload }) => {
@@ -327,7 +330,7 @@ export default function Dashboard() {
                             <p className="font-black text-[9px] uppercase mb-1.5 border-b border-border pb-1">Daily Totals</p>
                             {payload.map((entry, idx) => (
                               <div key={idx} className="flex justify-between gap-4 text-[9px] font-black uppercase">
-                                <span style={{ color: entry.color }}>{entry.name}:</span>
+                                <span style={{ color: entry.color || (entry.dataKey === 'Calories Burned' ? '#ff7300' : 'inherit') }}>{entry.name}:</span>
                                 <span>{entry.value} kcal</span>
                               </div>
                             ))}
@@ -338,9 +341,10 @@ export default function Dashboard() {
                     }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
-                  <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
-                  <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
-                  <Bar dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
+                  <Bar yAxisId="left" dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
+                  <Bar yAxisId="left" dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="right" type="monotone" dataKey="Calories Burned" stroke="#ff7300" strokeWidth={3} dot={{ r: 4, fill: "#ff7300" }} activeDot={{ r: 6 }} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -376,9 +380,9 @@ export default function Dashboard() {
                           <div className="flex flex-wrap items-center gap-3 text-[8px] font-black text-foreground opacity-60 uppercase tracking-widest">
                             <span>+{Math.round(meal.calories)} KCAL</span>
                             <div className="flex gap-2">
-                              <span style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
-                              <span style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
-                              <span style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
+                              <span style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}g</span>
+                              <span style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}g</span>
+                              <span style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}g</span>
                             </div>
                           </div>
                         </div>
