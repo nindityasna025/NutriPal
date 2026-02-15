@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -356,11 +357,13 @@ export default function Dashboard() {
                         <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block text-center">
                           <p className="text-lg font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                         </div>
-                        {meal.imageUrl && (
-                          <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-border/50 shrink-0">
+                        <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-border/50 shrink-0 flex items-center justify-center bg-secondary/50">
+                          {meal.imageUrl ? (
                             <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
-                          </div>
-                        )}
+                          ) : (
+                            <Utensils className="w-5 h-5 text-foreground opacity-20" />
+                          )}
+                        </div>
                         <div className="space-y-0.5 flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground">{meal.name}</h3>
