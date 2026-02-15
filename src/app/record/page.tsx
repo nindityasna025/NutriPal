@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -158,11 +157,7 @@ export default function RecordPage() {
       setResult(output)
     } catch (error: any) {
       console.error(error)
-      toast({ 
-        variant: "destructive", 
-        title: "AI Analysis Failed",
-        description: "Could not analyze meal photo." 
-      })
+      toast({ variant: "destructive", title: "AI Analysis Failed", description: "Could not analyze photo." })
     } finally {
       setAnalyzing(false)
     }
@@ -216,7 +211,7 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4 space-y-4 h-screen flex flex-col overflow-hidden animate-in fade-in duration-700">
+    <div className="max-w-4xl mx-auto px-4 py-4 space-y-4 h-screen flex flex-col overflow-hidden">
       <header className="space-y-1 text-center shrink-0">
         <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
         <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">AI-Powered Logging</p>
@@ -224,121 +219,76 @@ export default function RecordPage() {
 
       {mode === "choice" && !preview && (
         <div className="grid grid-cols-2 gap-4 flex-1 items-center max-w-2xl mx-auto w-full">
-          <Card onClick={startCamera} className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 active:scale-95 flex flex-col items-center gap-6">
-            <div className="w-16 h-16 bg-primary/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
+          <Card onClick={startCamera} className="rounded-[2.5rem] border-none shadow-premium bg-white cursor-pointer group p-8 flex flex-col items-center gap-6 active:scale-95 transition-all">
+            <div className="w-16 h-16 bg-primary/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform">
               <Camera className="w-8 h-8 text-foreground" strokeWidth={2.5} />
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Camera</h3>
-            </div>
+            <h3 className="text-lg font-black uppercase text-foreground">Camera</h3>
           </Card>
-
-          <Card onClick={() => fileInputRef.current?.click()} className="rounded-[2.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 active:scale-95 flex flex-col items-center gap-6">
-            <div className="w-16 h-16 bg-accent/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
+          <Card onClick={() => fileInputRef.current?.click()} className="rounded-[2.5rem] border-none shadow-premium bg-white cursor-pointer group p-8 flex flex-col items-center gap-6 active:scale-95 transition-all">
+            <div className="w-16 h-16 bg-accent/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform">
               <ImageIcon className="w-8 h-8 text-foreground" strokeWidth={2.5} />
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Gallery</h3>
-            </div>
+            <h3 className="text-lg font-black uppercase text-foreground">Gallery</h3>
           </Card>
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
         </div>
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 overflow-hidden min-h-0">
-          <section className="flex flex-col h-full min-h-0">
-            <Card className="rounded-[1.5rem] border-none shadow-premium bg-white p-3 space-y-3 flex flex-col h-full overflow-hidden">
-              <div className="flex items-center justify-between shrink-0">
-                <Button variant="ghost" onClick={resetAll} className="h-7 px-3 text-[8px] font-black uppercase tracking-widest text-foreground opacity-60">
-                  <ChevronLeft className="w-3 h-3 mr-1" /> Back
-                </Button>
-                <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[6px] tracking-widest px-2 py-0.5 rounded-full border-none">
-                  {mode.toUpperCase()}
-                </Badge>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-hidden min-h-0">
+          <section className="flex flex-col h-full min-h-0 gap-3">
+            <Card className="rounded-[1.5rem] border-none shadow-premium bg-white p-3 flex-1 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between mb-2">
+                <Button variant="ghost" onClick={resetAll} className="h-7 px-3 text-[8px] font-black uppercase tracking-widest"><ChevronLeft className="w-3 h-3 mr-1" /> Back</Button>
+                <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[6px] px-2 py-0.5 rounded-full border-none">{mode.toUpperCase()}</Badge>
               </div>
-
-              <div className="relative border border-border/50 rounded-[1rem] bg-secondary/30 flex-1 flex flex-col items-center justify-center overflow-hidden shadow-inner min-h-0">
+              <div className="relative border border-border/50 rounded-[1rem] bg-secondary/30 flex-1 flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
-                {preview && (
-                  <div className="relative w-full h-full">
-                    <Image src={preview} alt="Meal" fill className="object-cover" />
-                    {!result && (
-                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-2 right-2 rounded-full bg-white shadow-premium h-7 w-7">
-                        <RefreshCw className="w-3 h-3 text-foreground" />
-                      </Button>
-                    )}
-                  </div>
-                )}
+                {preview && <Image src={preview} alt="Meal" fill className="object-cover" />}
               </div>
-              
-              <div className="shrink-0">
+              <div className="mt-3">
                 {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">CAPTURE</Button>}
-                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">{analyzing ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="w-3 h-3 mr-2" />}{analyzing ? "ANALYZING..." : "ANALYZE"}</Button>}
+                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">{analyzing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Sparkles className="w-3 h-3 mr-2" />}ANALYZE</Button>}
               </div>
             </Card>
           </section>
 
           <section className="flex flex-col h-full min-h-0">
             {result ? (
-              <Card className="rounded-[1.5rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full animate-in slide-in-from-right-4 duration-500">
+              <Card className="rounded-[1.5rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full">
                 <div className="p-4 flex flex-col h-full space-y-4 overflow-y-auto no-scrollbar">
-                  <div className="flex justify-between items-start border-b border-border pb-2 shrink-0">
-                    <div className="space-y-0 text-left">
-                      <h2 className="text-lg font-black tracking-tight leading-none uppercase text-foreground">{result.name}</h2>
-                      <p className="text-[7px] font-black uppercase text-foreground opacity-40">AI Analysis Complete</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[8px] ml-1 opacity-20">kcal</span></p>
-                    </div>
+                  <div className="flex justify-between items-start border-b border-border pb-2">
+                    <div className="text-left"><h2 className="text-lg font-black uppercase text-foreground">{result.name}</h2></div>
+                    <p className="text-2xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[8px] ml-1 opacity-20">kcal</span></p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 shrink-0">
-                    <div className="p-2 bg-primary/10 rounded-lg text-center border border-primary/5">
-                      <p className="text-[6px] font-black text-foreground opacity-40 uppercase">Protein</p>
-                      <p className="text-xs font-black text-foreground">{result.macros.protein}g</p>
-                    </div>
-                    <div className="p-2 bg-orange-50 rounded-lg text-center border border-orange-100/50">
-                      <p className="text-[6px] font-black text-foreground opacity-40 uppercase">Carbs</p>
-                      <p className="text-xs font-black text-foreground">{result.macros.carbs}g</p>
-                    </div>
-                    <div className="p-2 bg-accent/10 rounded-lg text-center border border-accent/5">
-                      <p className="text-[6px] font-black text-foreground opacity-40 uppercase">Fat</p>
-                      <p className="text-xs font-black text-foreground">{result.macros.fat}g</p>
-                    </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="p-2 bg-primary/10 rounded-lg text-center"><p className="text-[6px] font-black opacity-40 uppercase">Protein</p><p className="text-xs font-black">{result.macros.protein}g</p></div>
+                    <div className="p-2 bg-orange-50 rounded-lg text-center"><p className="text-[6px] font-black opacity-40 uppercase">Carbs</p><p className="text-xs font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-2 bg-accent/10 rounded-lg text-center"><p className="text-[6px] font-black opacity-40 uppercase">Fat</p><p className="text-xs font-black">{result.macros.fat}g</p></div>
                   </div>
 
                   {mode === "gallery" && (
-                    <div className="grid grid-cols-2 gap-2 p-3 bg-secondary/20 rounded-lg border border-border/50 shrink-0">
-                      <div className="space-y-0.5 text-left">
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-secondary/20 rounded-lg border border-border/50">
+                      <div className="space-y-1 text-left">
                         <label className="text-[6px] font-black uppercase opacity-40 flex items-center gap-1"><Calendar className="w-2 h-2" /> Date</label>
-                        <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 text-[8px] font-black rounded-md border-border bg-white" />
+                        <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 text-[8px] font-black bg-white" />
                       </div>
-                      <div className="space-y-0.5 text-left">
+                      <div className="space-y-1 text-left">
                         <label className="text-[6px] font-black uppercase opacity-40 flex items-center gap-1"><Clock className="w-2 h-2" /> Time</label>
-                        <Input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="h-7 text-[8px] font-black rounded-md border-border bg-white" />
+                        <Input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="h-7 text-[8px] font-black bg-white" />
                       </div>
                     </div>
                   )}
 
-                  <div className="flex-1 space-y-3">
-                    <section className="space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-foreground font-black text-[8px] uppercase tracking-widest text-left">
-                        <Sparkles className="w-3 h-3 text-primary" /> Expert Insight
-                      </div>
-                      <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-3 rounded-lg border border-primary/10 text-left italic">
-                        "{result.expertInsight}"
-                      </p>
-                    </section>
-                  </div>
+                  <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-3 rounded-lg border border-primary/10 text-left italic">"{result.expertInsight}"</p>
                   
-                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium shrink-0 uppercase tracking-widest active:scale-95 transition-all">
-                    LOG RECORD <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
+                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium uppercase tracking-widest mt-auto">LOG RECORD <ChevronRight className="w-4 h-4 ml-1" /></Button>
                 </div>
               </Card>
             ) : (
-              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[1.5rem] flex flex-col items-center justify-center p-6 text-center bg-white/50 shadow-inner">
+              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[1.5rem] flex flex-col items-center justify-center p-6 text-center bg-white/50">
                 <ScanSearch className="w-12 h-12 text-foreground opacity-10 mb-4" />
                 <p className="text-foreground font-black uppercase text-[9px] tracking-widest opacity-20">Awaiting Capture</p>
               </div>
@@ -346,7 +296,6 @@ export default function RecordPage() {
           </section>
         </div>
       )}
-
       <canvas ref={canvasRef} className="hidden" />
     </div>
   )
