@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -19,7 +20,8 @@ import {
   ChevronDown,
   ChevronUp,
   BarChart3,
-  CheckCircle2
+  CheckCircle2,
+  AlertTriangle
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
@@ -56,7 +58,6 @@ export default function Dashboard() {
   const [today, setToday] = useState<Date | null>(null)
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
   
-  // Eat Now Choice State
   const [isEatNowOpen, setIsEatNowOpen] = useState(false)
   const [selectedMealForEatNow, setSelectedMealForEatNow] = useState<any | null>(null)
 
@@ -117,6 +118,10 @@ export default function Dashboard() {
       };
     });
   }, [recentLogs, today]);
+
+  const hasChartData = useMemo(() => {
+    return chartData.some(d => d.protein > 0 || d.carbs > 0 || d.fat > 0);
+  }, [chartData]);
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = Math.max(0, Math.round(totals.calories))
@@ -206,7 +211,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-5 space-y-5">
+          <CardContent className="p-4 sm:p-5 space-y-4">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5 text-left">
                 <span className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-40">ENERGY BALANCE</span>
@@ -229,105 +234,107 @@ export default function Dashboard() {
             </div>
 
             <div className="space-y-3">
-              <div className="flex h-5 w-full rounded-2xl overflow-hidden bg-secondary shadow-inner border border-border/10">
+              <div className="flex h-4 w-full rounded-2xl overflow-hidden bg-secondary shadow-inner border border-border/10">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
-              <div className="grid grid-cols-3 text-[9px] font-black text-foreground uppercase tracking-widest gap-2">
+              <div className="grid grid-cols-3 text-[8px] font-black text-foreground uppercase tracking-widest gap-2">
                 <div className="space-y-0.5 text-left">
-                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
-                  <p className="text-lg font-black tracking-tight">{proteinPercent}%</p>
+                  <div className="flex items-center gap-1"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
+                  <p className="text-sm font-black tracking-tight">{proteinPercent}%</p>
                 </div>
                 <div className="space-y-0.5 text-center">
-                  <div className="flex items-center gap-1 justify-center"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /> CARBS</div>
-                  <p className="text-lg font-black tracking-tight">{carbsPercent}%</p>
+                  <div className="flex items-center gap-1 justify-center"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /> CARBS</div>
+                  <p className="text-sm font-black tracking-tight">{carbsPercent}%</p>
                 </div>
                 <div className="space-y-0.5 text-right">
-                  <div className="flex items-center gap-1 justify-end"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /> FAT</div>
-                  <p className="text-lg font-black tracking-tight">{fatPercent}%</p>
+                  <div className="flex items-center gap-1 justify-end"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /> FAT</div>
+                  <p className="text-sm font-black tracking-tight">{fatPercent}%</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-border/30 space-y-1.5">
-              <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
+            <div className="pt-3 border-t border-border/30 space-y-1">
+              <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest">
                 <span className="opacity-40">GOAL PROGRESS</span>
                 <span className={cn(isOverLimit ? "text-destructive" : "text-primary")}>{actualPercent}% CONSUMED</span>
               </div>
-              <Progress value={caloriePercentForProgress} className="h-2 rounded-full bg-secondary" indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} />
+              <Progress value={caloriePercentForProgress} className="h-1.5 rounded-full bg-secondary" indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} />
             </div>
           </CardContent>
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center">
-            <div className="p-1.5 bg-primary/20 rounded-xl mb-1.5 border border-primary/10">
-              <Flame className="w-4 h-4 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center">
+            <div className="p-1 bg-primary/20 rounded-lg mb-1 border border-primary/10">
+              <Flame className="w-3.5 h-3.5 text-foreground" />
             </div>
-            <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-            <p className="text-xl font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[10px] font-black opacity-20">kcal</span></p>
+            <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+            <p className="text-lg font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[9px] font-black opacity-20">kcal</span></p>
           </Card>
 
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center">
-            <div className="p-1.5 bg-accent/20 rounded-xl mb-1.5 border border-accent/10">
-              <Droplets className="w-4 h-4 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center">
+            <div className="p-1 bg-accent/20 rounded-lg mb-1 border border-accent/10">
+              <Droplets className="w-3.5 h-3.5 text-foreground" />
             </div>
-            <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
-            <div className="flex items-center gap-2.5">
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-7 w-7 rounded-full bg-secondary/80 border border-border/30">
-                <Minus className="w-3 h-3 text-foreground" />
+            <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-6 w-6 rounded-full bg-secondary/80 border border-border/30">
+                <Minus className="w-2.5 h-2.5 text-foreground" />
               </Button>
-              <span className="text-xl font-black tracking-tighter text-foreground">{water}L</span>
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm">
-                <Plus className="w-3 h-3 text-foreground" />
+              <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-6 w-6 rounded-full bg-primary text-primary-foreground shadow-sm">
+                <Plus className="w-2.5 h-2.5 text-foreground" />
               </Button>
             </div>
           </Card>
         </div>
       </div>
 
-      <section className="space-y-4 pt-4">
-        <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
-          <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
-        </h2>
-        <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-5 pt-10">
-            <div className="h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
-                  <Tooltip 
-                    cursor={{ fill: "hsl(var(--primary)/0.05)" }}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-3 border border-border shadow-xl rounded-2xl">
-                            <p className="font-black text-[9px] uppercase mb-1.5 border-b border-border pb-1">Daily Totals</p>
-                            {payload.map((entry, idx) => (
-                              <div key={idx} className="flex justify-between gap-4 text-[9px] font-black uppercase">
-                                <span style={{ color: entry.color }}>{entry.name}:</span>
-                                <span>{entry.value} kcal</span>
-                              </div>
-                            ))}
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
-                  <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
-                  <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
-                  <Bar dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+      {hasChartData && (
+        <section className="space-y-4 pt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
+            <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
+          </h2>
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
+            <CardContent className="p-5 pt-10">
+              <div className="h-[220px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
+                    <Tooltip 
+                      cursor={{ fill: "hsl(var(--primary)/0.05)" }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-3 border border-border shadow-xl rounded-2xl">
+                              <p className="font-black text-[9px] uppercase mb-1.5 border-b border-border pb-1">Daily Totals</p>
+                              {payload.map((entry, idx) => (
+                                <div key={idx} className="flex justify-between gap-4 text-[9px] font-black uppercase">
+                                  <span style={{ color: entry.color }}>{entry.name}:</span>
+                                  <span>{entry.value} kcal</span>
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
+                    <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
+                    <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
+                    <Bar dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       <section className="space-y-4 pt-4">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
@@ -370,7 +377,9 @@ export default function Dashboard() {
                           <div className="flex items-center gap-2">
                             <Button onClick={(e) => { e.stopPropagation(); handleEatNowClick(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all">EAT NOW</Button>
                             {meal.allergenWarning && (
-                              <Button variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="h-7 px-2.5 rounded-lg text-destructive font-black uppercase text-[7px] tracking-widest border border-destructive/20 hover:bg-destructive/5">DROP</Button>
+                              <Button variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="h-7 px-2.5 rounded-lg text-destructive font-black uppercase text-[7px] tracking-widest border border-destructive/20 hover:bg-destructive/5">
+                                <AlertTriangle className="w-3 h-3 mr-1" /> DROP
+                              </Button>
                             )}
                           </div>
                         )}
@@ -400,7 +409,6 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Eat Now Choice Dialog */}
       <Dialog open={isEatNowOpen} onOpenChange={setIsEatNowOpen}>
         <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden">
           <DialogHeader className="p-8 bg-primary rounded-t-[2.5rem] text-center">

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -149,7 +150,6 @@ export default function MealPlannerPage() {
       let instructions: string[] = []
       let allergenWarning = ""
 
-      // Use AI analysis for new meals
       if (!editingMealId) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 

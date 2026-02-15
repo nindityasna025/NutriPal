@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -197,11 +198,9 @@ export default function RecordPage() {
     };
 
     if (updateId) {
-      // Update existing meal
       const existingMealRef = doc(firestore, "users", user.uid, "dailyLogs", dateId, "meals", updateId);
       await updateDoc(existingMealRef, mealData);
       
-      // Update daily logs aggregates
       await setDoc(dailyLogRef, { 
         date: dateId, 
         caloriesConsumed: increment(result.calories),
@@ -212,7 +211,6 @@ export default function RecordPage() {
 
       toast({ title: "Meal Updated", description: `${result.name} recorded with photo.` })
     } else {
-      // Create new meal
       const newMealRef = doc(collection(dailyLogRef, "meals"))
       await setDoc(dailyLogRef, { 
         date: dateId, 
