@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -262,6 +261,23 @@ export default function MealPlannerPage() {
       instructions: meal.instructions || [],
       allergenWarning: meal.allergenWarning
     })
+  }
+
+  const markAsConsumed = (recipe: any) => {
+    if (!user || !mealsColRef || !dailyLogRef) return
+    
+    updateDocumentNonBlocking(doc(mealsColRef, recipe.id), { status: 'consumed', updatedAt: serverTimestamp() });
+    
+    setDocumentNonBlocking(dailyLogRef, {
+      date: dateId,
+      caloriesConsumed: increment(recipe.calories),
+      proteinTotal: increment(recipe.macros?.protein || 0),
+      carbsTotal: increment(recipe.macros?.carbs || 0),
+      fatTotal: increment(recipe.macros?.fat || 0)
+    }, { merge: true });
+    
+    setIsRecipeDialogOpen(false);
+    toast({ title: "Bon Appétit!", description: "Meal marked as consumed." });
   }
 
   if (!mounted || !date) return null

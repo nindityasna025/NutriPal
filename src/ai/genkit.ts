@@ -1,4 +1,3 @@
-
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
@@ -22,6 +21,7 @@ export const ai = genkit({
 
 /**
  * Wrapper function to execute AI commands with key rotation mechanism.
+ * Catch 429 Quota errors and retry with the next key in the pool.
  */
 export async function executeWithRotation(fn: (aiInstance: any) => Promise<any>) {
   let lastError: any = null;
@@ -41,12 +41,14 @@ export async function executeWithRotation(fn: (aiInstance: any) => Promise<any>)
       const isRateLimit = errorMessage.includes('429') || 
                           errorMessage.includes('quota') || 
                           errorMessage.includes('rate limit') ||
-                          error.status === 429;
+                          error.status === 429 ||
+                          (error as any).code === 429;
 
       if (isRateLimit && i < GEMINI_KEYS.length - 1) {
         console.warn(`Key ${i + 1} rate limited. Rotating to key ${i + 2}...`);
         continue;
       }
+      // If it's the last key or not a rate limit, throw the error
       throw error;
     }
   }

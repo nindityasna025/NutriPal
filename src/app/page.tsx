@@ -232,7 +232,7 @@ export default function Dashboard() {
                     <Info className="w-3.5 h-3.5" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white">
+                <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white md:left-[calc(50%+8rem)]">
                   <p className="text-[10px] font-black uppercase tracking-widest mb-2">Macro Distribution</p>
                   <p className="text-xs font-medium text-muted-foreground">Optimal balance: 30% Protein, 40% Carbs, 30% Fat.</p>
                 </PopoverContent>
@@ -427,7 +427,7 @@ export default function Dashboard() {
                             <p className="text-[7px] font-black uppercase text-foreground opacity-40 flex items-center gap-1">
                               <Sparkles className="w-2.5 h-2.5" /> AI Expert Insight
                             </p>
-                            <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-80 italic">
+                            <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-80 italic text-left">
                               "{meal.expertInsight}"
                             </p>
                           </div>
@@ -480,7 +480,7 @@ export default function Dashboard() {
       </div>
 
       <Dialog open={isEatNowOpen} onOpenChange={setIsEatNowOpen}>
-        <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden">
+        <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden md:left-[calc(50%+8rem)]">
           <DialogHeader className="p-8 bg-primary rounded-t-[2.5rem] text-center">
             <DialogTitle className="text-xl font-black uppercase tracking-tight text-foreground">Record Consumption</DialogTitle>
           </DialogHeader>
