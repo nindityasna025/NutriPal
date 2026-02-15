@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { 
   Camera, 
   Sparkles, 
@@ -20,7 +19,7 @@ import {
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
-import { format, parseISO } from "date-fns"
+import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
@@ -319,6 +318,7 @@ export default function RecordPage() {
                     </div>
                   </div>
 
+                  {/* Mode-specific Date/Time selector for Gallery */}
                   {mode === "gallery" && (
                     <div className="grid grid-cols-2 gap-3 p-4 bg-secondary/20 rounded-xl border border-border/50 shrink-0">
                       <div className="space-y-1">
@@ -362,4 +362,3 @@ export default function RecordPage() {
     </div>
   )
 }
-
