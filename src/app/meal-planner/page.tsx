@@ -150,10 +150,11 @@ export default function MealPlannerPage() {
       let instructions: string[] = []
       let allergenWarning = ""
 
+      // Automated AI Analysis for New Meals
       if (!editingMealId) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
-          userGoal: "Maintenance",
+          userGoal: (profile?.bmiCategory === 'Overweight' || profile?.bmiCategory === 'Obese') ? "Weight Loss" : (profile?.bmiCategory === 'Underweight' ? "Weight Gain" : "Maintenance"),
           userAllergies: profile?.allergies,
           userRestrictions: profile?.dietaryRestrictions
         });
@@ -202,7 +203,7 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Action Failed", description: "AI analysis unavailable. Try again later." });
+      toast({ variant: "destructive", title: "Action Failed", description: "AI analysis unavailable. Try зagain later." });
     } finally {
       setIsSaving(false);
     }
@@ -351,10 +352,10 @@ export default function MealPlannerPage() {
                 <Card key={meal.id} className="border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden hover:shadow-premium-lg transition-all group">
                   <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 flex-1 w-full text-left">
-                      <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block">
+                      <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block text-center">
                         <p className="text-lg font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                       </div>
-                      <div className="space-y-1 flex-1">
+                      <div className="space-y-1 flex-1 text-left">
                         <div className="flex items-center gap-2">
                           <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">{meal.name}</h3>
                           {meal.status === 'consumed' && (

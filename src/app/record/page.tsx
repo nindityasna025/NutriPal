@@ -230,7 +230,7 @@ export default function RecordPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-3 space-y-3 h-[100dvh] flex flex-col overflow-hidden">
+    <div className="max-w-4xl mx-auto px-4 py-3 space-y-3 h-[100dvh] flex flex-col overflow-hidden animate-in fade-in duration-500">
       <header className="space-y-0.5 text-center shrink-0">
         <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase leading-tight">
           {updateId ? "Update Photo" : "Snap Meal"}
@@ -241,16 +241,16 @@ export default function RecordPage() {
       {mode === "choice" && !preview && (
         <div className="grid grid-cols-2 gap-3 flex-1 items-center max-w-xl mx-auto w-full">
           <Card onClick={startCamera} className="rounded-[2rem] border-none shadow-premium bg-white cursor-pointer group p-6 flex flex-col items-center gap-4 active:scale-95 transition-all">
-            <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
-              <Camera className="w-7 h-7 text-foreground" strokeWidth={2.5} />
+            <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform border border-primary/10">
+              <Camera className="w-8 h-8 text-foreground" strokeWidth={2.5} />
             </div>
-            <h3 className="text-base font-black uppercase text-foreground">Camera</h3>
+            <h3 className="text-sm font-black uppercase text-foreground">Camera</h3>
           </Card>
           <Card onClick={() => fileInputRef.current?.click()} className="rounded-[2rem] border-none shadow-premium bg-white cursor-pointer group p-6 flex flex-col items-center gap-4 active:scale-95 transition-all">
-            <div className="w-14 h-14 bg-accent/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform">
-              <ImageIcon className="w-7 h-7 text-foreground" strokeWidth={2.5} />
+            <div className="w-14 h-14 bg-accent/20 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform border border-accent/10">
+              <ImageIcon className="w-8 h-8 text-foreground" strokeWidth={2.5} />
             </div>
-            <h3 className="text-base font-black uppercase text-foreground">Gallery</h3>
+            <h3 className="text-sm font-black uppercase text-foreground">Gallery</h3>
           </Card>
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
         </div>
@@ -259,18 +259,18 @@ export default function RecordPage() {
       {(mode !== "choice" || preview) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 overflow-hidden min-h-0">
           <section className="flex flex-col h-full min-h-0 gap-2">
-            <Card className="rounded-[1.25rem] border-none shadow-premium bg-white p-2 flex-1 flex flex-col overflow-hidden">
+            <Card className="rounded-[1.25rem] border-none shadow-premium bg-white p-2.5 flex-1 flex flex-col overflow-hidden">
               <div className="flex items-center justify-between mb-1.5">
-                <Button variant="ghost" onClick={resetAll} className="h-6 px-2 text-[7px] font-black uppercase tracking-widest"><ChevronLeft className="w-2.5 h-2.5 mr-1" /> Back</Button>
-                <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[5px] px-1.5 py-0.5 rounded-full border-none">{mode.toUpperCase()}</Badge>
+                <Button variant="ghost" onClick={resetAll} className="h-7 px-2.5 text-[8px] font-black uppercase tracking-widest"><ChevronLeft className="w-3 h-3 mr-1" /> Back</Button>
+                <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[6px] px-2 py-0.5 rounded-full border-none">{mode.toUpperCase()}</Badge>
               </div>
-              <div className="relative border border-border/50 rounded-[0.75rem] bg-secondary/30 flex-1 flex flex-col items-center justify-center overflow-hidden shadow-inner">
+              <div className="relative border border-border/50 rounded-[1rem] bg-secondary/30 flex-1 flex flex-col items-center justify-center overflow-hidden shadow-inner">
                 {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
                 {preview && <Image src={preview} alt="Meal" fill className="object-cover" />}
               </div>
-              <div className="mt-2">
-                {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-9 rounded-xl font-black text-[8px] uppercase tracking-widest bg-primary text-foreground border-none">CAPTURE</Button>}
-                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-9 rounded-xl font-black text-[8px] uppercase tracking-widest bg-primary text-foreground border-none">{analyzing ? <Loader2 className="animate-spin h-3 w-3 mr-1.5" /> : <Sparkles className="w-2.5 h-2.5 mr-1.5" />}ANALYZE</Button>}
+              <div className="mt-2.5">
+                {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none shadow-sm">CAPTURE PHOTO</Button>}
+                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none shadow-sm">{analyzing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}ANALYZE MEAL</Button>}
               </div>
             </Card>
           </section>
@@ -278,40 +278,40 @@ export default function RecordPage() {
           <section className="flex flex-col h-full min-h-0">
             {result ? (
               <Card className="rounded-[1.25rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full">
-                <div className="p-3.5 flex flex-col h-full space-y-3.5 overflow-y-auto no-scrollbar">
-                  <div className="flex justify-between items-start border-b border-border pb-1.5">
+                <div className="p-4 flex flex-col h-full space-y-4 overflow-y-auto no-scrollbar">
+                  <div className="flex justify-between items-start border-b border-border/50 pb-2">
                     <div className="text-left"><h2 className="text-base font-black uppercase text-foreground leading-tight">{result.name}</h2></div>
-                    <p className="text-xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[7px] ml-0.5 opacity-20 uppercase">kcal</span></p>
+                    <p className="text-2xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[8px] ml-0.5 opacity-20 uppercase">kcal</span></p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <div className="p-1.5 bg-primary/10 rounded-lg text-center text-left"><p className="text-[5px] font-black opacity-40 uppercase">Protein</p><p className="text-xs font-black">{result.macros.protein}g</p></div>
-                    <div className="p-1.5 bg-orange-50 rounded-lg text-center text-left"><p className="text-[5px] font-black opacity-40 uppercase">Carbs</p><p className="text-xs font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-1.5 bg-accent/10 rounded-lg text-center text-left"><p className="text-[5px] font-black opacity-40 uppercase">Fat</p><p className="text-xs font-black">{result.macros.fat}g</p></div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="p-2 bg-primary/10 rounded-xl text-center"><p className="text-[6px] font-black opacity-40 uppercase">Protein</p><p className="text-sm font-black">{(result.macros as any).protein}g</p></div>
+                    <div className="p-2 bg-orange-50 rounded-xl text-center"><p className="text-[6px] font-black opacity-40 uppercase">Carbs</p><p className="text-sm font-black">{(result.macros as any).carbs}g</p></div>
+                    <div className="p-2 bg-accent/10 rounded-xl text-center"><p className="text-[6px] font-black opacity-40 uppercase">Fat</p><p className="text-sm font-black">{(result.macros as any).fat}g</p></div>
                   </div>
 
                   {mode === "gallery" && (
-                    <div className="grid grid-cols-2 gap-1.5 p-2.5 bg-secondary/20 rounded-lg border border-border/50">
-                      <div className="space-y-0.5 text-left">
-                        <label className="text-[5px] font-black uppercase opacity-40 flex items-center gap-1"><Calendar className="w-2 h-2" /> Date</label>
-                        <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-6 text-[7px] font-black bg-white rounded-lg border-none" />
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-secondary/20 rounded-xl border border-border/50">
+                      <div className="space-y-1 text-left">
+                        <label className="text-[6px] font-black uppercase opacity-40 flex items-center gap-1.5"><Calendar className="w-3 h-3" /> Date</label>
+                        <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 text-[8px] font-black bg-white rounded-lg border-none focus-visible:ring-1" />
                       </div>
-                      <div className="space-y-0.5 text-left">
-                        <label className="text-[5px] font-black uppercase opacity-40 flex items-center gap-1"><Clock className="w-2 h-2" /> Time</label>
-                        <Input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="h-6 text-[7px] font-black bg-white rounded-lg border-none" />
+                      <div className="space-y-1 text-left">
+                        <label className="text-[6px] font-black uppercase opacity-40 flex items-center gap-1.5"><Clock className="w-3 h-3" /> Time</label>
+                        <Input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="h-7 text-[8px] font-black bg-white rounded-lg border-none focus-visible:ring-1" />
                       </div>
                     </div>
                   )}
 
-                  <p className="text-[9px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-2.5 rounded-lg border border-primary/10 text-left italic">"{result.expertInsight}"</p>
+                  <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-3 rounded-xl border border-primary/10 text-left italic">"{result.expertInsight}"</p>
                   
-                  <Button onClick={handleSave} className="w-full h-11 rounded-xl font-black text-[9px] bg-foreground text-white shadow-premium uppercase tracking-widest mt-auto">SYNC TO DAILY RECORD <ChevronRight className="w-3 h-3 ml-0.5" /></Button>
+                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium-lg uppercase tracking-widest mt-auto transition-transform active:scale-95">SYNC TO DAILY RECORD <ChevronRight className="w-3 h-3 ml-1" /></Button>
                 </div>
               </Card>
             ) : (
-              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[1.25rem] flex flex-col items-center justify-center p-4 text-center bg-white/50">
-                <ScanSearch className="w-10 h-10 text-foreground opacity-10 mb-3" />
-                <p className="text-foreground font-black uppercase text-[8px] tracking-widest opacity-20">Awaiting Capture</p>
+              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[1.25rem] flex flex-col items-center justify-center p-6 text-center bg-white/50">
+                <ScanSearch className="w-12 h-12 text-foreground opacity-10 mb-4" />
+                <p className="text-foreground font-black uppercase text-[9px] tracking-widest opacity-20">Awaiting Capture</p>
               </div>
             )}
           </section>

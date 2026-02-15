@@ -120,6 +120,8 @@ export default function Dashboard() {
   }, [recentLogs, today]);
 
   const hasChartData = useMemo(() => {
+    if (!chartData || chartData.length === 0) return false;
+    // Strict rule: hide if all macros for all 7 days are zero
     return chartData.some(d => d.protein > 0 || d.carbs > 0 || d.fat > 0);
   }, [chartData]);
 
@@ -201,7 +203,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 space-y-4 pb-24 min-h-screen">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 space-y-4 pb-24 min-h-screen animate-in fade-in duration-700">
       <header className="space-y-1 pt-safe md:pt-4 text-center">
         <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Today</h1>
         <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">
@@ -211,7 +213,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-4 sm:p-5 space-y-4">
+          <CardContent className="p-4 sm:p-5 space-y-3">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5 text-left">
                 <span className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-40">ENERGY BALANCE</span>
@@ -241,21 +243,21 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-3 text-[8px] font-black text-foreground uppercase tracking-widest gap-2">
                 <div className="space-y-0.5 text-left">
-                  <div className="flex items-center gap-1"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
+                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
                   <p className="text-sm font-black tracking-tight">{proteinPercent}%</p>
                 </div>
                 <div className="space-y-0.5 text-center">
-                  <div className="flex items-center gap-1 justify-center"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /> CARBS</div>
+                  <div className="flex items-center gap-1 justify-center"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /> CARBS</div>
                   <p className="text-sm font-black tracking-tight">{carbsPercent}%</p>
                 </div>
                 <div className="space-y-0.5 text-right">
-                  <div className="flex items-center gap-1 justify-end"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /> FAT</div>
+                  <div className="flex items-center gap-1 justify-end"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /> FAT</div>
                   <p className="text-sm font-black tracking-tight">{fatPercent}%</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-border/30 space-y-1">
+            <div className="pt-2.5 border-t border-border/30 space-y-1">
               <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest">
                 <span className="opacity-40">GOAL PROGRESS</span>
                 <span className={cn(isOverLimit ? "text-destructive" : "text-primary")}>{actualPercent}% CONSUMED</span>
@@ -267,25 +269,25 @@ export default function Dashboard() {
 
         <div className="md:col-span-5 flex flex-col gap-3">
           <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center">
-            <div className="p-1 bg-primary/20 rounded-lg mb-1 border border-primary/10">
-              <Flame className="w-3.5 h-3.5 text-foreground" />
+            <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
+              <Flame className="w-4 h-4 text-foreground" />
             </div>
             <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
             <p className="text-lg font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[9px] font-black opacity-20">kcal</span></p>
           </Card>
 
           <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center">
-            <div className="p-1 bg-accent/20 rounded-lg mb-1 border border-accent/10">
-              <Droplets className="w-3.5 h-3.5 text-foreground" />
+            <div className="p-1.5 bg-accent/20 rounded-lg mb-1 border border-accent/10">
+              <Droplets className="w-4 h-4 text-foreground" />
             </div>
             <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-6 w-6 rounded-full bg-secondary/80 border border-border/30">
-                <Minus className="w-2.5 h-2.5 text-foreground" />
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-7 w-7 rounded-full bg-secondary/80 border border-border/30 active:scale-90 transition-all">
+                <Minus className="w-3 h-3 text-foreground" />
               </Button>
               <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-6 w-6 rounded-full bg-primary text-primary-foreground shadow-sm">
-                <Plus className="w-2.5 h-2.5 text-foreground" />
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90 transition-all">
+                <Plus className="w-3 h-3 text-foreground" />
               </Button>
             </div>
           </Card>
@@ -293,13 +295,13 @@ export default function Dashboard() {
       </div>
 
       {hasChartData && (
-        <section className="space-y-4 pt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <section className="space-y-3 pt-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
             <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
           </h2>
           <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
             <CardContent className="p-5 pt-10">
-              <div className="h-[220px] w-full">
+              <div className="h-[200px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
@@ -336,7 +338,7 @@ export default function Dashboard() {
         </section>
       )}
 
-      <section className="space-y-4 pt-4">
+      <section className="space-y-3 pt-3">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
           <Utensils className="w-6 h-6 text-foreground opacity-80" /> Daily Food Record
         </h2>
@@ -349,7 +351,7 @@ export default function Dashboard() {
                   <CardContent className="p-0 text-left">
                     <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4 flex-1 w-full text-left">
-                        <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block">
+                        <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block text-center">
                           <p className="text-lg font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                         </div>
                         {meal.imageUrl && (
@@ -375,7 +377,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2 shrink-0">
                         {meal.status !== 'consumed' && (
                           <div className="flex items-center gap-2">
-                            <Button onClick={(e) => { e.stopPropagation(); handleEatNowClick(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all">EAT NOW</Button>
+                            <Button onClick={(e) => { e.stopPropagation(); handleEatNowClick(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all shadow-sm">EAT NOW</Button>
                             {meal.allergenWarning && (
                               <Button variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="h-7 px-2.5 rounded-lg text-destructive font-black uppercase text-[7px] tracking-widest border border-destructive/20 hover:bg-destructive/5">
                                 <AlertTriangle className="w-3 h-3 mr-1" /> DROP
@@ -399,13 +401,13 @@ export default function Dashboard() {
       </section>
 
       <div className="grid grid-cols-2 gap-4 pt-4">
-        <Button onClick={() => router.push("/record")} className="h-16 rounded-[1.5rem] flex flex-col gap-1.5 bg-primary text-foreground shadow-premium-lg hover:opacity-95 border-none">
-          <Camera className="w-4 h-4" strokeWidth={2.5} />
-          <span className="font-black text-[8px] uppercase tracking-widest">Snap Analysis</span>
+        <Button onClick={() => router.push("/record")} className="h-16 rounded-[1.5rem] flex flex-col gap-1.5 bg-primary text-foreground shadow-premium-lg hover:opacity-95 border-none transition-transform active:scale-95">
+          <Camera className="w-5 h-5" strokeWidth={2.5} />
+          <span className="font-black text-[9px] uppercase tracking-widest">Snap Analysis</span>
         </Button>
-        <Button variant="secondary" onClick={() => router.push("/meal-planner")} className="h-16 rounded-[1.5rem] flex flex-col gap-1.5 bg-white text-foreground border-2 border-border shadow-premium">
-          <Utensils className="w-4 h-4 opacity-60" strokeWidth={2.5} />
-          <span className="font-black text-[8px] uppercase tracking-widest">Meal Planner</span>
+        <Button variant="secondary" onClick={() => router.push("/meal-planner")} className="h-16 rounded-[1.5rem] flex flex-col gap-1.5 bg-white text-foreground border-2 border-border shadow-premium transition-transform active:scale-95">
+          <Utensils className="w-5 h-5 opacity-60" strokeWidth={2.5} />
+          <span className="font-black text-[9px] uppercase tracking-widest">Meal Planner</span>
         </Button>
       </div>
 
