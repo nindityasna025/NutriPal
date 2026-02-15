@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { 
   Dialog, 
+  DialogTrigger,
   DialogContent, 
   DialogHeader, 
   DialogTitle,
@@ -112,7 +113,7 @@ export default function ExplorePage() {
     dinner: false
   })
   
-  const [targetDate, setTargetDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
+  const [targetDate, setTargetDate] = useState<string>(format(addDays(new Date(), 1), "yyyy-MM-dd"))
   
   const [loadingRecipeGen, setLoadingRecipeGen] = useState(false)
   const [recipeGenResult, setRecipeGenResult] = useState<any | null>(null)
@@ -394,7 +395,7 @@ export default function ExplorePage() {
       description: 'Neural recommendation engine for platform ecosystem matching.',
       icon: Cpu,
       color: 'primary',
-      action: () => setIsDeliveryOpen(true),
+      action: () => { setIsDeliveryOpen(true); handleCurateDelivery() },
       buttonText: 'Execute Scorer',
       show: true
     },
@@ -404,7 +405,7 @@ export default function ExplorePage() {
       description: 'Synthesize daily nutritional path using predictive models.',
       icon: Sparkles,
       color: 'accent',
-      action: () => setIsMenuOpen(true),
+      action: () => { setIsMenuOpen(true); handleGenerateMenu(false) },
       buttonText: 'Synthesize Path',
       show: true
     },
@@ -422,40 +423,40 @@ export default function ExplorePage() {
 
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-8 pb-24 min-h-screen text-center">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-4 pb-24 min-h-screen text-center">
       <header className="space-y-1 pt-safe text-center">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 max-w-4xl mx-auto">
         {featureCards.map(card => (
            <Dialog key={card.id}>
              <DialogTrigger asChild>
-                <Card className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-6 flex flex-col items-center justify-between text-center space-y-4 active:scale-[0.98]">
+                <Card className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-5 flex flex-col items-center justify-between text-center space-y-3 active:scale-[0.98]">
                   <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
+                    "w-14 h-14 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
                     card.color === 'primary' && 'bg-primary/10 border-primary/20',
                     card.color === 'accent' && 'bg-accent/10 border-accent/20',
                     card.color === 'blue' && 'bg-blue-100 border-blue-200',
                     card.color === 'destructive' && 'bg-destructive/5 border-destructive/10',
                   )}>
                     <card.icon className={cn(
-                      "w-8 h-8",
+                      "w-7 h-7",
                       card.color === 'primary' && 'text-primary',
                       card.color === 'accent' && 'text-accent-foreground',
                       card.color === 'blue' && 'text-blue-600',
                       card.color === 'destructive' && 'text-destructive',
                     )} />
                   </div>
-                  <div className="space-y-2 text-center flex-1">
-                    <h3 className="text-lg font-black tracking-tighter uppercase text-foreground">{card.title}</h3>
-                    <p className="text-foreground/60 font-bold text-[10px] leading-snug max-w-xs uppercase tracking-widest">
+                  <div className="space-y-1 text-center flex-1">
+                    <h3 className="text-base font-black tracking-tighter uppercase text-foreground">{card.title}</h3>
+                    <p className="text-foreground/60 font-bold text-[9px] leading-snug max-w-xs uppercase tracking-widest">
                       {card.description}
                     </p>
                   </div>
                   <Button onClick={card.action} variant={card.color === 'destructive' ? 'destructive' : card.color === 'blue' ? 'default' : 'secondary'} className={cn(
-                    "w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] border-none",
+                    "w-full h-10 rounded-xl font-black uppercase tracking-widest text-[9px] border-none",
                     card.color === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white'
                   )}>
                     {card.buttonText}
@@ -466,13 +467,12 @@ export default function ExplorePage() {
         ))}
 
         <Dialog open={isDeliveryOpen} onOpenChange={setIsDeliveryOpen}>
-          <DialogTrigger onClick={handleCurateDelivery} className="hidden"/>
-          <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center border-b">
-              <DialogTitle className="text-2xl">ML Delivery Hub</DialogTitle>
+          <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogHeader className="p-8 text-center">
+              <DialogTitle className="text-2xl">NutriPal V1: ML Delivery Hub</DialogTitle>
               <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
             </DialogHeader>
-            <div className="p-8 overflow-y-auto flex-1">
+            <div className="p-8 pt-0 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
@@ -540,19 +540,18 @@ export default function ExplorePage() {
         </Dialog>
 
         <Dialog open={isMenuOpen || isRecoveryOpen} onOpenChange={isMenuOpen ? setIsMenuOpen : setIsRecoveryOpen}>
-          <DialogTrigger className="hidden"/>
           <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center border-b">
-                <DialogTitle className="text-2xl">{isRecoveryOpen ? 'Recovery Plan' : 'Predictive Meal Plan'}</DialogTitle>
+            <DialogHeader className="p-8 text-center">
+                <DialogTitle className="text-2xl">{isRecoveryOpen ? 'Recovery Plan Synthesis' : 'NutriPal V1: Predictive Synthesis'}</DialogTitle>
                 <div className="text-sm text-muted-foreground font-bold flex items-center justify-center gap-4">
                   <span>A full day's meal plan synthesized by AI based on your profile.</span>
-                  <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
-                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                    <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
-                  </div>
+                   <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
+                     <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                     <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
+                   </div>
                 </div>
             </DialogHeader>
-            <div className="p-8 overflow-y-auto flex-1">
+            <div className="p-8 pt-0 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
@@ -621,7 +620,7 @@ export default function ExplorePage() {
                 })}
               </div>
             </div>
-             <DialogFooter className="p-6 border-t bg-background rounded-b-[2.5rem]">
+             <DialogFooter className="p-6 bg-background rounded-b-[2.5rem]">
                 <Button variant="ghost" onClick={isMenuOpen ? () => setIsMenuOpen(false) : () => setIsRecoveryOpen(false)}>Cancel</Button>
                 {menuPlan && !loading && (
                   <Button onClick={() => handleAddAll(isRecoveryOpen)}>
@@ -633,13 +632,12 @@ export default function ExplorePage() {
         </Dialog>
 
         <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
-           <DialogTrigger className="hidden"/>
-          <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center border-b">
+          <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogHeader className="p-8 text-center">
               <DialogTitle className="text-2xl">Recipe From Pantry</DialogTitle>
                <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
             </DialogHeader>
-            <div className="p-8 overflow-y-auto flex-1">
+            <div className="p-8 pt-0 overflow-y-auto flex-1">
               {loadingRecipeGen ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
                   <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -715,5 +713,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-
-    
