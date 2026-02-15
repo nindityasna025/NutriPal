@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -111,7 +112,6 @@ export default function ExplorePage() {
   
   const [loadingRecipeGen, setLoadingRecipeGen] = useState(false)
   const [recipeGenResult, setRecipeGenResult] = useState<any | null>(null)
-  const [dietaryNeeds, setDietaryNeeds] = useState("")
   const [availableIngredients, setAvailableIngredients] = useState("")
 
   const { user } = useUser()
@@ -175,7 +175,7 @@ export default function ExplorePage() {
     setRecipeGenResult(null)
     try {
         const result = await personalizedDietPlans({
-            dietaryNeeds: dietaryNeeds || profile?.dietaryRestrictions?.join(", ") || "No specific needs",
+            dietaryNeeds: profile?.dietaryRestrictions?.join(", ") || "No specific needs",
             availableIngredients,
         });
         setRecipeGenResult(result);
@@ -475,7 +475,7 @@ export default function ExplorePage() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setDietaryNeeds(''); setAvailableIngredients('') } }}>
+        <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
               <div className="w-24 h-24 bg-blue-100 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-blue-200/50">
@@ -534,16 +534,6 @@ export default function ExplorePage() {
                 </div>
               ) : (
                 <div className="space-y-6 text-left">
-                    <div className="space-y-2">
-                        <Label htmlFor="needs-pantry" className="text-[10px] font-black uppercase tracking-widest ml-1">Dietary Needs (Optional)</Label>
-                        <Input 
-                          id="needs-pantry"
-                          placeholder="e.g. Vegetarian, Gluten-free..."
-                          value={dietaryNeeds}
-                          onChange={(e) => setDietaryNeeds(e.target.value)}
-                          className="rounded-2xl h-14 border-2 border-border focus:border-blue-600 font-bold"
-                        />
-                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="ingredients-pantry" className="text-[10px] font-black uppercase tracking-widest ml-1">What's in your pantry?</Label>
                         <Textarea 
