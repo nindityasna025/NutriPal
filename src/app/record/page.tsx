@@ -14,10 +14,11 @@ import {
   ImageIcon,
   Calendar,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  CheckCircle2
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
-import { doc, setDoc, increment, collection, serverTimestamp, updateDoc } from "firebase/firestore"
+import { doc, setDoc, increment, collection, serverTimestamp, updateDoc, getDoc } from "firebase/firestore"
 import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
@@ -36,6 +37,7 @@ export default function RecordPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [existingMeal, setExistingMeal] = useState<any | null>(null)
   
   const [selectedDate, setSelectedDate] = useState(paramDateId || format(new Date(), "yyyy-MM-dd"))
   const [selectedTime, setSelectedTime] = useState(format(new Date(), "HH:mm"))
@@ -53,10 +55,20 @@ export default function RecordPage() {
 
   useEffect(() => {
     setMounted(true)
-    if (updateId) {
+    if (updateId && paramDateId && user) {
+      fetchExistingMeal()
+    }
+  }, [updateId, paramDateId, user])
+
+  const fetchExistingMeal = async () => {
+    if (!user || !updateId || !paramDateId) return
+    const mealRef = doc(firestore, "users", user.uid, "dailyLogs", paramDateId, "meals", updateId)
+    const snap = await getDoc(mealRef)
+    if (snap.exists()) {
+      setExistingMeal(snap.data())
       startCamera()
     }
-  }, [updateId])
+  }
 
   const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800): Promise<string> => {
     return new Promise((resolve) => {
@@ -172,8 +184,11 @@ export default function RecordPage() {
   }
 
   const handleSave = async () => {
-    if (!user || !result || !mounted || !preview) return
+    if (!user || !mounted || !preview) return
     
+    // If not updateId, we MUST have a result from AI
+    if (!updateId && !result) return
+
     let dateId = paramDateId || selectedDate || format(new Date(), "yyyy-MM-dd")
     let timeStr = format(new Date(), "hh:mm a").toUpperCase()
     
@@ -187,37 +202,67 @@ export default function RecordPage() {
     
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     
-    const mealData = {
-      name: result.name,
-      calories: result.calories,
-      time: timeStr,
-      source: mode === "camera" ? "photo" : "gallery",
-      macros: result.macros,
-      healthScore: result.healthScore,
-      description: result.description,
-      ingredients: result.ingredients,
-      expertInsight: result.expertInsight,
-      allergenWarning: result.allergenWarning || "",
-      status: "consumed" as const,
-      imageUrl: preview, 
-      updatedAt: serverTimestamp()
-    };
-
     if (updateId) {
+      // Flow for updating existing meal (Eat Now with Photo)
+      // Skip AI analysis if requested, use existing metadata
       const existingMealRef = doc(firestore, "users", user.uid, "dailyLogs", dateId, "meals", updateId);
-      await updateDoc(existingMealRef, mealData);
       
+      const updateData: any = {
+        imageUrl: preview,
+        status: "consumed" as const,
+        updatedAt: serverTimestamp()
+      };
+
+      // If we DID happen to run analysis, update the metadata too
+      if (result) {
+        updateData.calories = result.calories;
+        updateData.macros = result.macros;
+        updateData.healthScore = result.healthScore;
+        updateData.expertInsight = result.expertInsight;
+        updateData.ingredients = result.ingredients;
+        updateData.allergenWarning = result.allergenWarning || "";
+        updateData.name = result.name;
+      }
+
+      await updateDoc(existingMealRef, updateData);
+      
+      // Update Daily Log Totals
+      const calToInc = result ? result.calories : (existingMeal?.calories || 0);
+      const protToInc = result ? result.macros.protein : (existingMeal?.macros?.protein || 0);
+      const carbToInc = result ? result.macros.carbs : (existingMeal?.macros?.carbs || 0);
+      const fatToInc = result ? result.macros.fat : (existingMeal?.macros?.fat || 0);
+
       await setDoc(dailyLogRef, { 
         date: dateId, 
-        caloriesConsumed: increment(result.calories),
-        proteinTotal: increment(result.macros.protein),
-        carbsTotal: increment(result.macros.carbs),
-        fatTotal: increment(result.macros.fat)
+        caloriesConsumed: increment(calToInc),
+        proteinTotal: increment(protToInc),
+        carbsTotal: increment(carbToInc),
+        fatTotal: increment(fatToInc)
       }, { merge: true });
 
-      toast({ title: "Meal Updated", description: `${result.name} recorded with photo.` })
+      toast({ title: "Meal Updated", description: `Record synced with photo.` })
     } else {
+      // Standard Record Flow (New meal from camera/gallery)
+      if (!result) return;
       const newMealRef = doc(collection(dailyLogRef, "meals"))
+      
+      const mealData = {
+        name: result.name,
+        calories: result.calories,
+        time: timeStr,
+        source: mode === "camera" ? "photo" : "gallery",
+        macros: result.macros,
+        healthScore: result.healthScore,
+        description: result.description,
+        ingredients: result.ingredients,
+        expertInsight: result.expertInsight,
+        allergenWarning: result.allergenWarning || "",
+        status: "consumed" as const,
+        imageUrl: preview, 
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+
       await setDoc(dailyLogRef, { 
         date: dateId, 
         caloriesConsumed: increment(result.calories),
@@ -226,7 +271,7 @@ export default function RecordPage() {
         fatTotal: increment(result.macros.fat)
       }, { merge: true });
 
-      await setDoc(newMealRef, { ...mealData, createdAt: serverTimestamp() });
+      await setDoc(newMealRef, mealData);
       toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
     }
 
@@ -274,9 +319,26 @@ export default function RecordPage() {
                 {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
                 {preview && <Image src={preview} alt="Meal" fill className="object-cover" />}
               </div>
-              <div className="mt-2">
+              <div className="mt-2 flex gap-2">
                 {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-9 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none shadow-sm">CAPTURE</Button>}
-                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-9 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none shadow-sm">{analyzing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}ANALYZE</Button>}
+                
+                {preview && updateId && !result && (
+                  <Button onClick={handleSave} className="w-full h-9 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none shadow-sm">
+                    <CheckCircle2 className="w-4 h-4 mr-2" /> SYNC PHOTO
+                  </Button>
+                )}
+
+                {preview && !updateId && !result && (
+                  <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-9 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none shadow-sm">
+                    {analyzing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />} ANALYZE
+                  </Button>
+                )}
+                
+                {preview && updateId && !result && (
+                   <Button variant="ghost" onClick={handleAnalyze} disabled={analyzing} className="h-9 px-4 rounded-xl font-black text-[8px] uppercase tracking-widest text-foreground opacity-50 border border-border">
+                     {analyzing ? <Loader2 className="animate-spin h-3 w-3" /> : "Re-Analyze"}
+                   </Button>
+                )}
               </div>
             </Card>
           </section>
@@ -291,9 +353,18 @@ export default function RecordPage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-1.5">
-                    <div className="p-1.5 bg-primary/10 rounded-lg text-center"><p className="text-[6px] font-black opacity-40 uppercase">Protein</p><p className="text-xs font-black">{(result.macros as any).protein}g</p></div>
-                    <div className="p-1.5 bg-orange-50 rounded-lg text-center"><p className="text-[6px] font-black opacity-40 uppercase">Carbs</p><p className="text-xs font-black">{(result.macros as any).carbs}g</p></div>
-                    <div className="p-1.5 bg-accent/10 rounded-lg text-center"><p className="text-[6px] font-black opacity-40 uppercase">Fat</p><p className="text-xs font-black">{(result.macros as any).fat}g</p></div>
+                    <div className="p-1.5 bg-primary/10 rounded-lg text-center">
+                      <p className="text-[6px] font-black opacity-40 uppercase">Protein</p>
+                      <p className="text-xs font-black">{(result.macros as any).protein}g</p>
+                    </div>
+                    <div className="p-1.5 bg-orange-50 rounded-lg text-center">
+                      <p className="text-[6px] font-black opacity-40 uppercase">Carbs</p>
+                      <p className="text-xs font-black">{(result.macros as any).carbs}g</p>
+                    </div>
+                    <div className="p-1.5 bg-accent/10 rounded-lg text-center">
+                      <p className="text-[6px] font-black opacity-40 uppercase">Fat</p>
+                      <p className="text-xs font-black">{(result.macros as any).fat}g</p>
+                    </div>
                   </div>
 
                   {mode === "gallery" && (
@@ -319,6 +390,21 @@ export default function RecordPage() {
                   )}
 
                   <Button onClick={handleSave} className="w-full h-10 rounded-xl font-black text-[9px] bg-foreground text-white shadow-premium uppercase tracking-widest mt-auto transition-transform active:scale-95">SYNC RECORD <ChevronRight className="w-3 h-3 ml-1" /></Button>
+                </div>
+              </Card>
+            ) : existingMeal && preview ? (
+              <Card className="rounded-[1.25rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full">
+                <div className="p-3 flex flex-col h-full space-y-3 items-center justify-center text-center">
+                  <div className="p-4 bg-primary/10 rounded-full mb-2">
+                    <CheckCircle2 className="w-10 h-10 text-primary" />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-tight text-foreground">Ready to Record</h3>
+                  <p className="text-[10px] font-bold text-foreground opacity-50 px-4 leading-relaxed">
+                    Recording consumption for <span className="text-primary">{existingMeal.name}</span>. Metadata will be preserved.
+                  </p>
+                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium uppercase tracking-widest mt-6">
+                    SAVE CONSUMPTION
+                  </Button>
                 </div>
               </Card>
             ) : (
