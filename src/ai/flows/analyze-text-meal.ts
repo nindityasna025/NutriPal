@@ -7,7 +7,7 @@
  *   checks for SPECIFIC user allergens, and generates instructions.
  */
 
-import { ai } from '@/ai/genkit';
+import { executeWithRotation } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const AnalyzeTextMealInputSchema = z.object({
@@ -35,14 +35,12 @@ const AnalyzeTextMealOutputSchema = z.object({
 export type AnalyzeTextMealOutput = z.infer<typeof AnalyzeTextMealOutputSchema>;
 
 export async function analyzeTextMeal(input: AnalyzeTextMealInput): Promise<AnalyzeTextMealOutput> {
-  return analyzeTextMealFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'analyzeTextMealPrompt',
-  input: { schema: AnalyzeTextMealInputSchema },
-  output: { schema: AnalyzeTextMealOutputSchema },
-  prompt: `You are an expert AI Nutritionist and Chef. 
+  return await executeWithRotation(async (aiInstance) => {
+    const prompt = aiInstance.definePrompt({
+      name: 'analyzeTextMealPrompt',
+      input: { schema: AnalyzeTextMealInputSchema },
+      output: { schema: AnalyzeTextMealOutputSchema },
+      prompt: `You are an expert AI Nutritionist and Chef. 
 Analyze the following meal description and provide a full nutritional and culinary breakdown.
 
 Meal: "{{{mealName}}}"
@@ -64,17 +62,10 @@ STRICT REQUIREMENTS:
    - DO NOT EXCEED 180 characters or the validation will fail.
 
 Provide the output in the specified JSON format.`,
-});
+    });
 
-const analyzeTextMealFlow = ai.defineFlow(
-  {
-    name: 'analyzeTextMealFlow',
-    inputSchema: AnalyzeTextMealInputSchema,
-    outputSchema: AnalyzeTextMealOutputSchema,
-  },
-  async (input) => {
     const { output } = await prompt(input);
     if (!output) throw new Error("AI failed to analyze the meal.");
     return output;
-  }
-);
+  });
+}

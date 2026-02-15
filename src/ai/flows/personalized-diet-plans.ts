@@ -8,8 +8,8 @@
  * - PersonalizedDietPlansOutput - The return type for the personalizedDietPlans function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { executeWithRotation } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const PersonalizedDietPlansInputSchema = z.object({
   dietaryNeeds: z
@@ -51,14 +51,12 @@ export type PersonalizedDietPlansOutput = z.infer<
 export async function personalizedDietPlans(
   input: PersonalizedDietPlansInput
 ): Promise<PersonalizedDietPlansOutput> {
-  return personalizedDietPlansFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'personalizedDietPlansPrompt',
-  input: {schema: PersonalizedDietPlansInputSchema},
-  output: {schema: PersonalizedDietPlansOutputSchema},
-  prompt: `You are a personal nutrition assistant.  A user will provide you with their dietary restrictions, as well as ingredients they have available to them.
+  return await executeWithRotation(async (aiInstance) => {
+    const prompt = aiInstance.definePrompt({
+      name: 'personalizedDietPlansPrompt',
+      input: { schema: PersonalizedDietPlansInputSchema },
+      output: { schema: PersonalizedDietPlansOutputSchema },
+      prompt: `You are a personal nutrition assistant.  A user will provide you with their dietary restrictions, as well as ingredients they have available to them.
 
 You will provide personalized meal recommendations based on their dietary needs and available ingredients.
 
@@ -67,19 +65,11 @@ You will also provide simple recipes for the recommended meals, including ingred
 Finally, you will suggest healthier alternatives to the recommended meals, focusing on organic products and readily available substitutes.
 
 Dietary Needs: {{{dietaryNeeds}}}
-Available Ingredients: {{{availableIngredients}}}
+Available Ingredients: {{{availableIngredients}}}`,
+    });
 
-`,
-});
-
-const personalizedDietPlansFlow = ai.defineFlow(
-  {
-    name: 'personalizedDietPlansFlow',
-    inputSchema: PersonalizedDietPlansInputSchema,
-    outputSchema: PersonalizedDietPlansOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+    const { output } = await prompt(input);
+    if (!output) throw new Error("AI failed to generate personalized diet plan.");
+    return output;
+  });
+}

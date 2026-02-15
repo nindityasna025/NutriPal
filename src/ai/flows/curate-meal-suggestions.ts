@@ -7,7 +7,7 @@
  * - Includes rule-based fallback for 429 quota handling.
  */
 
-import { ai } from '@/ai/genkit';
+import { executeWithRotation } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const DeliveryItemSchema = z.object({
@@ -49,13 +49,42 @@ export type CurateMealSuggestionsOutput = z.infer<typeof CurateMealSuggestionsOu
 
 export async function curateMealSuggestions(input: CurateMealSuggestionsInput): Promise<CurateMealSuggestionsOutput> {
   try {
-    return await curateMealSuggestionsFlow(input);
+    return await executeWithRotation(async (aiInstance) => {
+      const prompt = aiInstance.definePrompt({
+        name: 'curateMealSuggestionsPrompt',
+        input: { schema: CurateMealSuggestionsInputSchema },
+        output: { schema: CurateMealSuggestionsOutputSchema },
+        prompt: `You are the NutriPal V1 Machine Learning Recommendation Engine. 
+Your objective is to execute a multi-variable scoring algorithm to rank food items.
+
+User Input Vector:
+- BMI: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
+- Constraints: {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
+- Allergies: {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
+- Target Scalar: {{{userProfile.calorieTarget}}} kcal
+
+DATABASE OF ITEMS:
+{{#each scrapedDatabase}}
+- ID: {{id}}, Name: {{name}}, Restaurant: {{restaurant}}, Price: {{price}}, Platform: {{platform}}, Kcal: {{calories}}, Health: {{healthScore}}, Tags: {{tags}}, Ingredients: {{ingredients}}
+{{/each}}
+
+MODEL LOGIC:
+1. Provide exactly 2 items: 1 from GrabFood and 1 from GoFood.
+2. Hard exclusion on "Allergies".
+3. Reward match on "Constraints".
+4. Identify and include "ingredients" for each item.
+5. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars).
+
+Provide the pair with highest calculated scores.`,
+      });
+
+      const { output } = await prompt(input);
+      if (!output) throw new Error("AI failed to filter delivery data.");
+      return output as CurateMealSuggestionsOutput;
+    });
   } catch (error: any) {
-    if (error.message?.includes('429')) {
-      console.warn('AI Quota Exceeded. Using Rule-Based Fallback for Delivery Hub.');
-      return ruleBasedDeliveryFallback(input);
-    }
-    throw error;
+    console.warn('AI Quota or Rotation error. Using Rule-Based Fallback for Delivery Hub.', error);
+    return ruleBasedDeliveryFallback(input);
   }
 }
 
@@ -84,44 +113,3 @@ function ruleBasedDeliveryFallback(input: CurateMealSuggestionsInput): CurateMea
 
   return { topMatches: results as any };
 }
-
-const prompt = ai.definePrompt({
-  name: 'curateMealSuggestionsPrompt',
-  input: { schema: CurateMealSuggestionsInputSchema },
-  output: { schema: CurateMealSuggestionsOutputSchema },
-  prompt: `You are the NutriPal V1 Machine Learning Recommendation Engine. 
-Your objective is to execute a multi-variable scoring algorithm to rank food items.
-
-User Input Vector:
-- BMI: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
-- Constraints: {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
-- Allergies: {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
-- Target Scalar: {{{userProfile.calorieTarget}}} kcal
-
-DATABASE OF ITEMS:
-{{#each scrapedDatabase}}
-- ID: {{id}}, Name: {{name}}, Restaurant: {{restaurant}}, Price: {{price}}, Platform: {{platform}}, Kcal: {{calories}}, Health: {{healthScore}}, Tags: {{tags}}, Ingredients: {{ingredients}}
-{{/each}}
-
-MODEL LOGIC:
-1. Provide exactly 2 items: 1 from GrabFood and 1 from GoFood.
-2. Hard exclusion on "Allergies".
-3. Reward match on "Constraints".
-4. Identify and include "ingredients" for each item.
-5. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars).
-
-Provide the pair with highest calculated scores.`,
-});
-
-const curateMealSuggestionsFlow = ai.defineFlow(
-  {
-    name: 'curateMealSuggestionsFlow',
-    inputSchema: CurateMealSuggestionsInputSchema,
-    outputSchema: CurateMealSuggestionsOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    if (!output) throw new Error("AI failed to filter delivery data.");
-    return output as CurateMealSuggestionsOutput;
-  }
-);

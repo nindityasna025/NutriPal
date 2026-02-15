@@ -6,7 +6,7 @@
  * - analyzeMeal - Estimates nutritional content and checks for user-specific dietary conflicts.
  */
 
-import { ai } from '@/ai/genkit';
+import { executeWithRotation } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const AnalyzeMealInputSchema = z.object({
@@ -35,14 +35,12 @@ const AnalyzeMealOutputSchema = z.object({
 export type AnalyzeMealOutput = z.infer<typeof AnalyzeMealOutputSchema>;
 
 export async function analyzeMeal(input: AnalyzeMealInput): Promise<AnalyzeMealOutput> {
-  return analyzeMealFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'analyzeMealPrompt',
-  input: { schema: AnalyzeMealInputSchema },
-  output: { schema: AnalyzeMealOutputSchema },
-  prompt: `You are an expert AI Nutritionist. 
+  return await executeWithRotation(async (aiInstance) => {
+    const prompt = aiInstance.definePrompt({
+      name: 'analyzeMealPrompt',
+      input: { schema: AnalyzeMealInputSchema },
+      output: { schema: AnalyzeMealOutputSchema },
+      prompt: `You are an expert AI Nutritionist. 
 Analyze this meal photo and provide a detailed nutritional breakdown.
 
 User's Profile:
@@ -64,17 +62,10 @@ CRITICAL REQUIREMENTS:
 Meal Photo: {{media url=photoDataUri}}
 
 Provide the output in the specified JSON format.`,
-});
+    });
 
-const analyzeMealFlow = ai.defineFlow(
-  {
-    name: 'analyzeMealFlow',
-    inputSchema: AnalyzeMealInputSchema,
-    outputSchema: AnalyzeMealOutputSchema,
-  },
-  async (input) => {
     const { output } = await prompt(input);
     if (!output) throw new Error("AI failed to analyze the meal.");
     return output;
-  }
-);
+  });
+}

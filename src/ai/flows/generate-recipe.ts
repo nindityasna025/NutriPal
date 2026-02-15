@@ -6,7 +6,7 @@
  * - generateRecipe - Generates a health-focused recipe with an insight, ingredients, and instructions.
  */
 
-import { ai } from '@/ai/genkit';
+import { executeWithRotation } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const GenerateRecipeInputSchema = z.object({
@@ -23,14 +23,12 @@ const GenerateRecipeOutputSchema = z.object({
 export type GenerateRecipeOutput = z.infer<typeof GenerateRecipeOutputSchema>;
 
 export async function generateRecipe(input: GenerateRecipeInput): Promise<GenerateRecipeOutput> {
-  return generateRecipeFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'generateRecipePrompt',
-  input: { schema: GenerateRecipeInputSchema },
-  output: { schema: GenerateRecipeOutputSchema },
-  prompt: `You are an expert AI Nutritionist and Chef. 
+  return await executeWithRotation(async (aiInstance) => {
+    const prompt = aiInstance.definePrompt({
+      name: 'generateRecipePrompt',
+      input: { schema: GenerateRecipeInputSchema },
+      output: { schema: GenerateRecipeOutputSchema },
+      prompt: `You are an expert AI Nutritionist and Chef. 
 Generate a healthy, delicious, and easy-to-follow recipe for: "{{{mealName}}}".
 
 User's Dietary Context: {{#if dietaryRestrictions}}{{{dietaryRestrictions}}}{{else}}None{{/if}}.
@@ -45,17 +43,10 @@ Requirements:
 4. The "instructions" should be sequential and easy to follow.
 
 Provide the response in the specified structured JSON format.`,
-});
+    });
 
-const generateRecipeFlow = ai.defineFlow(
-  {
-    name: 'generateRecipeFlow',
-    inputSchema: GenerateRecipeInputSchema,
-    outputSchema: GenerateRecipeOutputSchema,
-  },
-  async (input) => {
     const { output } = await prompt(input);
     if (!output) throw new Error("AI failed to generate recipe.");
     return output;
-  }
-);
+  });
+}
