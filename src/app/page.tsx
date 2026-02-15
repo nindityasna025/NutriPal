@@ -363,18 +363,19 @@ export default function Dashboard() {
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
             <Card className={cn(
-                "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all relative"
+                "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all"
             )}>
-                {wasHighlyActive && (
+                {wasHighlyActive ? (
                     <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="absolute top-3 right-3 h-8 w-8 rounded-full bg-destructive/10 text-destructive animate-pulse hover:bg-destructive/20">
-                          <AlertTriangle className="w-5 h-5" />
-                        </Button>
+                        <div className="p-1.5 bg-destructive/10 rounded-lg mb-1 border border-destructive/20 cursor-pointer animate-pulse">
+                            <Flame className="w-4 h-4 text-destructive" />
+                        </div>
                     </DialogTrigger>
+                ) : (
+                    <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
+                        <Flame className="w-4 h-4 text-foreground" />
+                    </div>
                 )}
-                <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
-                    <Flame className="w-4 h-4 text-foreground" />
-                </div>
                 <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
                 <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
             </Card>
