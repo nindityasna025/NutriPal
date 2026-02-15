@@ -37,6 +37,7 @@ import { useToast } from "@/hooks/use-toast"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 import { personalizedDietPlans } from "@/ai/flows/personalized-diet-plans"
+import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -114,6 +115,7 @@ export default function ExplorePage() {
   const [loadingRecipeGen, setLoadingRecipeGen] = useState(false)
   const [recipeGenResult, setRecipeGenResult] = useState<any | null>(null)
   const [availableIngredients, setAvailableIngredients] = useState("")
+  const [isAddingPantryRecipe, setIsAddingPantryRecipe] = useState<string | null>(null)
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -303,6 +305,62 @@ export default function ExplorePage() {
     toast({ title: "Full Path Predicted", description: `Plan saved for ${dateId}.` })
     setIsMenuOpen(false)
     router.push("/")
+  }
+
+  const handleAddPantryRecipeToPlan = async (mealName: string) => {
+    if (!user || !firestore || !profile) {
+      toast({ variant: "destructive", title: "Error", description: "You must be logged in to do that." });
+      return;
+    }
+    
+    setIsAddingPantryRecipe(mealName);
+    
+    try {
+      const analysis = await analyzeTextMeal({
+        mealName: mealName,
+        ingredients: availableIngredients,
+        userGoal: (profile?.bmiCategory === 'Overweight' || profile?.bmiCategory === 'Obese') ? "Weight Loss" : (profile?.bmiCategory === 'Underweight' ? "Weight Gain" : "Maintenance"),
+        userAllergies: profile?.allergies,
+        userRestrictions: profile?.dietaryRestrictions
+      });
+
+      const dateId = targetDate || format(new Date(), "yyyy-MM-dd");
+      const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId);
+      const mealsColRef = collection(dailyLogRef, "meals");
+    
+      setDocumentNonBlocking(dailyLogRef, { date: dateId }, { merge: true });
+
+      const finalTime = "12:00 PM"; // Default time
+
+      addDocumentNonBlocking(mealsColRef, {
+        name: mealName,
+        calories: analysis.calories,
+        time: finalTime,
+        timing: 'Lunch', // Default timing
+        source: "pantry-ai",
+        macros: analysis.macros,
+        healthScore: analysis.healthScore,
+        description: analysis.description,
+        expertInsight: analysis.expertInsight,
+        ingredients: analysis.ingredients,
+        instructions: analysis.instructions,
+        allergenWarning: analysis.allergenWarning || "",
+        reminderEnabled: true,
+        status: "planned",
+        createdAt: serverTimestamp(),
+      });
+
+      toast({
+        title: "Meal Added!",
+        description: `"${mealName}" has been added to your plan for ${dateId}.`,
+      });
+
+    } catch (err: any) {
+      console.error(err);
+      toast({ variant: "destructive", title: "AI Error", description: "Could not analyze and add the meal." });
+    } finally {
+      setIsAddingPantryRecipe(null);
+    }
   }
 
   return (
@@ -548,9 +606,18 @@ export default function ExplorePage() {
                 <div className="space-y-8 text-left">
                   <section className="space-y-4 animate-in fade-in">
                     <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Sparkles className="w-5 h-5 text-blue-600"/> Meal Ideas</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {recipeGenResult.mealRecommendations.map((meal: string, i: number) => (
-                        <div key={i} className="bg-blue-50/50 p-4 rounded-2xl text-sm font-black uppercase tracking-tight text-blue-800 border-2 border-blue-100">{meal}</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {recipeGenResult.mealRecommendations.map((mealName: string, i: number) => (
+                        <Card key={i} className="bg-blue-50/50 rounded-2xl border-2 border-blue-100 p-4 flex flex-col justify-between text-left">
+                          <p className="text-sm font-black uppercase tracking-tight text-blue-800 flex-1">{mealName}</p>
+                          <Button 
+                              size="sm" 
+                              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-9 text-[10px] font-black uppercase tracking-widest"
+                              disabled={!!isAddingPantryRecipe}
+                              onClick={() => handleAddPantryRecipeToPlan(mealName)}>
+                              {isAddingPantryRecipe === mealName ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-3 h-3 mr-1.5" /> Add to Plan</>}
+                          </Button>
+                        </Card>
                       ))}
                     </div>
                   </section>
@@ -588,7 +655,7 @@ export default function ExplorePage() {
                     <Button 
                         onClick={handleGenerateFromPantry}
                         className="w-full bg-blue-600 text-white hover:bg-blue-700 h-16 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95"
-                        disabled={loadingRecipeGen}
+                        disabled={loadingRecipeGen || !availableIngredients}
                       >
                         {loadingRecipeGen ? (
                           <Loader2 className="w-6 h-6 mr-3 animate-spin" />

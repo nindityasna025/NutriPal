@@ -55,7 +55,7 @@
         "name": { "type": "string" },
         "calories": { "type": "number" },
         "time": { "type": "string" },
-        "source": { "type": "string", "enum": ["photo", "planner", "manual", "GrabFood", "GoFood", "CookBuddy"] },
+        "source": { "type": "string", "enum": ["photo", "planner", "manual", "GrabFood", "GoFood", "CookBuddy", "pantry-ai"] },
         "macros": {
           "type": "object",
           "properties": {
