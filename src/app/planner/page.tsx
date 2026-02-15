@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,8 @@ import {
   List,
   ChefHat,
   Leaf,
-  Bike
+  Bike,
+  Flame
 } from "lucide-react"
 import { 
   Dialog, 
@@ -31,7 +32,7 @@ import {
 } from "@/components/ui/dialog"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp } from "firebase/firestore"
-import { format } from "date-fns"
+import { format, subDays } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
@@ -122,6 +123,11 @@ export default function ExplorePage() {
 
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
+
+  const yesterdayId = useMemo(() => format(subDays(new Date(), 1), "yyyy-MM-dd"), []);
+  const yesterdayLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", yesterdayId) : null, [user, firestore, yesterdayId]);
+  const { data: yesterdayLog } = useDoc(yesterdayLogRef);
+  const wasHighlyActive = yesterdayLog && yesterdayLog.caloriesBurned && yesterdayLog.caloriesBurned > 700;
 
   const handleCurateDelivery = async () => {
     if (!profile) return;
@@ -369,6 +375,22 @@ export default function ExplorePage() {
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
+
+      {wasHighlyActive && (
+        <Card className="rounded-[3.5rem] border-2 border-primary/30 shadow-premium bg-primary/10 mb-10 animate-in fade-in duration-500">
+            <CardContent className="p-10 flex items-center gap-8">
+                <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shrink-0 border-2 border-primary/20">
+                    <Flame className="w-12 h-12 text-primary" />
+                </div>
+                <div className="text-left space-y-2">
+                    <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Recovery Recommendation</h3>
+                    <p className="text-foreground/80 font-bold leading-relaxed">
+                        Yesterday was a highly active day! NutriEase recommends increasing your protein and calorie intake today to support muscle recovery and replenish energy stores.
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4 max-w-7xl mx-auto">
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
