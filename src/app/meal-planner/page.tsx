@@ -77,12 +77,19 @@ export default function MealPlannerPage() {
   const [mealName, setMealName] = useState("")
   const [mealTiming, setMealTiming] = useState("Breakfast")
   const [reminderEnabled, setReminderEnabled] = useState(true)
-  const [calories, setCalories] = useState<string>("0")
   const [protein, setProtein] = useState<string>("0")
   const [carbs, setCarbs] = useState<string>("0")
   const [fat, setFat] = useState<string>("0")
   const [ingredients, setIngredients] = useState("")
   const [isSaving, setIsSaving] = useState(false)
+
+  // Derived calorie calculation: (Protein * 4) + (Carbs * 4) + (Fat * 9)
+  const calculatedCalories = useMemo(() => {
+    const p = parseFloat(protein) || 0;
+    const c = parseFloat(carbs) || 0;
+    const f = parseFloat(fat) || 0;
+    return Math.round((p * 4) + (c * 4) + (f * 9));
+  }, [protein, carbs, fat]);
 
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false)
   const [activeRecipe, setActiveRecipe] = useState<{ 
@@ -142,10 +149,10 @@ export default function MealPlannerPage() {
     setIsSaving(true)
     
     try {
-      let finalCalories = parseFloat(calories) || 0
       let finalProtein = parseFloat(protein) || 0
       let finalCarbs = parseFloat(carbs) || 0
       let finalFat = parseFloat(fat) || 0
+      let finalCalories = calculatedCalories
       let expertInsight = ""
       let description = ""
       let healthScore = 85
@@ -154,7 +161,7 @@ export default function MealPlannerPage() {
       let allergenWarning = ""
 
       // Only call AI if it's a new meal and macros are basically zero
-      if (!editingMealId && finalCalories === 0) {
+      if (!editingMealId && finalProtein === 0 && finalCarbs === 0 && finalFat === 0) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
           userGoal: (profile?.bmiCategory === 'Overweight' || profile?.bmiCategory === 'Obese') ? "Weight Loss" : (profile?.bmiCategory === 'Underweight' ? "Weight Gain" : "Maintenance"),
@@ -231,7 +238,6 @@ export default function MealPlannerPage() {
   const resetForm = () => {
     setMealName("")
     setMealTiming("Breakfast")
-    setCalories("0")
     setProtein("0")
     setCarbs("0")
     setFat("0")
@@ -246,7 +252,6 @@ export default function MealPlannerPage() {
     setMealName(meal.name)
     setMealTiming(meal.timing || "Breakfast")
     setReminderEnabled(!!meal.reminderEnabled)
-    setCalories(Math.round(meal.calories || 0).toString())
     setProtein(Math.round(meal.macros?.protein || 0).toString())
     setCarbs(Math.round(meal.macros?.carbs || 0).toString())
     setFat(Math.round(meal.macros?.fat || 0).toString())
@@ -337,8 +342,8 @@ export default function MealPlannerPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Calories (kcal)</Label>
-                    <Input type="number" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={calories} onChange={(e) => setCalories(e.target.value)} />
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Calories (KCAL - Auto)</Label>
+                    <Input type="number" disabled className="h-12 rounded-2xl font-black border-2 border-border text-foreground bg-secondary/20" value={calculatedCalories} />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
@@ -412,10 +417,20 @@ export default function MealPlannerPage() {
                               {meal.ingredients.length > 3 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 3}</span>}
                             </div>
                           )}
-                          {meal.allergenWarning && (
-                            <div className="flex items-center gap-1.5 p-1.5 bg-destructive/10 rounded-lg w-fit">
-                              <AlertTriangle className="w-3 h-3 text-destructive" />
-                              <span className="text-[8px] font-black text-destructive uppercase tracking-tight line-clamp-1">{meal.allergenWarning}</span>
+                          {/* Alerts for schedule */}
+                          {(meal.allergenWarning || (profile?.dietaryRestrictions && profile.dietaryRestrictions.length > 0)) && (
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {meal.allergenWarning && (
+                                <div className="flex items-center gap-1.5 p-1.5 bg-destructive/10 rounded-lg w-fit">
+                                  <AlertTriangle className="w-3 h-3 text-destructive" />
+                                  <span className="text-[8px] font-black text-destructive uppercase tracking-tight line-clamp-1">{meal.allergenWarning}</span>
+                                </div>
+                              )}
+                              {profile?.dietaryRestrictions?.map((res: string) => (
+                                <Badge key={res} variant="secondary" className="bg-primary/10 text-foreground border-none px-2 py-0.5 rounded-md font-black text-[7px] uppercase tracking-tight">
+                                  {res}
+                                </Badge>
+                              ))}
                             </div>
                           )}
                         </div>
