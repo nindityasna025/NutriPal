@@ -149,6 +149,7 @@ export default function MealPlannerPage() {
       let instructions: string[] = []
       let allergenWarning = ""
 
+      // Use AI analysis for new meals
       if (!editingMealId) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
@@ -196,12 +197,12 @@ export default function MealPlannerPage() {
         toast({ title: "Schedule Updated", description: "Changes synced." })
       } else {
         addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
-        toast({ title: "Meal Scheduled", description: `${mealName} added.` })
+        toast({ title: "Meal Scheduled", description: `${mealName} added with AI analysis.` })
       }
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Action Failed", description: "Try again later." });
+      toast({ variant: "destructive", title: "Action Failed", description: "AI analysis unavailable. Try again later." });
     } finally {
       setIsSaving(false);
     }
@@ -374,7 +375,7 @@ export default function MealPlannerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {meal.source === 'planner' && (
+                      {(meal.source === 'planner' && !meal.imageUrl) && (
                         <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-lg h-8 w-8 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90">
                           <ChefHat className="w-4 h-4" />
                         </Button>
