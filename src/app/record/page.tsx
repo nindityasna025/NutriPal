@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
@@ -16,7 +17,7 @@ import {
   Clock
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
-import { doc, setDoc, increment, collection, serverTimestamp } from "firebase/firestore"
+import { doc, setDoc, increment, collection, serverTimestamp, updateDoc } from "firebase/firestore"
 import { format } from "date-fns"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
@@ -26,13 +27,17 @@ import { Input } from "@/components/ui/input"
 
 export default function RecordPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const updateId = searchParams.get('updateId')
+  const paramDateId = searchParams.get('dateId')
+
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
   const [preview, setFilePreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"))
+  const [selectedDate, setSelectedDate] = useState(paramDateId || format(new Date(), "yyyy-MM-dd"))
   const [selectedTime, setSelectedTime] = useState(format(new Date(), "HH:mm"))
   
   const { toast } = useToast()
@@ -48,7 +53,10 @@ export default function RecordPage() {
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    if (updateId) {
+      startCamera()
+    }
+  }, [updateId])
 
   const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
     return new Promise((resolve) => {
@@ -148,11 +156,7 @@ export default function RecordPage() {
         if (profile.bmiCategory === "Overweight" || profile.bmiCategory === "Obese") userGoal = "Weight Loss"
         else if (profile.bmiCategory === "Underweight") userGoal = "Weight Gain"
       }
-
-      const output = await analyzeMeal({ 
-        photoDataUri: preview,
-        userGoal
-      })
+      const output = await analyzeMeal({ photoDataUri: preview, userGoal })
       setResult(output)
     } catch (error: any) {
       console.error(error)
@@ -165,12 +169,10 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!user || !result || !mounted || !preview) return
     
-    let dateId = format(new Date(), "yyyy-MM-dd")
+    let dateId = paramDateId || selectedDate || format(new Date(), "yyyy-MM-dd")
     let timeStr = format(new Date(), "hh:mm a").toUpperCase()
     
-    // For gallery mode, use selected date/time
-    if (mode === "gallery" && selectedDate && selectedTime) {
-      dateId = selectedDate
+    if (mode === "gallery" && selectedTime) {
       const [h, m] = selectedTime.split(':')
       const hour = parseInt(h)
       const ampm = hour >= 12 ? 'PM' : 'AM'
@@ -179,17 +181,8 @@ export default function RecordPage() {
     }
     
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
-    const mealRef = doc(collection(dailyLogRef, "meals"))
     
-    setDoc(dailyLogRef, { 
-      date: dateId, 
-      caloriesConsumed: increment(result.calories),
-      proteinTotal: increment(result.macros.protein),
-      carbsTotal: increment(result.macros.carbs),
-      fatTotal: increment(result.macros.fat)
-    }, { merge: true });
-
-    setDoc(mealRef, {
+    const mealData = {
       name: result.name,
       calories: result.calories,
       time: timeStr,
@@ -199,12 +192,41 @@ export default function RecordPage() {
       description: result.description,
       ingredients: result.ingredients,
       expertInsight: result.expertInsight,
-      status: "consumed",
+      status: "consumed" as const,
       imageUrl: preview, 
-      createdAt: serverTimestamp()
-    });
+      updatedAt: serverTimestamp()
+    };
 
-    toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
+    if (updateId) {
+      // Update existing meal
+      const existingMealRef = doc(firestore, "users", user.uid, "dailyLogs", dateId, "meals", updateId);
+      await updateDoc(existingMealRef, mealData);
+      
+      // Update daily logs aggregates
+      await setDoc(dailyLogRef, { 
+        date: dateId, 
+        caloriesConsumed: increment(result.calories),
+        proteinTotal: increment(result.macros.protein),
+        carbsTotal: increment(result.macros.carbs),
+        fatTotal: increment(result.macros.fat)
+      }, { merge: true });
+
+      toast({ title: "Meal Updated", description: `${result.name} recorded with photo.` })
+    } else {
+      // Create new meal
+      const newMealRef = doc(collection(dailyLogRef, "meals"))
+      await setDoc(dailyLogRef, { 
+        date: dateId, 
+        caloriesConsumed: increment(result.calories),
+        proteinTotal: increment(result.macros.protein),
+        carbsTotal: increment(result.macros.carbs),
+        fatTotal: increment(result.macros.fat)
+      }, { merge: true });
+
+      await setDoc(newMealRef, { ...mealData, createdAt: serverTimestamp() });
+      toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
+    }
+
     router.push("/")
   }
 
@@ -213,7 +235,9 @@ export default function RecordPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-3 space-y-3 h-[100dvh] flex flex-col overflow-hidden">
       <header className="space-y-0.5 text-center shrink-0">
-        <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase leading-tight">Snap Meal</h1>
+        <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase leading-tight">
+          {updateId ? "Update Photo" : "Snap Meal"}
+        </h1>
         <p className="text-[7px] font-black text-foreground uppercase tracking-widest opacity-40">AI-Powered Logging</p>
       </header>
 
@@ -264,9 +288,9 @@ export default function RecordPage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-1.5">
-                    <div className="p-1.5 bg-primary/10 rounded-lg text-center"><p className="text-[5px] font-black opacity-40 uppercase">Protein</p><p className="text-xs font-black">{result.macros.protein}g</p></div>
-                    <div className="p-1.5 bg-orange-50 rounded-lg text-center"><p className="text-[5px] font-black opacity-40 uppercase">Carbs</p><p className="text-xs font-black">{result.macros.carbs}g</p></div>
-                    <div className="p-1.5 bg-accent/10 rounded-lg text-center"><p className="text-[5px] font-black opacity-40 uppercase">Fat</p><p className="text-xs font-black">{result.macros.fat}g</p></div>
+                    <div className="p-1.5 bg-primary/10 rounded-lg text-center text-left"><p className="text-[5px] font-black opacity-40 uppercase">Protein</p><p className="text-xs font-black">{result.macros.protein}g</p></div>
+                    <div className="p-1.5 bg-orange-50 rounded-lg text-center text-left"><p className="text-[5px] font-black opacity-40 uppercase">Carbs</p><p className="text-xs font-black">{result.macros.carbs}g</p></div>
+                    <div className="p-1.5 bg-accent/10 rounded-lg text-center text-left"><p className="text-[5px] font-black opacity-40 uppercase">Fat</p><p className="text-xs font-black">{result.macros.fat}g</p></div>
                   </div>
 
                   {mode === "gallery" && (
@@ -284,7 +308,7 @@ export default function RecordPage() {
 
                   <p className="text-[9px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-2.5 rounded-lg border border-primary/10 text-left italic">"{result.expertInsight}"</p>
                   
-                  <Button onClick={handleSave} className="w-full h-11 rounded-xl font-black text-[9px] bg-foreground text-white shadow-premium uppercase tracking-widest mt-auto">SYNC TO PATH <ChevronRight className="w-3 h-3 ml-0.5" /></Button>
+                  <Button onClick={handleSave} className="w-full h-11 rounded-xl font-black text-[9px] bg-foreground text-white shadow-premium uppercase tracking-widest mt-auto">SYNC TO DAILY RECORD <ChevronRight className="w-3 h-3 ml-0.5" /></Button>
                 </div>
               </Card>
             ) : (

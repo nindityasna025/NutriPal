@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -18,10 +19,10 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
-  TrendingUp,
   BarChart3,
+  CheckCircle2
 } from "lucide-react"
-import { format, startOfToday, subDays, isSameDay } from "date-fns"
+import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
 import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Legend } from "recharts"
@@ -48,6 +56,11 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null)
+  
+  // Eat Now Choice State
+  const [isEatNowOpen, setIsEatNowOpen] = useState(false)
+  const [selectedMealForEatNow, setSelectedMealForEatNow] = useState<any | null>(null)
+
   const { toast } = useToast()
 
   useEffect(() => {
@@ -72,7 +85,7 @@ export default function Dashboard() {
     return query(
       collection(firestore, "users", user.uid, "dailyLogs"),
       orderBy("date", "desc"),
-      limit(14) // Fetch more to ensure we have enough for last 7 calendar days
+      limit(14)
     );
   }, [user, firestore]);
 
@@ -93,14 +106,10 @@ export default function Dashboard() {
 
   const chartData = useMemo(() => {
     if (!today) return [];
-    
-    // Generate last 7 days including today
     const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, 6 - i));
-    
     return last7Days.map(day => {
       const dateStr = format(day, "yyyy-MM-dd");
       const log = recentLogs?.find(l => l.date === dateStr);
-      
       return {
         date: format(day, "MMM d"),
         protein: Math.round((log?.proteinTotal || 0) * 4),
@@ -129,8 +138,15 @@ export default function Dashboard() {
     setDocumentNonBlocking(dailyLogRef, { waterIntake: Number(newWater.toFixed(1)), date: dateId }, { merge: true });
   }
 
-  const markAsConsumed = (meal: any) => {
-    if (!user || !mealsColRef || !dailyLogRef || meal.status === 'consumed') return
+  const handleEatNowClick = (meal: any) => {
+    setSelectedMealForEatNow(meal)
+    setIsEatNowOpen(true)
+  }
+
+  const markAsConsumedJustEat = () => {
+    if (!user || !mealsColRef || !dailyLogRef || !selectedMealForEatNow) return
+    const meal = selectedMealForEatNow;
+    
     setDocumentNonBlocking(dailyLogRef, {
       date: dateId,
       caloriesConsumed: increment(meal.calories),
@@ -138,8 +154,15 @@ export default function Dashboard() {
       carbsTotal: increment(meal.macros?.carbs || 0),
       fatTotal: increment(meal.macros?.fat || 0)
     }, { merge: true });
+    
     updateDocumentNonBlocking(doc(mealsColRef, meal.id), { status: "consumed", updatedAt: serverTimestamp() });
-    toast({ title: "Bon Appétit!", description: `${meal.name} synced to your daily records.` });
+    toast({ title: "Bon Appétit!", description: `${meal.name} marked as eaten.` });
+    setIsEatNowOpen(false)
+  }
+
+  const handleEatWithPhoto = () => {
+    if (!selectedMealForEatNow) return
+    router.push(`/record?updateId=${selectedMealForEatNow.id}&dateId=${dateId}`)
   }
 
   const handleDropMeal = (meal: any) => {
@@ -183,7 +206,6 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        {/* Compact Energy Balance Card */}
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
           <CardContent className="p-5 space-y-5">
             <div className="flex justify-between items-start">
@@ -214,7 +236,7 @@ export default function Dashboard() {
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
               <div className="grid grid-cols-3 text-[9px] font-black text-foreground uppercase tracking-widest gap-2">
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 text-left">
                   <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
                   <p className="text-lg font-black tracking-tight">{proteinPercent}%</p>
                 </div>
@@ -240,7 +262,7 @@ export default function Dashboard() {
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center group transition-all">
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center">
             <div className="p-1.5 bg-primary/20 rounded-xl mb-1.5 border border-primary/10">
               <Flame className="w-4 h-4 text-foreground" />
             </div>
@@ -248,7 +270,7 @@ export default function Dashboard() {
             <p className="text-xl font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[10px] font-black opacity-20">kcal</span></p>
           </Card>
 
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center group transition-all">
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center">
             <div className="p-1.5 bg-accent/20 rounded-xl mb-1.5 border border-accent/10">
               <Droplets className="w-4 h-4 text-foreground" />
             </div>
@@ -266,7 +288,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Weekly Macro Trend Section */}
       <section className="space-y-4 pt-4">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
           <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
@@ -319,7 +340,7 @@ export default function Dashboard() {
               const isExpanded = expandedMealId === meal.id;
               return (
                 <Card key={meal.id} className={cn("border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden hover:shadow-premium-lg transition-all group cursor-pointer", isExpanded && "ring-2 ring-primary/20")} onClick={() => setExpandedMealId(isExpanded ? null : meal.id)}>
-                  <CardContent className="p-0">
+                  <CardContent className="p-0 text-left">
                     <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4 flex-1 w-full text-left">
                         <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block">
@@ -348,7 +369,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2 shrink-0">
                         {meal.status !== 'consumed' && (
                           <div className="flex items-center gap-2">
-                            <Button onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all">EAT NOW</Button>
+                            <Button onClick={(e) => { e.stopPropagation(); handleEatNowClick(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all">EAT NOW</Button>
                             {meal.allergenWarning && (
                               <Button variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="h-7 px-2.5 rounded-lg text-destructive font-black uppercase text-[7px] tracking-widest border border-destructive/20 hover:bg-destructive/5">DROP</Button>
                             )}
@@ -379,6 +400,31 @@ export default function Dashboard() {
           <span className="font-black text-[8px] uppercase tracking-widest">Meal Planner</span>
         </Button>
       </div>
+
+      {/* Eat Now Choice Dialog */}
+      <Dialog open={isEatNowOpen} onOpenChange={setIsEatNowOpen}>
+        <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden">
+          <DialogHeader className="p-8 bg-primary rounded-t-[2.5rem] text-center">
+            <DialogTitle className="text-xl font-black uppercase tracking-tight text-foreground">Record Consumption</DialogTitle>
+          </DialogHeader>
+          <div className="p-8 space-y-4">
+            <p className="text-xs font-bold text-foreground opacity-70 text-center leading-relaxed">
+              How would you like to record your meal? Adding a photo provides a precise AI-powered nutritional update.
+            </p>
+            <div className="grid grid-cols-1 gap-3">
+              <Button onClick={handleEatWithPhoto} className="h-14 rounded-2xl bg-primary text-foreground font-black uppercase text-[10px] tracking-widest shadow-premium border-none">
+                <Camera className="w-4 h-4 mr-2" /> Snap Live Photo
+              </Button>
+              <Button onClick={markAsConsumedJustEat} variant="outline" className="h-14 rounded-2xl border-2 border-border text-foreground font-black uppercase text-[10px] tracking-widest">
+                <CheckCircle2 className="w-4 h-4 mr-2" /> Just Mark Eaten
+              </Button>
+            </div>
+          </div>
+          <DialogFooter className="p-8 pt-0">
+             <Button variant="ghost" onClick={() => setIsEatNowOpen(false)} className="w-full text-[9px] font-black uppercase text-foreground opacity-40">Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
