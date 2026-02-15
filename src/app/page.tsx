@@ -362,25 +362,22 @@ export default function Dashboard() {
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-            <DialogTrigger asChild disabled={!wasHighlyActive}>
-              <Card className={cn(
-                  "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all",
-                  wasHighlyActive && "cursor-pointer group ring-2 ring-destructive/50 hover:ring-destructive"
-              )}>
-                  <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
-                          <Flame className="w-4 h-4 text-foreground" />
-                      </div>
-                      {wasHighlyActive && (
-                          <div className="p-1.5 bg-destructive/10 rounded-lg mb-1 border border-destructive/20 animate-pulse">
-                              <AlertTriangle className="w-4 h-4 text-destructive" />
-                          </div>
-                      )}
-                  </div>
-                  <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-                  <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
-              </Card>
-            </DialogTrigger>
+            <Card className={cn(
+                "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all relative"
+            )}>
+                {wasHighlyActive && (
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="absolute top-3 right-3 h-8 w-8 rounded-full bg-destructive/10 text-destructive animate-pulse hover:bg-destructive/20">
+                          <AlertTriangle className="w-5 h-5" />
+                        </Button>
+                    </DialogTrigger>
+                )}
+                <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
+                    <Flame className="w-4 h-4 text-foreground" />
+                </div>
+                <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+                <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
+            </Card>
             <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
               <DialogHeader className="bg-red-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
                 <Button variant="ghost" onClick={() => setIsRecoveryDialogOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20">
