@@ -100,6 +100,7 @@ export default function ExplorePage() {
   
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isRecoveryDialogOpen, setIsRecoveryDialogOpen] = useState(false)
   const [isRecipeGenOpen, setIsRecipeGenOpen] = useState(false)
   
   const [loading, setLoading] = useState(false)
@@ -128,12 +129,10 @@ export default function ExplorePage() {
   const yesterdayLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", yesterdayId) : null, [user, firestore, yesterdayId]);
   const { data: yesterdayLogData } = useDoc(yesterdayLogRef);
 
-  // For demonstration: if no log exists for yesterday, create a mock one with high activity.
   const yesterdayLog = useMemo(() => {
     if (yesterdayLogData) {
       return yesterdayLogData;
     }
-    // This mock ensures the recovery recommendation is visible for demo purposes.
     return { caloriesBurned: 850 };
   }, [yesterdayLogData]);
   
@@ -162,18 +161,22 @@ export default function ExplorePage() {
     }
   }
 
-  const handleGenerateMenu = async () => {
+  const handleGenerateMenu = async (isRecovery = false) => {
     if (!profile) return;
     setLoading(true)
     setMenuPlan(null)
     setSwappedMeals({ breakfast: false, lunch: false, dinner: false })
     try {
+       const dietTypeParts = [
+        ...(profile.dietaryRestrictions || []),
+        ...(isRecovery ? ['High Protein'] : [])
+      ];
       const plan = await generateDailyPlan({
-        calorieTarget: profile.calorieTarget || 2000,
-        proteinPercent: 30,
+        calorieTarget: (profile.calorieTarget || 2000) + (isRecovery ? 300 : 0),
+        proteinPercent: isRecovery ? 40 : 30,
         carbsPercent: 40,
-        fatPercent: 30,
-        dietType: profile.dietaryRestrictions?.join(", "),
+        fatPercent: isRecovery ? 20 : 30,
+        dietType: dietTypeParts.join(", "),
         allergies: profile.allergies
       });
       setMenuPlan(plan);
@@ -287,13 +290,13 @@ export default function ExplorePage() {
     router.push("/");
   };
 
-  const handleAddAll = async () => {
-    if (!user || !firestore || !menuPlan) return
-    const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
-    const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
-    const mealsColRef = collection(dailyLogRef, "meals")
+  const handleAddAll = async (isRecovery = false) => {
+    if (!user || !firestore || !menuPlan) return;
+    const dateId = targetDate || format(new Date(), "yyyy-MM-dd");
+    const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId);
+    const mealsColRef = collection(dailyLogRef, "meals");
     
-    setDocumentNonBlocking(dailyLogRef, { date: dateId }, { merge: true })
+    setDocumentNonBlocking(dailyLogRef, { date: dateId }, { merge: true });
 
     const types = ["breakfast", "lunch", "dinner"] as const;
     types.forEach(type => {
@@ -310,17 +313,18 @@ export default function ExplorePage() {
         macros: item.macros,
         healthScore: 90,
         description: item.description,
-        expertInsight: "Daily predictive synthesis.",
+        expertInsight: isRecovery ? "Recovery-focused synthesis." : "Daily predictive synthesis.",
         ingredients: item.ingredients || [],
         instructions: item.instructions || [],
         status: "planned",
         createdAt: serverTimestamp()
-      })
+      });
     });
 
-    toast({ title: "Full Path Predicted", description: `Plan saved for ${dateId}.` })
-    setIsMenuOpen(false)
-    router.push("/")
+    toast({ title: "Full Path Predicted", description: `Plan saved for ${dateId}.` });
+    setIsMenuOpen(false);
+    setIsRecoveryDialogOpen(false);
+    router.push("/");
   }
 
   const handleAddPantryRecipeToPlan = async (mealName: string) => {
@@ -386,23 +390,124 @@ export default function ExplorePage() {
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
-      {wasHighlyActive && (
-        <Card className="rounded-[3.5rem] border-2 border-primary/30 shadow-premium bg-primary/10 mb-10 animate-in fade-in duration-500">
-            <CardContent className="p-10 flex items-center gap-8">
-                <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shrink-0 border-2 border-primary/20">
-                    <Flame className="w-12 h-12 text-primary" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4 max-w-7xl mx-auto">
+        {wasHighlyActive && (
+          <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => { setIsRecoveryDialogOpen(open); if(open) handleGenerateMenu(true); }}>
+            <DialogTrigger asChild>
+              <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
+                <div className="w-24 h-24 bg-red-100 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-red-200/50">
+                    <Flame className="w-12 h-12 text-red-600" />
                 </div>
-                <div className="text-left space-y-2">
-                    <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Recovery Recommendation</h3>
-                    <p className="text-foreground/80 font-bold leading-relaxed">
-                        Yesterday was a highly active day! NutriEase recommends increasing your protein and calorie intake today to support muscle recovery and replenish energy stores.
+                <div className="space-y-4 text-center">
+                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Recovery Plan</h3>
+                    <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
+                      Generate a high-protein meal plan to support muscle recovery.
                     </p>
                 </div>
-            </CardContent>
-        </Card>
-      )}
+                <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-red-600 text-white hover:bg-red-700 border-none">Generate Plan</Button>
+              </Card>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
+              <DialogHeader className="bg-red-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+                <Button variant="ghost" onClick={() => setIsRecoveryDialogOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20">
+                  <ChevronLeft className="w-4 h-4 mr-2" /> Back
+                </Button>
+                <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1 text-white">RECOVERY PLAN SYNTHESIS</DialogTitle>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
+                    <CalendarIcon className="w-3.5 h-3.5 text-white" />
+                    <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-[9px] font-black uppercase focus:ring-0 w-24 text-white cursor-pointer" />
+                  </div>
+                  {menuPlan && !loading && (
+                    <Button onClick={() => handleAddAll(true)} className="h-10 px-5 rounded-[0.75rem] bg-white text-red-600 hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
+                       <Plus className="w-4 h-4 mr-2" /> Accept All
+                    </Button>
+                  )}
+                </div>
+              </DialogHeader>
+              <div className="p-6 overflow-hidden flex-1 flex flex-col">
+                <div className="bg-red-50 border-2 border-red-200/50 text-red-800 p-4 rounded-2xl mb-4 text-sm font-bold text-center">
+                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake today to support muscle recovery and replenish energy stores.
+                </div>
+                 {loading ? (
+                  <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
+                    <Loader2 className="w-12 h-12 animate-spin text-red-600" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Synthesizing Recovery Path...</p>
+                  </div>
+                ) : menuPlan && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto no-scrollbar">
+                    {(["breakfast", "lunch", "dinner"] as const).map((type) => {
+                      const isSwapped = swappedMeals[type];
+                      const baseMeal = menuPlan[type];
+                      const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
+                      const finalTime = meal.time || baseMeal.time || "12:00 PM";
+                      return (
+                        <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-red-500/10 hover:ring-2 overflow-hidden flex flex-col relative">
+                          <Button variant="ghost" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-sm">
+                            <RefreshCw className="w-4 h-4 text-red-600" />
+                          </Button>
+                          <CardContent className="p-5 flex flex-col h-full space-y-4 text-left">
+                            <div className="flex-1 space-y-4">
+                              <Badge variant="secondary" className="bg-red-600/20 text-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-[0.6rem] border-none">{type}</Badge>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                   <Clock className="w-3 h-3 opacity-30" />
+                                   <span className="text-[9px] font-black uppercase opacity-40">{finalTime}</span>
+                                </div>
+                                <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
+                                <p className="text-[9px] font-black leading-tight text-foreground opacity-30 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
+                              </div>
+                              
+                              {meal.ingredients && (
+                                <div className="space-y-1.5">
+                                  <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
+                                    <List className="w-2.5 h-2.5" /> Ingredients
+                                  </p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
+                                      <span key={i} className="text-[7px] font-black uppercase bg-secondary/50 px-1.5 py-0.5 rounded-lg text-foreground opacity-60">
+                                        {ing}
+                                      </span>
+                                    ))}
+                                    {meal.ingredients.length > 4 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 4} more</span>}
+                                  </div>
+                                </div>
+                              )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4 max-w-7xl mx-auto">
+                              <div className="grid grid-cols-3 gap-2 border-y border-border py-4">
+                                <div className="text-center">
+                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Protein</p>
+                                  <p className="text-xs font-black text-primary">{meal.macros.protein}g</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Carbs</p>
+                                  <p className="text-xs font-black text-orange-600">{meal.macros.carbs}g</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Fat</p>
+                                  <p className="text-xs font-black text-accent">{meal.macros.fat}g</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-red-600 text-white border-none">
+                                  <Plus className="w-3 h-3 mr-1" /> Self-Cook
+                              </Button>
+                              <Button onClick={() => handleRequestCookBuddy(meal)} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-foreground text-white border-none">
+                                  <Bike className="w-3 h-3 mr-1" /> CookBuddy
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
@@ -522,7 +627,7 @@ export default function ExplorePage() {
                   <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-[9px] font-black uppercase focus:ring-0 w-24 text-foreground cursor-pointer" />
                 </div>
                 {menuPlan && !loading && (
-                  <Button onClick={handleAddAll} className="h-10 px-5 rounded-[0.75rem] bg-white text-foreground hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
+                  <Button onClick={() => handleAddAll()} className="h-10 px-5 rounded-[0.75rem] bg-white text-foreground hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
                      <Plus className="w-4 h-4 mr-2" /> Accept All
                   </Button>
                 )}
