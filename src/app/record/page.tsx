@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -15,7 +16,8 @@ import {
   Calendar,
   Clock,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  List
 } from "lucide-react"
 import { useFirestore, useUser, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, setDoc, increment, collection, serverTimestamp, updateDoc, getDoc } from "firebase/firestore"
@@ -186,7 +188,6 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!user || !mounted || !preview) return
     
-    // If not updateId, we MUST have a result from AI
     if (!updateId && !result) return
 
     let dateId = paramDateId || selectedDate || format(new Date(), "yyyy-MM-dd")
@@ -203,8 +204,6 @@ export default function RecordPage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     
     if (updateId) {
-      // Flow for updating existing meal (Eat Now with Photo)
-      // Skip AI analysis if requested, use existing metadata
       const existingMealRef = doc(firestore, "users", user.uid, "dailyLogs", dateId, "meals", updateId);
       
       const updateData: any = {
@@ -213,7 +212,6 @@ export default function RecordPage() {
         updatedAt: serverTimestamp()
       };
 
-      // If we DID happen to run analysis, update the metadata too
       if (result) {
         updateData.calories = result.calories;
         updateData.macros = result.macros;
@@ -226,7 +224,6 @@ export default function RecordPage() {
 
       await updateDoc(existingMealRef, updateData);
       
-      // Update Daily Log Totals
       const calToInc = result ? result.calories : (existingMeal?.calories || 0);
       const protToInc = result ? result.macros.protein : (existingMeal?.macros?.protein || 0);
       const carbToInc = result ? result.macros.carbs : (existingMeal?.macros?.carbs || 0);
@@ -242,7 +239,6 @@ export default function RecordPage() {
 
       toast({ title: "Meal Updated", description: `Record synced with photo.` })
     } else {
-      // Standard Record Flow (New meal from camera/gallery)
       if (!result) return;
       const newMealRef = doc(collection(dailyLogRef, "meals"))
       
@@ -381,6 +377,21 @@ export default function RecordPage() {
                   )}
 
                   <p className="text-[9px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-2 rounded-lg border border-primary/10 text-left italic">"{result.expertInsight}"</p>
+                  
+                  {result.ingredients && result.ingredients.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[7px] font-black uppercase text-foreground opacity-40 flex items-center gap-1">
+                        <List className="w-2.5 h-2.5" /> Ingredients
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {result.ingredients.map((ing: string, i: number) => (
+                          <span key={i} className="text-[8px] font-black uppercase bg-secondary/50 px-2 py-0.5 rounded-lg text-foreground opacity-60">
+                            {ing}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   
                   {result.allergenWarning && (
                     <div className="p-2 bg-destructive/10 rounded-lg border border-destructive/20 flex items-start gap-1.5">

@@ -19,7 +19,8 @@ import {
   ListOrdered,
   Clock,
   Bell,
-  CheckCircle2
+  CheckCircle2,
+  List
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -359,18 +360,30 @@ export default function MealPlannerPage() {
                           <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground group-hover:text-primary transition-colors">{meal.name}</h3>
                           {meal.reminderEnabled && meal.status !== 'consumed' && <Bell className="w-3.5 h-3.5 text-primary fill-primary/20" />}
                         </div>
-                        <div className="flex flex-row items-center gap-4">
-                          <p className="text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
-                            <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
-                            <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
+                        <div className="space-y-1">
+                          <div className="flex flex-row items-center gap-4">
+                            <p className="text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
+                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
+                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
+                            </div>
                           </div>
+                          {meal.ingredients && meal.ingredients.length > 0 && (
+                            <div className="flex flex-wrap gap-1 items-center">
+                              <List className="w-2.5 h-2.5 text-foreground opacity-30" />
+                              {meal.ingredients.slice(0, 3).map((ing: string, i: number) => (
+                                <span key={i} className="text-[7px] font-black uppercase bg-secondary px-1.5 py-0.5 rounded text-foreground opacity-50">
+                                  {ing}
+                                </span>
+                              ))}
+                              {meal.ingredients.length > 3 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 3}</span>}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                     
-                    {/* Actions and Status Aligned to Right */}
                     <div className="flex items-center gap-2 shrink-0">
                       {meal.status === 'consumed' && (
                         <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20 shrink-0">

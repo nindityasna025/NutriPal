@@ -264,8 +264,8 @@ export default function Dashboard() {
 
             <div className="pt-2.5 border-t border-border/30 space-y-1">
               <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest">
-                <span className="opacity-40">GOAL PROGRESS</span>
-                <span className={cn(isOverLimit ? "text-destructive" : "text-primary")}>{actualPercent}% CONSUMED</span>
+                <span className="opacity-40 tracking-widest">GOAL PROGRESS</span>
+                <span className={cn("font-black", isOverLimit ? "text-destructive" : "text-primary")}>{actualPercent}% CONSUMED</span>
               </div>
               <Progress value={caloriePercentForProgress} className="h-1.5 rounded-full bg-secondary" indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} />
             </div>
@@ -377,7 +377,6 @@ export default function Dashboard() {
                         </div>
                       </div>
                       
-                      {/* Action Area - Aligned to the Right */}
                       <div className="flex items-center gap-2 shrink-0">
                         {meal.status === 'consumed' && (
                           <Badge className="h-3.5 px-1.5 text-[6px] font-black uppercase bg-green-500/10 text-green-600 border-none shrink-0">EATEN</Badge>
