@@ -180,6 +180,7 @@ export default function ExplorePage() {
       description: item.description || "Optimized path.",
       expertInsight: item.reasoning || "Predicted for bio-metrics.",
       ingredients: item.ingredients || [],
+      instructions: item.instructions || [],
       status: "planned",
       createdAt: serverTimestamp()
     })
@@ -225,6 +226,7 @@ export default function ExplorePage() {
         description: item.description,
         expertInsight: "Daily predictive synthesis.",
         ingredients: item.ingredients || [],
+        instructions: item.instructions || [],
         status: "planned",
         createdAt: serverTimestamp()
       })
