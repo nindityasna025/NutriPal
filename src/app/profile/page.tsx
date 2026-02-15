@@ -68,7 +68,6 @@ export default function ProfilePage() {
   const [isFitnessDialogOpen, setIsFitnessDialogOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
-  const [showRecommendation, setShowRecommendation] = useState(true);
 
   // Edit States
   const [weight, setWeight] = useState("")
@@ -131,16 +130,6 @@ export default function ProfilePage() {
       toast({ title: "Sync Complete", description: "All device metrics updated." })
     }, 2000)
   }
-
-  const handleAcceptRecommendation = () => {
-    toast({ title: "Plan Accepted", description: "Recovery nutrition plan updated." });
-    setShowRecommendation(false);
-  };
-
-  const handleDropRecommendation = () => {
-    toast({ variant: "destructive", title: "Plan Dropped", description: "Recommendation ignored." });
-    setShowRecommendation(false);
-  };
 
   const calculateCalorieTarget = (w: number, h: number, a: number, g: "male" | "female", cat: string) => {
     let bmr = (10 * w) + (6.25 * h) - (5 * a)
@@ -519,20 +508,6 @@ export default function ProfilePage() {
                       </div>
                   </Card>
               </div>
-              {showRecommendation && (
-                <div className="mt-6">
-                    <div className="bg-primary/20 rounded-2xl p-4 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <Flame className="w-5 h-5 text-foreground" />
-                            <p className="text-xs font-black uppercase text-foreground">Highly active day! NutriEase suggests +25g protein & +300 kcal for recovery.</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button onClick={handleAcceptRecommendation} className="rounded-full bg-white text-foreground hover:bg-white/90 h-9 px-6 text-[10px] font-black uppercase shadow-sm">Accept</Button>
-                            <Button onClick={handleDropRecommendation} variant="ghost" className="rounded-full h-9 px-6 text-[10px] font-black uppercase text-foreground/50 hover:bg-black/5">Drop</Button>
-                        </div>
-                    </div>
-                </div>
-              )}
           </DialogContent>
         </Dialog>
 
@@ -546,5 +521,3 @@ export default function ProfilePage() {
     </div>
   )
 }
-
-    

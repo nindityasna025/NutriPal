@@ -21,7 +21,6 @@ const chartData = [
 export default function FitnessPage() {
   const [syncing, setSyncing] = useState(false)
   const [lastSync, setLastSync] = useState<string | null>(null)
-  const [showAlert, setShowAlert] = useState(true)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -35,16 +34,6 @@ export default function FitnessPage() {
       setLastSync(new Date().toLocaleTimeString())
       toast({ title: "Sync Complete", description: "All device metrics updated." })
     }, 2000)
-  }
-
-  const handleEatNow = () => {
-    toast({ title: "Plan Accepted", description: "Protein target increased for your next meal." })
-    setShowAlert(false)
-  }
-
-  const handleDrop = () => {
-    toast({ variant: "destructive", title: "Plan Dropped", description: "Recommendation ignored." })
-    setShowAlert(false)
   }
 
   return (
@@ -147,38 +136,6 @@ export default function FitnessPage() {
             </CardContent>
           </Card>
         </div>
-
-        {showAlert && (
-          <Card className="bg-primary border-none text-primary-foreground overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <CardContent className="p-8 flex flex-col md:flex-row items-center gap-8 relative">
-              <div className="z-10 space-y-4 max-w-2xl text-center md:text-left">
-                <h2 className="text-3xl font-headline font-extrabold">Highly Active Day Detected! 🚀</h2>
-                <p className="text-primary-foreground/90 text-lg leading-relaxed font-medium">
-                  You&apos;ve burned <span className="underline decoration-white underline-offset-4">850 active calories</span> today. 
-                  NutriEase recommends increasing your protein intake by 25g and adding an extra 300 kcal to your dinner to support recovery.
-                </p>
-                <div className="flex flex-wrap gap-4 justify-center md:justify-start pt-2">
-                   <Button 
-                    onClick={handleEatNow}
-                    className="bg-white text-primary hover:bg-white/90 font-black uppercase text-[10px] tracking-widest rounded-xl h-12 px-8 shadow-xl"
-                   >
-                     <CheckCircle2 className="w-4 h-4 mr-2" /> Eat Now
-                   </Button>
-                   <Button 
-                    variant="outline" 
-                    onClick={handleDrop}
-                    className="border-white text-white hover:bg-white/10 font-black uppercase text-[10px] tracking-widest rounded-xl h-12 px-8"
-                   >
-                     <XCircle className="w-4 h-4 mr-2" /> Drop
-                   </Button>
-                </div>
-              </div>
-              <div className="md:absolute right-10 opacity-20 pointer-events-none">
-                <Flame className="w-64 h-64" />
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </main>
     </div>
   )
