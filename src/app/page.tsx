@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -22,11 +23,14 @@ import {
   CheckCircle2,
   AlertTriangle,
   Activity,
-  List
+  List,
+  RefreshCw,
+  Clock,
+  ChevronLeft
 } from "lucide-react"
-import { format, startOfToday, subDays } from "date-fns"
+import { format, startOfToday, subDays, addDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
-import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
@@ -40,11 +44,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Legend, Line } from "recharts"
 import { Separator } from "@/components/ui/separator"
+import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", 
@@ -62,6 +68,15 @@ export default function Dashboard() {
   
   const [isEatNowOpen, setIsEatNowOpen] = useState(false)
   const [selectedMealForEatNow, setSelectedMealForEatNow] = useState<any | null>(null)
+
+  const [isRecoveryDialogOpen, setIsRecoveryDialogOpen] = useState(false)
+  const [loadingRecoveryPlan, setLoadingRecoveryPlan] = useState(false)
+  const [recoveryPlan, setRecoveryPlan] = useState<any | null>(null)
+  const [swappedRecoveryMeals, setSwappedRecoveryMeals] = useState<Record<string, boolean>>({
+    breakfast: false,
+    lunch: false,
+    dinner: false,
+  })
 
   const { toast } = useToast()
 
@@ -95,6 +110,75 @@ export default function Dashboard() {
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
   const { data: recentLogs } = useCollection(logsQuery)
+
+  const wasHighlyActive = (dailyLog?.caloriesBurned || 0) > 700;
+
+  const handleGenerateRecoveryPlan = async () => {
+    if (!profile) return
+    setLoadingRecoveryPlan(true)
+    setRecoveryPlan(null)
+    setSwappedRecoveryMeals({ breakfast: false, lunch: false, dinner: false })
+    try {
+      const dietTypeParts = [
+        ...(profile.dietaryRestrictions || []),
+        'High Protein',
+      ]
+      const plan = await generateDailyPlan({
+        calorieTarget: (profile.calorieTarget || 2000) + 300,
+        proteinPercent: 40,
+        carbsPercent: 40,
+        fatPercent: 20,
+        dietType: dietTypeParts.join(", "),
+        allergies: profile.allergies,
+      })
+      setRecoveryPlan(plan)
+    } catch (err: any) {
+      console.error(err)
+      toast({ variant: "destructive", title: "Synthesis Error", description: "AI could not generate a plan." })
+    } finally {
+      setLoadingRecoveryPlan(false)
+    }
+  }
+
+  const handleSwapRecoveryMeal = (type: string) => {
+    setSwappedRecoveryMeals(prev => ({ ...prev, [type]: !prev[type] }))
+    toast({ title: "Meal Swapped", description: `Showing alternative for ${type}.` })
+  }
+
+  const handleAcceptRecoveryPlan = async () => {
+    if (!user || !firestore || !recoveryPlan || !today) return;
+    const targetDate = format(addDays(today, 1), "yyyy-MM-dd");
+    const dailyLogRefForTarget = doc(firestore, "users", user.uid, "dailyLogs", targetDate);
+    const mealsColRefForTarget = collection(dailyLogRefForTarget, "meals");
+    
+    setDocumentNonBlocking(dailyLogRefForTarget, { date: targetDate }, { merge: true });
+
+    const types = ["breakfast", "lunch", "dinner"] as const;
+    types.forEach(type => {
+      const isSwapped = swappedRecoveryMeals[type];
+      const baseMeal = recoveryPlan[type];
+      const item = isSwapped ? baseMeal.swapSuggestion : baseMeal;
+      const finalTime = item.time || baseMeal.time || "12:00 PM";
+
+      addDocumentNonBlocking(mealsColRefForTarget, {
+        name: item.name,
+        calories: item.calories,
+        time: finalTime,
+        source: "planner",
+        macros: item.macros,
+        healthScore: 90,
+        description: item.description,
+        expertInsight: "Recovery-focused synthesis.",
+        ingredients: item.ingredients || [],
+        instructions: item.instructions || [],
+        status: "planned",
+        createdAt: serverTimestamp()
+      });
+    });
+
+    toast({ title: "Recovery Plan Saved", description: `Plan for tomorrow has been scheduled.` });
+    setIsRecoveryDialogOpen(false);
+  }
 
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
@@ -274,13 +358,119 @@ export default function Dashboard() {
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px]">
-            <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
-              <Flame className="w-4 h-4 text-foreground" />
-            </div>
-            <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-            <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
-          </Card>
+          <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => {
+              setIsRecoveryDialogOpen(open);
+              if(open && !recoveryPlan) handleGenerateRecoveryPlan();
+          }}>
+            <DialogTrigger asChild disabled={!wasHighlyActive}>
+              <Card className={cn(
+                  "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all",
+                  wasHighlyActive && "cursor-pointer group ring-2 ring-destructive/50 hover:ring-destructive"
+              )}>
+                  <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
+                          <Flame className="w-4 h-4 text-foreground" />
+                      </div>
+                      {wasHighlyActive && (
+                          <div className="p-1.5 bg-destructive/10 rounded-lg mb-1 border border-destructive/20 animate-pulse">
+                              <AlertTriangle className="w-4 h-4 text-destructive" />
+                          </div>
+                      )}
+                  </div>
+                  <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+                  <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
+              </Card>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
+              <DialogHeader className="bg-red-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+                <Button variant="ghost" onClick={() => setIsRecoveryDialogOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20">
+                  <ChevronLeft className="w-4 h-4 mr-2" /> Back
+                </Button>
+                <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1 text-white">RECOVERY PLAN SYNTHESIS</DialogTitle>
+                <div className="flex items-center gap-3">
+                  {recoveryPlan && !loadingRecoveryPlan && (
+                    <Button onClick={handleAcceptRecoveryPlan} className="h-10 px-5 rounded-[0.75rem] bg-white text-red-600 hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
+                       <Plus className="w-4 h-4 mr-2" /> Accept All
+                    </Button>
+                  )}
+                </div>
+              </DialogHeader>
+              <div className="p-6 overflow-hidden flex-1 flex flex-col">
+                <div className="bg-red-50 border-2 border-red-200/50 text-red-800 p-4 rounded-2xl mb-4 text-sm font-bold text-center">
+                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake today to support muscle recovery and replenish energy stores.
+                </div>
+                 {loadingRecoveryPlan ? (
+                  <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
+                    <Loader2 className="w-12 h-12 animate-spin text-red-600" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Synthesizing Recovery Path...</p>
+                  </div>
+                ) : recoveryPlan && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto no-scrollbar">
+                    {(["breakfast", "lunch", "dinner"] as const).map((type) => {
+                      const isSwapped = swappedRecoveryMeals[type];
+                      const baseMeal = recoveryPlan[type];
+                      const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
+                      const finalTime = meal.time || baseMeal.time || "12:00 PM";
+                      return (
+                        <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-red-500/10 hover:ring-2 overflow-hidden flex flex-col relative">
+                          <Button variant="ghost" size="icon" onClick={() => handleSwapRecoveryMeal(type)} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-sm">
+                            <RefreshCw className="w-4 h-4 text-red-600" />
+                          </Button>
+                          <CardContent className="p-5 flex flex-col h-full space-y-4 text-left">
+                            <div className="flex-1 space-y-4">
+                              <Badge variant="secondary" className="bg-red-600/20 text-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-[0.6rem] border-none">{type}</Badge>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                   <Clock className="w-3 h-3 opacity-30" />
+                                   <span className="text-[9px] font-black uppercase opacity-40">{finalTime}</span>
+                                </div>
+                                <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
+                                <p className="text-[9px] font-black leading-tight text-foreground opacity-30 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
+                              </div>
+                              
+                              {meal.ingredients && (
+                                <div className="space-y-1.5">
+                                  <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
+                                    <List className="w-2.5 h-2.5" /> Ingredients
+                                  </p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
+                                      <span key={i} className="text-[7px] font-black uppercase bg-secondary/50 px-1.5 py-0.5 rounded-lg text-foreground opacity-60">
+                                        {ing}
+                                      </span>
+                                    ))}
+                                    {meal.ingredients.length > 4 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 4} more</span>}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="grid grid-cols-3 gap-2 border-y border-border py-4">
+                                <div className="text-center">
+                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Protein</p>
+                                  <p className="text-xs font-black text-primary">{meal.macros.protein}g</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Carbs</p>
+                                  <p className="text-xs font-black text-orange-600">{meal.macros.carbs}g</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Fat</p>
+                                  <p className="text-xs font-black text-accent">{meal.macros.fat}g</p>
+                                </div>
+                              </div>
+                            </div>
+                            <Button onClick={handleAcceptRecoveryPlan} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-red-600 text-white border-none">
+                                <Plus className="w-3 h-3 mr-1" /> Add to Plan
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px]">
             <div className="p-1.5 bg-accent/20 rounded-lg mb-1 border border-accent/10">
