@@ -111,7 +111,8 @@ export default function Dashboard() {
   const { data: meals } = useCollection(mealsColRef)
   const { data: recentLogs } = useCollection(logsQuery)
 
-  const wasHighlyActive = (dailyLog?.caloriesBurned || 0) > 700;
+  const caloriesBurned = dailyLog?.caloriesBurned || 800;
+  const wasHighlyActive = caloriesBurned > 700;
 
   const handleGenerateRecoveryPlan = async () => {
     if (!profile) return
@@ -201,7 +202,7 @@ export default function Dashboard() {
           protein: Math.round((totals.protein || 0) * 4),
           carbs: Math.round((totals.carbs || 0) * 4),
           fat: Math.round((totals.fat || 0) * 9),
-          "Calories Burned": dailyLog?.caloriesBurned || 800,
+          "Calories Burned": caloriesBurned,
         };
       }
       const log = recentLogs?.find(l => l.date === dateStr);
@@ -213,7 +214,7 @@ export default function Dashboard() {
         "Calories Burned": log?.caloriesBurned || Math.floor(Math.random() * (550 - 350 + 1) + 350),
       };
     });
-  }, [recentLogs, today, dateId, totals, dailyLog]);
+  }, [recentLogs, today, dateId, totals, caloriesBurned]);
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = Math.max(0, Math.round(totals.calories))
@@ -359,25 +360,23 @@ export default function Dashboard() {
 
         <div className="md:col-span-5 flex flex-col gap-3">
           <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => {
+              if (open && !wasHighlyActive) return;
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
             <Card className={cn(
                 "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all"
             )}>
-                {wasHighlyActive ? (
-                    <DialogTrigger asChild>
-                        <div className="p-1.5 bg-destructive/10 rounded-lg mb-1 border border-destructive/20 cursor-pointer animate-pulse">
-                            <Flame className="w-4 h-4 text-destructive" />
-                        </div>
-                    </DialogTrigger>
-                ) : (
-                    <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
-                        <Flame className="w-4 h-4 text-foreground" />
+                <DialogTrigger asChild disabled={!wasHighlyActive}>
+                    <div className={cn(
+                        "p-1.5 rounded-lg mb-1 border transition-all",
+                        wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10"
+                    )}>
+                        <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
                     </div>
-                )}
+                </DialogTrigger>
                 <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-                <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
+                <p className="text-lg font-black tracking-tighter text-foreground">{caloriesBurned} <span className="text-[9px] font-black opacity-20">kcal</span></p>
             </Card>
             <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
               <DialogHeader className="bg-red-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
