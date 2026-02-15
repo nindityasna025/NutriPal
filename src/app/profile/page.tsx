@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
@@ -27,7 +27,12 @@ import {
   Calculator,
   Calendar,
   Ruler,
-  Heart
+  Heart,
+  RefreshCw,
+  Watch,
+  Flame,
+  XCircle,
+  CheckCircle2
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -43,6 +48,8 @@ import { cn } from "@/lib/utils"
 import { updateDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { format, subDays } from "date-fns"
 
 export default function ProfilePage() {
   const { user } = useUser()
@@ -56,6 +63,12 @@ export default function ProfilePage() {
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // Fitness Sync Dialog states
+  const [isFitnessDialogOpen, setIsFitnessDialogOpen] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [showRecommendation, setShowRecommendation] = useState(true);
 
   // Edit States
   const [weight, setWeight] = useState("")
@@ -95,6 +108,39 @@ export default function ProfilePage() {
       }
     }
   }, [weight, height])
+
+  useEffect(() => {
+    setLastSync(new Date().toLocaleTimeString())
+  }, [])
+  
+  const fitnessChartData = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+        const d = subDays(new Date(), 6 - i);
+        return {
+          date: format(d, "MMM d"),
+          kcal: Math.floor(300 + Math.random() * 300)
+        }
+    });
+  }, []);
+
+  const handleSync = () => {
+    setSyncing(true)
+    setTimeout(() => {
+      setSyncing(false)
+      setLastSync(new Date().toLocaleTimeString())
+      toast({ title: "Sync Complete", description: "All device metrics updated." })
+    }, 2000)
+  }
+
+  const handleAcceptRecommendation = () => {
+    toast({ title: "Plan Accepted", description: "Recovery nutrition plan updated." });
+    setShowRecommendation(false);
+  };
+
+  const handleDropRecommendation = () => {
+    toast({ variant: "destructive", title: "Plan Dropped", description: "Recommendation ignored." });
+    setShowRecommendation(false);
+  };
 
   const calculateCalorieTarget = (w: number, h: number, a: number, g: "male" | "female", cat: string) => {
     let bmr = (10 * w) + (6.25 * h) - (5 * a)
@@ -141,6 +187,12 @@ export default function ProfilePage() {
   }
 
   if (!user) return null
+
+  const settingsItems = [
+    { icon: <Bell className="text-orange-600 w-4 h-4" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
+    { icon: <ShieldCheck className="text-green-700 w-4 h-4" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
+    { icon: <Smartphone className="text-blue-600 w-4 h-4" />, label: "Wearable Sync", sub: "Sync Health Apps", id: "wearable-sync" },
+  ];
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-10 pb-32 min-h-screen relative">
@@ -368,29 +420,121 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-[9px] font-black text-foreground opacity-40 uppercase tracking-[0.25em] px-2 text-center">Ecosystem Settings</h2>
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-            <CardContent className="p-0">
-              {[
-                { icon: <Bell className="text-orange-600 w-4 h-4" />, label: "Smart Notifications", sub: "Meal reminders", hasSwitch: true },
-                { icon: <ShieldCheck className="text-green-700 w-4 h-4" />, label: "Connected Platforms", sub: "Grab, Gojek integrated" },
-                { icon: <Smartphone className="text-blue-600 w-4 h-4" />, label: "Wearable Sync", sub: "Sync Health Apps" },
-              ].map((item, i, arr) => (
-                <div key={i} className={cn("w-full flex items-center justify-between p-6 transition-all hover:bg-secondary/20", i !== arr.length - 1 && "border-b border-muted/30")}>
-                  <div className="flex items-center gap-4">
-                    <div className="bg-secondary/50 p-3 rounded-xl shrink-0">{item.icon}</div>
-                    <div className="text-left">
-                      <p className="text-xs font-black tracking-tight uppercase text-foreground">{item.label}</p>
-                      <p className="text-[8px] font-black text-foreground opacity-40 uppercase tracking-tighter mt-0.5">{item.sub}</p>
+        <Dialog open={isFitnessDialogOpen} onOpenChange={setIsFitnessDialogOpen}>
+          <div className="space-y-4">
+            <h2 className="text-[9px] font-black text-foreground opacity-40 uppercase tracking-[0.25em] px-2 text-center">Ecosystem Settings</h2>
+            <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
+              <CardContent className="p-0">
+                {settingsItems.map((item, i, arr) => {
+                    const itemContent = (
+                      <>
+                        <div className="flex items-center gap-4">
+                          <div className="bg-secondary/50 p-3 rounded-xl shrink-0">{item.icon}</div>
+                          <div className="text-left">
+                            <p className="text-xs font-black tracking-tight uppercase text-foreground">{item.label}</p>
+                            <p className="text-[8px] font-black text-foreground opacity-40 uppercase tracking-tighter mt-0.5">{item.sub}</p>
+                          </div>
+                        </div>
+                      </>
+                    );
+
+                    if (item.id === 'wearable-sync') {
+                      return (
+                        <DialogTrigger key={i} asChild>
+                          <div className={cn("w-full flex items-center justify-between p-6 transition-all hover:bg-secondary/20 cursor-pointer", i !== arr.length - 1 && "border-b border-muted/30")}>
+                            {itemContent}
+                            <ChevronRight className="w-4 h-4 text-foreground opacity-20 shrink-0" />
+                          </div>
+                        </DialogTrigger>
+                      )
+                    }
+                    
+                    return (
+                      <div key={i} className={cn("w-full flex items-center justify-between p-6 transition-all hover:bg-secondary/20", i !== arr.length - 1 && "border-b border-muted/30")}>
+                        <div className="flex items-center gap-4">
+                          <div className="bg-secondary/50 p-3 rounded-xl shrink-0">{item.icon}</div>
+                          <div className="text-left">
+                            <p className="text-xs font-black tracking-tight uppercase text-foreground">{item.label}</p>
+                            <p className="text-[8px] font-black text-foreground opacity-40 uppercase tracking-tighter mt-0.5">{item.sub}</p>
+                          </div>
+                        </div>
+                        {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={setNotifs} className="shrink-0" /> : <ChevronRight className="w-4 h-4 text-foreground opacity-20 shrink-0" />}
+                      </div>
+                    );
+                })}
+              </CardContent>
+            </Card>
+          </div>
+          <DialogContent className="max-w-4xl rounded-[2.5rem] p-8 border-none shadow-premium-lg bg-background w-[94vw] max-h-[92vh] flex flex-col">
+              <DialogHeader className="text-center mb-6">
+                <DialogTitle className="text-2xl font-black tracking-tighter text-foreground uppercase">Fitness Sync</DialogTitle>
+                <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Wearable Sync</p>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                  <Card className="rounded-3xl border-none shadow-premium bg-white p-6 flex flex-col">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-foreground mb-4">Connected Devices</h3>
+                      <div className="space-y-4 flex-1">
+                          <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-xl">
+                              <div className="flex items-center gap-3">
+                                <Watch className="text-primary w-5 h-5" />
+                                <div>
+                                  <p className="font-bold text-sm">Apple Watch S9</p>
+                                  <p className="text-xs text-muted-foreground">Connected • Active</p>
+                                </div>
+                              </div>
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                          </div>
+                          <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-xl">
+                              <div className="flex items-center gap-3">
+                                <Smartphone className="text-muted-foreground w-5 h-5" />
+                                <div>
+                                  <p className="font-bold text-sm">Health Connect</p>
+                                  <p className="text-xs text-muted-foreground">Synced via iPhone</p>
+                                </div>
+                              </div>
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                          </div>
+                      </div>
+                      <Button onClick={handleSync} disabled={syncing} variant="outline" className="w-full h-12 rounded-2xl mt-4 font-black text-sm border-2">
+                          <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                          {syncing ? 'Syncing...' : 'Sync Now'}
+                      </Button>
+                      <p className="text-center text-xs text-muted-foreground mt-2">Last synced: {lastSync}</p>
+                  </Card>
+                  <Card className="rounded-3xl border-none shadow-premium bg-white p-6">
+                      <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Weekly Calories Burned</h3>
+                          <Flame className="w-5 h-5 text-primary" />
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-4">Based on active workout minutes and steps.</p>
+                      <div className="h-[250px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                              <LineChart data={fitnessChartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                                  <XAxis dataKey="date" tick={{ fontSize: 10, fontWeight: 'bold' }} stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                                  <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} />
+                                  <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(var(--border))', borderRadius: '1rem' }} />
+                                  <Line type="monotone" dataKey="kcal" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2, fill: 'white' }} activeDot={{ r: 8 }} />
+                              </LineChart>
+                          </ResponsiveContainer>
+                      </div>
+                  </Card>
+              </div>
+              {showRecommendation && (
+                <div className="mt-6">
+                    <div className="bg-primary/20 rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <Flame className="w-5 h-5 text-foreground" />
+                            <p className="text-xs font-black uppercase text-foreground">Highly active day! NutriEase suggests +25g protein & +300 kcal for recovery.</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button onClick={handleAcceptRecommendation} className="rounded-full bg-white text-foreground hover:bg-white/90 h-9 px-6 text-[10px] font-black uppercase shadow-sm">Accept</Button>
+                            <Button onClick={handleDropRecommendation} variant="ghost" className="rounded-full h-9 px-6 text-[10px] font-black uppercase text-foreground/50 hover:bg-black/5">Drop</Button>
+                        </div>
                     </div>
-                  </div>
-                  {item.hasSwitch ? <Switch checked={notifs} onCheckedChange={setNotifs} className="shrink-0" /> : <ChevronRight className="w-4 h-4 text-foreground opacity-20 shrink-0" />}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+              )}
+          </DialogContent>
+        </Dialog>
 
         <div className="pt-4">
           <Button onClick={handleLogout} className="w-full h-14 rounded-2xl font-black text-sm bg-red-600 hover:bg-red-700 text-white shadow-premium flex gap-3 transition-all border-none">
@@ -402,3 +546,5 @@ export default function ProfilePage() {
     </div>
   )
 }
+
+    
