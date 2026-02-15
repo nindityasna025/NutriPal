@@ -129,15 +129,13 @@ export default function ExplorePage() {
   const yesterdayLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", yesterdayId) : null, [user, firestore, yesterdayId]);
   const { data: yesterdayLogData } = useDoc(yesterdayLogRef);
 
-  const yesterdayLog = useMemo(() => {
+  const wasHighlyActive = useMemo(() => {
     if (yesterdayLogData) {
-      return yesterdayLogData;
+      return yesterdayLogData.caloriesBurned > 700;
     }
-    return { caloriesBurned: 850 };
+    return true; // For demonstration, show if no log exists
   }, [yesterdayLogData]);
   
-  const wasHighlyActive = yesterdayLog && yesterdayLog.caloriesBurned && yesterdayLog.caloriesBurned > 700;
-
   const handleCurateDelivery = async () => {
     if (!profile) return;
     setLoading(true)
@@ -384,27 +382,27 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen text-center">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-8 pb-24 min-h-screen text-center">
       <header className="space-y-1 pt-safe text-center">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 max-w-5xl mx-auto">
         {wasHighlyActive && (
           <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => { setIsRecoveryDialogOpen(open); if(open) handleGenerateMenu(true); }}>
             <DialogTrigger asChild>
-              <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
-                <div className="w-24 h-24 bg-red-100 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-red-200/50">
-                    <Flame className="w-12 h-12 text-red-600" />
+              <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
+                <div className="w-20 h-20 bg-red-100 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-red-200/50">
+                    <Flame className="w-10 h-10 text-red-600" />
                 </div>
-                <div className="space-y-4 text-center">
-                    <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Recovery Plan</h3>
-                    <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
+                <div className="space-y-3 text-center">
+                    <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Recovery Plan</h3>
+                    <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
                       Generate a high-protein meal plan to support muscle recovery.
                     </p>
                 </div>
-                <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-red-600 text-white hover:bg-red-700 border-none">Generate Plan</Button>
+                <Button variant="secondary" className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-red-600 text-white hover:bg-red-700 border-none">Generate Plan</Button>
               </Card>
             </DialogTrigger>
             <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
@@ -510,17 +508,17 @@ export default function ExplorePage() {
 
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-primary/20 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-primary/10">
-                 <Cpu className="w-12 h-12 text-foreground" />
+            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
+              <div className="w-20 h-20 bg-primary/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-primary/10">
+                 <Cpu className="w-10 h-10 text-foreground" />
               </div>
-              <div className="space-y-4 text-center">
-                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">ML Curation</h3>
-                <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
+              <div className="space-y-3 text-center">
+                <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">ML Curation</h3>
+                <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
                   Neural recommendation engine for platform ecosystem matching.
                 </p>
               </div>
-              <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Execute Scorer</Button>
+              <Button className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Execute Scorer</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-4xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
@@ -602,17 +600,17 @@ export default function ExplorePage() {
 
         <Dialog open={isMenuOpen} onOpenChange={(open) => { setIsMenuOpen(open); if(open) handleGenerateMenu(); }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-accent/20 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-accent/10">
-                 <Sparkles className="w-12 h-12 text-foreground opacity-60" />
+            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
+              <div className="w-20 h-20 bg-accent/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-accent/10">
+                 <Sparkles className="w-10 h-10 text-foreground opacity-60" />
               </div>
-              <div className="space-y-4 text-center">
-                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Predictive Path</h3>
-                <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
+              <div className="space-y-3 text-center">
+                <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Predictive Path</h3>
+                <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
                   Synthesize daily nutritional path using predictive models.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-accent text-foreground hover:opacity-90 border-none">Synthesize Path</Button>
+              <Button variant="secondary" className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-accent text-foreground hover:opacity-90 border-none">Synthesize Path</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
@@ -712,17 +710,17 @@ export default function ExplorePage() {
 
         <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
           <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
-              <div className="w-24 h-24 bg-blue-100 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-blue-200/50">
-                <ChefHat className="w-12 h-12 text-blue-700" />
+            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
+              <div className="w-20 h-20 bg-blue-100 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-blue-200/50">
+                <ChefHat className="w-10 h-10 text-blue-700" />
               </div>
-              <div className="space-y-4 text-center">
-                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Recipe From Pantry</h3>
-                <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
+              <div className="space-y-3 text-center">
+                <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Recipe From Pantry</h3>
+                <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
                   Generate simple recipes using what you already have.
                 </p>
               </div>
-              <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-blue-600 text-white hover:bg-blue-700 border-none">Create Recipe</Button>
+              <Button variant="secondary" className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-blue-600 text-white hover:bg-blue-700 border-none">Create Recipe</Button>
             </Card>
           </DialogTrigger>
           <DialogContent className="max-w-2xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
@@ -809,3 +807,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
