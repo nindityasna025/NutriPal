@@ -1,9 +1,11 @@
+
 'use server';
 
 /**
  * @fileOverview Machine Learning Recommendation Model for delivery curation.
  * 
  * - curateMealSuggestions - Acts as a scoring engine to rank delivery items.
+ * - Includes rule-based fallback for 429 quota handling.
  */
 
 import { ai } from '@/ai/genkit';
@@ -28,7 +30,7 @@ const DeliveryItemSchema = z.object({
 const CurateMealSuggestionsInputSchema = z.object({
   userProfile: z.object({
     bmiCategory: z.string().optional(),
-    dietaryRestrictions: z.array(z.string()).optional(),
+    dietaryRestrictions: z.array(z.string().optional()).optional(),
     allergies: z.string().optional(),
     calorieTarget: z.number().optional(),
   }),
@@ -46,7 +48,44 @@ const CurateMealSuggestionsOutputSchema = z.object({
 export type CurateMealSuggestionsOutput = z.infer<typeof CurateMealSuggestionsOutputSchema>;
 
 export async function curateMealSuggestions(input: CurateMealSuggestionsInput): Promise<CurateMealSuggestionsOutput> {
-  return curateMealSuggestionsFlow(input);
+  try {
+    return await curateMealSuggestionsFlow(input);
+  } catch (error: any) {
+    if (error.message?.includes('429')) {
+      console.warn('AI Quota Exceeded. Using Rule-Based Fallback for Delivery Hub.');
+      return ruleBasedDeliveryFallback(input);
+    }
+    throw error;
+  }
+}
+
+function ruleBasedDeliveryFallback(input: CurateMealSuggestionsInput): CurateMealSuggestionsOutput {
+  const { userProfile, scrapedDatabase } = input;
+  const targetCals = (userProfile.calorieTarget || 2000) / 3;
+  
+  const filtered = scrapedDatabase.filter(item => {
+    // Basic allergy check
+    if (userProfile.allergies && item.name.toLowerCase().includes(userProfile.allergies.toLowerCase())) return false;
+    // Dietary restrictions check
+    if (userProfile.dietaryRestrictions?.length) {
+      const match = userProfile.dietaryRestrictions.some(res => item.tags.includes(res!));
+      if (!match) return false;
+    }
+    return true;
+  });
+
+  const sorted = filtered.sort((a, b) => {
+    const scoreA = Math.abs(a.calories - targetCals);
+    const scoreB = Math.abs(b.calories - targetCals);
+    return scoreA - scoreB;
+  });
+
+  const top3 = sorted.slice(0, 3).map(item => ({
+    ...item,
+    reasoning: "Rule-based optimization: Matched based on calorie proximity and profile constraints during AI downtime."
+  }));
+
+  return { topMatches: top3 };
 }
 
 const prompt = ai.definePrompt({
@@ -54,13 +93,13 @@ const prompt = ai.definePrompt({
   input: { schema: CurateMealSuggestionsInputSchema },
   output: { schema: CurateMealSuggestionsOutputSchema },
   prompt: `You are the NutriPal V1 Machine Learning Recommendation Engine. 
-Your objective is to execute a multi-variable scoring algorithm to rank food items from the provided database.
+Your objective is to execute a multi-variable scoring algorithm to rank food items.
 
 User Input Vector:
-- BMI Category Weight: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
-- Filter Constraints (Hard): {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
-- Exclusion Vector (Allergies): {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
-- Target Scalar (Calories): {{{userProfile.calorieTarget}}} kcal
+- BMI: {{#if userProfile.bmiCategory}}{{{userProfile.bmiCategory}}}{{else}}Standard{{/if}}
+- Constraints: {{#if userProfile.dietaryRestrictions}}{{{userProfile.dietaryRestrictions}}}{{else}}None{{/if}}
+- Allergies: {{#if userProfile.allergies}}{{{userProfile.allergies}}}{{else}}None{{/if}}
+- Target Scalar: {{{userProfile.calorieTarget}}} kcal
 
 DATABASE OF ITEMS:
 {{#each scrapedDatabase}}
@@ -68,16 +107,11 @@ DATABASE OF ITEMS:
 {{/each}}
 
 MODEL LOGIC:
-1. PENALTY: Assign -1000 score to any item containing "Exclusion Vector" ingredients.
-2. REWARD: Assign +50 to items matching "Filter Constraints".
-3. OPTIMIZATION: If BMI is "Overweight/Obese", rank <500kcal items higher. If "Underweight", rank High Protein higher.
-4. TARGETING: Prioritize items where Kcal is within 20% of (Target Scalar / 3).
+1. Hard exclusion on "Allergies".
+2. Reward match on "Constraints".
+3. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars). Target 120 chars.
 
-CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (Target 150 chars). 
-- Explain the algorithmic match (e.g., "Matched for high protein-to-calorie ratio").
-- ABSOLUTE LIMIT: 200 characters.
-
-Provide the top 3 items with highest calculated scores.`,
+Provide top 3 items with highest calculated scores.`,
 });
 
 const curateMealSuggestionsFlow = ai.defineFlow(
