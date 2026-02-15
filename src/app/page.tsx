@@ -117,7 +117,7 @@ export default function Dashboard() {
           protein: Math.round((totals.protein || 0) * 4),
           carbs: Math.round((totals.carbs || 0) * 4),
           fat: Math.round((totals.fat || 0) * 9),
-          "Calories Burned": dailyLog?.caloriesBurned || 450,
+          "Calories Burned": dailyLog?.caloriesBurned || 800,
         };
       }
       const log = recentLogs?.find(l => l.date === dateStr);
@@ -279,7 +279,7 @@ export default function Dashboard() {
               <Flame className="w-4 h-4 text-foreground" />
             </div>
             <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-            <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 450} <span className="text-[9px] font-black opacity-20">kcal</span></p>
+            <p className="text-lg font-black tracking-tighter text-foreground">{dailyLog?.caloriesBurned || 800} <span className="text-[9px] font-black opacity-20">kcal</span></p>
           </Card>
 
           <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px]">
