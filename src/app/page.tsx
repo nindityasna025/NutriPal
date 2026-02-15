@@ -365,10 +365,10 @@ export default function Dashboard() {
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all relative">
+            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
                 <DialogTrigger asChild disabled={!wasHighlyActive}>
                   <button className={cn(
-                    "absolute top-2 right-2 p-1.5 rounded-full border transition-all",
+                    "p-1.5 rounded-lg mb-1 border transition-all",
                     wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10 cursor-default"
                   )}>
                     <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
