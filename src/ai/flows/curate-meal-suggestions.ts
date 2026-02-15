@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -27,6 +26,10 @@ const DeliveryItemSchema = z.object({
   tags: z.array(z.string()),
 });
 
+const SuggestionSchema = DeliveryItemSchema.extend({
+  reasoning: z.string().max(200).describe("ML-based reasoning for the recommendation. MAX 200 chars."),
+});
+
 const CurateMealSuggestionsInputSchema = z.object({
   userProfile: z.object({
     bmiCategory: z.string().optional(),
@@ -37,10 +40,6 @@ const CurateMealSuggestionsInputSchema = z.object({
   scrapedDatabase: z.array(DeliveryItemSchema).describe("The database of scraped items to filter from."),
 });
 export type CurateMealSuggestionsInput = z.infer<typeof CurateMealSuggestionsInputSchema>;
-
-const SuggestionSchema = DeliveryItemSchema.extend({
-  reasoning: z.string().max(200).describe("ML-based reasoning for the recommendation. MAX 200 chars."),
-});
 
 const CurateMealSuggestionsOutputSchema = z.object({
   topMatches: z.array(SuggestionSchema),
@@ -116,11 +115,11 @@ const curateMealSuggestionsFlow = ai.defineFlow(
   {
     name: 'curateMealSuggestionsFlow',
     inputSchema: CurateMealSuggestionsInputSchema,
-    outputSchema: SuggestionSchema, // This should return the object with topMatches
+    outputSchema: CurateMealSuggestionsOutputSchema,
   },
   async (input) => {
     const { output } = await prompt(input);
     if (!output) throw new Error("AI failed to filter delivery data.");
-    return output;
+    return output as CurateMealSuggestionsOutput;
   }
 );

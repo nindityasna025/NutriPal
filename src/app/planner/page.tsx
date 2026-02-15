@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -117,7 +116,7 @@ export default function ExplorePage() {
 
   const handleOrderNow = async (item: any, source: 'delivery' | 'menu') => {
     if (!user || !firestore) return
-    const dateId = source === 'delivery' ? format(new Date(), "yyyy-MM-dd") : (targetDate || format(new Date(), "yyyy-MM-dd"))
+    const dateId = format(new Date(), "yyyy-MM-dd")
     
     let finalTime = item.time || format(new Date(), "hh:mm a").toUpperCase()
     
@@ -218,7 +217,7 @@ export default function ExplorePage() {
                 <ChevronLeft className="w-4 h-4 mr-2" /> Back
               </Button>
               <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">NUTRIPAL V1: ML DELIVERY HUB</DialogTitle>
-              <div className="w-24"></div> {/* Spacer to keep title centered */}
+              <div className="w-24"></div> 
             </DialogHeader>
             <div className="p-6 overflow-hidden flex-1 flex flex-col">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto no-scrollbar">
@@ -316,7 +315,9 @@ export default function ExplorePage() {
                   </div>
                 ) : menuPlan && (["breakfast", "lunch", "dinner"] as const).map((type) => {
                   const isSwapped = swappedMeals[type];
-                  const meal = isSwapped ? menuPlan[type].swapSuggestion : menuPlan[type];
+                  const baseMeal = menuPlan[type];
+                  const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
+                  const finalTime = meal.time || baseMeal.time || "12:00 PM";
                   return (
                     <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col relative">
                       <Button variant="ghost" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-sm">
@@ -326,6 +327,10 @@ export default function ExplorePage() {
                         <div className="flex-1 space-y-4">
                           <Badge variant="secondary" className="bg-accent/20 text-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-[0.6rem] border-none">{type}</Badge>
                           <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                               <Clock className="w-3 h-3 opacity-30" />
+                               <span className="text-[9px] font-black uppercase opacity-40">{finalTime}</span>
+                            </div>
                             <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
                             <p className="text-[9px] font-black leading-tight text-foreground opacity-30 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
                           </div>
@@ -344,7 +349,7 @@ export default function ExplorePage() {
                             </div>
                           </div>
                         </div>
-                        <Button onClick={() => handleOrderNow(meal, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
+                        <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
                           <Plus className="w-4 h-4 mr-2" /> Accept
                         </Button>
                       </CardContent>
