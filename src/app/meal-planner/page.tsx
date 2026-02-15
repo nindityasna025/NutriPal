@@ -42,7 +42,7 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
-import { Badge } from "@/badge"
+import { Badge } from "@/components/ui/badge"
 import {
   Select,
   SelectContent,

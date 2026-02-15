@@ -227,8 +227,8 @@ export default function RecordPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 space-y-4 h-screen flex flex-col overflow-hidden animate-in fade-in duration-700">
       <header className="space-y-1 text-center shrink-0">
-        <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
-        <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Expert AI Analysis</p>
+        <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
+        <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Expert AI Analysis</p>
       </header>
 
       {mode === "choice" && !preview && (
@@ -257,26 +257,26 @@ export default function RecordPage() {
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-hidden min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 overflow-hidden min-h-0">
           <section className="flex flex-col h-full min-h-0">
-            <Card className="rounded-[2rem] border-none shadow-premium bg-white p-4 space-y-4 flex flex-col h-full overflow-hidden">
+            <Card className="rounded-[1.5rem] border-none shadow-premium bg-white p-3 space-y-3 flex flex-col h-full overflow-hidden">
               <div className="flex items-center justify-between shrink-0">
-                <Button variant="ghost" onClick={resetAll} className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-foreground opacity-60">
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                <Button variant="ghost" onClick={resetAll} className="h-7 px-3 text-[8px] font-black uppercase tracking-widest text-foreground opacity-60">
+                  <ChevronLeft className="w-3 h-3 mr-1" /> Back
                 </Button>
-                <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[7px] tracking-widest px-3 py-1 rounded-full border-none">
+                <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[6px] tracking-widest px-2 py-0.5 rounded-full border-none">
                   {mode.toUpperCase()} MODE
                 </Badge>
               </div>
 
-              <div className="relative border-2 border-border/50 rounded-[1.5rem] bg-secondary/30 flex-1 flex flex-col items-center justify-center overflow-hidden shadow-inner min-h-0">
+              <div className="relative border border-border/50 rounded-[1rem] bg-secondary/30 flex-1 flex flex-col items-center justify-center overflow-hidden shadow-inner min-h-0">
                 {mode === "camera" && !preview && <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />}
                 {preview && (
                   <div className="relative w-full h-full">
                     <Image src={preview} alt="Meal" fill className="object-cover" />
                     {!result && (
-                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-4 right-4 rounded-full bg-white shadow-premium h-8 w-8">
-                        <RefreshCw className="w-4 h-4 text-foreground" />
+                      <Button variant="secondary" size="icon" onClick={() => { setFilePreview(null); if(mode === "camera") startCamera(); else fileInputRef.current?.click(); }} className="absolute top-2 right-2 rounded-full bg-white shadow-premium h-7 w-7">
+                        <RefreshCw className="w-3 h-3 text-foreground" />
                       </Button>
                     )}
                   </div>
@@ -284,75 +284,75 @@ export default function RecordPage() {
               </div>
               
               <div className="shrink-0 space-y-2">
-                {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-widest bg-primary text-foreground border-none">CAPTURE</Button>}
-                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-widest bg-primary text-foreground border-none">{analyzing ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="w-4 h-4 mr-2" />}{analyzing ? "ANALYZING..." : "ANALYZE"}</Button>}
+                {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">CAPTURE</Button>}
+                {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">{analyzing ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="w-3 h-3 mr-2" />}{analyzing ? "ANALYZING..." : "ANALYZE"}</Button>}
               </div>
             </Card>
           </section>
 
           <section className="flex flex-col h-full min-h-0">
             {result ? (
-              <Card className="rounded-[2rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full animate-in slide-in-from-right-4 duration-500">
-                <div className="p-6 flex flex-col h-full space-y-6 overflow-y-auto no-scrollbar">
-                  <div className="flex justify-between items-start border-b border-border pb-4 shrink-0">
-                    <div className="space-y-1 text-left">
-                      <span className="text-[8px] font-black uppercase text-foreground opacity-40 tracking-widest">Result</span>
-                      <h2 className="text-xl font-black tracking-tight leading-none uppercase text-foreground">{result.name}</h2>
+              <Card className="rounded-[1.5rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full animate-in slide-in-from-right-4 duration-500">
+                <div className="p-4 flex flex-col h-full space-y-4 overflow-y-auto no-scrollbar">
+                  <div className="flex justify-between items-start border-b border-border pb-2 shrink-0">
+                    <div className="space-y-0 text-left">
+                      <span className="text-[7px] font-black uppercase text-foreground opacity-40 tracking-widest">Result</span>
+                      <h2 className="text-lg font-black tracking-tight leading-none uppercase text-foreground">{result.name}</h2>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[9px] ml-1 uppercase opacity-20">kcal</span></p>
+                      <p className="text-2xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[8px] ml-1 uppercase opacity-20">kcal</span></p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 shrink-0">
-                    <div className="p-3 bg-primary/10 rounded-xl text-center border border-primary/5">
-                      <p className="text-[7px] font-black text-foreground opacity-40 uppercase">Protein</p>
-                      <p className="text-sm font-black text-foreground">{result.macros.protein}g</p>
+                  <div className="grid grid-cols-3 gap-2 shrink-0">
+                    <div className="p-2 bg-primary/10 rounded-lg text-center border border-primary/5">
+                      <p className="text-[6px] font-black text-foreground opacity-40 uppercase">Protein</p>
+                      <p className="text-xs font-black text-foreground">{result.macros.protein}g</p>
                     </div>
-                    <div className="p-3 bg-orange-50 rounded-xl text-center border border-orange-100/50">
-                      <p className="text-[7px] font-black text-foreground opacity-40 uppercase">Carbs</p>
-                      <p className="text-sm font-black text-foreground">{result.macros.carbs}g</p>
+                    <div className="p-2 bg-orange-50 rounded-lg text-center border border-orange-100/50">
+                      <p className="text-[6px] font-black text-foreground opacity-40 uppercase">Carbs</p>
+                      <p className="text-xs font-black text-foreground">{result.macros.carbs}g</p>
                     </div>
-                    <div className="p-3 bg-accent/10 rounded-xl text-center border border-accent/5">
-                      <p className="text-[7px] font-black text-foreground opacity-40 uppercase">Fat</p>
-                      <p className="text-lg font-black text-foreground">{result.macros.fat}g</p>
+                    <div className="p-2 bg-accent/10 rounded-lg text-center border border-accent/5">
+                      <p className="text-[6px] font-black text-foreground opacity-40 uppercase">Fat</p>
+                      <p className="text-xs font-black text-foreground">{result.macros.fat}g</p>
                     </div>
                   </div>
 
                   {/* Date/Time selector for Gallery only */}
                   {mode === "gallery" && (
-                    <div className="grid grid-cols-2 gap-3 p-4 bg-secondary/20 rounded-xl border border-border/50 shrink-0">
-                      <div className="space-y-1">
-                        <label className="text-[7px] font-black uppercase opacity-40 flex items-center gap-1"><Calendar className="w-2.5 h-2.5" /> Date</label>
-                        <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-8 text-[9px] font-black rounded-lg border-border bg-white" />
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-secondary/20 rounded-lg border border-border/50 shrink-0">
+                      <div className="space-y-0.5 text-left">
+                        <label className="text-[6px] font-black uppercase opacity-40 flex items-center gap-1"><Calendar className="w-2 h-2" /> Date</label>
+                        <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 text-[8px] font-black rounded-md border-border bg-white" />
                       </div>
-                      <div className="space-y-1">
-                        <label className="text-[7px] font-black uppercase opacity-40 flex items-center gap-1"><Clock className="w-2.5 h-2.5" /> Time</label>
-                        <Input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="h-8 text-[9px] font-black rounded-lg border-border bg-white" />
+                      <div className="space-y-0.5 text-left">
+                        <label className="text-[6px] font-black uppercase opacity-40 flex items-center gap-1"><Clock className="w-2 h-2" /> Time</label>
+                        <Input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="h-7 text-[8px] font-black rounded-md border-border bg-white" />
                       </div>
                     </div>
                   )}
 
-                  <div className="flex-1 space-y-4">
-                    <section className="space-y-2">
-                      <div className="flex items-center gap-2 text-foreground font-black text-[9px] uppercase tracking-widest text-left">
-                        <Sparkles className="w-4 h-4 text-primary" /> Expert Insight
+                  <div className="flex-1 space-y-3">
+                    <section className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-foreground font-black text-[8px] uppercase tracking-widest text-left">
+                        <Sparkles className="w-3 h-3 text-primary" /> Expert Insight
                       </div>
-                      <p className="text-[11px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-4 rounded-xl border border-primary/10 text-left italic">
+                      <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-90 bg-primary/5 p-3 rounded-lg border border-primary/10 text-left italic">
                         "{result.expertInsight}"
                       </p>
                     </section>
                   </div>
                   
-                  <Button onClick={handleSave} className="w-full h-14 rounded-xl font-black text-[11px] bg-foreground text-white shadow-premium shrink-0 uppercase tracking-widest hover:bg-foreground/90 active:scale-95 transition-all">
-                    LOG RECORD <ChevronRight className="w-5 h-5 ml-2" />
+                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium shrink-0 uppercase tracking-widest hover:bg-foreground/90 active:scale-95 transition-all">
+                    LOG RECORD <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               </Card>
             ) : (
-              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[2rem] flex flex-col items-center justify-center p-8 text-center bg-white/50 shadow-inner">
-                <ScanSearch className="w-16 h-16 text-foreground opacity-10 mb-6" />
-                <p className="text-foreground font-black uppercase text-[10px] tracking-widest opacity-20">Awaiting Capture</p>
+              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[1.5rem] flex flex-col items-center justify-center p-6 text-center bg-white/50 shadow-inner">
+                <ScanSearch className="w-12 h-12 text-foreground opacity-10 mb-4" />
+                <p className="text-foreground font-black uppercase text-[9px] tracking-widest opacity-20">Awaiting Capture</p>
               </div>
             )}
           </section>

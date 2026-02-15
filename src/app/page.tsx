@@ -238,30 +238,30 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 sm:py-6 space-y-6 pb-24 min-h-screen">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 sm:py-6 space-y-4 pb-24 min-h-screen">
       <header className="space-y-1 pt-safe md:pt-4 text-center animate-in fade-in duration-500">
-        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Today</h1>
-        <p className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-40">
+        <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Today</h1>
+        <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">
           {format(today, "EEEE, MMMM do")}
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         {/* Compact Energy Card */}
-        <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-4 sm:p-5 space-y-4">
+        <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[1.5rem] overflow-hidden">
+          <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-start">
-              <div className="space-y-0.5 text-left">
-                <span className="text-[8px] font-black uppercase tracking-widest text-foreground opacity-60">Energy Balance</span>
-                <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-3xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-xs font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
+              <div className="space-y-0 text-left">
+                <span className="text-[7px] font-black uppercase tracking-widest text-foreground opacity-60">Energy Balance</span>
+                <div className="flex items-baseline gap-1.5">
+                  <h2 className={cn("text-2xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-[10px] font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full h-7 w-7 bg-secondary hover:bg-secondary/80 border border-border/50">
-                    <Info className="w-3.5 h-3.5 text-foreground" />
+                  <Button variant="secondary" size="icon" className="rounded-full h-6 w-6 bg-secondary hover:bg-secondary/80 border border-border/50">
+                    <Info className="w-3 h-3 text-foreground" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-premium-lg border-none bg-white">
@@ -270,33 +270,33 @@ export default function Dashboard() {
               </Popover>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex h-5 w-full rounded-full overflow-hidden bg-secondary border border-border/10 shadow-inner">
+            <div className="space-y-2">
+              <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary border border-border/10">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
-              <div className="grid grid-cols-3 text-[8px] font-black text-foreground uppercase tracking-widest gap-2">
-                <div className="flex flex-col gap-0.5 items-start text-left">
+              <div className="grid grid-cols-3 text-[7px] font-black text-foreground uppercase tracking-widest gap-2">
+                <div className="flex flex-col gap-0 items-start text-left">
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
                     <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
                   </div>
-                  <span className="text-sm tracking-tighter">{Math.round(proteinPercent)}%</span>
+                  <span className="text-xs tracking-tighter">{Math.round(proteinPercent)}%</span>
                 </div>
-                <div className="flex flex-col gap-0.5 items-center justify-center">
+                <div className="flex flex-col gap-0 items-center justify-center">
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
                     <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
                   </div>
-                  <span className="text-sm tracking-tighter">{Math.round(carbsPercent)}%</span>
+                  <span className="text-xs tracking-tighter">{Math.round(carbsPercent)}%</span>
                 </div>
-                <div className="flex flex-col gap-0.5 items-end text-right">
+                <div className="flex flex-col gap-0 items-end text-right">
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
                     <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
                   </div>
-                  <span className="text-sm tracking-tighter">{Math.round(fatPercent)}%</span>
+                  <span className="text-xs tracking-tighter">{Math.round(fatPercent)}%</span>
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@ export default function Dashboard() {
             <div className="pt-0 text-left space-y-1">
               <Progress 
                 value={caloriePercentForProgress} 
-                className="h-1.5 rounded-full bg-secondary" 
+                className="h-1 rounded-full bg-secondary" 
                 indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} 
               />
             </div>
@@ -312,30 +312,30 @@ export default function Dashboard() {
         </Card>
 
         {/* Compact Side Cards */}
-        <div className="md:col-span-5 grid grid-cols-2 md:grid-cols-1 gap-4">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-24 md:h-28">
-            <div className="p-1.5 bg-primary/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-primary/10">
-              <Flame className="w-3.5 h-3.5 text-foreground" />
+        <div className="md:col-span-5 grid grid-cols-2 md:grid-cols-1 gap-3">
+          <Card className="border-none shadow-premium bg-white rounded-[1.5rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-20 md:h-24">
+            <div className="p-1 bg-primary/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-primary/10">
+              <Flame className="w-3 h-3 text-foreground" />
             </div>
             <div className="space-y-0">
-              <p className="text-[7px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-              <p className="text-lg font-black tracking-tighter text-foreground">{Math.max(0, dailyLog?.caloriesBurned || 450)} <span className="text-[8px] font-black text-foreground opacity-20">kcal</span></p>
+              <p className="text-[6px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+              <p className="text-base font-black tracking-tighter text-foreground">{Math.max(0, dailyLog?.caloriesBurned || 450)} <span className="text-[7px] font-black text-foreground opacity-20">kcal</span></p>
             </div>
           </Card>
 
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-24 md:h-28">
-            <div className="p-1.5 bg-accent/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-accent/10">
-              <Droplets className="w-3.5 h-3.5 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[1.5rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-20 md:h-24">
+            <div className="p-1 bg-accent/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-accent/10">
+              <Droplets className="w-3 h-3 text-foreground" />
             </div>
             <div className="space-y-1 w-full">
-              <p className="text-[7px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
-              <div className="flex items-center justify-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-6 w-6 rounded-lg bg-secondary/80 hover:bg-secondary border border-border/30">
-                  <Minus className="w-2.5 h-2.5 text-foreground" />
+              <p className="text-[6px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
+              <div className="flex items-center justify-center gap-1.5">
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-5 w-5 rounded-md bg-secondary/80 hover:bg-secondary border border-border/30">
+                  <Minus className="w-2 h-2 text-foreground" />
                 </Button>
-                <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-6 w-6 rounded-lg bg-primary text-primary-foreground shadow-lg hover:opacity-95 border-none">
-                  <Plus className="w-2.5 h-2.5 text-foreground" />
+                <span className="text-base font-black tracking-tighter text-foreground">{water}L</span>
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-5 w-5 rounded-md bg-primary text-primary-foreground shadow-sm hover:opacity-95 border-none">
+                  <Plus className="w-2 h-2 text-foreground" />
                 </Button>
               </div>
             </div>
