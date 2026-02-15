@@ -118,7 +118,7 @@ export default function ExplorePage() {
     if (!user || !firestore) return
     const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
     
-    // Fix: Ensure finalTime is never undefined to prevent Firebase error
+    // Safety: ensure time is never undefined
     let finalTime = item.time || "12:00 PM"
     
     if (source === 'delivery' && targetTime) {
@@ -167,7 +167,7 @@ export default function ExplorePage() {
       const baseMeal = menuPlan[type];
       const item = isSwapped ? baseMeal.swapSuggestion : baseMeal;
       
-      // Fix: Inherit time from base meal if swap doesn't provide it
+      // Safety: Inherit time if swap doesn't have it
       const finalTime = item.time || baseMeal.time || "12:00 PM";
 
       addDocumentNonBlocking(mealsColRef, {

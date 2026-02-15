@@ -18,7 +18,7 @@ const MacroSchema = z.object({
 const MealRecommendationSchema = z.object({
   name: z.string(),
   calories: z.number(),
-  time: z.string(),
+  time: z.string().describe('HH:mm AM/PM format'),
   macros: MacroSchema,
   description: z.string(),
   swapSuggestion: z.object({
@@ -111,7 +111,10 @@ TARGETS:
 RULES:
 1. SUM(Calories) within 5% of Target.
 2. Provide a "swapSuggestion" for each meal that is also health-aligned.
-3. Descriptions MUST BE EXTREMELY CONCISE (MAX 150 chars).
+3. Descriptions MUST BE EXTREMELY CONCISE.
+   - TARGET LENGTH: 100 characters.
+   - ABSOLUTE LIMIT: 150 characters.
+4. Ensure "time" field is ALWAYS populated in HH:mm AM/PM format.
 
 Synthesize now.`,
 });
