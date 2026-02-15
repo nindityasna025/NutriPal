@@ -104,16 +104,6 @@ export default function MealPlannerPage() {
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    if (editingMealId) {
-      const p = parseFloat(protein) || 0;
-      const c = parseFloat(carbs) || 0;
-      const f = parseFloat(fat) || 0;
-      const calculated = (p * 4) + (c * 4) + (f * 9);
-      setCalories(Math.round(calculated).toString());
-    }
-  }, [protein, carbs, fat, editingMealId]);
-
   const dateId = date ? format(date, "yyyy-MM-dd") : ""
   
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
@@ -162,13 +152,9 @@ export default function MealPlannerPage() {
       let allergenWarning = ""
 
       if (!editingMealId) {
-        let userGoal: "Maintenance" | "Weight Loss" | "Weight Gain" = "Maintenance"
-        if (profile?.bmiCategory === "Overweight" || profile?.bmiCategory === "Obese") userGoal = "Weight Loss"
-        else if (profile?.bmiCategory === "Underweight") userGoal = "Weight Gain"
-
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
-          userGoal,
+          userGoal: "Maintenance",
           userAllergies: profile?.allergies,
           userRestrictions: profile?.dietaryRestrictions
         });
@@ -183,10 +169,6 @@ export default function MealPlannerPage() {
         finalIngredients = aiResult.ingredients
         instructions = aiResult.instructions
         allergenWarning = aiResult.allergenWarning || ""
-
-        if (allergenWarning) {
-          toast({ variant: "destructive", title: "Allergy Warning!", description: allergenWarning });
-        }
       }
 
       const finalTime = editingMealId 
@@ -203,7 +185,7 @@ export default function MealPlannerPage() {
         description,
         expertInsight,
         ingredients: finalIngredients,
-        instructions: instructions.length > 0 ? instructions : (editingMealId ? (scheduledMeals?.find(m => m.id === editingMealId)?.instructions || []) : []),
+        instructions: instructions,
         allergenWarning,
         source: editingMealId ? (scheduledMeals?.find(m => m.id === editingMealId)?.source || "planner") : "planner",
         reminderEnabled,
@@ -221,7 +203,7 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Analysis Error", description: "Could not analyze meal. Fallback active." });
+      toast({ variant: "destructive", title: "Action Failed", description: "Try again later." });
     } finally {
       setIsSaving(false);
     }
@@ -239,7 +221,7 @@ export default function MealPlannerPage() {
     }, { merge: true });
 
     updateDocumentNonBlocking(doc(mealsColRef, meal.id), { status: "consumed", updatedAt: serverTimestamp() });
-    toast({ title: "Bon Appétit!", description: `${meal.name} recorded.` });
+    toast({ title: "Meal Recorded", description: `${meal.name} tracked.` });
     if (activeRecipe?.id === meal.id) setIsRecipeDialogOpen(false);
   }
 
@@ -283,9 +265,9 @@ export default function MealPlannerPage() {
       status: meal.status,
       calories: meal.calories,
       macros: meal.macros,
-      insight: meal.expertInsight || "A balanced meal designed for your target.",
-      ingredients: meal.ingredients || ["Fresh seasonal ingredients"],
-      instructions: meal.instructions || ["Prepare fresh ingredients.", "Cook thoroughly.", "Serve and enjoy."],
+      insight: meal.expertInsight || "Health-focused choice.",
+      ingredients: meal.ingredients || [],
+      instructions: meal.instructions || [],
       allergenWarning: meal.allergenWarning
     })
   }
@@ -296,7 +278,7 @@ export default function MealPlannerPage() {
     <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 pb-32 min-h-screen text-center animate-in fade-in duration-700">
       <header className="space-y-1 pt-safe text-center">
         <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Plan</h1>
-        <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Strategic Menu</p>
+        <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Menu Management</p>
       </header>
       
       <div className="flex flex-wrap items-center gap-4 justify-center">
@@ -337,31 +319,9 @@ export default function MealPlannerPage() {
                   </div>
                 )}
                 <div className="space-y-1">
-                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Description</Label>
-                  <Input placeholder="e.g. Grilled Salmon" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
+                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Name</Label>
+                  <Input placeholder="e.g. Avocado Toast" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                 </div>
-                {editingMealId && (
-                  <div className="space-y-4 pt-4 border-t-2 border-border/50 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Nutritional Adjustment</Label>
-                      <Badge variant="outline" className="text-[8px] font-black border-primary/20 text-foreground">{calories} KCAL</Badge>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
-                        <Input type="number" value={protein} onChange={(e) => setProtein(e.target.value)} className="h-10 rounded-xl border-2 border-border font-black text-xs" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
-                        <Input type="number" value={carbs} onChange={(e) => setCarbs(e.target.value)} className="h-10 rounded-xl border-2 border-border font-black text-xs" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-[8px] font-black uppercase tracking-widest opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
-                        <Input type="number" value={fat} onChange={(e) => setFat(e.target.value)} className="h-10 rounded-xl border-2 border-border font-black text-xs" />
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-2xl border-2 border-transparent hover:border-border transition-all">
                   <div className="space-y-0.5">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
@@ -406,7 +366,7 @@ export default function MealPlannerPage() {
                           {meal.reminderEnabled && meal.status !== 'consumed' && <Bell className="w-3.5 h-3.5 text-primary fill-primary/20" />}
                         </div>
                         <div className="flex flex-row items-center gap-4">
-                          <p className="text-[10px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
+                          <p className="text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
                           <div className="flex items-center gap-3">
                             <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
                             <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
@@ -430,7 +390,7 @@ export default function MealPlannerPage() {
             ) : (
               <div className="text-center py-16 bg-white/50 rounded-[2rem] border-2 border-dashed border-border/30 flex flex-col items-center justify-center">
                 <Utensils className="w-10 h-10 mb-4 text-foreground opacity-10" />
-                <p className="text-foreground opacity-40 font-black text-sm uppercase tracking-widest">Clear Timeline</p>
+                <p className="text-foreground opacity-40 font-black text-sm uppercase tracking-widest">Empty Schedule</p>
               </div>
             )}
         </div>
@@ -445,8 +405,8 @@ export default function MealPlannerPage() {
                   <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div className="space-y-0.5 text-left">
-                  <p className="text-[8px] font-black uppercase text-foreground opacity-70 tracking-[0.2em]">DECISION HELP?</p>
-                  <h3 className="text-lg font-black uppercase tracking-tighter leading-none text-foreground">AI HUB</h3>
+                  <p className="text-[8px] font-black uppercase text-foreground opacity-70 tracking-[0.2em]">DECISION ENGINE</p>
+                  <h3 className="text-lg font-black uppercase tracking-tighter leading-none text-foreground">AI DISCOVERY</h3>
                 </div>
               </div>
               <div className="flex items-center gap-2 bg-primary text-foreground px-4 h-9 rounded-xl font-black uppercase text-[8px] tracking-widest shadow-xl border-none shrink-0">
@@ -466,15 +426,6 @@ export default function MealPlannerPage() {
             <ScrollArea className="h-full pr-4">
               {activeRecipe && (
                 <div className="space-y-10">
-                  {activeRecipe.allergenWarning && (
-                    <div className="bg-destructive/10 border-2 border-destructive/20 p-6 rounded-[2rem] flex items-start gap-4">
-                      <AlertTriangle className="w-8 h-8 text-destructive shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-destructive">WARNING</p>
-                        <p className="text-sm font-bold text-foreground opacity-90">{activeRecipe.allergenWarning}</p>
-                      </div>
-                    </div>
-                  )}
                   <section className="space-y-4">
                     <div className="flex items-center gap-2 text-foreground font-black text-[10px] uppercase tracking-widest"><Sparkles className="w-5 h-5 text-primary" /> INSIGHT</div>
                     <p className="text-sm font-bold leading-relaxed text-foreground opacity-90 bg-primary/10 p-6 rounded-[1.5rem] border border-primary/20">{activeRecipe.insight}</p>

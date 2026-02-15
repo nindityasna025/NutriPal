@@ -9,9 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { 
   Sparkles, 
   TrendingUp, 
-  Smartphone, 
   Loader2,
-  Bike,
   ChevronLeft,
   RefreshCw,
   Plus,
@@ -83,13 +81,7 @@ export default function ExplorePage() {
       setDeliveryResult(result.topMatches);
     } catch (err: any) {
       console.error(err);
-      toast({ 
-        variant: "destructive", 
-        title: err.message?.includes("429") ? "Model Engine Busy" : "ML Hub Error", 
-        description: err.message?.includes("429") 
-          ? "AI Quota Exceeded. Using Rule-Based Fallback." 
-          : "Could not calculate delivery matches." 
-      });
+      toast({ variant: "destructive", title: "ML Hub Error", description: "AI Fallback enabled." });
     } finally {
       setLoading(false);
     }
@@ -103,22 +95,16 @@ export default function ExplorePage() {
     try {
       const plan = await generateDailyPlan({
         calorieTarget: profile.calorieTarget || 2000,
-        proteinPercent: profile.proteinTarget || 30,
-        carbsPercent: profile.carbsTarget || 40,
-        fatPercent: profile.fatTarget || 30,
+        proteinPercent: 30,
+        carbsPercent: 40,
+        fatPercent: 30,
         dietType: profile.dietaryRestrictions?.join(", "),
         allergies: profile.allergies
       });
       setMenuPlan(plan);
     } catch (err: any) {
       console.error(err);
-      toast({ 
-        variant: "destructive", 
-        title: err.message?.includes("429") ? "Synthesis Engine Busy" : "Synthesis Error", 
-        description: err.message?.includes("429") 
-          ? "AI Quota Exceeded. Using Rule-Based Fallback." 
-          : "Could not synthesize daily menu." 
-      });
+      toast({ variant: "destructive", title: "Synthesis Error", description: "Rule-based fallback active." });
     } finally {
       setLoading(false);
     }
@@ -151,21 +137,16 @@ export default function ExplorePage() {
       name: item.name,
       calories: item.calories,
       time: finalTime,
-      source: item.platform || "planner",
+      source: "planner",
       macros: item.macros,
-      healthScore: item.healthScore || 90,
-      description: item.description || item.reasoning || "Optimized selection.",
-      expertInsight: item.reasoning || "Optimized for your biometrics.",
+      healthScore: 90,
+      description: item.description || "Optimized path.",
+      expertInsight: item.reasoning || "Predicted for bio-metrics.",
       status: "planned",
       createdAt: serverTimestamp()
     })
 
-    if (item.platform) {
-      const url = item.platform === 'GrabFood' ? 'https://food.grab.com/' : 'https://gofood.co.id'
-      window.open(url, '_blank')
-    }
-
-    toast({ title: "Meal Synced", description: `${item.name} added to schedule.` })
+    toast({ title: "Meal Synced", description: `${item.name} scheduled.` })
     setIsDeliveryOpen(false)
     setIsMenuOpen(false)
     router.push("/")
@@ -184,14 +165,14 @@ export default function ExplorePage() {
       const isSwapped = swappedMeals[type];
       const item = isSwapped ? menuPlan[type].swapSuggestion : menuPlan[type];
       addDocumentNonBlocking(mealsColRef, {
-        name: typeof item === 'string' ? item : item.name,
-        calories: item.calories || 0,
-        time: item.time || "12:00 PM",
+        name: item.name,
+        calories: item.calories,
+        time: item.time,
         source: "planner",
-        macros: item.macros || { protein: 0, carbs: 0, fat: 0 },
+        macros: item.macros,
         healthScore: 90,
-        description: item.description || "Synthesized prediction.",
-        expertInsight: "Daily predictive recommendation.",
+        description: item.description,
+        expertInsight: "Daily predictive synthesis.",
         status: "planned",
         createdAt: serverTimestamp()
       })
@@ -206,7 +187,7 @@ export default function ExplorePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen text-center">
       <header className="space-y-1 pt-safe text-center">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
-        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Decision Hub</p>
+        <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
       <div className="grid grid-cols-2 gap-10 pt-4 max-w-4xl mx-auto">
@@ -219,7 +200,7 @@ export default function ExplorePage() {
               <div className="space-y-4 text-center">
                 <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">ML Curation</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Neural recommendation engine for delivery ecosystem.
+                  Neural recommendation engine for ecosystem matching.
                 </p>
               </div>
               <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Execute Scorer</Button>
@@ -234,8 +215,6 @@ export default function ExplorePage() {
               <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
                 <CalendarIcon className="w-3.5 h-3.5 text-foreground" />
                 <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-[9px] font-black uppercase focus:ring-0 w-24 text-foreground cursor-pointer" />
-                <Clock className="w-3.5 h-3.5 text-foreground ml-2" />
-                <input type="time" value={targetTime} onChange={e => setTargetTime(e.target.value)} className="bg-transparent border-none text-[9px] font-black uppercase focus:ring-0 w-14 text-foreground cursor-pointer" />
               </div>
             </DialogHeader>
             <div className="p-6 overflow-hidden flex-1 flex flex-col">
@@ -251,7 +230,7 @@ export default function ExplorePage() {
                       <div className="space-y-4 flex-1">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 text-accent font-black text-[9px] uppercase tracking-[0.1em]">
-                            <TrendingUp className="w-4 h-4" /> {item.healthScore}% Model Match
+                            <TrendingUp className="w-4 h-4" /> {item.healthScore}% Match
                           </div>
                           <h3 className="text-xl font-black tracking-tighter uppercase text-foreground">{item.name}</h3>
                           <p className="text-[9px] font-black text-foreground opacity-30 uppercase tracking-[0.1em]">{item.restaurant}</p>
@@ -292,9 +271,9 @@ export default function ExplorePage() {
                  <Sparkles className="w-12 h-12 text-foreground opacity-60" />
               </div>
               <div className="space-y-4 text-center">
-                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Predictive Menu</h3>
+                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Predictive Path</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Synthesize daily path using predictive synthesis models.
+                  Synthesize daily nutritional path using predictive models.
                 </p>
               </div>
               <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-accent text-foreground hover:opacity-90 border-none">Synthesize Path</Button>
@@ -329,7 +308,7 @@ export default function ExplorePage() {
                   const isSwapped = swappedMeals[type];
                   const meal = isSwapped ? menuPlan[type].swapSuggestion : menuPlan[type];
                   return (
-                    <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col max-w-[280px] mx-auto w-full relative">
+                    <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col relative">
                       <Button variant="ghost" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-sm">
                         <RefreshCw className="w-4 h-4 text-accent" />
                       </Button>
@@ -354,13 +333,9 @@ export default function ExplorePage() {
                               <p className="text-xs font-black text-accent">{meal.macros.fat}g</p>
                             </div>
                           </div>
-                          <div className="bg-secondary/50 py-3 rounded-[1rem] text-center border-border">
-                            <p className="text-[7px] font-black text-foreground opacity-30 uppercase tracking-[0.1em] mb-1">Vector Energy</p>
-                            <p className="text-xl font-black tracking-tighter text-foreground">+{meal.calories} kcal</p>
-                          </div>
                         </div>
                         <Button onClick={() => handleOrderNow(meal, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
-                          <Plus className="w-4 h-4 mr-2" /> Accept Prediction
+                          <Plus className="w-4 h-4 mr-2" /> Accept
                         </Button>
                       </CardContent>
                     </Card>

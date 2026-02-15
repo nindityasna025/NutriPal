@@ -16,7 +16,6 @@ import {
   Minus,
   Sparkles,
   Camera,
-  BarChart3,
   Info,
   ChevronDown,
   ChevronUp,
@@ -30,18 +29,6 @@ import { collection, doc, query, orderBy, limit, serverTimestamp, increment } fr
 import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import { 
-  Bar, 
-  BarChart, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-} from "recharts"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
 import {
   Popover,
   PopoverContent,
@@ -56,12 +43,6 @@ const MACRO_COLORS = {
   fat: "hsl(var(--accent))",     
 }
 
-const chartConfig = {
-  protein: { label: "Protein", color: MACRO_COLORS.protein },
-  carbs: { label: "Carbs", color: MACRO_COLORS.carbs },
-  fat: { label: "Fat", color: MACRO_COLORS.fat },
-} satisfies Record<string, any>
-
 const MacroInfoContent = () => (
   <div className="space-y-4">
     <div className="flex items-center gap-2 text-foreground font-black text-[11px] uppercase tracking-widest text-left">
@@ -73,15 +54,15 @@ const MacroInfoContent = () => (
     <div className="space-y-3 pt-2">
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
-        <span className="text-foreground">24%</span>
+        <span className="text-foreground">30%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
-        <span className="text-foreground">43%</span>
+        <span className="text-foreground">40%</span>
       </div>
       <div className="flex items-center justify-between text-[11px] font-black uppercase">
         <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
-        <span className="text-foreground">33%</span>
+        <span className="text-foreground">30%</span>
       </div>
     </div>
   </div>
@@ -125,34 +106,6 @@ export default function Dashboard() {
   const { data: profile } = useDoc(profileRef)
   const { data: dailyLog } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
-  const { data: logsData } = useCollection(logsQuery)
-
-  const weeklyData = useMemo(() => {
-    if (!today) return [];
-    const days = [];
-    for (let i = 7; i >= 1; i--) {
-      const d = subDays(today, i);
-      const dStr = format(d, "yyyy-MM-dd");
-      const foundLog = logsData?.find(l => (l.date === dStr || l.id === dStr));
-      
-      if (foundLog) {
-        days.push({
-          date: format(d, "MMM d"),
-          protein: Math.max(0, (foundLog.proteinTotal || 0) * 4),
-          carbs: Math.max(0, (foundLog.carbsTotal || 0) * 4),
-          fat: Math.max(0, (foundLog.fatTotal || 0) * 9),
-        });
-      } else {
-        days.push({
-          date: format(d, "MMM d"),
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-        });
-      }
-    }
-    return days;
-  }, [logsData, today]);
 
   const totals = useMemo(() => {
     if (!meals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
@@ -252,56 +205,61 @@ export default function Dashboard() {
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-start">
               <div className="space-y-0 text-left">
-                <span className="text-[7px] font-black uppercase tracking-widest text-foreground opacity-60">Energy Balance</span>
+                <span className="text-[8px] font-black uppercase tracking-widest text-foreground opacity-60">GOAL PROGRESS</span>
                 <div className="flex items-baseline gap-1.5">
                   <h2 className={cn("text-2xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
                   <span className="text-[10px] font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full h-6 w-6 bg-secondary hover:bg-secondary/80 border border-border/50">
-                    <Info className="w-3 h-3 text-foreground" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-premium-lg border-none bg-white">
-                  <MacroInfoContent />
-                </PopoverContent>
-              </Popover>
+              <div className="flex flex-col items-end gap-1">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="icon" className="rounded-full h-6 w-6 bg-secondary hover:bg-secondary/80 border border-border/50">
+                      <Info className="w-3 h-3 text-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-6 rounded-[2rem] shadow-premium-lg border-none bg-white">
+                    <MacroInfoContent />
+                  </PopoverContent>
+                </Popover>
+                <span className={cn("text-[10px] font-black uppercase tracking-widest", isOverLimit ? "text-destructive" : "text-primary")}>
+                  {actualPercent}% CONSUMED
+                </span>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <div className="flex h-4 w-full rounded-full overflow-hidden bg-secondary border border-border/10">
+              <div className="flex h-3 w-full rounded-full overflow-hidden bg-secondary border border-border/10">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
-              <div className="grid grid-cols-3 text-[7px] font-black text-foreground uppercase tracking-widest gap-2">
+              <div className="grid grid-cols-3 text-[8px] font-black text-foreground uppercase tracking-widest gap-2">
                 <div className="flex flex-col gap-0 items-start text-left">
                   <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
                     <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
                   </div>
-                  <span className="text-xs tracking-tighter">{Math.round(proteinPercent)}%</span>
+                  <span className="text-xs tracking-tighter">{totals.protein}g</span>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-center">
                   <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
                     <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
                   </div>
-                  <span className="text-xs tracking-tighter">{Math.round(carbsPercent)}%</span>
+                  <span className="text-xs tracking-tighter">{totals.carbs}g</span>
                 </div>
                 <div className="flex flex-col gap-0 items-end text-right">
                   <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
                     <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
                   </div>
-                  <span className="text-xs tracking-tighter">{Math.round(fatPercent)}%</span>
+                  <span className="text-xs tracking-tighter">{totals.fat}g</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-0 text-left space-y-1">
+            <div className="pt-0 text-left">
               <Progress 
                 value={caloriePercentForProgress} 
                 className="h-1 rounded-full bg-secondary" 
@@ -424,7 +382,6 @@ export default function Dashboard() {
                             >
                               EAT NOW
                             </Button>
-                            {/* Conditional Drop Button: Only show if alert exists */}
                             {meal.allergenWarning && (
                               <Button 
                                 variant="ghost"
@@ -449,19 +406,6 @@ export default function Dashboard() {
                       <div className="px-6 pb-6 pt-2 space-y-6 animate-in slide-in-from-top-4 duration-300">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-border/30 pt-6">
                           <div className="space-y-4 text-left">
-                             {meal.allergenWarning && (
-                               <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-[1rem] flex flex-col gap-3 mb-2">
-                                  <div className="flex items-start gap-3">
-                                    <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                                    <p className="text-[11px] font-bold text-foreground leading-tight">{meal.allergenWarning}</p>
-                                  </div>
-                                  <div className="flex gap-2 justify-end">
-                                    <Button size="sm" onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }} className="bg-primary text-foreground text-[7px] font-black uppercase tracking-widest h-7 px-3">EAT NOW</Button>
-                                    <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="border border-border text-[7px] font-black uppercase tracking-widest h-7 px-3 hover:text-destructive">DROP</Button>
-                                  </div>
-                               </div>
-                             )}
-
                              <div className="flex items-center justify-between">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-60">Health Score</span>
                                 <span className="text-xl font-black text-foreground tracking-tighter">{meal.healthScore}/100</span>

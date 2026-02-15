@@ -26,12 +26,6 @@ import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 
-const MACRO_COLORS = {
-  protein: "hsl(var(--primary))",
-  carbs: "hsl(38 92% 50%)",
-  fat: "hsl(var(--accent))",
-}
-
 export default function RecordPage() {
   const router = useRouter()
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -40,7 +34,6 @@ export default function RecordPage() {
   const [result, setResult] = useState<AnalyzeMealOutput | null>(null)
   const [mounted, setMounted] = useState(false)
   
-  // Gallery Specific States
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [selectedTime, setSelectedTime] = useState(format(new Date(), "HH:mm"))
   
@@ -98,7 +91,7 @@ export default function RecordPage() {
       }
     } catch (error) {
       console.error(error);
-      toast({ variant: "destructive", title: "Camera Error", description: "Enable camera permissions to use this feature." })
+      toast({ variant: "destructive", title: "Camera Error", description: "Enable camera permissions." })
       setMode("choice")
     }
   }
@@ -167,10 +160,8 @@ export default function RecordPage() {
       console.error(error)
       toast({ 
         variant: "destructive", 
-        title: error.message?.includes("429") ? "AI Taking a Break" : "AI Error", 
-        description: error.message?.includes("429") 
-          ? "Our nutritionist AI is currently over capacity. Please try again in 30 seconds." 
-          : "Could not analyze meal photo." 
+        title: "AI Analysis Failed",
+        description: "Could not analyze meal photo." 
       })
     } finally {
       setAnalyzing(false)
@@ -228,7 +219,7 @@ export default function RecordPage() {
     <div className="max-w-4xl mx-auto px-4 py-4 space-y-4 h-screen flex flex-col overflow-hidden animate-in fade-in duration-700">
       <header className="space-y-1 text-center shrink-0">
         <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
-        <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Expert AI Analysis</p>
+        <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">AI-Powered Logging</p>
       </header>
 
       {mode === "choice" && !preview && (
@@ -239,7 +230,6 @@ export default function RecordPage() {
             </div>
             <div className="text-center">
               <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Camera</h3>
-              <p className="text-[8px] text-foreground opacity-40 font-black uppercase tracking-widest">Live</p>
             </div>
           </Card>
 
@@ -249,7 +239,6 @@ export default function RecordPage() {
             </div>
             <div className="text-center">
               <h3 className="text-lg font-black tracking-tight uppercase text-foreground">Gallery</h3>
-              <p className="text-[8px] text-foreground opacity-40 font-black uppercase tracking-widest">Upload</p>
             </div>
           </Card>
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
@@ -265,7 +254,7 @@ export default function RecordPage() {
                   <ChevronLeft className="w-3 h-3 mr-1" /> Back
                 </Button>
                 <Badge variant="secondary" className="bg-primary/10 text-foreground font-black uppercase text-[6px] tracking-widest px-2 py-0.5 rounded-full border-none">
-                  {mode.toUpperCase()} MODE
+                  {mode.toUpperCase()}
                 </Badge>
               </div>
 
@@ -283,7 +272,7 @@ export default function RecordPage() {
                 )}
               </div>
               
-              <div className="shrink-0 space-y-2">
+              <div className="shrink-0">
                 {mode === "camera" && !preview && <Button onClick={capturePhoto} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">CAPTURE</Button>}
                 {preview && !result && <Button onClick={handleAnalyze} disabled={analyzing} className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-primary text-foreground border-none">{analyzing ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Sparkles className="w-3 h-3 mr-2" />}{analyzing ? "ANALYZING..." : "ANALYZE"}</Button>}
               </div>
@@ -296,11 +285,11 @@ export default function RecordPage() {
                 <div className="p-4 flex flex-col h-full space-y-4 overflow-y-auto no-scrollbar">
                   <div className="flex justify-between items-start border-b border-border pb-2 shrink-0">
                     <div className="space-y-0 text-left">
-                      <span className="text-[7px] font-black uppercase text-foreground opacity-40 tracking-widest">Result</span>
                       <h2 className="text-lg font-black tracking-tight leading-none uppercase text-foreground">{result.name}</h2>
+                      <p className="text-[7px] font-black uppercase text-foreground opacity-40">AI Analysis Complete</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[8px] ml-1 uppercase opacity-20">kcal</span></p>
+                      <p className="text-2xl font-black text-foreground tracking-tighter">+{result.calories}<span className="text-[8px] ml-1 opacity-20">kcal</span></p>
                     </div>
                   </div>
 
@@ -319,7 +308,6 @@ export default function RecordPage() {
                     </div>
                   </div>
 
-                  {/* Date/Time selector for Gallery only */}
                   {mode === "gallery" && (
                     <div className="grid grid-cols-2 gap-2 p-3 bg-secondary/20 rounded-lg border border-border/50 shrink-0">
                       <div className="space-y-0.5 text-left">
@@ -344,7 +332,7 @@ export default function RecordPage() {
                     </section>
                   </div>
                   
-                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium shrink-0 uppercase tracking-widest hover:bg-foreground/90 active:scale-95 transition-all">
+                  <Button onClick={handleSave} className="w-full h-12 rounded-xl font-black text-[10px] bg-foreground text-white shadow-premium shrink-0 uppercase tracking-widest active:scale-95 transition-all">
                     LOG RECORD <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
