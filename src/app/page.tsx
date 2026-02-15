@@ -290,7 +290,15 @@ export default function Dashboard() {
               <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-7 w-7 rounded-full bg-secondary/80 border border-border/30 active:scale-90 transition-all">
                 <Minus className="w-3 h-3 text-foreground" />
               </Button>
-              <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
+                <span className={cn(
+                  "text-[7px] font-black uppercase tracking-tighter",
+                  water >= 2 ? "text-green-600" : "text-orange-600"
+                )}>
+                  {water >= 2 ? "CUKUP" : "KURANG"}
+                </span>
+              </div>
               <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90 transition-all">
                 <Plus className="w-3 h-3 text-foreground" />
               </Button>
