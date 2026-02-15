@@ -16,7 +16,9 @@ import {
   Calendar as CalendarIcon,
   Clock,
   ExternalLink,
-  List
+  List,
+  ChefHat,
+  Leaf
 } from "lucide-react"
 import { 
   Dialog, 
@@ -25,13 +27,17 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog"
-import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp } from "firebase/firestore"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
+import { personalizedDietPlans } from "@/ai/flows/personalized-diet-plans"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 const SCRAPED_DATABASE = [
   { 
@@ -90,6 +96,7 @@ export default function ExplorePage() {
   
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isRecipeGenOpen, setIsRecipeGenOpen] = useState(false)
   
   const [loading, setLoading] = useState(false)
   const [deliveryResult, setDeliveryResult] = useState<any[] | null>(null)
@@ -101,6 +108,11 @@ export default function ExplorePage() {
   })
   
   const [targetDate, setTargetDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
+  
+  const [loadingRecipeGen, setLoadingRecipeGen] = useState(false)
+  const [recipeGenResult, setRecipeGenResult] = useState<any | null>(null)
+  const [dietaryNeeds, setDietaryNeeds] = useState("")
+  const [availableIngredients, setAvailableIngredients] = useState("")
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -151,6 +163,27 @@ export default function ExplorePage() {
       toast({ variant: "destructive", title: "Synthesis Error", description: "Rule-based fallback active." });
     } finally {
       setLoading(false);
+    }
+  }
+
+  const handleGenerateFromPantry = async () => {
+    if (!availableIngredients) {
+        toast({ variant: "destructive", title: "Ingredients Missing", description: "Please list the ingredients you have." })
+        return
+    }
+    setLoadingRecipeGen(true)
+    setRecipeGenResult(null)
+    try {
+        const result = await personalizedDietPlans({
+            dietaryNeeds: dietaryNeeds || profile?.dietaryRestrictions?.join(", ") || "No specific needs",
+            availableIngredients,
+        });
+        setRecipeGenResult(result);
+    } catch (err: any) {
+        console.error(err);
+        toast({ variant: "destructive", title: "AI Generation Error", description: "The AI could not generate recipes at this time." });
+    } finally {
+        setLoadingRecipeGen(false);
     }
   }
 
@@ -238,13 +271,13 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen text-center">
+    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-12 pb-32 min-h-screen text-center">
       <header className="space-y-1 pt-safe text-center">
         <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4 max-w-7xl mx-auto">
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
@@ -438,6 +471,103 @@ export default function ExplorePage() {
                   );
                 })}
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setDietaryNeeds(''); setAvailableIngredients('') } }}>
+          <DialogTrigger asChild>
+            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
+              <div className="w-24 h-24 bg-blue-100 rounded-[2rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-blue-200/50">
+                <ChefHat className="w-12 h-12 text-blue-700" />
+              </div>
+              <div className="space-y-4 text-center">
+                <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">Recipe From Pantry</h3>
+                <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
+                  Generate simple recipes using what you already have.
+                </p>
+              </div>
+              <Button variant="secondary" className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-blue-600 text-white hover:bg-blue-700 border-none">Create Recipe</Button>
+            </Card>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
+            <DialogHeader className="bg-blue-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
+              <Button variant="ghost" onClick={() => setIsRecipeGenOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20">
+                <ChevronLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+              <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1 text-white">RECIPE FROM PANTRY</DialogTitle>
+              <div className="w-24"></div>
+            </DialogHeader>
+            <div className="p-6 overflow-y-auto flex-1 no-scrollbar">
+              {loadingRecipeGen ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
+                  <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Thinking of Recipes...</p>
+                </div>
+              ) : recipeGenResult ? (
+                <div className="space-y-8 text-left">
+                  <section className="space-y-4 animate-in fade-in">
+                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Sparkles className="w-5 h-5 text-blue-600"/> Meal Ideas</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {recipeGenResult.mealRecommendations.map((meal: string, i: number) => (
+                        <div key={i} className="bg-blue-50/50 p-4 rounded-2xl text-sm font-black uppercase tracking-tight text-blue-800 border-2 border-blue-100">{meal}</div>
+                      ))}
+                    </div>
+                  </section>
+                  <section className="space-y-4 animate-in fade-in delay-100">
+                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><List className="w-5 h-5 text-blue-600"/> Recipes</h2>
+                    <div className="whitespace-pre-wrap bg-muted/30 p-6 rounded-2xl text-xs font-bold text-foreground/70 leading-relaxed border border-border/50">
+                      {recipeGenResult.recipes.join('\n\n---\n\n')}
+                    </div>
+                  </section>
+                  <section className="space-y-4 animate-in fade-in delay-200">
+                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Leaf className="w-5 h-5 text-green-600"/> Healthier Alternatives</h2>
+                    <div className="grid grid-cols-1 gap-2">
+                        {recipeGenResult.healthierAlternatives.map((alt: string, i: number) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                            <p className="text-sm font-medium text-foreground/80">{alt}</p>
+                          </div>
+                        ))}
+                    </div>
+                  </section>
+                </div>
+              ) : (
+                <div className="space-y-6 text-left">
+                    <div className="space-y-2">
+                        <Label htmlFor="needs-pantry" className="text-[10px] font-black uppercase tracking-widest ml-1">Dietary Needs (Optional)</Label>
+                        <Input 
+                          id="needs-pantry"
+                          placeholder="e.g. Vegetarian, Gluten-free..."
+                          value={dietaryNeeds}
+                          onChange={(e) => setDietaryNeeds(e.target.value)}
+                          className="rounded-2xl h-14 border-2 border-border focus:border-blue-600 font-bold"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="ingredients-pantry" className="text-[10px] font-black uppercase tracking-widest ml-1">What's in your pantry?</Label>
+                        <Textarea 
+                          id="ingredients-pantry"
+                          placeholder="e.g. Avocado, Spinach, Quinoa, Chicken breast, eggs..."
+                          value={availableIngredients}
+                          onChange={(e) => setAvailableIngredients(e.target.value)}
+                          className="min-h-[120px] rounded-2xl border-2 border-border focus:border-blue-600 font-bold"
+                          required
+                        />
+                    </div>
+                    <Button 
+                        onClick={handleGenerateFromPantry}
+                        className="w-full bg-blue-600 text-white hover:bg-blue-700 h-16 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95"
+                        disabled={loadingRecipeGen}
+                      >
+                        {loadingRecipeGen ? (
+                          <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                        ) : (
+                          "Generate Recipes"
+                        )}
+                    </Button>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
