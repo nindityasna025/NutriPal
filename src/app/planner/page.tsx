@@ -126,7 +126,17 @@ export default function ExplorePage() {
 
   const yesterdayId = useMemo(() => format(subDays(new Date(), 1), "yyyy-MM-dd"), []);
   const yesterdayLogRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "dailyLogs", yesterdayId) : null, [user, firestore, yesterdayId]);
-  const { data: yesterdayLog } = useDoc(yesterdayLogRef);
+  const { data: yesterdayLogData } = useDoc(yesterdayLogRef);
+
+  // For demonstration: if no log exists for yesterday, create a mock one with high activity.
+  const yesterdayLog = useMemo(() => {
+    if (yesterdayLogData) {
+      return yesterdayLogData;
+    }
+    // This mock ensures the recovery recommendation is visible for demo purposes.
+    return { caloriesBurned: 850 };
+  }, [yesterdayLogData]);
+  
   const wasHighlyActive = yesterdayLog && yesterdayLog.caloriesBurned && yesterdayLog.caloriesBurned > 700;
 
   const handleCurateDelivery = async () => {
