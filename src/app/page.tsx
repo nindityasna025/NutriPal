@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -20,7 +21,9 @@ import {
   ChevronUp,
   BarChart3,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Activity,
+  List
 } from "lucide-react"
 import { format, startOfToday, subDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
@@ -42,6 +45,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Legend } from "recharts"
+import { Separator } from "@/components/ui/separator"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", 
@@ -387,6 +391,61 @@ export default function Dashboard() {
                         <div className="text-foreground opacity-20 group-hover:opacity-100 transition-all">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</div>
                       </div>
                     </div>
+                    
+                    {isExpanded && (
+                      <div className="px-4 pb-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <Separator className="bg-border/30" />
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-primary/5 p-3 rounded-xl border border-primary/10 space-y-1">
+                            <p className="text-[7px] font-black uppercase text-foreground opacity-40 flex items-center gap-1"><Activity className="w-2 h-2" /> Health Score</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-black text-foreground">{meal.healthScore || 0}/100</span>
+                            </div>
+                          </div>
+                          <div className="bg-accent/5 p-3 rounded-xl border border-accent/10 space-y-1">
+                            <p className="text-[7px] font-black uppercase text-foreground opacity-40">Source</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-[7px] h-4 font-black uppercase px-1.5 border-accent/20 text-accent-foreground">
+                                {meal.source || 'Manual'}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+
+                        {meal.expertInsight && (
+                          <div className="space-y-1.5">
+                            <p className="text-[7px] font-black uppercase text-foreground opacity-40 flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5" /> AI Expert Insight
+                            </p>
+                            <p className="text-[10px] font-bold leading-relaxed text-foreground opacity-80 italic">
+                              "{meal.expertInsight}"
+                            </p>
+                          </div>
+                        )}
+
+                        {meal.ingredients && meal.ingredients.length > 0 && (
+                          <div className="space-y-1.5">
+                            <p className="text-[7px] font-black uppercase text-foreground opacity-40 flex items-center gap-1">
+                              <List className="w-2.5 h-2.5" /> Ingredients
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {meal.ingredients.map((ing: string, i: number) => (
+                                <span key={i} className="text-[8px] font-black uppercase bg-secondary/50 px-2 py-0.5 rounded-lg text-foreground opacity-60">
+                                  {ing}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {meal.allergenWarning && (
+                          <div className="p-3 bg-destructive/10 rounded-xl border border-destructive/20 flex items-start gap-2">
+                            <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                            <p className="text-[9px] font-black text-destructive uppercase leading-tight">{meal.allergenWarning}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )
