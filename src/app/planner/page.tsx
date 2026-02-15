@@ -10,9 +10,6 @@ import {
   Sparkles, 
   TrendingUp, 
   Loader2,
-  ChevronLeft,
-  RefreshCw,
-  Plus,
   Cpu,
   Calendar as CalendarIcon,
   Clock,
@@ -20,18 +17,22 @@ import {
   List,
   ChefHat,
   Leaf,
-  Bike
+  Bike,
+  Plus,
+  RefreshCw
 } from "lucide-react"
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger 
+  DialogTrigger,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp } from "firebase/firestore"
-import { format } from "date-fns"
+import { format, addDays, subDays, startOfToday } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { useToast } from "@/hooks/use-toast"
 import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
@@ -41,6 +42,7 @@ import { analyzeTextMeal } from "@/ai/flows/analyze-text-meal"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 
 const SCRAPED_DATABASE = [
   { 
@@ -100,6 +102,7 @@ export default function ExplorePage() {
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isRecipeGenOpen, setIsRecipeGenOpen] = useState(false)
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false)
   
   const [loading, setLoading] = useState(false)
   const [deliveryResult, setDeliveryResult] = useState<any[] | null>(null)
@@ -120,8 +123,17 @@ export default function ExplorePage() {
   const { user } = useUser()
   const firestore = useFirestore()
 
+  const today = useMemo(() => startOfToday(), []);
+  const yesterdayId = useMemo(() => format(subDays(today, 1), "yyyy-MM-dd"), [today]);
+
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
+
+  const yesterdayLogRef = useMemoFirebase(() => (user) ? doc(firestore, "users", user.uid, "dailyLogs", yesterdayId) : null, [user, firestore, yesterdayId])
+  const { data: yesterdayLog } = useDoc(yesterdayLogRef)
+
+  // Use a fallback for demo purposes if no log exists
+  const wasHighlyActive = useMemo(() => (yesterdayLog?.caloriesBurned || 800) > 700, [yesterdayLog]);
 
   const handleCurateDelivery = async () => {
     if (!profile) return;
@@ -366,6 +378,50 @@ export default function ExplorePage() {
     }
   }
 
+  const featureCards = [
+    { 
+      id: 'recovery',
+      title: 'Recovery Plan',
+      description: 'Generate a high-protein plan for post-workout recovery.',
+      icon: Bike,
+      color: 'destructive',
+      action: () => { setIsRecoveryOpen(true); handleGenerateMenu(true); },
+      buttonText: 'Generate Plan',
+      show: wasHighlyActive
+    },
+    { 
+      id: 'curation',
+      title: 'ML Curation',
+      description: 'Neural recommendation engine for platform ecosystem matching.',
+      icon: Cpu,
+      color: 'primary',
+      action: () => setIsDeliveryOpen(true),
+      buttonText: 'Execute Scorer',
+      show: true
+    },
+    { 
+      id: 'predictive',
+      title: 'Predictive Path',
+      description: 'Synthesize daily nutritional path using predictive models.',
+      icon: Sparkles,
+      color: 'accent',
+      action: () => setIsMenuOpen(true),
+      buttonText: 'Synthesize Path',
+      show: true
+    },
+    { 
+      id: 'pantry',
+      title: 'Recipe From Pantry',
+      description: 'Generate simple recipes using what you already have.',
+      icon: ChefHat,
+      color: 'blue',
+      action: () => setIsRecipeGenOpen(true),
+      buttonText: 'Create Recipe',
+      show: true
+    },
+  ].filter(card => card.show);
+
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-8 pb-24 min-h-screen text-center">
       <header className="space-y-1 pt-safe text-center">
@@ -374,91 +430,109 @@ export default function ExplorePage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 max-w-5xl mx-auto">
-        <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
-          <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
-              <div className="w-20 h-20 bg-primary/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-primary/10">
-                 <Cpu className="w-10 h-10 text-foreground" />
-              </div>
-              <div className="space-y-3 text-center">
-                <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">ML Curation</h3>
-                <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Neural recommendation engine for platform ecosystem matching.
-                </p>
-              </div>
-              <Button className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Execute Scorer</Button>
-            </Card>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
-            <DialogHeader className="bg-primary p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
-              <Button variant="ghost" onClick={() => setIsDeliveryOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/20">
-                <ChevronLeft className="w-4 h-4 mr-2" /> Back
-              </Button>
-              <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">NUTRIPAL V1: ML DELIVERY HUB</DialogTitle>
-              <div className="w-24"></div> 
+        {featureCards.map(card => (
+           <Dialog key={card.id}>
+             <DialogTrigger asChild>
+                <Card className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-6 flex flex-col items-center justify-between text-center space-y-4 active:scale-[0.98]">
+                  <div className={cn(
+                    "w-16 h-16 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
+                    card.color === 'primary' && 'bg-primary/10 border-primary/20',
+                    card.color === 'accent' && 'bg-accent/10 border-accent/20',
+                    card.color === 'blue' && 'bg-blue-100 border-blue-200',
+                    card.color === 'destructive' && 'bg-destructive/5 border-destructive/10',
+                  )}>
+                    <card.icon className={cn(
+                      "w-8 h-8",
+                      card.color === 'primary' && 'text-primary',
+                      card.color === 'accent' && 'text-accent-foreground',
+                      card.color === 'blue' && 'text-blue-600',
+                      card.color === 'destructive' && 'text-destructive',
+                    )} />
+                  </div>
+                  <div className="space-y-2 text-center flex-1">
+                    <h3 className="text-lg font-black tracking-tighter uppercase text-foreground">{card.title}</h3>
+                    <p className="text-foreground/60 font-bold text-[10px] leading-snug max-w-xs uppercase tracking-widest">
+                      {card.description}
+                    </p>
+                  </div>
+                  <Button onClick={card.action} variant={card.color === 'destructive' ? 'destructive' : card.color === 'blue' ? 'default' : 'secondary'} className={cn(
+                    "w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] border-none",
+                    card.color === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white'
+                  )}>
+                    {card.buttonText}
+                  </Button>
+                </Card>
+             </DialogTrigger>
+           </Dialog>
+        ))}
+
+        <Dialog open={isDeliveryOpen} onOpenChange={setIsDeliveryOpen}>
+          <DialogTrigger onClick={handleCurateDelivery} className="hidden"/>
+          <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogHeader className="p-8 text-center border-b">
+              <DialogTitle className="text-2xl">ML Delivery Hub</DialogTitle>
+              <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
             </DialogHeader>
-            <div className="p-6 overflow-hidden flex-1 flex flex-col">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto no-scrollbar">
+            <div className="p-8 overflow-y-auto flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Calculating Scores...</p>
                   </div>
                 ) : deliveryResult?.map((item) => (
-                  <Card key={item.id} className="rounded-[2.5rem] border-2 border-border shadow-premium bg-white group transition-all ring-primary/10 hover:ring-8 overflow-hidden flex flex-col">
+                  <Card key={item.id} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-primary/20 hover:ring-4 overflow-hidden flex flex-col">
                     <CardContent className="p-6 flex flex-col h-full space-y-4 text-left">
-                      <div className="space-y-4 flex-1">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-accent font-black text-[9px] uppercase tracking-[0.1em]">
+                      <div className="space-y-3 flex-1">
+                        <div className="flex justify-between items-start">
+                          <Badge variant={item.platform === 'GrabFood' ? 'default' : 'secondary'}>{item.platform}</Badge>
+                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-wider">
                             <TrendingUp className="w-4 h-4" /> {item.healthScore}% Match
                           </div>
-                          <h3 className="text-xl font-black tracking-tighter uppercase text-foreground leading-tight">{item.name}</h3>
-                          <div className="flex items-center gap-2">
-                             <Badge className={item.platform === 'GrabFood' ? 'bg-green-600 text-white border-none text-[8px]' : 'bg-red-600 text-white border-none text-[8px]'}>
-                               {item.platform}
-                             </Badge>
-                             <p className="text-[9px] font-black text-foreground opacity-30 uppercase tracking-[0.1em]">{item.restaurant}</p>
-                          </div>
                         </div>
-                        <div className="bg-primary/5 p-4 rounded-[1.5rem] border-2 border-primary/10">
-                          <p className="text-[11px] font-black leading-tight italic text-foreground opacity-80">"{item.reasoning}"</p>
+                        <div className="space-y-1">
+                          <h3 className="text-lg font-black tracking-tighter uppercase text-foreground leading-tight">{item.name}</h3>
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
+                        </div>
+                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
+                          <p className="text-xs font-bold leading-snug italic text-foreground/80">"{item.reasoning}"</p>
                         </div>
                         
                         {item.ingredients && (
-                          <div className="space-y-1.5">
-                            <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
-                              <List className="w-2.5 h-2.5" /> Ingredients
+                          <div className="space-y-2">
+                            <p className="text-[8px] font-black text-muted-foreground uppercase flex items-center gap-1.5">
+                              <List className="w-3 h-3" /> Ingredients
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                               {item.ingredients.map((ing: string, i: number) => (
-                                <span key={i} className="text-[8px] font-black uppercase bg-secondary/80 px-2 py-0.5 rounded-lg text-foreground opacity-60">
-                                  {ing}
-                                </span>
+                                 <Badge key={i} variant="outline" className="text-[9px] font-bold rounded-md">{ing}</Badge>
                               ))}
                             </div>
                           </div>
                         )}
                       </div>
-                      <div className="pt-4 border-t-2 border-border space-y-4">
+                      <div className="pt-4 border-t space-y-3">
                         <div className="grid grid-cols-3 gap-2">
                            <div className="text-center">
-                             <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Protein</p>
-                             <p className="text-sm font-black text-primary">{item.macros.protein}g</p>
+                             <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                             <p className="text-base font-black text-primary">{item.macros.protein}g</p>
                            </div>
                            <div className="text-center">
-                             <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Carbs</p>
-                             <p className="text-sm font-black text-orange-600">{item.macros.carbs}g</p>
+                             <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                             <p className="text-base font-black text-orange-500">{item.macros.carbs}g</p>
                            </div>
                            <div className="text-center">
-                             <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Fat</p>
-                             <p className="text-sm font-black text-accent">{item.macros.fat}g</p>
+                             <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                             <p className="text-base font-black text-accent">{item.macros.fat}g</p>
                            </div>
                         </div>
-                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-foreground text-white border-none flex gap-2">
-                          <ExternalLink className="w-4 h-4" /> Order & Sync
-                        </Button>
                       </div>
                     </CardContent>
+                     <DialogFooter className="p-6 pt-0">
+                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-xs flex gap-2">
+                          <ExternalLink className="w-4 h-4" /> Order & Sync
+                        </Button>
+                      </DialogFooter>
                   </Card>
                 ))}
               </div>
@@ -466,41 +540,21 @@ export default function ExplorePage() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isMenuOpen} onOpenChange={(open) => { setIsMenuOpen(open); if(open) handleGenerateMenu(); }}>
-          <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
-              <div className="w-20 h-20 bg-accent/20 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-accent/10">
-                 <Sparkles className="w-10 h-10 text-foreground opacity-60" />
-              </div>
-              <div className="space-y-3 text-center">
-                <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Predictive Path</h3>
-                <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Synthesize daily nutritional path using predictive models.
-                </p>
-              </div>
-              <Button variant="secondary" className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-accent text-foreground hover:opacity-90 border-none">Synthesize Path</Button>
-            </Card>
-          </DialogTrigger>
-          <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
-            <DialogHeader className="bg-accent p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
-              <Button variant="ghost" onClick={() => setIsMenuOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/20">
-                <ChevronLeft className="w-4 h-4 mr-2" /> Back
-              </Button>
-              <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">NUTRIPAL V1: PREDICTIVE SYNTHESIS</DialogTitle>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
-                  <CalendarIcon className="w-3.5 h-3.5 text-foreground" />
-                  <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-[9px] font-black uppercase focus:ring-0 w-24 text-foreground cursor-pointer" />
-                </div>
-                {menuPlan && !loading && (
-                  <Button onClick={() => handleAddAll()} className="h-10 px-5 rounded-[0.75rem] bg-white text-foreground hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
-                     <Plus className="w-4 h-4 mr-2" /> Accept All
-                  </Button>
-                )}
-              </div>
+        <Dialog open={isMenuOpen || isRecoveryOpen} onOpenChange={isMenuOpen ? setIsMenuOpen : setIsRecoveryOpen}>
+          <DialogTrigger className="hidden"/>
+          <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogHeader className="p-8 text-center border-b">
+                <DialogTitle className="text-2xl">{isRecoveryOpen ? 'Recovery Plan' : 'Predictive Meal Plan'}</DialogTitle>
+                <DialogDescription className="flex items-center justify-center gap-4">
+                  <span>A full day's meal plan synthesized by AI based on your profile.</span>
+                  <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
+                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                    <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
+                  </div>
+                </DialogDescription>
             </DialogHeader>
-            <div className="p-6 overflow-hidden flex-1 flex flex-col">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto no-scrollbar">
+            <div className="p-8 overflow-y-auto flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {loading ? (
                   <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin text-accent" />
@@ -512,59 +566,54 @@ export default function ExplorePage() {
                   const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
                   const finalTime = meal.time || baseMeal.time || "12:00 PM";
                   return (
-                    <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-accent/10 hover:ring-2 overflow-hidden flex flex-col relative">
-                      <Button variant="ghost" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-sm">
+                    <Card key={type} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-accent/20 hover:ring-4 overflow-hidden flex flex-col relative">
+                      <Button variant="outline" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm">
                         <RefreshCw className="w-4 h-4 text-accent" />
                       </Button>
-                      <CardContent className="p-5 flex flex-col h-full space-y-4 text-left">
-                        <div className="flex-1 space-y-4">
-                          <Badge variant="secondary" className="bg-accent/20 text-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-[0.6rem] border-none">{type}</Badge>
+                      <CardContent className="p-5 flex flex-col h-full space-y-3 text-left">
+                        <div className="flex-1 space-y-3">
+                          <Badge variant="secondary" className="bg-accent/10 text-accent-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-lg border-none">{type}</Badge>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                               <Clock className="w-3 h-3 opacity-30" />
-                               <span className="text-[9px] font-black uppercase opacity-40">{finalTime}</span>
+                               <Clock className="w-3 h-3 opacity-40" />
+                               <span className="text-[9px] font-black uppercase opacity-50">{finalTime}</span>
                             </div>
-                            <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
-                            <p className="text-[9px] font-black leading-tight text-foreground opacity-30 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
+                            <h3 className="text-base font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
+                            <p className="text-[10px] font-bold leading-snug text-muted-foreground line-clamp-2">{meal.description}</p>
                           </div>
                           
                           {meal.ingredients && (
                             <div className="space-y-1.5">
-                              <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
-                                <List className="w-2.5 h-2.5" /> Ingredients
-                              </p>
-                              <div className="flex flex-wrap gap-1">
+                              <div className="flex flex-wrap gap-1.5">
                                 {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
-                                  <span key={i} className="text-[7px] font-black uppercase bg-secondary/50 px-1.5 py-0.5 rounded-lg text-foreground opacity-60">
-                                    {ing}
-                                  </span>
+                                  <Badge key={i} variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">{ing}</Badge>
                                 ))}
-                                {meal.ingredients.length > 4 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 4} more</span>}
+                                {meal.ingredients.length > 4 && <Badge variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">+{meal.ingredients.length - 4} more</Badge>}
                               </div>
                             </div>
                           )}
 
-                          <div className="grid grid-cols-3 gap-2 border-y border-border py-4">
+                          <div className="grid grid-cols-3 gap-2 border-y py-3">
                             <div className="text-center">
-                              <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Protein</p>
-                              <p className="text-xs font-black text-primary">{meal.macros.protein}g</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                              <p className="text-sm font-black text-primary">{meal.macros.protein}g</p>
                             </div>
                             <div className="text-center">
-                              <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Carbs</p>
-                              <p className="text-xs font-black text-orange-600">{meal.macros.carbs}g</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                              <p className="text-sm font-black text-orange-500">{meal.macros.carbs}g</p>
                             </div>
                             <div className="text-center">
-                              <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Fat</p>
-                              <p className="text-xs font-black text-accent">{meal.macros.fat}g</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                              <p className="text-sm font-black text-accent">{meal.macros.fat}g</p>
                             </div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
-                              <Plus className="w-3 h-3 mr-1" /> Self-Cook
+                        <div className="flex gap-2 pt-2">
+                          <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} variant="secondary" className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-widest">
+                              <Plus className="w-4 h-4 mr-1" /> Self-Cook
                           </Button>
-                          <Button onClick={() => handleRequestCookBuddy(meal)} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-foreground text-white border-none">
-                              <Bike className="w-3 h-3 mr-1" /> CookBuddy
+                          <Button onClick={() => handleRequestCookBuddy(meal)} className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-widest">
+                              <Bike className="w-4 h-4 mr-1" /> CookBuddy
                           </Button>
                         </div>
                       </CardContent>
@@ -573,49 +622,41 @@ export default function ExplorePage() {
                 })}
               </div>
             </div>
+             <DialogFooter className="p-6 border-t bg-background rounded-b-[2.5rem]">
+                <Button variant="ghost" onClick={isMenuOpen ? () => setIsMenuOpen(false) : () => setIsRecoveryOpen(false)}>Cancel</Button>
+                {menuPlan && !loading && (
+                  <Button onClick={() => handleAddAll(isRecoveryOpen)}>
+                     <Plus className="w-4 h-4 mr-2" /> Schedule All Meals
+                  </Button>
+                )}
+              </DialogFooter>
           </DialogContent>
         </Dialog>
 
         <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
-          <DialogTrigger asChild>
-            <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-8 flex flex-col items-center justify-between text-center space-y-6 active:scale-[0.98]">
-              <div className="w-20 h-20 bg-blue-100 rounded-[1.5rem] flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2 border-blue-200/50">
-                <ChefHat className="w-10 h-10 text-blue-700" />
-              </div>
-              <div className="space-y-3 text-center">
-                <h3 className="text-2xl font-black tracking-tighter uppercase text-foreground">Recipe From Pantry</h3>
-                <p className="text-foreground opacity-50 font-black text-[10px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Generate simple recipes using what you already have.
-                </p>
-              </div>
-              <Button variant="secondary" className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest text-[10px] bg-blue-600 text-white hover:bg-blue-700 border-none">Create Recipe</Button>
-            </Card>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
-            <DialogHeader className="bg-blue-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
-              <Button variant="ghost" onClick={() => setIsRecipeGenOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20">
-                <ChevronLeft className="w-4 h-4 mr-2" /> Back
-              </Button>
-              <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1 text-white">RECIPE FROM PANTRY</DialogTitle>
-              <div className="w-24"></div>
+           <DialogTrigger className="hidden"/>
+          <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogHeader className="p-8 text-center border-b">
+              <DialogTitle className="text-2xl">Recipe From Pantry</DialogTitle>
+               <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
             </DialogHeader>
-            <div className="p-6 overflow-y-auto flex-1 no-scrollbar">
+            <div className="p-8 overflow-y-auto flex-1">
               {loadingRecipeGen ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
-                  <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Thinking of Recipes...</p>
                 </div>
               ) : recipeGenResult ? (
                 <div className="space-y-8 text-left">
                   <section className="space-y-4 animate-in fade-in">
-                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Sparkles className="w-5 h-5 text-blue-600"/> Meal Ideas</h2>
+                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/> Meal Ideas</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {recipeGenResult.mealRecommendations.map((mealName: string, i: number) => (
-                        <Card key={i} className="bg-blue-50/50 rounded-2xl border-2 border-blue-100 p-4 flex flex-col justify-between text-left">
-                          <p className="text-sm font-black uppercase tracking-tight text-blue-800 flex-1">{mealName}</p>
+                        <Card key={i} className="bg-card rounded-2xl border p-4 flex flex-col justify-between text-left shadow-sm">
+                          <p className="text-sm font-black uppercase tracking-tight text-foreground flex-1">{mealName}</p>
                           <Button 
                               size="sm" 
-                              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-9 text-[10px] font-black uppercase tracking-widest"
+                              className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg h-9 text-[10px] font-black uppercase tracking-widest"
                               disabled={!!isAddingPantryRecipe}
                               onClick={() => handleAddPantryRecipeToPlan(mealName)}>
                               {isAddingPantryRecipe === mealName ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-3 h-3 mr-1.5" /> Add to Plan</>}
@@ -625,17 +666,17 @@ export default function ExplorePage() {
                     </div>
                   </section>
                   <section className="space-y-4 animate-in fade-in delay-100">
-                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><List className="w-5 h-5 text-blue-600"/> Recipes</h2>
-                    <div className="whitespace-pre-wrap bg-muted/30 p-6 rounded-2xl text-xs font-bold text-foreground/70 leading-relaxed border border-border/50">
+                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><List className="w-5 h-5 text-primary"/> Recipes</h2>
+                    <div className="whitespace-pre-wrap bg-muted/30 p-6 rounded-2xl text-xs font-bold text-foreground/70 leading-relaxed border">
                       {recipeGenResult.recipes.join('\n\n---\n\n')}
                     </div>
                   </section>
                   <section className="space-y-4 animate-in fade-in delay-200">
                     <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Leaf className="w-5 h-5 text-green-600"/> Healthier Alternatives</h2>
-                    <div className="grid grid-cols-1 gap-2">
+                    <div className="grid grid-cols-1 gap-3">
                         {recipeGenResult.healthierAlternatives.map((alt: string, i: number) => (
-                          <div key={i} className="flex items-start gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                          <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-secondary/30">
+                            <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
                             <p className="text-sm font-medium text-foreground/80">{alt}</p>
                           </div>
                         ))}
@@ -645,19 +686,19 @@ export default function ExplorePage() {
               ) : (
                 <div className="space-y-6 text-left">
                     <div className="space-y-2">
-                        <Label htmlFor="ingredients-pantry" className="text-[10px] font-black uppercase tracking-widest ml-1">What's in your pantry?</Label>
+                        <Label htmlFor="ingredients-pantry" className="text-sm font-semibold ml-1">What's in your pantry?</Label>
                         <Textarea 
                           id="ingredients-pantry"
                           placeholder="e.g. Avocado, Spinach, Quinoa, Chicken breast, eggs..."
                           value={availableIngredients}
                           onChange={(e) => setAvailableIngredients(e.target.value)}
-                          className="min-h-[120px] rounded-2xl border-2 border-border focus:border-blue-600 font-bold"
+                          className="min-h-[120px] rounded-2xl border-2 font-semibold"
                           required
                         />
                     </div>
                     <Button 
                         onClick={handleGenerateFromPantry}
-                        className="w-full bg-blue-600 text-white hover:bg-blue-700 h-16 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95"
+                        className="w-full h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all active:scale-95"
                         disabled={loadingRecipeGen || !availableIngredients}
                       >
                         {loadingRecipeGen ? (

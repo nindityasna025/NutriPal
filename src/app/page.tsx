@@ -45,6 +45,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
@@ -54,7 +55,7 @@ import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", 
-  carbs: "hsl(38 92% 50%)",      
+  carbs: "hsl(var(--chart-2, 38 92% 50%))",
   fat: "hsl(var(--accent))",     
 }
 
@@ -359,106 +360,86 @@ export default function Dashboard() {
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-          <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => {
+        <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => {
               if (open && !wasHighlyActive) return;
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-            <Card className={cn(
-                "border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all"
-            )}>
+            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all relative">
                 <DialogTrigger asChild disabled={!wasHighlyActive}>
-                    <div className={cn(
-                        "p-1.5 rounded-lg mb-1 border transition-all",
-                        wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10"
-                    )}>
-                        <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
-                    </div>
+                  <button className={cn(
+                    "absolute top-2 right-2 p-1.5 rounded-full border transition-all",
+                    wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10 cursor-default"
+                  )}>
+                    <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
+                  </button>
                 </DialogTrigger>
                 <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
                 <p className="text-lg font-black tracking-tighter text-foreground">{caloriesBurned} <span className="text-[9px] font-black opacity-20">kcal</span></p>
             </Card>
-            <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
-              <DialogHeader className="bg-red-600 p-5 text-white shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
-                <Button variant="ghost" onClick={() => setIsRecoveryDialogOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20">
-                  <ChevronLeft className="w-4 h-4 mr-2" /> Back
-                </Button>
-                <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1 text-white">RECOVERY PLAN SYNTHESIS</DialogTitle>
-                <div className="flex items-center gap-3">
-                  {recoveryPlan && !loadingRecoveryPlan && (
-                    <Button onClick={handleAcceptRecoveryPlan} className="h-10 px-5 rounded-[0.75rem] bg-white text-red-600 hover:bg-white/90 font-black uppercase text-[9px] tracking-widest shadow-xl border-none">
-                       <Plus className="w-4 h-4 mr-2" /> Accept All
-                    </Button>
-                  )}
-                </div>
+            <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+              <DialogHeader className="p-8 text-center border-b">
+                <DialogTitle className="text-2xl">Recovery Plan Synthesis</DialogTitle>
+                <DialogDescription className="max-w-2xl mx-auto">
+                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake to support muscle recovery. This plan is for tomorrow.
+                </DialogDescription>
               </DialogHeader>
-              <div className="p-6 overflow-hidden flex-1 flex flex-col">
-                <div className="bg-red-50 border-2 border-red-200/50 text-red-800 p-4 rounded-2xl mb-4 text-sm font-bold text-center">
-                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake today to support muscle recovery and replenish energy stores.
-                </div>
-                 {loadingRecoveryPlan ? (
-                  <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
-                    <Loader2 className="w-12 h-12 animate-spin text-red-600" />
+              <div className="p-8 overflow-y-auto flex-1">
+                {loadingRecoveryPlan ? (
+                  <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4 h-full">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary" />
                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Synthesizing Recovery Path...</p>
                   </div>
                 ) : recoveryPlan && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto no-scrollbar">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {(["breakfast", "lunch", "dinner"] as const).map((type) => {
                       const isSwapped = swappedRecoveryMeals[type];
                       const baseMeal = recoveryPlan[type];
                       const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
                       const finalTime = meal.time || baseMeal.time || "12:00 PM";
                       return (
-                        <Card key={type} className="rounded-[2.25rem] border-2 border-border shadow-premium bg-white group transition-all ring-red-500/10 hover:ring-2 overflow-hidden flex flex-col relative">
-                          <Button variant="ghost" size="icon" onClick={() => handleSwapRecoveryMeal(type)} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-sm">
-                            <RefreshCw className="w-4 h-4 text-red-600" />
+                        <Card key={type} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-primary/20 hover:ring-4 overflow-hidden flex flex-col relative">
+                          <Button variant="outline" size="icon" onClick={() => handleSwapRecoveryMeal(type)} className="absolute top-4 right-4 z-10 h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm">
+                            <RefreshCw className="w-4 h-4 text-primary" />
                           </Button>
                           <CardContent className="p-5 flex flex-col h-full space-y-4 text-left">
-                            <div className="flex-1 space-y-4">
-                              <Badge variant="secondary" className="bg-red-600/20 text-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-[0.6rem] border-none">{type}</Badge>
+                            <div className="flex-1 space-y-3">
+                              <Badge variant="secondary" className="bg-primary/10 text-primary-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-lg border-none">{type}</Badge>
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
-                                   <Clock className="w-3 h-3 opacity-30" />
-                                   <span className="text-[9px] font-black uppercase opacity-40">{finalTime}</span>
+                                  <Clock className="w-3 h-3 opacity-40" />
+                                  <span className="text-[9px] font-black uppercase opacity-50">{finalTime}</span>
                                 </div>
-                                <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
-                                <p className="text-[9px] font-black leading-tight text-foreground opacity-30 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
+                                <h3 className="text-base font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
+                                <p className="text-[10px] font-bold leading-snug text-muted-foreground line-clamp-2">{meal.description}</p>
                               </div>
                               
                               {meal.ingredients && (
                                 <div className="space-y-1.5">
-                                  <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
-                                    <List className="w-2.5 h-2.5" /> Ingredients
-                                  </p>
-                                  <div className="flex flex-wrap gap-1">
+                                  <div className="flex flex-wrap gap-1.5">
                                     {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
-                                      <span key={i} className="text-[7px] font-black uppercase bg-secondary/50 px-1.5 py-0.5 rounded-lg text-foreground opacity-60">
-                                        {ing}
-                                      </span>
+                                      <Badge key={i} variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">{ing}</Badge>
                                     ))}
-                                    {meal.ingredients.length > 4 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 4} more</span>}
+                                    {meal.ingredients.length > 4 && <Badge variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">+{meal.ingredients.length - 4} more</Badge>}
                                   </div>
                                 </div>
                               )}
 
-                              <div className="grid grid-cols-3 gap-2 border-y border-border py-4">
+                              <div className="grid grid-cols-3 gap-2 border-y py-3">
                                 <div className="text-center">
-                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Protein</p>
-                                  <p className="text-xs font-black text-primary">{meal.macros.protein}g</p>
+                                  <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                                  <p className="text-sm font-black text-primary">{meal.macros.protein}g</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Carbs</p>
-                                  <p className="text-xs font-black text-orange-600">{meal.macros.carbs}g</p>
+                                  <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                                  <p className="text-sm font-black" style={{ color: MACRO_COLORS.carbs }}>{meal.macros.carbs}g</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Fat</p>
-                                  <p className="text-xs font-black text-accent">{meal.macros.fat}g</p>
+                                  <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                                  <p className="text-sm font-black text-accent">{meal.macros.fat}g</p>
                                 </div>
                               </div>
                             </div>
-                            <Button onClick={handleAcceptRecoveryPlan} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-red-600 text-white border-none">
-                                <Plus className="w-3 h-3 mr-1" /> Add to Plan
-                            </Button>
                           </CardContent>
                         </Card>
                       );
@@ -466,6 +447,14 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
+              <DialogFooter className="p-6 border-t bg-background rounded-b-[2.5rem]">
+                  <Button variant="ghost" onClick={() => setIsRecoveryDialogOpen(false)}>Cancel</Button>
+                  {recoveryPlan && !loadingRecoveryPlan && (
+                  <Button onClick={handleAcceptRecoveryPlan}>
+                      <Plus className="w-4 h-4 mr-2" /> Schedule For Tomorrow
+                  </Button>
+                  )}
+              </DialogFooter>
             </DialogContent>
           </Dialog>
 
@@ -527,7 +516,7 @@ export default function Dashboard() {
                       return null
                     }}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
+                  <Legend verticalAlign="top" height={36} align="right" iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
                   <Bar yAxisId="left" dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
                   <Bar yAxisId="left" dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
                   <Bar yAxisId="left" dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
