@@ -109,7 +109,6 @@ export default function Dashboard() {
     const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, 6 - i));
     return last7Days.map(day => {
       const dateStr = format(day, "yyyy-MM-dd");
-      // For today, use the live totals from the meals collection to ensure consistency
       if (dateStr === dateId) {
         return {
           date: format(day, "MMM d"),
@@ -127,12 +126,6 @@ export default function Dashboard() {
       };
     });
   }, [recentLogs, today, dateId, totals]);
-
-  const hasChartData = useMemo(() => {
-    if (!chartData || chartData.length === 0) return false;
-    // Hide if all macros for all 7 days are zero
-    return chartData.some(d => d.protein > 0 || d.carbs > 0 || d.fat > 0);
-  }, [chartData]);
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = Math.max(0, Math.round(totals.calories))
@@ -221,7 +214,7 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
+        <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden h-fit">
           <CardContent className="p-4 sm:p-5 space-y-3">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5 text-left">
@@ -277,7 +270,7 @@ export default function Dashboard() {
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center">
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px]">
             <div className="p-1.5 bg-primary/20 rounded-lg mb-1 border border-primary/10">
               <Flame className="w-4 h-4 text-foreground" />
             </div>
@@ -285,7 +278,7 @@ export default function Dashboard() {
             <p className="text-lg font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[9px] font-black opacity-20">kcal</span></p>
           </Card>
 
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center">
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px]">
             <div className="p-1.5 bg-accent/20 rounded-lg mb-1 border border-accent/10">
               <Droplets className="w-4 h-4 text-foreground" />
             </div>
@@ -303,49 +296,47 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {hasChartData && (
-        <section className="space-y-3 pt-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
-            <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
-          </h2>
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-            <CardContent className="p-5 pt-10">
-              <div className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
-                    <Tooltip 
-                      cursor={{ fill: "hsl(var(--primary)/0.05)" }}
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-3 border border-border shadow-xl rounded-2xl">
-                              <p className="font-black text-[9px] uppercase mb-1.5 border-b border-border pb-1">Daily Totals</p>
-                              {payload.map((entry, idx) => (
-                                <div key={idx} className="flex justify-between gap-4 text-[9px] font-black uppercase">
-                                  <span style={{ color: entry.color }}>{entry.name}:</span>
-                                  <span>{entry.value} kcal</span>
-                                </div>
-                              ))}
-                            </div>
-                          )
-                        }
-                        return null
-                      }}
-                    />
-                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
-                    <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
-                    <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
-                    <Bar dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-      )}
+      <section className="space-y-3 pt-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
+          <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
+        </h2>
+        <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
+          <CardContent className="p-5 pt-10">
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
+                  <Tooltip 
+                    cursor={{ fill: "hsl(var(--primary)/0.05)" }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-3 border border-border shadow-xl rounded-2xl">
+                            <p className="font-black text-[9px] uppercase mb-1.5 border-b border-border pb-1">Daily Totals</p>
+                            {payload.map((entry, idx) => (
+                              <div key={idx} className="flex justify-between gap-4 text-[9px] font-black uppercase">
+                                <span style={{ color: entry.color }}>{entry.name}:</span>
+                                <span>{entry.value} kcal</span>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      }
+                      return null
+                    }}
+                  />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
+                  <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
+                  <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
+                  <Bar dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       <section className="space-y-3 pt-3">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">

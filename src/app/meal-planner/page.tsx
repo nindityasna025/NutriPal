@@ -150,7 +150,6 @@ export default function MealPlannerPage() {
       let instructions: string[] = []
       let allergenWarning = ""
 
-      // Automated AI Analysis for New Meals
       if (!editingMealId) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
@@ -203,7 +202,7 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Action Failed", description: "AI analysis unavailable. Try зagain later." });
+      toast({ variant: "destructive", title: "Action Failed", description: "AI analysis unavailable. Try again later." });
     } finally {
       setIsSaving(false);
     }
