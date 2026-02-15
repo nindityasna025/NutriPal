@@ -4,6 +4,7 @@
 /**
  * @fileOverview Predictive Menu Synthesis Model for daily planning.
  * - Includes rule-based fallback for 429 quota handling.
+ * - Generates both primary and swap suggestions for each meal.
  */
 
 import { ai } from '@/ai/genkit';
@@ -21,7 +22,12 @@ const MealRecommendationSchema = z.object({
   time: z.string(),
   macros: MacroSchema,
   description: z.string(),
-  swapSuggestion: z.string().describe('An alternative meal'),
+  swapSuggestion: z.object({
+    name: z.string(),
+    calories: z.number(),
+    macros: MacroSchema,
+    description: z.string(),
+  }).describe('An alternative healthy meal option'),
   ingredients: z.array(z.string()),
 });
 
@@ -60,24 +66,31 @@ function ruleBasedMenuFallback(input: GenerateDailyPlanInput): GenerateDailyPlan
   const lCals = Math.round(calorieTarget * 0.40);
   const dCals = Math.round(calorieTarget * 0.35);
 
-  const createMeal = (name: string, cals: number, time: string) => ({
+  const calculateMacros = (cals: number) => ({
+    protein: Math.round((cals * (input.proteinPercent / 100)) / 4),
+    carbs: Math.round((cals * (input.carbsPercent / 100)) / 4),
+    fat: Math.round((cals * (input.fatPercent / 100)) / 9),
+  });
+
+  const createMeal = (name: string, cals: number, time: string, swapName: string) => ({
     name,
     calories: cals,
     time,
-    macros: {
-      protein: Math.round((cals * (input.proteinPercent / 100)) / 4),
-      carbs: Math.round((cals * (input.carbsPercent / 100)) / 4),
-      fat: Math.round((cals * (input.fatPercent / 100)) / 9),
-    },
+    macros: calculateMacros(cals),
     description: "Synthesized based on biometric rules (AI Fallback active).",
-    swapSuggestion: "Alternative healthy source",
+    swapSuggestion: {
+      name: swapName,
+      calories: cals,
+      macros: calculateMacros(cals),
+      description: "Alternative option generated via biometric rules.",
+    },
     ingredients: ["Fresh ingredients", "Lean protein"],
   });
 
   return {
-    breakfast: createMeal("Oatmeal with Fruits", bCals, "08:00 AM"),
-    lunch: createMeal("Grilled Chicken Salad", lCals, "12:30 PM"),
-    dinner: createMeal("Steamed Fish with Greens", dCals, "07:00 PM"),
+    breakfast: createMeal("Oatmeal with Fruits", bCals, "08:00 AM", "Greek Yogurt with Berries"),
+    lunch: createMeal("Grilled Chicken Salad", lCals, "12:30 PM", "Quinoa Veggie Bowl"),
+    dinner: createMeal("Steamed Fish with Greens", dCals, "07:00 PM", "Tofu Stir-fry with Broccoli"),
   };
 }
 
@@ -90,14 +103,14 @@ Synthesize a 3-meal path for:
 
 TARGETS:
 - Energy: {{{calorieTarget}}} kcal
-- Macros: {{{proteinPercent}}}% P, {{{carbsPercent}}}% C, {{{fatPercent}}}% F
+- Macros: {{{proteinPercent}}}% Protein, {{{carbsPercent}}}% Carbs, {{{fatPercent}}}% Fat
 - Diet: {{#if dietType}}{{{dietType}}}{{else}}Standard{{/if}}
 - Exclude: {{#if allergies}}{{{allergies}}}{{else}}None{{/if}}
 
 RULES:
-1. SUM(Cals) within 5% of Target.
-2. "description" MUST BE CONCISE (MAX 150 chars). Target 120 chars.
-3. Predict optimal path based on biophysical constraints.
+1. SUM(Calories) within 5% of Target.
+2. Provide a "swapSuggestion" for each meal that is also health-aligned.
+3. Descriptions MUST BE EXTREMELY CONCISE (MAX 150 chars).
 
 Synthesize now.`,
 });

@@ -26,6 +26,12 @@ import { analyzeMeal, type AnalyzeMealOutput } from "@/ai/flows/analyze-meal"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 
+const MACRO_COLORS = {
+  protein: "hsl(var(--primary))",
+  carbs: "hsl(38 92% 50%)",
+  fat: "hsl(var(--accent))",
+}
+
 export default function RecordPage() {
   const router = useRouter()
   const [mode, setMode] = useState<"choice" | "camera" | "gallery">("choice")
@@ -213,18 +219,13 @@ export default function RecordPage() {
     });
 
     toast({ title: "Logged Successfully", description: `${result.name} recorded.` })
-    
-    if (mode === "camera") {
-      router.push("/")
-    } else {
-      resetAll()
-    }
+    router.push("/")
   }
 
   if (!mounted) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4 space-y-4 pb-20 h-[calc(100vh-theme(spacing.20))] flex flex-col overflow-hidden animate-in fade-in duration-700">
+    <div className="max-w-4xl mx-auto px-4 py-4 space-y-4 h-screen flex flex-col overflow-hidden animate-in fade-in duration-700">
       <header className="space-y-1 text-center shrink-0">
         <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Snap Meal</h1>
         <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Expert AI Analysis</p>
@@ -306,11 +307,11 @@ export default function RecordPage() {
                   <div className="grid grid-cols-3 gap-3 shrink-0">
                     <div className="p-3 bg-primary/10 rounded-xl text-center border border-primary/5">
                       <p className="text-[7px] font-black text-foreground opacity-40 uppercase">Protein</p>
-                      <p className="text-lg font-black text-foreground">{result.macros.protein}g</p>
+                      <p className="text-sm font-black text-foreground">{result.macros.protein}g</p>
                     </div>
                     <div className="p-3 bg-orange-50 rounded-xl text-center border border-orange-100/50">
                       <p className="text-[7px] font-black text-foreground opacity-40 uppercase">Carbs</p>
-                      <p className="text-lg font-black text-foreground">{result.macros.carbs}g</p>
+                      <p className="text-sm font-black text-foreground">{result.macros.carbs}g</p>
                     </div>
                     <div className="p-3 bg-accent/10 rounded-xl text-center border border-accent/5">
                       <p className="text-[7px] font-black text-foreground opacity-40 uppercase">Fat</p>
@@ -318,7 +319,7 @@ export default function RecordPage() {
                     </div>
                   </div>
 
-                  {/* Mode-specific Date/Time selector for Gallery */}
+                  {/* Date/Time selector for Gallery only */}
                   {mode === "gallery" && (
                     <div className="grid grid-cols-2 gap-3 p-4 bg-secondary/20 rounded-xl border border-border/50 shrink-0">
                       <div className="space-y-1">

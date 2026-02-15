@@ -41,8 +41,6 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
 } from "@/components/ui/chart"
 import {
   Popover,
@@ -251,13 +249,13 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Compact Energy Card */}
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-5 sm:p-6 space-y-6">
+          <CardContent className="p-4 sm:p-5 space-y-4">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5 text-left">
                 <span className="text-[8px] font-black uppercase tracking-widest text-foreground opacity-60">Energy Balance</span>
                 <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-4xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-sm font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
+                  <h2 className={cn("text-3xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-xs font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
@@ -272,8 +270,8 @@ export default function Dashboard() {
               </Popover>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex h-7 w-full rounded-full overflow-hidden bg-secondary border border-border/10 shadow-inner">
+            <div className="space-y-3">
+              <div className="flex h-5 w-full rounded-full overflow-hidden bg-secondary border border-border/10 shadow-inner">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
@@ -282,34 +280,28 @@ export default function Dashboard() {
                 <div className="flex flex-col gap-0.5 items-start text-left">
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.protein }} /> 
-                    <span style={{ color: MACRO_COLORS.protein }}>P</span>
+                    <span style={{ color: MACRO_COLORS.protein }}>Protein</span>
                   </div>
-                  <span className="text-base tracking-tighter">{Math.round(proteinPercent)}%</span>
+                  <span className="text-sm tracking-tighter">{Math.round(proteinPercent)}%</span>
                 </div>
                 <div className="flex flex-col gap-0.5 items-center justify-center">
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.carbs }} /> 
-                    <span style={{ color: MACRO_COLORS.carbs }}>C</span>
+                    <span style={{ color: MACRO_COLORS.carbs }}>Carbs</span>
                   </div>
-                  <span className="text-base tracking-tighter">{Math.round(carbsPercent)}%</span>
+                  <span className="text-sm tracking-tighter">{Math.round(carbsPercent)}%</span>
                 </div>
                 <div className="flex flex-col gap-0.5 items-end text-right">
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: MACRO_COLORS.fat }} /> 
-                    <span style={{ color: MACRO_COLORS.fat }}>F</span>
+                    <span style={{ color: MACRO_COLORS.fat }}>Fat</span>
                   </div>
-                  <span className="text-base tracking-tighter">{Math.round(fatPercent)}%</span>
+                  <span className="text-sm tracking-tighter">{Math.round(fatPercent)}%</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-0 text-left space-y-1.5">
-              <div className="flex justify-between items-center">
-                <span className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-60">Goal Progress</span>
-                <span className={cn("text-[9px] font-black uppercase tracking-tighter", isOverLimit ? "text-destructive" : "text-foreground")}>
-                  {actualPercent}%
-                </span>
-              </div>
+            <div className="pt-0 text-left space-y-1">
               <Progress 
                 value={caloriePercentForProgress} 
                 className="h-1.5 rounded-full bg-secondary" 
@@ -321,63 +313,35 @@ export default function Dashboard() {
 
         {/* Compact Side Cards */}
         <div className="md:col-span-5 grid grid-cols-2 md:grid-cols-1 gap-4">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-full md:h-32">
-            <div className="p-2 bg-primary/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-primary/10">
-              <Flame className="w-4 h-4 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-24 md:h-28">
+            <div className="p-1.5 bg-primary/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-primary/10">
+              <Flame className="w-3.5 h-3.5 text-foreground" />
             </div>
             <div className="space-y-0">
-              <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-              <p className="text-xl font-black tracking-tighter text-foreground">{Math.max(0, dailyLog?.caloriesBurned || 450)} <span className="text-[9px] font-black text-foreground opacity-20">kcal</span></p>
+              <p className="text-[7px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+              <p className="text-lg font-black tracking-tighter text-foreground">{Math.max(0, dailyLog?.caloriesBurned || 450)} <span className="text-[8px] font-black text-foreground opacity-20">kcal</span></p>
             </div>
           </Card>
 
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-full md:h-32">
-            <div className="p-2 bg-accent/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-accent/10">
-              <Droplets className="w-4 h-4 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex flex-col items-center justify-center text-center group transition-all h-24 md:h-28">
+            <div className="p-1.5 bg-accent/20 rounded-lg mb-1 group-hover:scale-105 transition-transform border border-accent/10">
+              <Droplets className="w-3.5 h-3.5 text-foreground" />
             </div>
             <div className="space-y-1 w-full">
-              <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
-              <div className="flex items-center justify-center gap-3">
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-7 w-7 rounded-lg bg-secondary/80 hover:bg-secondary border border-border/30">
-                  <Minus className="w-3 h-3 text-foreground" />
+              <p className="text-[7px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
+              <div className="flex items-center justify-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-6 w-6 rounded-lg bg-secondary/80 hover:bg-secondary border border-border/30">
+                  <Minus className="w-2.5 h-2.5 text-foreground" />
                 </Button>
-                <span className="text-xl font-black tracking-tighter text-foreground">{water}L</span>
-                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-7 w-7 rounded-lg bg-primary text-primary-foreground shadow-lg hover:opacity-95 border-none">
-                  <Plus className="w-3 h-3 text-foreground" />
+                <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
+                <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-6 w-6 rounded-lg bg-primary text-primary-foreground shadow-lg hover:opacity-95 border-none">
+                  <Plus className="w-2.5 h-2.5 text-foreground" />
                 </Button>
               </div>
             </div>
           </Card>
         </div>
       </div>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
-          <BarChart3 className="w-6 h-6 text-foreground opacity-80" />
-          Weekly Macro Trend
-        </h2>
-        <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
-          <CardContent className="p-6 sm:p-8">
-            <div className="h-[250px] w-full">
-              <ChartContainer config={chartConfig} className="w-full h-full">
-                <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid vertical={false} strokeDasharray="0" stroke="hsl(var(--muted)/0.3)" />
-                  <XAxis 
-                    dataKey="date" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontBold: 900 }} 
-                  />
-                  <Bar dataKey="protein" stackId="a" fill="var(--color-protein)" barSize={24} name="Protein" />
-                  <Bar dataKey="carbs" stackId="a" fill="var(--color-carbs)" name="Carbs" />
-                  <Bar dataKey="fat" stackId="a" fill="var(--color-fat)" radius={[4, 4, 0, 0]} name="Fat" />
-                  <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
-                </BarChart>
-              </ChartContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
 
       <section className="space-y-4">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
@@ -398,7 +362,7 @@ export default function Dashboard() {
                   onClick={() => setExpandedMealId(isExpanded ? null : meal.id)}
                 >
                   <CardContent className="p-0">
-                    <div className="p-4 sm:p-6 flex items-center justify-between gap-4">
+                    <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4 flex-1 w-full text-left">
                         <div className="min-w-[80px] border-r border-border/50 pr-4 hidden sm:block">
                           <p className="text-lg font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
@@ -434,15 +398,15 @@ export default function Dashboard() {
                             <div className="flex flex-wrap items-center gap-3">
                               <div className="flex items-center gap-1.5">
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} />
-                                <span className="text-[9px] font-black uppercase tracking-tight opacity-70">P {meal.macros?.protein}G</span>
+                                <span className="text-[9px] font-black uppercase tracking-tight opacity-70">Protein {meal.macros?.protein}g</span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} />
-                                <span className="text-[9px] font-black uppercase tracking-tight opacity-70">C {meal.macros?.carbs}G</span>
+                                <span className="text-[9px] font-black uppercase tracking-tight opacity-70">Carbs {meal.macros?.carbs}g</span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} />
-                                <span className="text-[9px] font-black uppercase tracking-tight opacity-70">F {meal.macros?.fat}G</span>
+                                <span className="text-[9px] font-black uppercase tracking-tight opacity-70">Fat {meal.macros?.fat}g</span>
                               </div>
                             </div>
                           </div>
@@ -548,20 +512,20 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 gap-4 pt-4">
         <Button 
           onClick={() => router.push("/record")}
-          className="h-24 rounded-[2rem] flex flex-col gap-2 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-95 transition-all group border-none"
+          className="h-20 rounded-[2rem] flex flex-col gap-2 bg-primary text-primary-foreground shadow-premium-lg hover:opacity-95 transition-all group border-none"
         >
-          <div className="p-2 bg-white/30 rounded-xl group-hover:scale-110 transition-transform">
-            <Camera className="w-5 h-5 text-foreground" strokeWidth={2.5} />
+          <div className="p-1.5 bg-white/30 rounded-xl group-hover:scale-110 transition-transform">
+            <Camera className="w-4 h-4 text-foreground" strokeWidth={2.5} />
           </div>
           <span className="font-black text-[9px] uppercase tracking-[0.2em] text-foreground text-center">Snap Analysis</span>
         </Button>
         <Button 
           variant="secondary"
           onClick={() => router.push("/meal-planner")}
-          className="h-24 rounded-[2rem] flex flex-col gap-2 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all group"
+          className="h-20 rounded-[2rem] flex flex-col gap-2 bg-white text-foreground border-2 border-border shadow-premium hover:shadow-premium-lg transition-all group"
         >
-          <div className="p-2 bg-accent/20 rounded-xl group-hover:scale-110 transition-transform">
-            <Utensils className="w-5 h-5 text-foreground opacity-60" strokeWidth={2.5} />
+          <div className="p-1.5 bg-accent/20 rounded-xl group-hover:scale-110 transition-transform">
+            <Utensils className="w-4 h-4 text-foreground opacity-60" strokeWidth={2.5} />
           </div>
           <span className="font-black text-[9px] uppercase tracking-[0.2em] text-foreground text-center">Meal Planner</span>
         </Button>
