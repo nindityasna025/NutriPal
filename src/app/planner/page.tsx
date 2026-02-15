@@ -25,8 +25,7 @@ import {
   Dialog, 
   DialogContent, 
   DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
+  DialogTitle,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
@@ -542,16 +541,16 @@ export default function ExplorePage() {
 
         <Dialog open={isMenuOpen || isRecoveryOpen} onOpenChange={isMenuOpen ? setIsMenuOpen : setIsRecoveryOpen}>
           <DialogTrigger className="hidden"/>
-          <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+          <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
             <DialogHeader className="p-8 text-center border-b">
                 <DialogTitle className="text-2xl">{isRecoveryOpen ? 'Recovery Plan' : 'Predictive Meal Plan'}</DialogTitle>
-                <DialogDescription className="flex items-center justify-center gap-4">
+                <div className="text-sm text-muted-foreground font-bold flex items-center justify-center gap-4">
                   <span>A full day's meal plan synthesized by AI based on your profile.</span>
                   <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
                     <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                     <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
                   </div>
-                </DialogDescription>
+                </div>
             </DialogHeader>
             <div className="p-8 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -716,3 +715,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
