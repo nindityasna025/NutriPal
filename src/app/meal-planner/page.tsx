@@ -83,7 +83,7 @@ export default function MealPlannerPage() {
   const [ingredients, setIngredients] = useState("")
   const [isSaving, setIsSaving] = useState(false)
 
-  // Derived calorie calculation: (Protein * 4) + (Carbs * 4) + (Fat * 9)
+  // Auto-calculated KCAL: (Protein * 4) + (Carbs * 4) + (Fat * 9)
   const calculatedCalories = useMemo(() => {
     const p = parseFloat(protein) || 0;
     const c = parseFloat(carbs) || 0;
@@ -160,7 +160,7 @@ export default function MealPlannerPage() {
       let instructions: string[] = []
       let allergenWarning = ""
 
-      // Only call AI if it's a new meal and macros are basically zero
+      // If user provided manual numbers, preserve them. Only AI analyze if fields are zero
       if (!editingMealId && finalProtein === 0 && finalCarbs === 0 && finalFat === 0) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
@@ -213,26 +213,10 @@ export default function MealPlannerPage() {
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Action Failed", description: "Internal server error. Please try again." });
+      toast({ variant: "destructive", title: "Action Failed", description: "AI service interrupted. Key rotation triggered." });
     } finally {
       setIsSaving(false);
     }
-  }
-
-  const markAsConsumed = (meal: any) => {
-    if (!user || !mealsColRef || !dailyLogRef || meal.status === 'consumed') return
-
-    setDocumentNonBlocking(dailyLogRef, {
-      date: dateId,
-      caloriesConsumed: increment(meal.calories),
-      proteinTotal: increment(meal.macros?.protein || 0),
-      carbsTotal: increment(meal.macros?.carbs || 0),
-      fatTotal: increment(meal.macros?.fat || 0)
-    }, { merge: true });
-
-    updateDocumentNonBlocking(doc(mealsColRef, meal.id), { status: "consumed", updatedAt: serverTimestamp() });
-    toast({ title: "Meal Recorded", description: `${meal.name} tracked.` });
-    if (activeRecipe?.id === meal.id) setIsRecipeDialogOpen(false);
   }
 
   const resetForm = () => {
@@ -410,14 +394,13 @@ export default function MealPlannerPage() {
                             <div className="flex flex-wrap gap-1 items-center">
                               <List className="w-2.5 h-2.5 text-foreground opacity-30" />
                               {meal.ingredients.slice(0, 3).map((ing: string, i: number) => (
-                                <span key={i} className="text-[7px] font-black uppercase bg-secondary px-1.5 py-0.5 rounded text-foreground opacity-50">
+                                <span key={i} className="text-[7px] font-black uppercase bg-secondary px-1.5 py-0.5 rounded-lg text-foreground opacity-50">
                                   {ing}
                                 </span>
                               ))}
                               {meal.ingredients.length > 3 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 3}</span>}
                             </div>
                           )}
-                          {/* Alerts for schedule */}
                           {(meal.allergenWarning || (profile?.dietaryRestrictions && profile.dietaryRestrictions.length > 0)) && (
                             <div className="flex flex-wrap gap-2 pt-1">
                               {meal.allergenWarning && (
@@ -439,7 +422,7 @@ export default function MealPlannerPage() {
                     
                     <div className="flex items-center gap-2 shrink-0">
                       {meal.status === 'consumed' && (
-                        <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-green-500/10 text-green-600 border-green-500/20 shrink-0">
+                        <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-green-500/10 text-green-600 border-none shrink-0">
                           <CheckCircle2 className="w-3 h-3 mr-1" /> CONSUMED
                         </Badge>
                       )}

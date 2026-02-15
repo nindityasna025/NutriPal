@@ -179,7 +179,7 @@ export default function RecordPage() {
       setResult(output)
     } catch (error: any) {
       console.error(error)
-      toast({ variant: "destructive", title: "AI Analysis Failed", description: "Could not analyze photo." })
+      toast({ variant: "destructive", title: "AI Analysis Failed", description: "AI service interrupted. Key rotation triggered." })
     } finally {
       setAnalyzing(false)
     }
@@ -188,6 +188,7 @@ export default function RecordPage() {
   const handleSave = async () => {
     if (!user || !mounted || !preview) return
     
+    // Skip analysis if we are updating an existing meal and just want to save the photo
     if (!updateId && !result) return
 
     let dateId = paramDateId || selectedDate || format(new Date(), "yyyy-MM-dd")
@@ -204,6 +205,7 @@ export default function RecordPage() {
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     
     if (updateId) {
+      // Record consumption for an existing scheduled meal - JUST UPDATE IMAGE and status
       const existingMealRef = doc(firestore, "users", user.uid, "dailyLogs", dateId, "meals", updateId);
       
       const updateData: any = {
@@ -212,6 +214,7 @@ export default function RecordPage() {
         updatedAt: serverTimestamp()
       };
 
+      // Only overwrite nutrient data if AI analysis was actually performed
       if (result) {
         updateData.calories = result.calories;
         updateData.macros = result.macros;
@@ -224,6 +227,7 @@ export default function RecordPage() {
 
       await updateDoc(existingMealRef, updateData);
       
+      // Update daily aggregates
       const calToInc = result ? result.calories : (existingMeal?.calories || 0);
       const protToInc = result ? result.macros.protein : (existingMeal?.macros?.protein || 0);
       const carbToInc = result ? result.macros.carbs : (existingMeal?.macros?.carbs || 0);
@@ -239,6 +243,7 @@ export default function RecordPage() {
 
       toast({ title: "Meal Updated", description: `Record synced with photo.` })
     } else {
+      // New meal log - needs AI results
       if (!result) return;
       const newMealRef = doc(collection(dailyLogRef, "meals"))
       

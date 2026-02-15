@@ -26,7 +26,8 @@ export const ai = genkit({
 export async function executeWithRotation(fn: (aiInstance: any) => Promise<any>) {
   let lastError: any = null;
 
-  for (const key of GEMINI_KEYS) {
+  for (let i = 0; i < GEMINI_KEYS.length; i++) {
+    const key = GEMINI_KEYS[i];
     try {
       // Create a temporary instance with the key being tried
       const temporaryAi = genkit({
@@ -36,12 +37,16 @@ export async function executeWithRotation(fn: (aiInstance: any) => Promise<any>)
       return await fn(temporaryAi);
     } catch (error: any) {
       lastError = error;
-      // If error 429 (Rate Limit), continue to the next key
-      if (error.message?.includes('429') || error.status === 429) {
-        console.warn(`Key rotation triggered: Current key rate limited, trying next...`);
+      const errorMessage = error.message?.toLowerCase() || "";
+      const isRateLimit = errorMessage.includes('429') || 
+                          errorMessage.includes('quota') || 
+                          errorMessage.includes('rate limit') ||
+                          error.status === 429;
+
+      if (isRateLimit && i < GEMINI_KEYS.length - 1) {
+        console.warn(`Key ${i + 1} rate limited. Rotating to key ${i + 2}...`);
         continue;
       }
-      // If any other error, throw immediately
       throw error;
     }
   }
