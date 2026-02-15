@@ -17,7 +17,6 @@ import {
   ShoppingBag,
   ListOrdered,
   Clock,
-  AlertTriangle,
   Bell,
   CheckCircle2
 } from "lucide-react"

@@ -21,7 +21,7 @@ import {
   TrendingUp,
   BarChart3,
 } from "lucide-react"
-import { format, startOfToday, subDays } from "date-fns"
+import { format, startOfToday, subDays, isSameDay } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
 import { setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { cn } from "@/lib/utils"
@@ -72,7 +72,7 @@ export default function Dashboard() {
     return query(
       collection(firestore, "users", user.uid, "dailyLogs"),
       orderBy("date", "desc"),
-      limit(7)
+      limit(14) // Fetch more to ensure we have enough for last 7 calendar days
     );
   }, [user, firestore]);
 
@@ -92,14 +92,23 @@ export default function Dashboard() {
   }, [meals]);
 
   const chartData = useMemo(() => {
-    if (!recentLogs) return [];
-    return [...recentLogs].reverse().map(log => ({
-      date: format(new Date(log.date), "MMM d"),
-      protein: Math.round((log.proteinTotal || 0) * 4),
-      carbs: Math.round((log.carbsTotal || 0) * 4),
-      fat: Math.round((log.fatTotal || 0) * 9),
-    }));
-  }, [recentLogs]);
+    if (!today) return [];
+    
+    // Generate last 7 days including today
+    const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, 6 - i));
+    
+    return last7Days.map(day => {
+      const dateStr = format(day, "yyyy-MM-dd");
+      const log = recentLogs?.find(l => l.date === dateStr);
+      
+      return {
+        date: format(day, "MMM d"),
+        protein: Math.round((log?.proteinTotal || 0) * 4),
+        carbs: Math.round((log?.carbsTotal || 0) * 4),
+        fat: Math.round((log?.fatTotal || 0) * 9),
+      };
+    });
+  }, [recentLogs, today]);
 
   const calorieTarget = profile?.calorieTarget || 2000
   const consumed = Math.max(0, Math.round(totals.calories))
@@ -174,82 +183,82 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        {/* Restored Energy Balance Card */}
+        {/* Compact Energy Balance Card */}
         <Card className="md:col-span-7 border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-5 space-y-5">
             <div className="flex justify-between items-start">
-              <div className="space-y-1 text-left">
-                <span className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-40">ENERGY BALANCE</span>
+              <div className="space-y-0.5 text-left">
+                <span className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-40">ENERGY BALANCE</span>
                 <div className="flex items-baseline gap-2">
-                  <h2 className={cn("text-4xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
-                  <span className="text-sm font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
+                  <h2 className={cn("text-3xl font-black tracking-tighter text-foreground", isOverLimit && "text-destructive")}>{consumed}</h2>
+                  <span className="text-xs font-black text-foreground opacity-20 tracking-tighter">/ {calorieTarget} kcal</span>
                 </div>
               </div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full border border-border/50 text-foreground opacity-30">
-                    <Info className="w-4 h-4" />
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full border border-border/50 text-foreground opacity-30">
+                    <Info className="w-3.5 h-3.5" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white">
                   <p className="text-[10px] font-black uppercase tracking-widest mb-2">Macro Distribution</p>
-                  <p className="text-xs font-medium text-muted-foreground">Optimal balance for your goal: 30% Protein, 40% Carbs, 30% Fat.</p>
+                  <p className="text-xs font-medium text-muted-foreground">Optimal balance: 30% Protein, 40% Carbs, 30% Fat.</p>
                 </PopoverContent>
               </Popover>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex h-6 w-full rounded-2xl overflow-hidden bg-secondary shadow-inner border border-border/10">
+            <div className="space-y-3">
+              <div className="flex h-5 w-full rounded-2xl overflow-hidden bg-secondary shadow-inner border border-border/10">
                 <div style={{ width: `${proteinPercent}%`, backgroundColor: MACRO_COLORS.protein }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${carbsPercent}%`, backgroundColor: MACRO_COLORS.carbs }} className="h-full transition-all duration-700" />
                 <div style={{ width: `${fatPercent}%`, backgroundColor: MACRO_COLORS.fat }} className="h-full transition-all duration-700" />
               </div>
-              <div className="grid grid-cols-3 text-[10px] font-black text-foreground uppercase tracking-widest gap-2">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
-                  <p className="text-xl font-black tracking-tight">{proteinPercent}%</p>
+              <div className="grid grid-cols-3 text-[9px] font-black text-foreground uppercase tracking-widest gap-2">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.protein }} /> PROTEIN</div>
+                  <p className="text-lg font-black tracking-tight">{proteinPercent}%</p>
                 </div>
-                <div className="space-y-1 text-center">
-                  <div className="flex items-center gap-1.5 justify-center"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /> CARBS</div>
-                  <p className="text-xl font-black tracking-tight">{carbsPercent}%</p>
+                <div className="space-y-0.5 text-center">
+                  <div className="flex items-center gap-1 justify-center"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.carbs }} /> CARBS</div>
+                  <p className="text-lg font-black tracking-tight">{carbsPercent}%</p>
                 </div>
-                <div className="space-y-1 text-right">
-                  <div className="flex items-center gap-1.5 justify-end"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /> FAT</div>
-                  <p className="text-xl font-black tracking-tight">{fatPercent}%</p>
+                <div className="space-y-0.5 text-right">
+                  <div className="flex items-center gap-1 justify-end"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MACRO_COLORS.fat }} /> FAT</div>
+                  <p className="text-lg font-black tracking-tight">{fatPercent}%</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border/30 space-y-2">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+            <div className="pt-3 border-t border-border/30 space-y-1.5">
+              <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
                 <span className="opacity-40">GOAL PROGRESS</span>
                 <span className={cn(isOverLimit ? "text-destructive" : "text-primary")}>{actualPercent}% CONSUMED</span>
               </div>
-              <Progress value={caloriePercentForProgress} className="h-2.5 rounded-full bg-secondary" indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} />
+              <Progress value={caloriePercentForProgress} className="h-2 rounded-full bg-secondary" indicatorClassName={isOverLimit ? "bg-destructive" : "bg-primary"} />
             </div>
           </CardContent>
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-5 flex-1 flex flex-col items-center justify-center text-center group transition-all">
-            <div className="p-2 bg-primary/20 rounded-xl mb-2 border border-primary/10">
-              <Flame className="w-5 h-5 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center group transition-all">
+            <div className="p-1.5 bg-primary/20 rounded-xl mb-1.5 border border-primary/10">
+              <Flame className="w-4 h-4 text-foreground" />
             </div>
-            <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-            <p className="text-2xl font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-xs font-black opacity-20">kcal</span></p>
+            <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+            <p className="text-xl font-black tracking-tighter text-foreground">{profile?.caloriesBurned || 450} <span className="text-[10px] font-black opacity-20">kcal</span></p>
           </Card>
 
-          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-5 flex-1 flex flex-col items-center justify-center text-center group transition-all">
-            <div className="p-2 bg-accent/20 rounded-xl mb-2 border border-accent/10">
-              <Droplets className="w-5 h-5 text-foreground" />
+          <Card className="border-none shadow-premium bg-white rounded-[2rem] p-4 flex-1 flex flex-col items-center justify-center text-center group transition-all">
+            <div className="p-1.5 bg-accent/20 rounded-xl mb-1.5 border border-accent/10">
+              <Droplets className="w-4 h-4 text-foreground" />
             </div>
-            <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-8 w-8 rounded-full bg-secondary/80 border border-border/30">
+            <p className="text-[9px] font-black text-foreground uppercase tracking-widest opacity-40">Hydration</p>
+            <div className="flex items-center gap-2.5">
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(-0.2)} className="h-7 w-7 rounded-full bg-secondary/80 border border-border/30">
                 <Minus className="w-3 h-3 text-foreground" />
               </Button>
-              <span className="text-2xl font-black tracking-tighter text-foreground">{water}L</span>
-              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm">
+              <span className="text-xl font-black tracking-tighter text-foreground">{water}L</span>
+              <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm">
                 <Plus className="w-3 h-3 text-foreground" />
               </Button>
             </div>
@@ -257,28 +266,28 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Restored Weekly Macro Trend Section */}
+      {/* Weekly Macro Trend Section */}
       <section className="space-y-4 pt-4">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
           <BarChart3 className="w-6 h-6 text-foreground opacity-80" /> WEEKLY MACRO TREND
         </h2>
         <Card className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden">
-          <CardContent className="p-6 pt-10">
-            <div className="h-[250px] w-full">
+          <CardContent className="p-5 pt-10">
+            <div className="h-[220px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 900 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} unit="kcal" />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 900 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground))", fontSize: 8, fontWeight: 900 }} unit="kcal" />
                   <Tooltip 
                     cursor={{ fill: "hsl(var(--primary)/0.05)" }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
                           <div className="bg-white p-3 border border-border shadow-xl rounded-2xl">
-                            <p className="font-black text-[10px] uppercase mb-2 border-b border-border pb-1">Daily Totals</p>
+                            <p className="font-black text-[9px] uppercase mb-1.5 border-b border-border pb-1">Daily Totals</p>
                             {payload.map((entry, idx) => (
-                              <div key={idx} className="flex justify-between gap-4 text-[10px] font-black uppercase">
+                              <div key={idx} className="flex justify-between gap-4 text-[9px] font-black uppercase">
                                 <span style={{ color: entry.color }}>{entry.name}:</span>
                                 <span>{entry.value} kcal</span>
                               </div>
@@ -289,9 +298,9 @@ export default function Dashboard() {
                       return null
                     }}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '20px' }} />
-                  <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} radius={[0, 0, 0, 0]} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: '900', textTransform: 'uppercase', paddingTop: '15px' }} />
+                  <Bar dataKey="protein" name="Protein" stackId="a" fill={MACRO_COLORS.protein} />
+                  <Bar dataKey="carbs" name="Carbs" stackId="a" fill={MACRO_COLORS.carbs} />
                   <Bar dataKey="fat" name="Fat" stackId="a" fill={MACRO_COLORS.fat} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -317,18 +326,18 @@ export default function Dashboard() {
                           <p className="text-lg font-black text-foreground opacity-40 tracking-tighter uppercase">{meal.time}</p>
                         </div>
                         {meal.imageUrl && (
-                          <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-border/50 shrink-0">
+                          <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-border/50 shrink-0">
                             <Image src={meal.imageUrl} alt={meal.name} fill className="object-cover" />
                           </div>
                         )}
-                        <div className="space-y-1 flex-1">
+                        <div className="space-y-0.5 flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="text-lg font-black tracking-tighter uppercase leading-none text-foreground">{meal.name}</h3>
-                            {meal.status === 'consumed' && <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-green-500/10 text-green-600 border-none">EATEN</Badge>}
+                            {meal.status === 'consumed' && <Badge className="h-3.5 px-1.5 text-[6px] font-black uppercase bg-green-500/10 text-green-600 border-none">EATEN</Badge>}
                           </div>
-                          <div className="flex flex-wrap items-center gap-4 text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">
+                          <div className="flex flex-wrap items-center gap-3 text-[8px] font-black text-foreground opacity-60 uppercase tracking-widest">
                             <span>+{Math.round(meal.calories)} KCAL</span>
-                            <div className="flex gap-3">
+                            <div className="flex gap-2">
                               <span style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
                               <span style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
                               <span style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
@@ -339,11 +348,13 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2 shrink-0">
                         {meal.status !== 'consumed' && (
                           <div className="flex items-center gap-2">
-                            <Button onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }} className="h-8 px-4 rounded-lg bg-primary text-foreground font-black uppercase text-[8px] tracking-widest border-none active:scale-95 transition-all">EAT NOW</Button>
-                            {meal.allergenWarning && <Button variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="h-8 px-3 rounded-lg text-destructive font-black uppercase text-[8px] tracking-widest border border-destructive/20 hover:bg-destructive/5">DROP</Button>}
+                            <Button onClick={(e) => { e.stopPropagation(); markAsConsumed(meal); }} className="h-7 px-3 rounded-lg bg-primary text-foreground font-black uppercase text-[7px] tracking-widest border-none active:scale-95 transition-all">EAT NOW</Button>
+                            {meal.allergenWarning && (
+                              <Button variant="ghost" onClick={(e) => { e.stopPropagation(); handleDropMeal(meal); }} className="h-7 px-2.5 rounded-lg text-destructive font-black uppercase text-[7px] tracking-widest border border-destructive/20 hover:bg-destructive/5">DROP</Button>
+                            )}
                           </div>
                         )}
-                        <div className="text-foreground opacity-20 group-hover:opacity-100 transition-all">{isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}</div>
+                        <div className="text-foreground opacity-20 group-hover:opacity-100 transition-all">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -352,20 +363,20 @@ export default function Dashboard() {
             })
           ) : (
             <div className="text-center py-16 bg-white/50 rounded-[2rem] border-2 border-dashed border-border/30 flex flex-col items-center justify-center">
-              <p className="text-foreground opacity-40 font-black text-sm uppercase tracking-widest">No records found</p>
+              <p className="text-foreground opacity-40 font-black text-xs uppercase tracking-widest">No records found</p>
             </div>
           )}
         </div>
       </section>
 
       <div className="grid grid-cols-2 gap-4 pt-4">
-        <Button onClick={() => router.push("/record")} className="h-20 rounded-[2rem] flex flex-col gap-2 bg-primary text-foreground shadow-premium-lg hover:opacity-95 border-none">
-          <Camera className="w-5 h-5" strokeWidth={2.5} />
-          <span className="font-black text-[9px] uppercase tracking-widest">Snap Analysis</span>
+        <Button onClick={() => router.push("/record")} className="h-16 rounded-[1.5rem] flex flex-col gap-1.5 bg-primary text-foreground shadow-premium-lg hover:opacity-95 border-none">
+          <Camera className="w-4 h-4" strokeWidth={2.5} />
+          <span className="font-black text-[8px] uppercase tracking-widest">Snap Analysis</span>
         </Button>
-        <Button variant="secondary" onClick={() => router.push("/meal-planner")} className="h-20 rounded-[2rem] flex flex-col gap-2 bg-white text-foreground border-2 border-border shadow-premium">
-          <Utensils className="w-5 h-5 opacity-60" strokeWidth={2.5} />
-          <span className="font-black text-[9px] uppercase tracking-widest">Meal Planner</span>
+        <Button variant="secondary" onClick={() => router.push("/meal-planner")} className="h-16 rounded-[1.5rem] flex flex-col gap-1.5 bg-white text-foreground border-2 border-border shadow-premium">
+          <Utensils className="w-4 h-4 opacity-60" strokeWidth={2.5} />
+          <span className="font-black text-[8px] uppercase tracking-widest">Meal Planner</span>
         </Button>
       </div>
     </div>
