@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -14,7 +15,8 @@ import {
   Plus,
   Cpu,
   Calendar as CalendarIcon,
-  Clock
+  Clock,
+  ExternalLink
 } from "lucide-react"
 import { 
   Dialog, 
@@ -55,7 +57,6 @@ export default function ExplorePage() {
   })
   
   const [targetDate, setTargetDate] = useState<string>(format(new Date(), "yyyy-MM-dd"))
-  const [targetTime, setTargetTime] = useState<string>(format(new Date(), "HH:mm"))
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -116,19 +117,10 @@ export default function ExplorePage() {
 
   const handleOrderNow = async (item: any, source: 'delivery' | 'menu') => {
     if (!user || !firestore) return
-    const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
+    const dateId = source === 'delivery' ? format(new Date(), "yyyy-MM-dd") : (targetDate || format(new Date(), "yyyy-MM-dd"))
     
-    // Safety: ensure time is never undefined
-    let finalTime = item.time || "12:00 PM"
+    let finalTime = item.time || format(new Date(), "hh:mm a").toUpperCase()
     
-    if (source === 'delivery' && targetTime) {
-      const [hours, mins] = targetTime.split(':')
-      const h = parseInt(hours)
-      const ampm = h >= 12 ? 'PM' : 'AM'
-      const h12 = h % 12 || 12
-      finalTime = `${String(h12).padStart(2, '0')}:${mins} ${ampm}`
-    }
-
     const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId)
     const mealsColRef = collection(dailyLogRef, "meals")
     
@@ -138,16 +130,26 @@ export default function ExplorePage() {
       name: item.name,
       calories: item.calories,
       time: finalTime,
-      source: "planner",
+      source: item.platform || "planner",
       macros: item.macros,
-      healthScore: 90,
+      healthScore: item.healthScore || 90,
       description: item.description || "Optimized path.",
       expertInsight: item.reasoning || "Predicted for bio-metrics.",
       status: "planned",
       createdAt: serverTimestamp()
     })
 
-    toast({ title: "Meal Synced", description: `${item.name} scheduled.` })
+    if (source === 'delivery') {
+      const platformUrl = item.platform === 'GrabFood' 
+        ? `https://food.grab.com/id/id/search/?search=${encodeURIComponent(item.restaurant)}`
+        : `https://www.gojek.com/gofood/jakarta/search?q=${encodeURIComponent(item.restaurant)}`;
+      
+      window.open(platformUrl, '_blank');
+      toast({ title: "Redirecting...", description: `Opening ${item.platform} for ${item.name}.` })
+    } else {
+      toast({ title: "Meal Synced", description: `${item.name} scheduled.` })
+    }
+
     setIsDeliveryOpen(false)
     setIsMenuOpen(false)
     router.push("/")
@@ -166,8 +168,6 @@ export default function ExplorePage() {
       const isSwapped = swappedMeals[type];
       const baseMeal = menuPlan[type];
       const item = isSwapped ? baseMeal.swapSuggestion : baseMeal;
-      
-      // Safety: Inherit time if swap doesn't have it
       const finalTime = item.time || baseMeal.time || "12:00 PM";
 
       addDocumentNonBlocking(mealsColRef, {
@@ -206,22 +206,19 @@ export default function ExplorePage() {
               <div className="space-y-4 text-center">
                 <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground">ML Curation</h3>
                 <p className="text-foreground opacity-50 font-black text-[11px] leading-relaxed max-w-xs uppercase tracking-widest">
-                  Neural recommendation engine for ecosystem matching.
+                  Neural recommendation engine for platform ecosystem matching.
                 </p>
               </div>
               <Button className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] bg-primary text-foreground border-none">Execute Scorer</Button>
             </Card>
           </DialogTrigger>
-          <DialogContent className="max-w-6xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
+          <DialogContent className="max-w-4xl rounded-[3rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[92vh] flex flex-col [&>button]:hidden">
             <DialogHeader className="bg-primary p-5 text-foreground shrink-0 rounded-t-[3rem] flex flex-row items-center justify-between">
               <Button variant="ghost" onClick={() => setIsDeliveryOpen(false)} className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/20">
                 <ChevronLeft className="w-4 h-4 mr-2" /> Back
               </Button>
               <DialogTitle className="text-sm font-black uppercase tracking-widest text-center flex-1">NUTRIPAL V1: ML DELIVERY HUB</DialogTitle>
-              <div className="flex items-center gap-2 bg-white/40 rounded-full px-4 h-10 border border-white/20 shadow-sm">
-                <CalendarIcon className="w-3.5 h-3.5 text-foreground" />
-                <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-[9px] font-black uppercase focus:ring-0 w-24 text-foreground cursor-pointer" />
-              </div>
+              <div className="w-24"></div> {/* Spacer to keep title centered */}
             </DialogHeader>
             <div className="p-6 overflow-hidden flex-1 flex flex-col">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto no-scrollbar">
@@ -239,7 +236,12 @@ export default function ExplorePage() {
                             <TrendingUp className="w-4 h-4" /> {item.healthScore}% Match
                           </div>
                           <h3 className="text-xl font-black tracking-tighter uppercase text-foreground">{item.name}</h3>
-                          <p className="text-[9px] font-black text-foreground opacity-30 uppercase tracking-[0.1em]">{item.restaurant}</p>
+                          <div className="flex items-center gap-2">
+                             <Badge className={item.platform === 'GrabFood' ? 'bg-green-600 text-white border-none text-[8px]' : 'bg-red-600 text-white border-none text-[8px]'}>
+                               {item.platform}
+                             </Badge>
+                             <p className="text-[9px] font-black text-foreground opacity-30 uppercase tracking-[0.1em]">{item.restaurant}</p>
+                          </div>
                         </div>
                         <div className="bg-primary/5 p-4 rounded-[1.5rem] border-2 border-primary/10">
                           <p className="text-[11px] font-black leading-tight italic text-foreground opacity-80">"{item.reasoning}"</p>
@@ -260,7 +262,9 @@ export default function ExplorePage() {
                              <p className="text-sm font-black text-accent">{item.macros.fat}g</p>
                            </div>
                         </div>
-                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-primary text-foreground border-none">Sync to Path</Button>
+                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-[1rem] font-black uppercase tracking-widest text-[10px] bg-foreground text-white border-none flex gap-2">
+                          <ExternalLink className="w-4 h-4" /> Order & Sync
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

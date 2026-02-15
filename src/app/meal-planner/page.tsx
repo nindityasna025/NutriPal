@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -150,7 +151,6 @@ export default function MealPlannerPage() {
       let allergenWarning = ""
 
       if (!editingMealId) {
-        // Automatically analyze using AI for new entries
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
           userGoal: (profile?.bmiCategory === 'Overweight' || profile?.bmiCategory === 'Obese') ? "Weight Loss" : (profile?.bmiCategory === 'Underweight' ? "Weight Gain" : "Maintenance"),
@@ -375,7 +375,7 @@ export default function MealPlannerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {(meal.source === 'planner' && !meal.imageUrl) && (
+                      {(meal.source !== 'photo' && meal.source !== 'gallery' && !meal.imageUrl) && (
                         <Button variant="ghost" size="icon" onClick={() => handleGetRecipe(meal)} className="text-foreground hover:bg-primary/20 rounded-lg h-8 w-8 border border-border bg-secondary/20 shadow-sm transition-all active:scale-90">
                           <ChefHat className="w-4 h-4" />
                         </Button>

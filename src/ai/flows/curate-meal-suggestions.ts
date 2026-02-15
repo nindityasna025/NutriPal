@@ -63,29 +63,26 @@ function ruleBasedDeliveryFallback(input: CurateMealSuggestionsInput): CurateMea
   const { userProfile, scrapedDatabase } = input;
   const targetCals = (userProfile.calorieTarget || 2000) / 3;
   
-  const filtered = scrapedDatabase.filter(item => {
-    // Basic allergy check
+  const grabItems = scrapedDatabase.filter(item => item.platform === 'GrabFood');
+  const goItems = scrapedDatabase.filter(item => item.platform === 'GoFood');
+
+  const filterFn = (item: any) => {
     if (userProfile.allergies && item.name.toLowerCase().includes(userProfile.allergies.toLowerCase())) return false;
-    // Dietary restrictions check
     if (userProfile.dietaryRestrictions?.length) {
       const match = userProfile.dietaryRestrictions.some(res => item.tags.includes(res!));
       if (!match) return false;
     }
     return true;
-  });
+  };
 
-  const sorted = filtered.sort((a, b) => {
-    const scoreA = Math.abs(a.calories - targetCals);
-    const scoreB = Math.abs(b.calories - targetCals);
-    return scoreA - scoreB;
-  });
+  const bestGrab = grabItems.filter(filterFn).sort((a, b) => Math.abs(a.calories - targetCals) - Math.abs(b.calories - targetCals))[0];
+  const bestGo = goItems.filter(filterFn).sort((a, b) => Math.abs(a.calories - targetCals) - Math.abs(b.calories - targetCals))[0];
 
-  const top3 = sorted.slice(0, 3).map(item => ({
-    ...item,
-    reasoning: "Rule-based optimization: Matched based on calorie proximity and profile constraints during AI downtime."
-  }));
+  const results = [];
+  if (bestGrab) results.push({ ...bestGrab, reasoning: "Fallback: Best Grab matching calorie proximity." });
+  if (bestGo) results.push({ ...bestGo, reasoning: "Fallback: Best GoFood matching calorie proximity." });
 
-  return { topMatches: top3 };
+  return { topMatches: results };
 }
 
 const prompt = ai.definePrompt({
@@ -107,18 +104,19 @@ DATABASE OF ITEMS:
 {{/each}}
 
 MODEL LOGIC:
-1. Hard exclusion on "Allergies".
-2. Reward match on "Constraints".
-3. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars). Target 120 chars.
+1. Provide exactly 2 items: 1 from GrabFood and 1 from GoFood.
+2. Hard exclusion on "Allergies".
+3. Reward match on "Constraints".
+4. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars).
 
-Provide top 3 items with highest calculated scores.`,
+Provide the pair with highest calculated scores.`,
 });
 
 const curateMealSuggestionsFlow = ai.defineFlow(
   {
     name: 'curateMealSuggestionsFlow',
     inputSchema: CurateMealSuggestionsInputSchema,
-    outputSchema: CurateMealSuggestionsOutputSchema,
+    outputSchema: SuggestionSchema, // This should return the object with topMatches
   },
   async (input) => {
     const { output } = await prompt(input);
