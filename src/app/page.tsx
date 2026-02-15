@@ -365,26 +365,23 @@ export default function Dashboard() {
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all relative">
+            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
                 <DialogTrigger asChild disabled={!wasHighlyActive}>
                   <button className={cn(
-                    "absolute top-2 right-2 p-1.5 rounded-lg border transition-all",
-                    wasHighlyActive ? "bg-destructive/10 border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/20 border-primary/10 cursor-default hidden"
+                      "p-1.5 rounded-lg mb-1",
+                      wasHighlyActive ? "bg-red-500/10 border border-red-500/20 animate-pulse cursor-pointer" : "bg-primary/10 border-primary/20 cursor-default"
                   )}>
-                    <Flame className="w-4 h-4 text-destructive" />
+                    <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-red-500" : "text-foreground")} />
                   </button>
                 </DialogTrigger>
-                <div className="p-1.5 bg-destructive/10 rounded-lg mb-1 border border-destructive/20">
-                  <Flame className="w-4 h-4 text-foreground" />
-                </div>
                 <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
                 <p className="text-lg font-black tracking-tighter text-foreground">{caloriesBurned} <span className="text-[9px] font-black opacity-20">kcal</span></p>
             </Card>
             <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
               <DialogHeader className="p-8 text-center border-b">
-                <DialogTitle className="text-2xl">Recovery Plan Synthesis</DialogTitle>
+                <DialogTitle className="text-2xl text-center">Recovery Plan Synthesis</DialogTitle>
                 <DialogDescription className="max-w-2xl mx-auto">
-                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake to support muscle recovery. This plan is for tomorrow.
+                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake to support muscle recovery.
                 </DialogDescription>
               </DialogHeader>
               <div className="p-8 overflow-y-auto flex-1">
@@ -663,10 +660,10 @@ export default function Dashboard() {
 
       <Dialog open={isEatNowOpen} onOpenChange={setIsEatNowOpen}>
         <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden md:left-[calc(50%+8rem)]">
-          <DialogHeader className="p-8 bg-primary rounded-t-[2.5rem] text-center">
-            <DialogTitle className="text-xl font-black uppercase tracking-tight text-foreground">Record Consumption</DialogTitle>
+          <DialogHeader className="p-8 text-center">
+            <DialogTitle className="text-xl font-black uppercase tracking-tight text-foreground text-center">Record Consumption</DialogTitle>
           </DialogHeader>
-          <div className="p-8 space-y-4">
+          <div className="p-8 pt-0 space-y-4">
             <p className="text-xs font-bold text-foreground opacity-70 text-center leading-relaxed">
               How would you like to record your meal? Adding a photo provides a precise AI-powered nutritional update.
             </p>
@@ -679,9 +676,6 @@ export default function Dashboard() {
               </Button>
             </div>
           </div>
-          <DialogFooter className="p-8 pt-0">
-             
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
