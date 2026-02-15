@@ -1,9 +1,10 @@
+
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
 /**
  * GEMINI KEY ROTATION SYSTEM
- * Melindungi aplikasi dari rate limit dengan merotasi 5 API Key secara otomatis.
+ * Protects the application from rate limits by automatically rotating 5 API Keys.
  */
 const GEMINI_KEYS = [
   'AIzaSyD322botPVtW_XFxiy0c49ATAXAgVA2mBs',
@@ -13,21 +14,21 @@ const GEMINI_KEYS = [
   'AIzaSyC5Pr2k6Twe36YtmPknlDmFjCvbnb5q12I'
 ];
 
-// Inisialisasi default menggunakan key pertama
+// Initialize using the first key by default
 export const ai = genkit({
   plugins: [googleAI({ apiKey: GEMINI_KEYS[0] })],
   model: 'googleai/gemini-2.5-flash',
 });
 
 /**
- * Fungsi pembungkus untuk menjalankan perintah AI dengan mekanisme rotasi key.
+ * Wrapper function to execute AI commands with key rotation mechanism.
  */
 export async function executeWithRotation(fn: (aiInstance: any) => Promise<any>) {
   let lastError: any = null;
 
   for (const key of GEMINI_KEYS) {
     try {
-      // Buat instance sementara dengan key yang sedang dicoba
+      // Create a temporary instance with the key being tried
       const temporaryAi = genkit({
         plugins: [googleAI({ apiKey: key })],
         model: 'googleai/gemini-2.5-flash',
@@ -35,12 +36,12 @@ export async function executeWithRotation(fn: (aiInstance: any) => Promise<any>)
       return await fn(temporaryAi);
     } catch (error: any) {
       lastError = error;
-      // Jika error 429 (Rate Limit), lanjutkan ke key berikutnya
+      // If error 429 (Rate Limit), continue to the next key
       if (error.message?.includes('429') || error.status === 429) {
         console.warn(`Key rotation triggered: Current key rate limited, trying next...`);
         continue;
       }
-      // Jika error lain, langsung lempar
+      // If any other error, throw immediately
       throw error;
     }
   }

@@ -296,7 +296,7 @@ export default function Dashboard() {
                   "text-[7px] font-black uppercase tracking-tighter",
                   water >= 2 ? "text-green-600" : "text-orange-600"
                 )}>
-                  {water >= 2 ? "CUKUP" : "KURANG"}
+                  {water >= 2 ? "OPTIMAL" : "INADEQUATE"}
                 </span>
               </div>
               <Button variant="ghost" size="icon" onClick={() => adjustWater(0.2)} className="h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90 transition-all">
@@ -351,7 +351,7 @@ export default function Dashboard() {
 
       <section className="space-y-3 pt-3">
         <h2 className="text-lg font-black tracking-tighter flex items-center gap-3 px-2 uppercase text-left text-foreground">
-          <Utensils className="w-6 h-6 text-foreground opacity-80" /> Daily Food Record
+          <Utensils className="w-6 h-6 text-foreground opacity-80" /> DAILY FOOD RECORD
         </h2>
         <div className="space-y-3">
           {sortedMeals && sortedMeals.length > 0 ? (
