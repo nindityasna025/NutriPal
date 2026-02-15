@@ -20,7 +20,8 @@ import {
   Clock,
   Bell,
   CheckCircle2,
-  List
+  List,
+  AlertTriangle
 } from "lucide-react"
 import { format, addDays, subDays, startOfToday } from "date-fns"
 import Link from "next/link"
@@ -50,6 +51,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
@@ -140,10 +142,10 @@ export default function MealPlannerPage() {
     setIsSaving(true)
     
     try {
-      let finalCalories = parseFloat(calories)
-      let finalProtein = parseFloat(protein)
-      let finalCarbs = parseFloat(carbs)
-      let finalFat = parseFloat(fat)
+      let finalCalories = parseFloat(calories) || 0
+      let finalProtein = parseFloat(protein) || 0
+      let finalCarbs = parseFloat(carbs) || 0
+      let finalFat = parseFloat(fat) || 0
       let expertInsight = ""
       let description = ""
       let healthScore = 85
@@ -151,7 +153,8 @@ export default function MealPlannerPage() {
       let instructions: string[] = []
       let allergenWarning = ""
 
-      if (!editingMealId) {
+      // Only call AI if it's a new meal and macros are basically zero
+      if (!editingMealId && finalCalories === 0) {
         const aiResult = await analyzeTextMeal({ 
           mealName: `${mealTiming}: ${mealName}`, 
           userGoal: (profile?.bmiCategory === 'Overweight' || profile?.bmiCategory === 'Obese') ? "Weight Loss" : (profile?.bmiCategory === 'Underweight' ? "Weight Gain" : "Maintenance"),
@@ -198,12 +201,12 @@ export default function MealPlannerPage() {
         toast({ title: "Schedule Updated", description: "Changes synced." })
       } else {
         addDocumentNonBlocking(mealsColRef, { ...mealData, createdAt: serverTimestamp() });
-        toast({ title: "Meal Scheduled", description: `${mealName} added with AI analysis.` })
+        toast({ title: "Meal Scheduled", description: `${mealName} added.` })
       }
       resetForm()
     } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Action Failed", description: "AI analysis unavailable. Try again later." });
+      toast({ variant: "destructive", title: "Action Failed", description: "Internal server error. Please try again." });
     } finally {
       setIsSaving(false);
     }
@@ -243,10 +246,10 @@ export default function MealPlannerPage() {
     setMealName(meal.name)
     setMealTiming(meal.timing || "Breakfast")
     setReminderEnabled(!!meal.reminderEnabled)
-    setCalories(meal.calories?.toString() || "0")
-    setProtein(meal.macros?.protein?.toString() || "0")
-    setCarbs(meal.macros?.carbs?.toString() || "0")
-    setFat(meal.macros?.fat?.toString() || "0")
+    setCalories(Math.round(meal.calories || 0).toString())
+    setProtein(Math.round(meal.macros?.protein || 0).toString())
+    setCarbs(Math.round(meal.macros?.carbs || 0).toString())
+    setFat(Math.round(meal.macros?.fat || 0).toString())
     setIngredients(meal.ingredients?.join(", ") || "")
     setIsDialogOpen(true)
   }
@@ -295,33 +298,62 @@ export default function MealPlannerPage() {
               <Plus className="w-4 h-4 mr-2" /> Add Meal
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh]">
+          <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh] md:left-[calc(50%+8rem)]">
             <DialogHeader className="bg-primary p-6 text-foreground text-center shrink-0">
               <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-center">
-                {editingMealId ? "Refine Meal" : "New Schedule"}
+                {editingMealId ? "Edit Meal" : "New Schedule"}
               </DialogTitle>
             </DialogHeader>
             <div className="p-6 space-y-6 overflow-y-auto flex-1 no-scrollbar text-left">
               <div className="grid gap-4">
-                {!editingMealId && (
-                  <div className="space-y-1">
-                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing Category</Label>
-                    <Select value={mealTiming} onValueChange={setMealTiming}>
-                      <SelectTrigger className="h-12 rounded-2xl font-black border-2 border-border">
-                        <SelectValue placeholder="Select Timing" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-2 border-border z-[200]">
-                        {TIMING_OPTIONS.map(opt => (
-                          <SelectItem key={opt.value} value={opt.value} className="font-black uppercase text-[10px] tracking-widest">{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                <div className="space-y-1">
+                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Timing Category</Label>
+                  <Select value={mealTiming} onValueChange={setMealTiming}>
+                    <SelectTrigger className="h-12 rounded-2xl font-black border-2 border-border">
+                      <SelectValue placeholder="Select Timing" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-2 border-border z-[200]">
+                      {TIMING_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value} className="font-black uppercase text-[10px] tracking-widest">{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-1">
                   <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Meal Name</Label>
                   <Input placeholder="e.g. Avocado Toast" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={mealName} onChange={(e) => setMealName(e.target.value)} />
                 </div>
+
+                <div className="space-y-1">
+                  <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Ingredients (comma separated)</Label>
+                  <Textarea 
+                    placeholder="e.g. Avocado, Whole grain bread, Egg..." 
+                    className="rounded-2xl font-black border-2 border-border text-foreground min-h-[80px]" 
+                    value={ingredients} 
+                    onChange={(e) => setIngredients(e.target.value)} 
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1">Calories (kcal)</Label>
+                    <Input type="number" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={calories} onChange={(e) => setCalories(e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1" style={{ color: MACRO_COLORS.protein }}>Protein (g)</Label>
+                    <Input type="number" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={protein} onChange={(e) => setProtein(e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1" style={{ color: MACRO_COLORS.carbs }}>Carbs (g)</Label>
+                    <Input type="number" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={carbs} onChange={(e) => setCarbs(e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-foreground opacity-60 ml-1" style={{ color: MACRO_COLORS.fat }}>Fat (g)</Label>
+                    <Input type="number" className="h-12 rounded-2xl font-black border-2 border-border text-foreground" value={fat} onChange={(e) => setFat(e.target.value)} />
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-2xl border-2 border-transparent hover:border-border transition-all">
                   <div className="space-y-0.5">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Smart Alerts</Label>
@@ -333,7 +365,7 @@ export default function MealPlannerPage() {
             </div>
             <DialogFooter className="p-6 pt-0 shrink-0">
               <Button onClick={handleSaveMeal} disabled={!mealName || isSaving} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] text-foreground border-none">
-                {isSaving ? <Loader2 className="animate-spin w-5 h-5 mr-2" /> : editingMealId ? "Sync Changes" : "Schedule Meal"}
+                {isSaving ? <Loader2 className="animate-spin w-5 h-5 mr-2" /> : editingMealId ? "Save Changes" : "Schedule Meal"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -364,9 +396,9 @@ export default function MealPlannerPage() {
                           <div className="flex flex-row items-center gap-4">
                             <p className="text-[9px] font-black text-foreground opacity-60 uppercase tracking-widest">+{Math.round(meal.calories)} KCAL</p>
                             <div className="flex items-center gap-3">
-                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {meal.macros?.protein}g</span>
-                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {meal.macros?.carbs}g</span>
-                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {meal.macros?.fat}g</span>
+                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.protein }}>Protein {Math.round(meal.macros?.protein || 0)}g</span>
+                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.carbs }}>Carbs {Math.round(meal.macros?.carbs || 0)}g</span>
+                              <span className="text-[9px] font-black uppercase tracking-tight" style={{ color: MACRO_COLORS.fat }}>Fat {Math.round(meal.macros?.fat || 0)}g</span>
                             </div>
                           </div>
                           {meal.ingredients && meal.ingredients.length > 0 && (
@@ -378,6 +410,12 @@ export default function MealPlannerPage() {
                                 </span>
                               ))}
                               {meal.ingredients.length > 3 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 3}</span>}
+                            </div>
+                          )}
+                          {meal.allergenWarning && (
+                            <div className="flex items-center gap-1.5 p-1.5 bg-destructive/10 rounded-lg w-fit">
+                              <AlertTriangle className="w-3 h-3 text-destructive" />
+                              <span className="text-[8px] font-black text-destructive uppercase tracking-tight line-clamp-1">{meal.allergenWarning}</span>
                             </div>
                           )}
                         </div>
@@ -432,7 +470,7 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-3xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] max-h-[92vh] flex flex-col">
+        <DialogContent className="max-w-3xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] max-h-[92vh] flex flex-col md:left-[calc(50%+8rem)]">
           <DialogHeader className="bg-primary p-10 text-foreground shrink-0 rounded-t-[2.5rem]">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter leading-tight text-center">{activeRecipeName}</DialogTitle>
           </DialogHeader>
