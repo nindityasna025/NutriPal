@@ -1,13 +1,13 @@
 'use server';
 
 /**
- * @fileOverview Predictive Menu Synthesis Model for daily planning.
- * - Includes rule-based fallback for 429 quota handling.
- * - Generates both primary and swap suggestions for each meal.
+ * @fileOverview Predictive Menu Synthesis Model with Firestore Caching and Key Rotation.
  */
 
-import { ai } from '@/ai/genkit';
+import { executeWithRotation } from '@/ai/genkit';
 import { z } from 'genkit';
+import { initializeFirebase } from '@/firebase/init';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const MacroSchema = z.object({
   protein: z.number().describe('Protein in grams'),
@@ -24,10 +24,10 @@ const MealRecommendationSchema = z.object({
   swapSuggestion: z.object({
     name: z.string(),
     calories: z.number(),
-    time: z.string().optional().describe('Inherits timing if empty'),
+    time: z.string().optional(),
     macros: MacroSchema,
     description: z.string(),
-  }).describe('An alternative healthy meal option'),
+  }),
   ingredients: z.array(z.string()),
 });
 
@@ -48,86 +48,58 @@ const GenerateDailyPlanOutputSchema = z.object({
 });
 export type GenerateDailyPlanOutput = z.infer<typeof GenerateDailyPlanOutputSchema>;
 
+/**
+ * Generates a meal plan with caching to prevent redundant AI calls and save quota.
+ */
 export async function generateDailyPlan(input: GenerateDailyPlanInput): Promise<GenerateDailyPlanOutput> {
+  const { firestore } = initializeFirebase();
+  
+  // Create a unique hash for the cache based on user profile
+  const cacheId = `mealplan_${input.calorieTarget}_${input.dietType || 'none'}_${input.allergies || 'none'}`;
+  
   try {
-    return await generateDailyPlanFlow(input);
-  } catch (error: any) {
-    if (error.message?.includes('429')) {
-      console.warn('AI Quota Exceeded. Using Rule-Based Fallback for Smart Menu.');
-      return ruleBasedMenuFallback(input);
+    // 1. Check Cache First
+    const cacheRef = doc(firestore, "ai_cache", cacheId);
+    const cachedDoc = await getDoc(cacheRef);
+    
+    if (cachedDoc.exists()) {
+      console.log("AI Cache Hit: Returning stored meal plan.");
+      return cachedDoc.data().result as GenerateDailyPlanOutput;
     }
+
+    // 2. Call AI with Key Rotation if cache miss
+    return await executeWithRotation(async (aiInstance) => {
+      const prompt = aiInstance.definePrompt({
+        name: 'generateDailyPlanPrompt',
+        input: { schema: GenerateDailyPlanInputSchema },
+        output: { schema: GenerateDailyPlanOutputSchema },
+        prompt: `You are NutriPal, a nutrition planner.
+Return ONLY valid JSON. No explanations. Keep concise.
+
+User:
+Calories: {{{calorieTarget}}}
+Diet: {{{dietType}}}
+Allergy: {{{allergies}}}
+
+Generate breakfast, lunch, and dinner.
+Include calories, protein, carbs, and fat per meal.
+Round numbers to integers.`,
+      });
+
+      const { output } = await prompt(input);
+      if (!output) throw new Error("AI failed to generate daily plan.");
+
+      // 3. Store in Cache for future use
+      await setDoc(cacheRef, {
+        result: output,
+        createdAt: serverTimestamp(),
+        inputHash: cacheId
+      });
+
+      return output;
+    });
+  } catch (error: any) {
+    console.error("AI Planning Error:", error);
     throw error;
   }
 }
-
-function ruleBasedMenuFallback(input: GenerateDailyPlanInput): GenerateDailyPlanOutput {
-  const { calorieTarget } = input;
-  const bCals = Math.round(calorieTarget * 0.25);
-  const lCals = Math.round(calorieTarget * 0.40);
-  const dCals = Math.round(calorieTarget * 0.35);
-
-  const calculateMacros = (cals: number) => ({
-    protein: Math.round((cals * (input.proteinPercent / 100)) / 4),
-    carbs: Math.round((cals * (input.carbsPercent / 100)) / 4),
-    fat: Math.round((cals * (input.fatPercent / 100)) / 9),
-  });
-
-  const createMeal = (name: string, cals: number, time: string, swapName: string) => ({
-    name,
-    calories: cals,
-    time,
-    macros: calculateMacros(cals),
-    description: "Synthesized based on biometric rules (AI Fallback active).",
-    swapSuggestion: {
-      name: swapName,
-      calories: cals,
-      time,
-      macros: calculateMacros(cals),
-      description: "Alternative option generated via biometric rules.",
-    },
-    ingredients: ["Fresh ingredients", "Lean protein"],
-  });
-
-  return {
-    breakfast: createMeal("Oatmeal with Fruits", bCals, "08:00 AM", "Greek Yogurt with Berries"),
-    lunch: createMeal("Grilled Chicken Salad", lCals, "12:30 PM", "Quinoa Veggie Bowl"),
-    dinner: createMeal("Steamed Fish with Greens", dCals, "07:00 PM", "Tofu Stir-fry with Broccoli"),
-  };
-}
-
-const prompt = ai.definePrompt({
-  name: 'generateDailyPlanPrompt',
-  input: { schema: GenerateDailyPlanInputSchema },
-  output: { schema: GenerateDailyPlanOutputSchema },
-  prompt: `You are the NutriPal Predictive Menu Synthesis Model. 
-Synthesize a 3-meal path for:
-
-TARGETS:
-- Energy: {{{calorieTarget}}} kcal
-- Macros: {{{proteinPercent}}}% Protein, {{{carbsPercent}}}% Carbs, {{{fatPercent}}}% Fat
-- Diet: {{#if dietType}}{{{dietType}}}{{else}}Standard{{/if}}
-- Exclude: {{#if allergies}}{{{allergies}}}{{else}}None{{/if}}
-
-RULES:
-1. SUM(Calories) within 5% of Target.
-2. Provide a "swapSuggestion" for each meal that is also health-aligned.
-3. Descriptions MUST BE EXTREMELY CONCISE.
-   - TARGET LENGTH: 100 characters.
-   - ABSOLUTE LIMIT: 150 characters.
-4. Ensure "time" field is ALWAYS populated in HH:mm AM/PM format.
-
-Synthesize now.`,
-});
-
-const generateDailyPlanFlow = ai.defineFlow(
-  {
-    name: 'generateDailyPlanFlow',
-    inputSchema: GenerateDailyPlanInputSchema,
-    outputSchema: GenerateDailyPlanOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    if (!output) throw new Error("AI failed to generate daily plan.");
-    return output;
-  }
-);
