@@ -15,7 +15,8 @@ import {
   Cpu,
   Calendar as CalendarIcon,
   Clock,
-  ExternalLink
+  ExternalLink,
+  List
 } from "lucide-react"
 import { 
   Dialog, 
@@ -24,7 +25,7 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog"
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
 import { doc, collection, serverTimestamp } from "firebase/firestore"
 import { format } from "date-fns"
 import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -33,10 +34,54 @@ import { curateMealSuggestions } from "@/ai/flows/curate-meal-suggestions"
 import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 
 const SCRAPED_DATABASE = [
-  { id: "s1", name: "Roasted Salmon Poke", restaurant: "Honu Poke", price: "Rp 65,000", platform: "GrabFood" as const, calories: 420, macros: { protein: 28, carbs: 45, fat: 12 }, healthScore: 95, tags: ["Healthy", "High Protein"] },
-  { id: "s2", name: "Tempeh Quinoa Bowl", restaurant: "Vegan Vibe", price: "Rp 42,000", platform: "GoFood" as const, calories: 380, macros: { protein: 18, carbs: 55, fat: 10 }, healthScore: 98, tags: ["Vegetarian", "Vegan"] },
-  { id: "s3", name: "Grilled Chicken Caesar", restaurant: "SaladStop!", price: "Rp 75,000", platform: "GrabFood" as const, calories: 450, macros: { protein: 32, carbs: 12, fat: 28 }, healthScore: 88, tags: ["High Protein"] },
-  { id: "s4", name: "Keto Beef Stir-fry", restaurant: "FitKitchen", price: "Rp 58,000", platform: "GoFood" as const, calories: 510, macros: { protein: 35, carbs: 8, fat: 34 }, healthScore: 90, tags: ["Keto", "Low Carb"] },
+  { 
+    id: "s1", 
+    name: "Roasted Salmon Poke", 
+    restaurant: "Honu Poke", 
+    price: "Rp 65,000", 
+    platform: "GrabFood" as const, 
+    calories: 420, 
+    macros: { protein: 28, carbs: 45, fat: 12 }, 
+    healthScore: 95, 
+    tags: ["Healthy", "High Protein"],
+    ingredients: ["Salmon", "Quinoa", "Avocado", "Edamame", "Cucumber"]
+  },
+  { 
+    id: "s2", 
+    name: "Tempeh Quinoa Bowl", 
+    restaurant: "Vegan Vibe", 
+    price: "Rp 42,000", 
+    platform: "GoFood" as const, 
+    calories: 380, 
+    macros: { protein: 18, carbs: 55, fat: 10 }, 
+    healthScore: 98, 
+    tags: ["Vegetarian", "Vegan"],
+    ingredients: ["Tempeh", "Quinoa", "Spinach", "Sweet Potato", "Sesame Seeds"]
+  },
+  { 
+    id: "s3", 
+    name: "Grilled Chicken Caesar", 
+    restaurant: "SaladStop!", 
+    price: "Rp 75,000", 
+    platform: "GrabFood" as const, 
+    calories: 450, 
+    macros: { protein: 32, carbs: 12, fat: 28 }, 
+    healthScore: 88, 
+    tags: ["High Protein"],
+    ingredients: ["Chicken Breast", "Romaine Lettuce", "Parmesan", "Croutons", "Caesar Dressing"]
+  },
+  { 
+    id: "s4", 
+    name: "Keto Beef Stir-fry", 
+    restaurant: "FitKitchen", 
+    price: "Rp 58,000", 
+    platform: "GoFood" as const, 
+    calories: 510, 
+    macros: { protein: 35, carbs: 8, fat: 34 }, 
+    healthScore: 90, 
+    tags: ["Keto", "Low Carb"],
+    ingredients: ["Beef Strips", "Broccoli", "Bell Peppers", "Mushrooms", "Olive Oil"]
+  },
 ];
 
 export default function ExplorePage() {
@@ -134,6 +179,7 @@ export default function ExplorePage() {
       healthScore: item.healthScore || 90,
       description: item.description || "Optimized path.",
       expertInsight: item.reasoning || "Predicted for bio-metrics.",
+      ingredients: item.ingredients || [],
       status: "planned",
       createdAt: serverTimestamp()
     })
@@ -178,6 +224,7 @@ export default function ExplorePage() {
         healthScore: 90,
         description: item.description,
         expertInsight: "Daily predictive synthesis.",
+        ingredients: item.ingredients || [],
         status: "planned",
         createdAt: serverTimestamp()
       })
@@ -195,7 +242,7 @@ export default function ExplorePage() {
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
-      <div className="grid grid-cols-2 gap-10 pt-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-4 max-w-4xl mx-auto">
         <Dialog open={isDeliveryOpen} onOpenChange={(open) => { setIsDeliveryOpen(open); if(open) handleCurateDelivery(); }}>
           <DialogTrigger asChild>
             <Card className="rounded-[3.5rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-14 flex flex-col items-center justify-between text-center space-y-10 active:scale-[0.98]">
@@ -234,7 +281,7 @@ export default function ExplorePage() {
                           <div className="flex items-center gap-2 text-accent font-black text-[9px] uppercase tracking-[0.1em]">
                             <TrendingUp className="w-4 h-4" /> {item.healthScore}% Match
                           </div>
-                          <h3 className="text-xl font-black tracking-tighter uppercase text-foreground">{item.name}</h3>
+                          <h3 className="text-xl font-black tracking-tighter uppercase text-foreground leading-tight">{item.name}</h3>
                           <div className="flex items-center gap-2">
                              <Badge className={item.platform === 'GrabFood' ? 'bg-green-600 text-white border-none text-[8px]' : 'bg-red-600 text-white border-none text-[8px]'}>
                                {item.platform}
@@ -245,6 +292,21 @@ export default function ExplorePage() {
                         <div className="bg-primary/5 p-4 rounded-[1.5rem] border-2 border-primary/10">
                           <p className="text-[11px] font-black leading-tight italic text-foreground opacity-80">"{item.reasoning}"</p>
                         </div>
+                        
+                        {item.ingredients && (
+                          <div className="space-y-1.5">
+                            <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
+                              <List className="w-2.5 h-2.5" /> Ingredients
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {item.ingredients.map((ing: string, i: number) => (
+                                <span key={i} className="text-[8px] font-black uppercase bg-secondary/80 px-2 py-0.5 rounded-lg text-foreground opacity-60">
+                                  {ing}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="pt-4 border-t-2 border-border space-y-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -334,6 +396,23 @@ export default function ExplorePage() {
                             <h3 className="text-[15px] font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
                             <p className="text-[9px] font-black leading-tight text-foreground opacity-30 line-clamp-2 uppercase tracking-tight">{meal.description}</p>
                           </div>
+                          
+                          {meal.ingredients && (
+                            <div className="space-y-1.5">
+                              <p className="text-[7px] font-black text-foreground opacity-40 uppercase flex items-center gap-1">
+                                <List className="w-2.5 h-2.5" /> Ingredients
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
+                                  <span key={i} className="text-[7px] font-black uppercase bg-secondary/50 px-1.5 py-0.5 rounded-lg text-foreground opacity-60">
+                                    {ing}
+                                  </span>
+                                ))}
+                                {meal.ingredients.length > 4 && <span className="text-[7px] font-black opacity-30">+{meal.ingredients.length - 4} more</span>}
+                              </div>
+                            </div>
+                          )}
+
                           <div className="grid grid-cols-3 gap-2 border-y border-border py-4">
                             <div className="text-center">
                               <p className="text-[7px] font-black text-foreground opacity-30 uppercase">Protein</p>

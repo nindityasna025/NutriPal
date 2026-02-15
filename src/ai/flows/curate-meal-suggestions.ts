@@ -24,6 +24,7 @@ const DeliveryItemSchema = z.object({
   }),
   healthScore: z.number(),
   tags: z.array(z.string()),
+  ingredients: z.array(z.string()).describe("List of main ingredients in the dish."),
 });
 
 const SuggestionSchema = DeliveryItemSchema.extend({
@@ -81,7 +82,7 @@ function ruleBasedDeliveryFallback(input: CurateMealSuggestionsInput): CurateMea
   if (bestGrab) results.push({ ...bestGrab, reasoning: "Fallback: Best Grab matching calorie proximity." });
   if (bestGo) results.push({ ...bestGo, reasoning: "Fallback: Best GoFood matching calorie proximity." });
 
-  return { topMatches: results };
+  return { topMatches: results as any };
 }
 
 const prompt = ai.definePrompt({
@@ -99,14 +100,15 @@ User Input Vector:
 
 DATABASE OF ITEMS:
 {{#each scrapedDatabase}}
-- ID: {{id}}, Name: {{name}}, Restaurant: {{restaurant}}, Price: {{price}}, Platform: {{platform}}, Kcal: {{calories}}, Health: {{healthScore}}, Tags: {{tags}}
+- ID: {{id}}, Name: {{name}}, Restaurant: {{restaurant}}, Price: {{price}}, Platform: {{platform}}, Kcal: {{calories}}, Health: {{healthScore}}, Tags: {{tags}}, Ingredients: {{ingredients}}
 {{/each}}
 
 MODEL LOGIC:
 1. Provide exactly 2 items: 1 from GrabFood and 1 from GoFood.
 2. Hard exclusion on "Allergies".
 3. Reward match on "Constraints".
-4. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars).
+4. Identify and include "ingredients" for each item.
+5. CRITICAL: "reasoning" MUST BE EXTREMELY CONCISE (MAX 150 chars).
 
 Provide the pair with highest calculated scores.`,
 });
