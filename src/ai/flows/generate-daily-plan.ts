@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -25,6 +24,7 @@ const MealRecommendationSchema = z.object({
   swapSuggestion: z.object({
     name: z.string(),
     calories: z.number(),
+    time: z.string().optional().describe('Inherits timing if empty'),
     macros: MacroSchema,
     description: z.string(),
   }).describe('An alternative healthy meal option'),
@@ -81,6 +81,7 @@ function ruleBasedMenuFallback(input: GenerateDailyPlanInput): GenerateDailyPlan
     swapSuggestion: {
       name: swapName,
       calories: cals,
+      time,
       macros: calculateMacros(cals),
       description: "Alternative option generated via biometric rules.",
     },

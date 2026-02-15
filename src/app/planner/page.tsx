@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -118,6 +117,8 @@ export default function ExplorePage() {
   const handleOrderNow = async (item: any, source: 'delivery' | 'menu') => {
     if (!user || !firestore) return
     const dateId = targetDate || format(new Date(), "yyyy-MM-dd")
+    
+    // Fix: Ensure finalTime is never undefined to prevent Firebase error
     let finalTime = item.time || "12:00 PM"
     
     if (source === 'delivery' && targetTime) {
@@ -163,11 +164,16 @@ export default function ExplorePage() {
     const types = ["breakfast", "lunch", "dinner"] as const;
     types.forEach(type => {
       const isSwapped = swappedMeals[type];
-      const item = isSwapped ? menuPlan[type].swapSuggestion : menuPlan[type];
+      const baseMeal = menuPlan[type];
+      const item = isSwapped ? baseMeal.swapSuggestion : baseMeal;
+      
+      // Fix: Inherit time from base meal if swap doesn't provide it
+      const finalTime = item.time || baseMeal.time || "12:00 PM";
+
       addDocumentNonBlocking(mealsColRef, {
         name: item.name,
         calories: item.calories,
-        time: item.time,
+        time: finalTime,
         source: "planner",
         macros: item.macros,
         healthScore: 90,
