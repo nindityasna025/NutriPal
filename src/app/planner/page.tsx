@@ -19,7 +19,8 @@ import {
   ExternalLink,
   List,
   ChefHat,
-  Leaf
+  Leaf,
+  Bike
 } from "lucide-react"
 import { 
   Dialog, 
@@ -233,6 +234,40 @@ export default function ExplorePage() {
     setIsMenuOpen(false)
     router.push("/")
   }
+
+  const handleRequestCookBuddy = (meal: any) => {
+    if (!user || !firestore) return;
+    const dateId = targetDate || format(new Date(), "yyyy-MM-dd");
+    const dailyLogRef = doc(firestore, "users", user.uid, "dailyLogs", dateId);
+    const mealsColRef = collection(dailyLogRef, "meals");
+    
+    setDocumentNonBlocking(dailyLogRef, { date: dateId }, { merge: true });
+
+    const finalTime = meal.time || "12:00 PM";
+
+    addDocumentNonBlocking(mealsColRef, {
+      name: meal.name,
+      calories: meal.calories,
+      time: finalTime,
+      source: "CookBuddy",
+      macros: meal.macros,
+      healthScore: 95,
+      description: meal.description,
+      expertInsight: "Professionally prepared and delivered by CookBuddy.",
+      ingredients: meal.ingredients || [],
+      instructions: ["Professionally prepared and delivered by CookBuddy."],
+      status: "planned",
+      createdAt: serverTimestamp()
+    });
+
+    toast({
+      title: "CookBuddy Requested!",
+      description: `Your "${meal.name}" has been scheduled and will be delivered.`,
+    });
+
+    setIsMenuOpen(false);
+    router.push("/");
+  };
 
   const handleAddAll = async () => {
     if (!user || !firestore || !menuPlan) return
@@ -463,9 +498,14 @@ export default function ExplorePage() {
                             </div>
                           </div>
                         </div>
-                        <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
-                          <Plus className="w-4 h-4 mr-2" /> Accept
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-accent text-foreground border-none">
+                              <Plus className="w-3 h-3 mr-1" /> Self-Cook
+                          </Button>
+                          <Button onClick={() => handleRequestCookBuddy(meal)} className="w-full rounded-[0.75rem] h-10 text-[8px] font-black uppercase tracking-widest bg-foreground text-white border-none">
+                              <Bike className="w-3 h-3 mr-1" /> CookBuddy
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   );
