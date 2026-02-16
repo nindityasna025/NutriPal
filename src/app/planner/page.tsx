@@ -43,6 +43,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const SCRAPED_DATABASE = [
   { 
@@ -95,6 +102,13 @@ const SCRAPED_DATABASE = [
   },
 ];
 
+const TIMING_OPTIONS = [
+  { value: "Breakfast", label: "Breakfast", defaultTime: "08:00 AM" },
+  { value: "Lunch", label: "Lunch", defaultTime: "12:30 PM" },
+  { value: "Dinner", label: "Dinner", defaultTime: "07:00 PM" },
+  { value: "Snack", label: "Snack", defaultTime: "04:00 PM" },
+];
+
 export default function ExplorePage() {
   const router = useRouter()
   const { toast } = useToast()
@@ -118,6 +132,7 @@ export default function ExplorePage() {
   const [recipeGenResult, setRecipeGenResult] = useState<any | null>(null)
   const [availableIngredients, setAvailableIngredients] = useState("")
   const [isAddingPantryRecipe, setIsAddingPantryRecipe] = useState<string | null>(null)
+  const [pantryRecipeTiming, setPantryRecipeTiming] = useState("Lunch");
 
   const { user } = useUser()
   const firestore = useFirestore()
@@ -334,14 +349,15 @@ export default function ExplorePage() {
       const mealsColRef = collection(dailyLogRef, "meals");
     
       setDocumentNonBlocking(dailyLogRef, { date: dateId }, { merge: true });
-
-      const finalTime = "12:00 PM"; // Default time
+      
+      const selectedTiming = TIMING_OPTIONS.find(t => t.value === pantryRecipeTiming);
+      const finalTime = selectedTiming?.defaultTime || "12:00 PM";
 
       addDocumentNonBlocking(mealsColRef, {
         name: mealName,
         calories: analysis.calories,
         time: finalTime,
-        timing: 'Lunch', // Default timing
+        timing: pantryRecipeTiming,
         source: "pantry-ai",
         macros: analysis.macros,
         healthScore: analysis.healthScore,
@@ -521,9 +537,6 @@ export default function ExplorePage() {
                     ))}
                   </div>
                 </div>
-                <DialogFooter className="p-6 border-t bg-background rounded-b-[2.5rem]">
-                  <Button variant="outline" onClick={() => setIsDeliveryOpen(false)} className="w-full">Close</Button>
-                </DialogFooter>
               </DialogContent>
             )}
 
@@ -622,7 +635,27 @@ export default function ExplorePage() {
               <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] max-h-[90vh] flex flex-col">
                 <DialogHeader className="p-8 text-center border-b">
                   <DialogTitle>Recipe From Pantry</DialogTitle>
-                   <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
+                   <DialogDescription>
+                    <div className="text-sm text-muted-foreground font-bold flex flex-col sm:flex-row items-center justify-center gap-4">
+                      <span>Generate meal ideas and schedule for a specific day.</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
+                          <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                          <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
+                        </div>
+                        <Select value={pantryRecipeTiming} onValueChange={setPantryRecipeTiming}>
+                            <SelectTrigger className="h-10 rounded-full font-black border-2 border-border w-auto bg-secondary">
+                                <SelectValue placeholder="Select Timing" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl border-2 border-border z-[200]">
+                                {TIMING_OPTIONS.map(opt => (
+                                <SelectItem key={opt.value} value={opt.value} className="font-black uppercase text-[10px] tracking-widest">{opt.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="p-8 pt-0 overflow-y-auto flex-1">
                   {loadingRecipeGen ? (
@@ -694,9 +727,6 @@ export default function ExplorePage() {
                     </div>
                   )}
                 </div>
-                <DialogFooter className="p-6 border-t bg-background rounded-b-[2.5rem]">
-                  <Button variant="outline" className="w-full" onClick={() => setIsRecipeGenOpen(false)}>Close</Button>
-                </DialogFooter>
               </DialogContent>
             )}
           </Dialog>
