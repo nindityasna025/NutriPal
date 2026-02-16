@@ -109,9 +109,15 @@ export default function Dashboard() {
   }, [user, firestore]);
 
   const { data: profile } = useDoc(profileRef)
-  const { data: dailyLog } = useDoc(dailyLogRef)
+  const { data: dailyLog, isLoading: isDailyLogLoading } = useDoc(dailyLogRef)
   const { data: meals } = useCollection(mealsColRef)
   const { data: recentLogs } = useCollection(logsQuery)
+
+  useEffect(() => {
+    if (dailyLogRef && !isDailyLogLoading && (!dailyLog || !dailyLog.caloriesBurned)) {
+      setDocumentNonBlocking(dailyLogRef, { caloriesBurned: 800, date: dateId }, { merge: true });
+    }
+  }, [isDailyLogLoading, dailyLog, dailyLogRef, dateId]);
 
   const caloriesBurned = dailyLog?.caloriesBurned || 0;
   const wasHighlyActive = caloriesBurned > 700;
