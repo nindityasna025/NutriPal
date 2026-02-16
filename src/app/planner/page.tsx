@@ -414,15 +414,21 @@ export default function ExplorePage() {
     },
   ];
 
+  const orderedFeatures = [
+    featureCards.find(f => f.id === 'curation'),
+    featureCards.find(f => f.id === 'pantry'),
+    featureCards.find(f => f.id === 'predictive'),
+  ].filter(Boolean) as typeof featureCards;
+
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 space-y-8 pb-24 min-h-screen text-center">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 space-y-8 pb-24 min-h-screen">
       <header className="space-y-1 pt-safe text-center">
         <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">Explore</h1>
         <p className="text-[10px] font-black text-foreground uppercase tracking-widest opacity-40">Discovery Hub</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 mx-auto">
-        {featureCards.map(card => (
+        {orderedFeatures.map(card => (
           <Dialog 
             key={card.id}
             open={
@@ -431,9 +437,9 @@ export default function ExplorePage() {
               (card.id === 'pantry' && isRecipeGenOpen)
             } 
             onOpenChange={
-              (card.id === 'curation' && setIsDeliveryOpen) ||
-              (card.id === 'predictive' && setIsMenuOpen) ||
-              (card.id === 'pantry' && setIsRecipeGenOpen)
+              (card.id === 'curation' ? setIsDeliveryOpen :
+              (card.id === 'predictive' ? setIsMenuOpen :
+              setIsRecipeGenOpen))
             }
           >
             <DialogTrigger asChild>
@@ -471,7 +477,7 @@ export default function ExplorePage() {
               <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] max-h-[90vh] flex flex-col">
                 <DialogHeader className="p-8 text-center border-b">
                     <DialogTitle>NutriPal V1: ML Delivery Hub</DialogTitle>
-                    <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
+                    <DialogDescription>Top recommendations from GrabFood &amp; GoFood based on your profile.</DialogDescription>
                 </DialogHeader>
                 <div className="p-8 pt-0 overflow-y-auto flex-1">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -519,7 +525,7 @@ export default function ExplorePage() {
                                </div>
                                <div className="text-center">
                                  <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                                 <p className="text-base font-black text-blue-500">{item.macros.carbs}g</p>
+                                 <p className="text-base font-black" style={{ color: "hsl(221.2 83.2% 53.3%)" }}>{item.macros.carbs}g</p>
                                </div>
                                <div className="text-center">
                                  <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
@@ -530,7 +536,7 @@ export default function ExplorePage() {
                         </CardContent>
                          <DialogFooter className="p-6 pt-0">
                             <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-xs flex gap-2">
-                              <ExternalLink className="w-4 h-4" /> Order & Sync
+                              <ExternalLink className="w-4 h-4" /> Order &amp; Sync
                             </Button>
                           </DialogFooter>
                       </Card>
@@ -599,7 +605,7 @@ export default function ExplorePage() {
                                 </div>
                                 <div className="text-center">
                                   <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                                  <p className="text-sm font-black text-blue-500">{meal.macros.carbs}g</p>
+                                  <p className="text-sm font-black" style={{ color: "hsl(221.2 83.2% 53.3%)" }}>{meal.macros.carbs}g</p>
                                 </div>
                                 <div className="text-center">
                                   <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
@@ -633,29 +639,27 @@ export default function ExplorePage() {
 
             {card.id === 'pantry' && (
               <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] max-h-[90vh] flex flex-col">
-                <DialogHeader className="p-8 text-center border-b">
+                <DialogHeader className="p-8 text-center border-b space-y-2">
                   <DialogTitle>Recipe From Pantry</DialogTitle>
-                   <DialogDescription>
-                    <div className="text-sm text-muted-foreground font-bold flex flex-col sm:flex-row items-center justify-center gap-4">
-                      <span>Generate meal ideas and schedule for a specific day.</span>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
-                          <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                          <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
-                        </div>
-                        <Select value={pantryRecipeTiming} onValueChange={setPantryRecipeTiming}>
-                            <SelectTrigger className="h-10 rounded-full font-black border-2 border-border w-auto bg-secondary">
-                                <SelectValue placeholder="Select Timing" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-2 border-border z-[200]">
-                                {TIMING_OPTIONS.map(opt => (
-                                <SelectItem key={opt.value} value={opt.value} className="font-black uppercase text-[10px] tracking-widest">{opt.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                  <DialogDescription>
+                    Generate meal ideas and schedule for a specific day.
                   </DialogDescription>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
+                    <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
+                      <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                      <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
+                    </div>
+                    <Select value={pantryRecipeTiming} onValueChange={setPantryRecipeTiming}>
+                        <SelectTrigger className="h-10 rounded-full font-black border-2 border-border w-auto bg-secondary">
+                            <SelectValue placeholder="Select Timing" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-2 border-border z-[200]">
+                            {TIMING_OPTIONS.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value} className="font-black uppercase text-[10px] tracking-widest">{opt.label}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                  </div>
                 </DialogHeader>
                 <div className="p-8 pt-0 overflow-y-auto flex-1">
                   {loadingRecipeGen ? (
@@ -701,7 +705,7 @@ export default function ExplorePage() {
                       </section>
                     </div>
                   ) : (
-                    <div className="space-y-6 text-left">
+                    <div className="space-y-6 text-left pt-6">
                         <div className="space-y-2">
                             <Label htmlFor="ingredients-pantry" className="text-sm font-semibold ml-1">What's in your pantry?</Label>
                             <Textarea 
