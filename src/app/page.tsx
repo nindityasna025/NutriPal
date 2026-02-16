@@ -26,7 +26,8 @@ import {
   List,
   RefreshCw,
   Clock,
-  ChevronLeft
+  ChevronLeft,
+  Bike
 } from "lucide-react"
 import { format, startOfToday, subDays, addDays } from "date-fns"
 import { collection, doc, query, orderBy, limit, serverTimestamp, increment } from "firebase/firestore"
@@ -112,7 +113,7 @@ export default function Dashboard() {
   const { data: meals } = useCollection(mealsColRef)
   const { data: recentLogs } = useCollection(logsQuery)
 
-  const caloriesBurned = dailyLog?.caloriesBurned || 800;
+  const caloriesBurned = dailyLog?.caloriesBurned || 0;
   const wasHighlyActive = caloriesBurned > 700;
 
   const handleGenerateRecoveryPlan = async () => {
@@ -320,7 +321,7 @@ export default function Dashboard() {
                     <Info className="w-3.5 h-3.5" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white md:left-[calc(50%+8rem)]">
+                <PopoverContent className="w-64 p-4 rounded-2xl shadow-premium-lg border-none bg-white">
                   <p className="text-[10px] font-black uppercase tracking-widest mb-2">Macro Distribution</p>
                   <p className="text-xs font-medium text-muted-foreground">Optimal balance: 30% Protein, 40% Carbs, 30% Fat.</p>
                 </PopoverContent>
@@ -360,24 +361,26 @@ export default function Dashboard() {
         </Card>
 
         <div className="md:col-span-5 flex flex-col gap-3">
-        <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => {
+          <Dialog open={isRecoveryDialogOpen} onOpenChange={(open) => {
               if (open && !wasHighlyActive) return;
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-             <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
-                <DialogTrigger asChild disabled={!wasHighlyActive}>
-                  <button className={cn(
+            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
+              <DialogTrigger asChild disabled={!wasHighlyActive}>
+                <button
+                  className={cn(
                       "p-1.5 rounded-lg mb-1 transition-all",
                       wasHighlyActive ? "bg-destructive/10 border border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/10 border-primary/20 cursor-default"
-                  )}>
-                    <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
-                  </button>
-                </DialogTrigger>
-                <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
-                <p className="text-lg font-black tracking-tighter text-foreground">{caloriesBurned} <span className="text-[9px] font-black opacity-20">kcal</span></p>
+                  )}
+                  >
+                  <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
+                </button>
+              </DialogTrigger>
+              <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
+              <p className="text-lg font-black tracking-tighter text-foreground">{caloriesBurned} <span className="text-[9px] font-black opacity-20">kcal</span></p>
             </Card>
-            <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] max-h-[90vh] flex flex-col">
               <DialogHeader className="p-8 text-center border-b">
                 <DialogTitle className="text-2xl text-center">Recovery Plan Synthesis</DialogTitle>
                 <DialogDescription className="max-w-2xl mx-auto">
@@ -467,7 +470,7 @@ export default function Dashboard() {
                 <Minus className="w-3 h-3 text-foreground" />
               </Button>
               <div className="flex flex-col items-center">
-                <span className="text-lg font-black tracking-tighter text-foreground">{water}L</span>
+                <span className="text-lg font-black tracking-tighter text-foreground">{water.toFixed(1)}L</span>
                 <span className={cn(
                   "text-[7px] font-black uppercase tracking-tighter",
                   water >= 2 ? "text-green-600" : "text-orange-600"
@@ -555,9 +558,9 @@ export default function Dashboard() {
                           <div className="flex flex-wrap items-center gap-3 text-[8px] font-black text-foreground opacity-60 uppercase tracking-widest">
                             <span>+{Math.round(meal.calories)} KCAL</span>
                             <div className="flex gap-2">
-                              <span style={{ color: MACRO_COLORS.protein }}>PROTEIN {meal.macros?.protein}g</span>
-                              <span style={{ color: MACRO_COLORS.carbs }}>CARBS {meal.macros?.carbs}g</span>
-                              <span style={{ color: MACRO_COLORS.fat }}>FAT {meal.macros?.fat}g</span>
+                              <span style={{ color: MACRO_COLORS.protein }}>P {meal.macros?.protein}g</span>
+                              <span style={{ color: MACRO_COLORS.carbs }}>C {meal.macros?.carbs}g</span>
+                              <span style={{ color: MACRO_COLORS.fat }}>F {meal.macros?.fat}g</span>
                             </div>
                           </div>
                         </div>
@@ -659,7 +662,7 @@ export default function Dashboard() {
       </div>
 
       <Dialog open={isEatNowOpen} onOpenChange={setIsEatNowOpen}>
-        <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden md:left-[calc(50%+8rem)]">
+        <DialogContent className="max-w-md rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white overflow-hidden">
           <DialogHeader className="p-8 text-center">
             <DialogTitle className="text-xl font-black uppercase tracking-tight text-foreground text-center">Record Consumption</DialogTitle>
           </DialogHeader>
