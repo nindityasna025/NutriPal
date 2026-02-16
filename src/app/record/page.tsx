@@ -311,7 +311,7 @@ export default function RecordPage() {
       )}
 
       {(mode !== "choice" || preview) && (
-        <div className="flex flex-col items-center gap-6 max-w-xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-5xl mx-auto">
           <section className="w-full">
             <Card className="rounded-[1.5rem] border-none shadow-premium bg-white p-3 flex flex-col overflow-hidden">
               <div className="flex items-center justify-between mb-2">
@@ -346,7 +346,7 @@ export default function RecordPage() {
             </Card>
           </section>
 
-          <section className="w-full">
+          <section className="w-full h-full">
             {result ? (
               <Card className="rounded-[1.5rem] border-none shadow-premium bg-white overflow-hidden flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="p-4 flex flex-col h-full space-y-4">
@@ -426,7 +426,7 @@ export default function RecordPage() {
                 </div>
               </Card>
             ) : (
-              <div className="flex-1 border-2 border-dashed border-border/40 rounded-[1.5rem] flex flex-col items-center justify-center p-4 text-center bg-white/50 min-h-[200px]">
+              <div className="h-full border-2 border-dashed border-border/40 rounded-[1.5rem] flex flex-col items-center justify-center p-4 text-center bg-white/50 min-h-[200px]">
                 <ScanSearch className="w-10 h-10 text-foreground opacity-10 mb-2" />
                 <p className="text-foreground font-black uppercase text-[8px] tracking-widest opacity-20">Awaiting Analysis</p>
               </div>
