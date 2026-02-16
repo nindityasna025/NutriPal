@@ -55,7 +55,7 @@ import { generateDailyPlan } from "@/ai/flows/generate-daily-plan"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))", 
-  carbs: "hsl(var(--chart-2, 38 92% 50%))",
+  carbs: "hsl(221.2 83.2% 53.3%)",
   fat: "hsl(var(--accent))",     
 }
 
@@ -365,13 +365,13 @@ export default function Dashboard() {
               setIsRecoveryDialogOpen(open);
               if(open && !recoveryPlan) handleGenerateRecoveryPlan();
           }}>
-            <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
+             <Card className="border-none shadow-premium bg-white rounded-[2rem] p-3 flex-1 flex flex-col items-center justify-center text-center min-h-[90px] transition-all">
                 <DialogTrigger asChild disabled={!wasHighlyActive}>
                   <button className={cn(
-                      "p-1.5 rounded-lg mb-1",
-                      wasHighlyActive ? "bg-red-500/10 border border-red-500/20 animate-pulse cursor-pointer" : "bg-primary/10 border-primary/20 cursor-default"
+                      "p-1.5 rounded-lg mb-1 transition-all",
+                      wasHighlyActive ? "bg-destructive/10 border border-destructive/20 animate-pulse cursor-pointer" : "bg-primary/10 border-primary/20 cursor-default"
                   )}>
-                    <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-red-500" : "text-foreground")} />
+                    <Flame className={cn("w-4 h-4", wasHighlyActive ? "text-destructive" : "text-foreground")} />
                   </button>
                 </DialogTrigger>
                 <p className="text-[8px] font-black text-foreground uppercase tracking-widest opacity-40">Active Burn</p>
@@ -381,7 +381,7 @@ export default function Dashboard() {
               <DialogHeader className="p-8 text-center border-b">
                 <DialogTitle className="text-2xl text-center">Recovery Plan Synthesis</DialogTitle>
                 <DialogDescription className="max-w-2xl mx-auto">
-                    Yesterday was a highly active day! NutriPal recommends increasing your protein and calorie intake to support muscle recovery.
+                    Today was a highly active day! This recommends increasing your protein and calorie intake to support muscle recovery tomorrow.
                 </DialogDescription>
               </DialogHeader>
               <div className="p-8 overflow-y-auto flex-1">
