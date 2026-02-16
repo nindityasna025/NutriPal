@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -35,6 +36,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -54,7 +56,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 const MACRO_COLORS = {
   protein: "hsl(var(--primary))",
-  carbs: "hsl(38 92% 50%)",
+  carbs: "hsl(221.2 83.2% 53.3%)",
   fat: "hsl(var(--accent))",
 }
 
@@ -310,9 +312,9 @@ export default function MealPlannerPage() {
               <Plus className="w-4 h-4 mr-2" /> Add Meal
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh] md:left-[calc(50%+8rem)]">
-            <DialogHeader className="bg-primary p-6 text-foreground text-center shrink-0">
-              <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-center">
+          <DialogContent className="rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[92vw] max-w-lg flex flex-col max-h-[90vh]">
+            <DialogHeader className="p-6 text-foreground text-center shrink-0 border-b">
+              <DialogTitle className="text-xl font-black uppercase tracking-tighter text-center">
                 {editingMealId ? "Edit Meal" : "New Schedule"}
               </DialogTitle>
             </DialogHeader>
@@ -491,8 +493,8 @@ export default function MealPlannerPage() {
       </section>
 
       <Dialog open={isRecipeDialogOpen} onOpenChange={setIsRecipeDialogOpen}>
-        <DialogContent className="max-w-3xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] max-h-[92vh] flex flex-col md:left-[calc(50%+8rem)]">
-          <DialogHeader className="bg-primary p-10 text-foreground shrink-0 rounded-t-[2.5rem]">
+        <DialogContent className="max-w-3xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-premium-lg bg-white w-[94vw] flex flex-col max-h-[92vh]">
+          <DialogHeader className="p-10 text-center shrink-0 border-b">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter leading-tight text-center">{activeRecipeName}</DialogTitle>
           </DialogHeader>
           <div className="p-8 overflow-y-auto flex-1 no-scrollbar text-left">
@@ -538,3 +540,5 @@ export default function MealPlannerPage() {
     </div>
   )
 }
+
+    
