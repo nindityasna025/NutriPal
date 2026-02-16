@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from "react"
@@ -426,8 +427,9 @@ export default function ExplorePage() {
                 {card.description}
               </p>
             </div>
-            <Button onClick={card.action} variant={card.color === 'blue' ? 'default' : 'secondary'} className={cn(
+            <Button onClick={card.action} variant="secondary" className={cn(
               "w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] border-none",
+              card.color === 'accent' && 'bg-accent text-accent-foreground hover:bg-accent/90',
               card.color === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white'
             )}>
               {card.buttonText}
@@ -438,10 +440,10 @@ export default function ExplorePage() {
 
       <Dialog open={isDeliveryOpen} onOpenChange={setIsDeliveryOpen}>
         <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center">
-                <DialogTitle>NutriPal V1: ML Delivery Hub</DialogTitle>
-                <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
-            </DialogHeader>
+          <DialogHeader className="p-8 text-center border-b">
+              <DialogTitle className="text-center">NutriPal V1: ML Delivery Hub</DialogTitle>
+              <DialogDescription className="text-center">Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
+          </DialogHeader>
           <div className="p-8 pt-0 overflow-y-auto flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {loading ? (
@@ -511,14 +513,14 @@ export default function ExplorePage() {
 
       <Dialog open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-          <DialogHeader className="p-8 text-center">
-              <DialogTitle>NutriPal V1: Predictive Synthesis</DialogTitle>
+          <DialogHeader className="p-8 text-center border-b">
+              <DialogTitle className="text-center">NutriPal V1: Predictive Synthesis</DialogTitle>
               <div className="text-sm text-muted-foreground font-bold flex items-center justify-center gap-4">
-                A full day's meal plan synthesized by AI based on your profile.
-                  <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
-                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                    <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
-                  </div>
+                <span>A full day's meal plan synthesized by AI based on your profile.</span>
+                <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                  <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
+                </div>
               </div>
           </DialogHeader>
           <div className="p-8 pt-0 overflow-y-auto flex-1">
@@ -603,8 +605,8 @@ export default function ExplorePage() {
       <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
         <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
           <DialogHeader className="p-8 text-center border-b">
-            <DialogTitle>Recipe From Pantry</DialogTitle>
-             <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
+            <DialogTitle className="text-center">Recipe From Pantry</DialogTitle>
+             <DialogDescription className="text-center">Generate meal ideas using ingredients you already have.</DialogDescription>
           </DialogHeader>
           <div className="p-8 pt-0 overflow-y-auto flex-1">
             {loadingRecipeGen ? (
@@ -681,3 +683,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
