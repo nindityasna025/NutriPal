@@ -77,8 +77,15 @@ export default function FitnessPage() {
   }, [user, firestore]);
 
   const { data: profile } = useDoc(profileRef)
-  const { data: dailyLog } = useDoc(dailyLogRef)
+  const { data: dailyLog, isLoading: isDailyLogLoading } = useDoc(dailyLogRef)
   const { data: recentLogs } = useCollection(logsQuery)
+
+  useEffect(() => {
+    if (dailyLogRef && !isDailyLogLoading && (!dailyLog || !dailyLog.caloriesBurned)) {
+      // If there's no log for today after loading, or caloriesBurned is 0/missing, create a dummy one.
+      setDocumentNonBlocking(dailyLogRef, { caloriesBurned: 800, date: dateId }, { merge: true });
+    }
+  }, [isDailyLogLoading, dailyLog, dailyLogRef, dateId]);
 
   const caloriesBurned = dailyLog?.caloriesBurned || 0;
   const wasHighlyActive = caloriesBurned > 700;
@@ -165,7 +172,7 @@ export default function FitnessPage() {
 
   const handleSync = () => {
     setSyncing(true)
-    const simulatedBurn = Math.floor(Math.random() * (900 - 400 + 1) + 400);
+    const simulatedBurn = 800;
     if(dailyLogRef) {
         setDocumentNonBlocking(dailyLogRef, { caloriesBurned: simulatedBurn, date: dateId }, { merge: true });
     }
@@ -254,8 +261,8 @@ export default function FitnessPage() {
             </Card>
             <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-background w-[94vw] max-h-[90vh] flex flex-col">
               <DialogHeader className="p-8 text-center border-b">
-                <DialogTitle className="text-2xl text-center">Recovery Plan Synthesis</DialogTitle>
-                <DialogDescription className="max-w-2xl mx-auto">
+                <DialogTitle>Recovery Plan Synthesis</DialogTitle>
+                <DialogDescription>
                     Today was a highly active day! This recommends increasing your protein and calorie intake to support muscle recovery tomorrow.
                 </DialogDescription>
               </DialogHeader>
