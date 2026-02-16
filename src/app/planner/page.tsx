@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from "react"
@@ -19,7 +18,7 @@ import {
   Leaf,
   Bike,
   Plus,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react"
 import { 
   Dialog, 
@@ -102,7 +101,6 @@ export default function ExplorePage() {
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isRecipeGenOpen, setIsRecipeGenOpen] = useState(false)
-  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false)
   
   const [loading, setLoading] = useState(false)
   const [deliveryResult, setDeliveryResult] = useState<any[] | null>(null)
@@ -123,17 +121,8 @@ export default function ExplorePage() {
   const { user } = useUser()
   const firestore = useFirestore()
 
-  const today = useMemo(() => startOfToday(), []);
-  const yesterdayId = useMemo(() => format(subDays(today, 1), "yyyy-MM-dd"), [today]);
-
   const profileRef = useMemoFirebase(() => user ? doc(firestore, "users", user.uid, "profile", "main") : null, [user, firestore])
   const { data: profile } = useDoc(profileRef)
-
-  const yesterdayLogRef = useMemoFirebase(() => (user) ? doc(firestore, "users", user.uid, "dailyLogs", yesterdayId) : null, [user, firestore, yesterdayId])
-  const { data: yesterdayLog } = useDoc(yesterdayLogRef)
-
-  // Use a fallback for demo purposes if no log exists
-  const wasHighlyActive = useMemo(() => (yesterdayLog?.caloriesBurned || 800) > 700, [yesterdayLog]);
 
   const handleCurateDelivery = async () => {
     if (!profile) return;
@@ -318,8 +307,8 @@ export default function ExplorePage() {
     });
 
     toast({ title: "Full Path Predicted", description: `Plan saved for ${dateId}.` });
-    setIsMenuOpen(false);
-    router.push("/");
+    setIsMenuOpen(false)
+    router.push("/")
   }
 
   const handleAddPantryRecipeToPlan = async (mealName: string) => {
@@ -387,7 +376,6 @@ export default function ExplorePage() {
       color: 'primary',
       action: () => { setIsDeliveryOpen(true); handleCurateDelivery() },
       buttonText: 'Execute Scorer',
-      show: true
     },
     { 
       id: 'predictive',
@@ -397,7 +385,6 @@ export default function ExplorePage() {
       color: 'accent',
       action: () => { setIsMenuOpen(true); handleGenerateMenu(false) },
       buttonText: 'Synthesize Path',
-      show: true
     },
     { 
       id: 'pantry',
@@ -407,10 +394,8 @@ export default function ExplorePage() {
       color: 'blue',
       action: () => setIsRecipeGenOpen(true),
       buttonText: 'Create Recipe',
-      show: true
     },
-  ].filter(card => card.show);
-
+  ];
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-4 pb-24 min-h-screen text-center">
@@ -419,284 +404,280 @@ export default function ExplorePage() {
         <p className="text-[11px] font-black text-foreground uppercase tracking-[0.4em] opacity-40">Discovery Hub</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 mx-auto">
         {featureCards.map(card => (
-           <Dialog key={card.id}>
-             <DialogTrigger asChild>
-                <Card className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-6 flex flex-col items-center justify-between text-center space-y-4 active:scale-[0.98]">
-                  <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
-                    card.color === 'primary' && 'bg-primary/10 border-primary/20',
-                    card.color === 'accent' && 'bg-accent/10 border-accent/20',
-                    card.color === 'blue' && 'bg-blue-100 border-blue-200',
-                  )}>
-                    <card.icon className={cn(
-                      "w-8 h-8",
-                      card.color === 'primary' && 'text-primary',
-                      card.color === 'accent' && 'text-accent-foreground',
-                      card.color === 'blue' && 'text-blue-600',
-                    )} />
-                  </div>
-                  <div className="space-y-1.5 text-center flex-1">
-                    <h3 className="text-base font-black tracking-tighter uppercase text-foreground">{card.title}</h3>
-                    <p className="text-foreground/60 font-bold text-[10px] leading-snug max-w-xs uppercase tracking-wider">
-                      {card.description}
-                    </p>
-                  </div>
-                  <Button onClick={card.action} variant={card.color === 'blue' ? 'default' : 'secondary'} className={cn(
-                    "w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] border-none",
-                    card.color === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white'
-                  )}>
-                    {card.buttonText}
-                  </Button>
-                </Card>
-             </DialogTrigger>
-           </Dialog>
+          <Card key={card.id} className="rounded-[2rem] border-none shadow-premium hover:shadow-premium-lg transition-all bg-white cursor-pointer group p-6 flex flex-col items-center justify-between text-center space-y-4 active:scale-[0.98]">
+            <div className={cn(
+              "w-16 h-16 rounded-2xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm shrink-0 border-2",
+              card.color === 'primary' && 'bg-primary/10 border-primary/20',
+              card.color === 'accent' && 'bg-accent/10 border-accent/20',
+              card.color === 'blue' && 'bg-blue-100 border-blue-200',
+            )}>
+              <card.icon className={cn(
+                "w-8 h-8",
+                card.color === 'primary' && 'text-primary',
+                card.color === 'accent' && 'text-accent-foreground',
+                card.color === 'blue' && 'text-blue-600',
+              )} />
+            </div>
+            <div className="space-y-1.5 text-center flex-1">
+              <h3 className="text-base font-black tracking-tighter uppercase text-foreground">{card.title}</h3>
+              <p className="text-foreground/60 font-bold text-[10px] leading-snug max-w-xs uppercase tracking-wider">
+                {card.description}
+              </p>
+            </div>
+            <Button onClick={card.action} variant={card.color === 'blue' ? 'default' : 'secondary'} className={cn(
+              "w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] border-none",
+              card.color === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white'
+            )}>
+              {card.buttonText}
+            </Button>
+          </Card>
         ))}
+      </div>
 
-        <Dialog open={isDeliveryOpen} onOpenChange={setIsDeliveryOpen}>
-          <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center border-b">
-              <DialogTitle className="text-2xl">NutriPal V1: ML Delivery Hub</DialogTitle>
-              <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
+      <Dialog open={isDeliveryOpen} onOpenChange={setIsDeliveryOpen}>
+        <DialogContent className="max-w-4xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+            <DialogHeader className="p-8 text-center">
+                <DialogTitle>NutriPal V1: ML Delivery Hub</DialogTitle>
+                <DialogDescription>Top recommendations from GrabFood & GoFood based on your profile.</DialogDescription>
             </DialogHeader>
-            <div className="p-8 pt-0 overflow-y-auto flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {loading ? (
-                  <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
-                    <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Calculating Scores...</p>
-                  </div>
-                ) : deliveryResult?.map((item) => (
-                  <Card key={item.id} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-primary/20 hover:ring-4 overflow-hidden flex flex-col">
-                    <CardContent className="p-6 flex flex-col h-full space-y-4 text-left">
-                      <div className="space-y-3 flex-1">
-                        <div className="flex justify-between items-start">
-                          <Badge variant={item.platform === 'GrabFood' ? 'default' : 'secondary'}>{item.platform}</Badge>
-                          <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-wider">
-                            <TrendingUp className="w-4 h-4" /> {item.healthScore}% Match
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <h3 className="text-lg font-black tracking-tighter uppercase text-foreground leading-tight">{item.name}</h3>
-                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
-                        </div>
-                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
-                          <p className="text-xs font-bold leading-snug italic text-foreground/80">"{item.reasoning}"</p>
-                        </div>
-                        
-                        {item.ingredients && (
-                          <div className="space-y-2">
-                            <p className="text-[8px] font-black text-muted-foreground uppercase flex items-center gap-1.5">
-                              <List className="w-3 h-3" /> Ingredients
-                            </p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {item.ingredients.map((ing: string, i: number) => (
-                                 <Badge key={i} variant="outline" className="text-[9px] font-bold rounded-md">{ing}</Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="pt-4 border-t space-y-3">
-                        <div className="grid grid-cols-3 gap-2">
-                           <div className="text-center">
-                             <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
-                             <p className="text-base font-black text-primary">{item.macros.protein}g</p>
-                           </div>
-                           <div className="text-center">
-                             <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                             <p className="text-base font-black text-orange-500">{item.macros.carbs}g</p>
-                           </div>
-                           <div className="text-center">
-                             <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
-                             <p className="text-base font-black text-accent">{item.macros.fat}g</p>
-                           </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                     <DialogFooter className="p-6 pt-0">
-                        <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-xs flex gap-2">
-                          <ExternalLink className="w-4 h-4" /> Order & Sync
-                        </Button>
-                      </DialogFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isMenuOpen || isRecoveryOpen} onOpenChange={isMenuOpen ? setIsMenuOpen : setIsRecoveryOpen}>
-          <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center border-b">
-                <DialogTitle className="text-2xl">{isRecoveryOpen ? 'Recovery Plan Synthesis' : 'NutriPal V1: Predictive Synthesis'}</DialogTitle>
-                <div className="text-sm text-muted-foreground font-bold flex items-center justify-center gap-4">
-                  <span>A full day's meal plan synthesized by AI based on your profile.</span>
-                   <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
-                     <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                     <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
-                   </div>
-                </div>
-            </DialogHeader>
-            <div className="p-8 pt-0 overflow-y-auto flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {loading ? (
-                  <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
-                    <Loader2 className="w-12 h-12 animate-spin text-accent" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Synthesizing Path...</p>
-                  </div>
-                ) : menuPlan && (["breakfast", "lunch", "dinner"] as const).map((type) => {
-                  const isSwapped = swappedMeals[type];
-                  const baseMeal = menuPlan[type];
-                  const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
-                  const finalTime = meal.time || baseMeal.time || "12:00 PM";
-                  return (
-                    <Card key={type} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-accent/20 hover:ring-4 overflow-hidden flex flex-col relative">
-                      <Button variant="outline" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm">
-                        <RefreshCw className="w-4 h-4 text-accent" />
-                      </Button>
-                      <CardContent className="p-5 flex flex-col h-full space-y-3 text-left">
-                        <div className="flex-1 space-y-3">
-                          <Badge variant="secondary" className="bg-accent/10 text-accent-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-lg border-none">{type}</Badge>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                               <Clock className="w-3 h-3 opacity-40" />
-                               <span className="text-[9px] font-black uppercase opacity-50">{finalTime}</span>
-                            </div>
-                            <h3 className="text-base font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
-                            <p className="text-[10px] font-bold leading-snug text-muted-foreground line-clamp-2">{meal.description}</p>
-                          </div>
-                          
-                          {meal.ingredients && (
-                            <div className="space-y-1.5">
-                              <div className="flex flex-wrap gap-1.5">
-                                {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
-                                  <Badge key={i} variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">{ing}</Badge>
-                                ))}
-                                {meal.ingredients.length > 4 && <Badge variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">+{meal.ingredients.length - 4} more</Badge>}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-3 gap-2 border-y py-3">
-                            <div className="text-center">
-                              <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
-                              <p className="text-sm font-black text-primary">{meal.macros.protein}g</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
-                              <p className="text-sm font-black text-orange-500">{meal.macros.carbs}g</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
-                              <p className="text-sm font-black text-accent">{meal.macros.fat}g</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 pt-2">
-                          <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} variant="secondary" className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-widest">
-                              <Plus className="w-4 h-4 mr-1" /> Self-Cook
-                          </Button>
-                          <Button onClick={() => handleRequestCookBuddy(meal)} className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-widest">
-                              <Bike className="w-4 h-4 mr-1" /> CookBuddy
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-             <DialogFooter className="p-6 bg-background rounded-b-[2.5rem] border-t">
-                {menuPlan && !loading && (
-                  <Button onClick={() => handleAddAll(isRecoveryOpen)} className="w-full">
-                     <Plus className="w-4 h-4 mr-2" /> Schedule All Meals
-                  </Button>
-                )}
-              </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
-          <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-8 text-center border-b">
-              <DialogTitle className="text-2xl">Recipe From Pantry</DialogTitle>
-               <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
-            </DialogHeader>
-            <div className="p-8 pt-0 overflow-y-auto flex-1">
-              {loadingRecipeGen ? (
+          <div className="p-8 pt-0 overflow-y-auto flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {loading ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
                   <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Thinking of Recipes...</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Calculating Scores...</p>
                 </div>
-              ) : recipeGenResult ? (
-                <div className="space-y-8 text-left">
-                  <section className="space-y-4 animate-in fade-in">
-                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/> Meal Ideas</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {recipeGenResult.mealRecommendations.map((mealName: string, i: number) => (
-                        <Card key={i} className="bg-card rounded-2xl border p-4 flex flex-col justify-between text-left shadow-sm">
-                          <p className="text-sm font-black uppercase tracking-tight text-foreground flex-1">{mealName}</p>
-                          <Button 
-                              size="sm" 
-                              className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg h-9 text-[10px] font-black uppercase tracking-widest"
-                              disabled={!!isAddingPantryRecipe}
-                              onClick={() => handleAddPantryRecipeToPlan(mealName)}>
-                              {isAddingPantryRecipe === mealName ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-3 h-3 mr-1.5" /> Add to Plan</>}
-                          </Button>
-                        </Card>
-                      ))}
-                    </div>
-                  </section>
-                  <section className="space-y-4 animate-in fade-in delay-100">
-                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><List className="w-5 h-5 text-primary"/> Recipes</h2>
-                    <div className="whitespace-pre-wrap bg-muted/30 p-6 rounded-2xl text-xs font-bold text-foreground/70 leading-relaxed border">
-                      {recipeGenResult.recipes.join('\n\n---\n\n')}
-                    </div>
-                  </section>
-                  <section className="space-y-4 animate-in fade-in delay-200">
-                    <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Leaf className="w-5 h-5 text-green-600"/> Healthier Alternatives</h2>
-                    <div className="grid grid-cols-1 gap-3">
-                        {recipeGenResult.healthierAlternatives.map((alt: string, i: number) => (
-                          <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-secondary/30">
-                            <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
-                            <p className="text-sm font-medium text-foreground/80">{alt}</p>
+              ) : deliveryResult?.map((item) => (
+                <Card key={item.id} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-primary/20 hover:ring-4 overflow-hidden flex flex-col">
+                  <CardContent className="p-6 flex flex-col h-full space-y-4 text-left">
+                    <div className="space-y-3 flex-1">
+                      <div className="flex justify-between items-start">
+                        <Badge variant={item.platform === 'GrabFood' ? 'default' : 'secondary'}>{item.platform}</Badge>
+                        <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-wider">
+                          <TrendingUp className="w-4 h-4" /> {item.healthScore}% Match
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-lg font-black tracking-tighter uppercase text-foreground leading-tight">{item.name}</h3>
+                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.restaurant}</p>
+                      </div>
+                      <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
+                        <p className="text-xs font-bold leading-snug italic text-foreground/80">"{item.reasoning}"</p>
+                      </div>
+                      
+                      {item.ingredients && (
+                        <div className="space-y-2">
+                          <p className="text-[8px] font-black text-muted-foreground uppercase flex items-center gap-1.5">
+                            <List className="w-3 h-3" /> Ingredients
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {item.ingredients.map((ing: string, i: number) => (
+                               <Badge key={i} variant="outline" className="text-[9px] font-bold rounded-md">{ing}</Badge>
+                            ))}
                           </div>
-                        ))}
+                        </div>
+                      )}
                     </div>
-                  </section>
-                </div>
-              ) : (
-                <div className="space-y-6 text-left">
-                    <div className="space-y-2">
-                        <Label htmlFor="ingredients-pantry" className="text-sm font-semibold ml-1">What's in your pantry?</Label>
-                        <Textarea 
-                          id="ingredients-pantry"
-                          placeholder="e.g. Avocado, Spinach, Quinoa, Chicken breast, eggs..."
-                          value={availableIngredients}
-                          onChange={(e) => setAvailableIngredients(e.target.value)}
-                          className="min-h-[120px] rounded-2xl border-2 font-semibold"
-                          required
-                        />
+                    <div className="pt-4 border-t space-y-3">
+                      <div className="grid grid-cols-3 gap-2">
+                         <div className="text-center">
+                           <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                           <p className="text-base font-black text-primary">{item.macros.protein}g</p>
+                         </div>
+                         <div className="text-center">
+                           <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                           <p className="text-base font-black text-blue-500">{item.macros.carbs}g</p>
+                         </div>
+                         <div className="text-center">
+                           <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                           <p className="text-base font-black text-accent">{item.macros.fat}g</p>
+                         </div>
+                      </div>
                     </div>
-                    <Button 
-                        onClick={handleGenerateFromPantry}
-                        className="w-full h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all active:scale-95"
-                        disabled={loadingRecipeGen || !availableIngredients}
-                      >
-                        {loadingRecipeGen ? (
-                          <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                        ) : (
-                          "Generate Recipes"
-                        )}
-                    </Button>
-                </div>
-              )}
+                  </CardContent>
+                   <DialogFooter className="p-6 pt-0">
+                      <Button onClick={() => handleOrderNow(item, 'delivery')} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-xs flex gap-2">
+                        <ExternalLink className="w-4 h-4" /> Order & Sync
+                      </Button>
+                    </DialogFooter>
+                </Card>
+              ))}
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+        <DialogContent className="max-w-6xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+          <DialogHeader className="p-8 text-center">
+              <DialogTitle>NutriPal V1: Predictive Synthesis</DialogTitle>
+              <div className="text-sm text-muted-foreground font-bold flex items-center justify-center gap-4">
+                A full day's meal plan synthesized by AI based on your profile.
+                  <div className="flex items-center gap-2 bg-secondary rounded-full px-4 h-10 border shadow-sm">
+                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                    <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} className="bg-transparent border-none text-sm font-semibold focus:ring-0 w-32 text-foreground cursor-pointer" />
+                  </div>
+              </div>
+          </DialogHeader>
+          <div className="p-8 pt-0 overflow-y-auto flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {loading ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
+                  <Loader2 className="w-12 h-12 animate-spin text-accent" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Synthesizing Path...</p>
+                </div>
+              ) : menuPlan && (["breakfast", "lunch", "dinner"] as const).map((type) => {
+                const isSwapped = swappedMeals[type];
+                const baseMeal = menuPlan[type];
+                const meal = isSwapped ? baseMeal.swapSuggestion : baseMeal;
+                const finalTime = meal.time || baseMeal.time || "12:00 PM";
+                return (
+                  <Card key={type} className="rounded-[2rem] border shadow-premium bg-card group transition-all ring-accent/20 hover:ring-4 overflow-hidden flex flex-col relative">
+                    <Button variant="outline" size="icon" onClick={() => handleSwap(type)} className="absolute top-4 right-4 z-10 h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm">
+                      <RefreshCw className="w-4 h-4 text-accent" />
+                    </Button>
+                    <CardContent className="p-5 flex flex-col h-full space-y-3 text-left">
+                      <div className="flex-1 space-y-3">
+                        <Badge variant="secondary" className="bg-accent/10 text-accent-foreground uppercase text-[8px] font-black tracking-widest px-3 py-1 rounded-lg border-none">{type}</Badge>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                             <Clock className="w-3 h-3 opacity-40" />
+                             <span className="text-[9px] font-black uppercase opacity-50">{finalTime}</span>
+                          </div>
+                          <h3 className="text-base font-black tracking-tighter uppercase text-foreground line-clamp-1">{meal.name}</h3>
+                          <p className="text-[10px] font-bold leading-snug text-muted-foreground line-clamp-2">{meal.description}</p>
+                        </div>
+                        
+                        {meal.ingredients && (
+                          <div className="space-y-1.5">
+                            <div className="flex flex-wrap gap-1.5">
+                              {meal.ingredients.slice(0, 4).map((ing: string, i: number) => (
+                                <Badge key={i} variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">{ing}</Badge>
+                              ))}
+                              {meal.ingredients.length > 4 && <Badge variant="outline" className="text-[8px] font-bold rounded-md px-2 py-0.5">+{meal.ingredients.length - 4} more</Badge>}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-3 gap-2 border-y py-3">
+                          <div className="text-center">
+                            <p className="text-[8px] font-black text-muted-foreground uppercase">Protein</p>
+                            <p className="text-sm font-black text-primary">{meal.macros.protein}g</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[8px] font-black text-muted-foreground uppercase">Carbs</p>
+                            <p className="text-sm font-black text-blue-500">{meal.macros.carbs}g</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[8px] font-black text-muted-foreground uppercase">Fat</p>
+                            <p className="text-sm font-black text-accent">{meal.macros.fat}g</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-2">
+                        <Button onClick={() => handleOrderNow({ ...meal, time: finalTime }, 'menu')} variant="secondary" className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-widest">
+                            <Plus className="w-4 h-4 mr-1" /> Self-Cook
+                        </Button>
+                        <Button onClick={() => handleRequestCookBuddy(meal)} className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-widest">
+                            <Bike className="w-4 h-4 mr-1" /> CookBuddy
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+           <DialogFooter className="p-6 bg-background rounded-b-[2.5rem] border-t">
+              {menuPlan && !loading && (
+                <Button onClick={() => handleAddAll()} className="w-full">
+                   <Plus className="w-4 h-4 mr-2" /> Schedule All Meals
+                </Button>
+              )}
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRecipeGenOpen} onOpenChange={(open) => { setIsRecipeGenOpen(open); if(open) { setRecipeGenResult(null); setAvailableIngredients('') } }}>
+        <DialogContent className="max-w-2xl rounded-[2.5rem] p-0 border-none shadow-premium-lg bg-white w-[94vw] md:left-[calc(50%+8rem)] max-h-[90vh] flex flex-col">
+          <DialogHeader className="p-8 text-center border-b">
+            <DialogTitle>Recipe From Pantry</DialogTitle>
+             <DialogDescription>Generate meal ideas using ingredients you already have.</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 pt-0 overflow-y-auto flex-1">
+            {loadingRecipeGen ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-20 space-y-4">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Thinking of Recipes...</p>
+              </div>
+            ) : recipeGenResult ? (
+              <div className="space-y-8 text-left">
+                <section className="space-y-4 animate-in fade-in">
+                  <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/> Meal Ideas</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {recipeGenResult.mealRecommendations.map((mealName: string, i: number) => (
+                      <Card key={i} className="bg-card rounded-2xl border p-4 flex flex-col justify-between text-left shadow-sm">
+                        <p className="text-sm font-black uppercase tracking-tight text-foreground flex-1">{mealName}</p>
+                        <Button 
+                            size="sm" 
+                            className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg h-9 text-[10px] font-black uppercase tracking-widest"
+                            disabled={!!isAddingPantryRecipe}
+                            onClick={() => handleAddPantryRecipeToPlan(mealName)}>
+                            {isAddingPantryRecipe === mealName ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-3 h-3 mr-1.5" /> Add to Plan</>}
+                        </Button>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+                <section className="space-y-4 animate-in fade-in delay-100">
+                  <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><List className="w-5 h-5 text-primary"/> Recipes</h2>
+                  <div className="whitespace-pre-wrap bg-muted/30 p-6 rounded-2xl text-xs font-bold text-foreground/70 leading-relaxed border">
+                    {recipeGenResult.recipes.join('\n\n---\n\n')}
+                  </div>
+                </section>
+                <section className="space-y-4 animate-in fade-in delay-200">
+                  <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2"><Leaf className="w-5 h-5 text-green-600"/> Healthier Alternatives</h2>
+                  <div className="grid grid-cols-1 gap-3">
+                      {recipeGenResult.healthierAlternatives.map((alt: string, i: number) => (
+                        <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-secondary/30">
+                          <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                          <p className="text-sm font-medium text-foreground/80">{alt}</p>
+                        </div>
+                      ))}
+                  </div>
+                </section>
+              </div>
+            ) : (
+              <div className="space-y-6 text-left">
+                  <div className="space-y-2">
+                      <Label htmlFor="ingredients-pantry" className="text-sm font-semibold ml-1">What's in your pantry?</Label>
+                      <Textarea 
+                        id="ingredients-pantry"
+                        placeholder="e.g. Avocado, Spinach, Quinoa, Chicken breast, eggs..."
+                        value={availableIngredients}
+                        onChange={(e) => setAvailableIngredients(e.target.value)}
+                        className="min-h-[120px] rounded-2xl border-2 font-semibold"
+                        required
+                      />
+                  </div>
+                  <Button 
+                      onClick={handleGenerateFromPantry}
+                      className="w-full h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all active:scale-95"
+                      disabled={loadingRecipeGen || !availableIngredients}
+                    >
+                      {loadingRecipeGen ? (
+                        <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                      ) : (
+                        "Generate Recipes"
+                      )}
+                  </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
