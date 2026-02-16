@@ -488,9 +488,9 @@ export default function ProfilePage() {
                                         <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(var(--border))', borderRadius: '1rem' }} />
                                         <Line type="monotone" dataKey="kcal" stroke="hsl(var(--primary))" strokeWidth={3} dot={({ cx, cy, payload }) => {
                                             if (payload.kcal === 800) {
-                                                return <circle cx={cx} cy={cy} r={6} stroke="hsl(var(--destructive))" strokeWidth={2} fill="white" />;
+                                                return <circle key={payload.date} cx={cx} cy={cy} r={6} stroke="hsl(var(--destructive))" strokeWidth={2} fill="white" />;
                                             }
-                                            return <circle cx={cx} cy={cy} r={4} stroke="hsl(var(--primary))" strokeWidth={2} fill="white" />;
+                                            return <circle key={payload.date} cx={cx} cy={cy} r={4} stroke="hsl(var(--primary))" strokeWidth={2} fill="white" />;
                                         }} activeDot={{ r: 8 }} />
                                     </LineChart>
                                 </ResponsiveContainer>
